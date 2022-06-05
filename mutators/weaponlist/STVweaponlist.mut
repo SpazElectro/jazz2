@@ -432,7 +432,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
             }
 
             if(showIndex) canvas.drawString(indexX, indexY, "" + i, STRING::SMALL, STRING::NORMAL, 0);
-            canvas.drawString(x, y, "x" + player.ammo[i], STRING::MEDIUM, STRING::NORMAL, 0);
+            canvas.drawString(x, y, "x" + player.ammo[i], STRING::SMALL, STRING::NORMAL, 0);
         }
 
     }

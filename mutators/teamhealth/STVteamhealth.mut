@@ -1,0 +1,251 @@
+#pragma name "Team Health"
+
+class AnimatedSprite
+{
+    int id;
+    float frame;
+    int frame_count;
+    int x;
+    int y;
+    float anim_speed;
+    bool can_reverse;
+    bool reverse = false;
+    bool visible = true;
+    ANIM::Set animSet = ANIM::AMMO;
+
+    AnimatedSprite(int id, int frame, int frame_count, int x, int y, float anim_speed, bool can_reverse)
+    {
+        this.id = id;
+        this.frame = frame;
+        this.frame_count = frame_count;
+        this.x = x;
+        this.y = y;
+        this.anim_speed = anim_speed;
+        this.can_reverse = can_reverse;
+    }
+
+    void setVisible(bool visible)
+    {
+        this.visible = visible;
+    }
+
+    void setAnimSet(ANIM::Set animSet)
+    {
+        this.animSet = animSet;
+    }
+
+    void setId(int id)
+    {
+        this.id = id;
+    }
+    
+    void setFrame(int frame)
+    {
+        this.frame = frame;
+    }
+
+    void setFrameCount(int frame_count)
+    {
+        this.frame_count = frame_count;
+    }
+
+    void update()
+    {
+        if(this.reverse == false) {
+            this.frame += this.anim_speed;
+        } else {
+            this.frame -= this.anim_speed;
+        }
+
+        if (this.frame > this.frame_count)
+        {
+            if(this.can_reverse == true) {
+                this.reverse = not this.reverse;
+            } else {
+                this.frame = 0;
+            }
+        }
+
+        if(this.frame <= 0)
+        {
+            if(this.can_reverse == true) {
+                this.reverse = not this.reverse;
+            } else {
+                this.frame = 0;
+            }
+        }
+    }
+
+    void draw(jjCANVAS@ canvas)
+    {
+        if(this.visible) {
+            canvas.drawSprite(this.x, this.y, this.animSet, this.id, this.frame, 0, SPRITE::NORMAL, 123);
+        }
+    }
+}
+
+int getCorrespondingGunId(jjPLAYER@ player) {
+    if(player.charCurr == CHAR::SPAZ) {
+        return 19;
+    }
+
+    return 20;
+}
+
+int getCorrespondingCharacterFrame(jjPLAYER@ player) {
+    return 0;
+}
+
+int getCorrespondingCharacterId(jjPLAYER@ player) {    
+    return 10;
+}
+
+ANIM::Set getCorrespondingAnimSet(jjPLAYER@ player) {
+    if(player.charCurr == CHAR::SPAZ) {
+        return ANIM::SPAZ;
+    } else if(player.charCurr == CHAR::LORI) {
+        return ANIM::LORI;
+    }
+    
+    return ANIM::JAZZ;
+}
+
+bool show = true;
+
+array<int> unupgradedIds;
+array<int> upgradedIds;
+array<int> players;
+array<AnimatedSprite@> playerSprites;
+array<array<AnimatedSprite@>> gunSprites;
+
+void onLevelBegin() {
+    jjAnimSets[ANIM::FLARE].load();
+
+    jjConsole("[TH] Team Health started.");
+
+    unupgradedIds.insertLast(25); // bouncer
+    unupgradedIds.insertLast(29); // ice
+    unupgradedIds.insertLast(34); // seeker
+    unupgradedIds.insertLast(49); // rf
+    unupgradedIds.insertLast(57); // toaster
+    unupgradedIds.insertLast(59); // tnt
+    unupgradedIds.insertLast(62); // fireball
+    unupgradedIds.insertLast(68); // electroblaster
+
+    upgradedIds.insertLast(24); // bouncer
+    upgradedIds.insertLast(28); // ice
+    upgradedIds.insertLast(33); // seeker
+    upgradedIds.insertLast(48); // rf
+    upgradedIds.insertLast(56); // toaster
+    upgradedIds.insertLast(59); // tnt
+    upgradedIds.insertLast(61); // fireball
+    upgradedIds.insertLast(67); // electroblaster
+}
+
+void onMain() {
+    jjPLAYER@ localPlayer = jjLocalPlayers[0];
+
+    for(int i = 0; i < 32; i++) {
+        jjPLAYER@ player = jjPlayers[i];
+
+        if(player.isInGame && player.team == localPlayer.team && players.find(i) == -1) {
+            players.insertLast(i);
+            playerSprites.insertLast(AnimatedSprite(0, 0, 0, 0, 0, 0.25, false));
+            gunSprites.insertLast(array<AnimatedSprite@>());
+
+            for(uint ib = 1; ib < 10; ib++) {
+                gunSprites[i].insertLast(AnimatedSprite(0, 0, 0, 0, 0, 0.25, false));
+            }
+        }
+        
+        if(player.isInGame && player.team != localPlayer.team && players.find(i) != -1) {
+            players.removeAt(players.find(i));
+            playerSprites.removeAt(playerSprites.find(playerSprites[i]));
+            gunSprites.removeAt(gunSprites.find(gunSprites[i]));
+        }
+    }
+
+    for(uint i = 0; i < playerSprites.length(); i++) {
+        AnimatedSprite@ sprite = playerSprites[i];
+        sprite.update();
+    }
+
+    for(uint i = 0; i < gunSprites.length(); i++) {
+        for(uint j = 0; j < gunSprites[i].length(); j++) {
+            AnimatedSprite@ sprite = gunSprites[i][j];
+            sprite.update();
+        }
+    }
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
+{
+    if(show) {
+        for(uint i2 = 0; i2 < players.length(); i2++) {
+            jjPLAYER@ datPlayer = jjPlayers[players[i2]];
+            canvas.drawString(660, 75 + (i2 * 100), datPlayer.nameUnformatted, STRING::SMALL, STRING::NORMAL, 0);
+            
+            int fixedAmmo = datPlayer.ammo[datPlayer.currWeapon];
+            if(fixedAmmo > 99 or datPlayer.currWeapon == 1) fixedAmmo = 99;
+            canvas.drawString(615, 75 + (i2 * 100), fixedAmmo + "x", STRING::SMALL, STRING::NORMAL, 0);
+
+            for(int i = 0; i < datPlayer.health; i++) {
+                canvas.drawSprite(770 - (i * 30), 120 + (i2 * 100), 71, 21, 6, 0, SPRITE::NORMAL, 123);
+            }
+        }
+
+        for(uint i = 0; i < playerSprites.length(); i++) {
+            jjPLAYER@ datPlayer = jjPlayers[players[i]];
+            AnimatedSprite@ sprite = playerSprites[i];
+            sprite.x = 653;
+            sprite.y = 73 + (i * 100);
+            
+            if(datPlayer.currWeapon != 1) {
+                if(datPlayer.powerup[i - 1]) {
+                    sprite.setId(upgradedIds[datPlayer.currWeapon - 2]);
+                } else {
+                    sprite.setId(unupgradedIds[datPlayer.currWeapon - 2]);
+                }
+            } else {
+                sprite.setId(19);
+            }
+
+            sprite.setFrameCount(10);
+
+            sprite.draw(canvas);
+        }
+
+        for(uint i2 = 0; i2 < gunSprites.length(); i2++) {
+            jjPLAYER@ datPlayer = jjPlayers[players[i2]];
+            
+            for(uint i = 0; i < gunSprites[i2].length(); i++) {
+                AnimatedSprite@ sprite = gunSprites[i2][i];
+                
+                if(datPlayer.ammo[i + 1] <= 0) {
+                    sprite.setVisible(false);
+                } else {
+                    sprite.setVisible(true);
+                }
+
+                sprite.x = 770 - (i * 30);
+                sprite.y = 100 + (i2 * 100);
+
+                if(i != 0) {
+                    // please someone fix this pile of shit
+                    // if(datPlayer.powerup[i - 1] == true or datPlayer.powerup[i] == true or datPlayer.powerup[i + 1] == true) {
+                        // sprite.setId(upgradedIds[i - 1]);
+                    // } else {
+                    sprite.setId(unupgradedIds[i - 1]);
+                    // }
+                } else {
+                    sprite.setId(19);
+                }
+
+                sprite.setFrameCount(10);
+                sprite.draw(canvas);
+            }
+        }
+    }
+
+    return false;
+}

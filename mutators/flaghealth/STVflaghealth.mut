@@ -222,7 +222,7 @@ void onMain() {
                 blue_weapon.setId(unupgradedIds[jjPlayers[blueFlagHolder].currWeapon - 2]);
             }
         } else {
-            blue_weapon.setId(19);
+            blue_weapon.setId(getCorrespondingGunId(jjPlayers[blueFlagHolder]));
         }
     }
 }
