@@ -1,0 +1,443 @@
+#pragma name "Weapon List"
+
+funcdef void TimerVDictionaryFunction(dictionary@);
+class TimerV : jjBEHAVIORINTERFACE {
+  TimerV(int time, jjVOIDFUNC@ callback) {
+    @_callback = @callback;
+    _start(time);
+  }
+  TimerV(int time, TimerVDictionaryFunction@ callback, dictionary@ arguments) {
+    @_callbackWithArguments = @callback;
+    @_arguments = @arguments;
+    _start(time);
+  }
+  bool get_Active() const {
+    return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
+  }
+  int get_Elapsed() const {
+    if (Active) return _object.age;
+    return -1;
+  }
+  int get_Total() const {
+    if (Active) return _object.counter;
+    return -1;
+  }
+  int get_Remaining() const {
+    if (Active) return _object.counter - _object.age;
+    return -1;
+  }
+  bool Stop() {
+    if (Active && _object.age < _object.counter) {
+      _object.delete();
+      return true;
+    }
+    return false;
+  }
+  bool Paused = false;
+ 
+ 
+ 
+ 
+ 
+  private jjVOIDFUNC@ _callback = null;
+  private TimerVDictionaryFunction@ _callbackWithArguments;
+  private dictionary@ _arguments;
+  private jjOBJ@ _object;
+  private int _startTime;
+  private void _start(int time) {
+    if (time > 0) {
+      @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
+      _object.behavior = this;
+      _object.counter = time;
+      _object.age = 0;
+      _object.playerHandling = HANDLING::PARTICLE;
+      _object.deactivates = false;
+      _startTime = jjGameTicks;
+    } else {
+      @_object = jjObjects[0]; //avoid null pointer access
+      _pickCallback();
+    }
+  }
+  private void onBehave(jjOBJ@ obj) {
+    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
+      _pickCallback();
+      _object.delete();
+    }
+  }
+  private void _pickCallback() {
+    if (_callback !is null)
+      _callback();
+    else
+      _callbackWithArguments(_arguments);
+  }
+}
+
+class AnimatedSprite
+{
+    int id;
+    float frame;
+    int frame_count;
+    int x;
+    int y;
+    float anim_speed;
+    bool can_reverse;
+    bool reverse = false;
+    bool visible = true;
+    ANIM::Set animSet = ANIM::AMMO;
+
+    AnimatedSprite(int id, int frame, int frame_count, int x, int y, float anim_speed, bool can_reverse)
+    {
+        this.id = id;
+        this.frame = frame;
+        this.frame_count = frame_count;
+        this.x = x;
+        this.y = y;
+        this.anim_speed = anim_speed;
+        this.can_reverse = can_reverse;
+    }
+
+    void setVisible(bool visible)
+    {
+        this.visible = visible;
+    }
+
+    void setAnimSet(ANIM::Set animSet)
+    {
+        this.animSet = animSet;
+    }
+
+    void setId(int id)
+    {
+        this.id = id;
+    }
+
+    void setFrameCount(int frame_count)
+    {
+        this.frame_count = frame_count;
+    }
+
+    void update()
+    {
+        if(this.reverse == false) {
+            this.frame += this.anim_speed;
+        } else {
+            this.frame -= this.anim_speed;
+        }
+
+        if (this.frame > this.frame_count)
+        {
+            if(this.can_reverse == true) {
+                this.reverse = not this.reverse;
+            } else {
+                this.frame = 0;
+            }
+        }
+
+        if(this.frame <= 0)
+        {
+            if(this.can_reverse == true) {
+                this.reverse = not this.reverse;
+            } else {
+                this.frame = 0;
+            }
+        }
+    }
+
+    void draw(jjCANVAS@ canvas)
+    {
+        if(this.visible) {
+            canvas.drawSprite(this.x, this.y, this.animSet, this.id, this.frame, 0, SPRITE::NORMAL, 123);
+        }
+    }
+}
+
+// TODO: binding, < vertical & ^ horizontal
+
+string toggle_filename = "WLdata_toggle.asdat";
+string index_filename = "WLdata_index.asdat";
+string position_filename = "WLdata_position.asdat";
+
+int originX = 800;
+int originY = 585;
+
+int verticalX = 710;
+int horizontalY = 585;
+
+AnimatedSprite@ bouncer = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+AnimatedSprite@ ice = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+AnimatedSprite@ seeker = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+AnimatedSprite@ rf = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+AnimatedSprite@ toaster = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+AnimatedSprite@ tnt = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+AnimatedSprite@ fireball = AnimatedSprite(0, 0, 9, 0, 0, 0.25, false);
+AnimatedSprite@ electroblaster = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+
+bool horizontal = false;
+bool show = true;
+bool showIndex = true;
+bool showSplitscreenWarning = false;
+bool splitscreenWarning_triggered = false;
+bool holdingTilde = false;
+string mode = "hold";
+
+array<int> unupgradedIds;
+array<int> upgradedIds;
+
+void onLevelBegin() {
+    jjSTREAM file(toggle_filename);
+    
+    if(file.isEmpty()) {
+        mode = "hold";
+    } else {
+        mode = "toggle";
+    }
+
+
+    jjSTREAM file2(index_filename);
+
+    if(file2.isEmpty()) {
+        showIndex = false;
+    } else {
+        showIndex = true;
+    }
+
+
+    jjSTREAM file3(position_filename);
+
+    if(file3.isEmpty()) {
+        horizontal = false;
+    } else {
+        horizontal = true;
+    }
+
+    jjConsole("[WL] Type ! wl help for a list of commands.");
+
+    // hardcoded stuff
+    unupgradedIds.insertLast(25); // bouncer
+    unupgradedIds.insertLast(29); // ice
+    unupgradedIds.insertLast(34); // seeker
+    unupgradedIds.insertLast(49); // rf
+    unupgradedIds.insertLast(57); // toaster
+    unupgradedIds.insertLast(59); // tnt
+    unupgradedIds.insertLast(62); // fireball
+    unupgradedIds.insertLast(68); // electroblaster
+
+    upgradedIds.insertLast(24); // bouncer
+    upgradedIds.insertLast(28); // ice
+    upgradedIds.insertLast(33); // seeker
+    upgradedIds.insertLast(48); // rf
+    upgradedIds.insertLast(56); // toaster
+    upgradedIds.insertLast(59); // tnt
+    upgradedIds.insertLast(61); // fireball
+    upgradedIds.insertLast(67); // electroblaster
+
+    for (int i = 2; i < 10; i++)
+    {
+        AnimatedSprite@ weapon = idToWeapon(i);
+        weapon.x = 0;
+        weapon.y = 0;
+        
+        if(horizontal) {
+            weapon.x = (originX - (i * 75));
+            weapon.y = horizontalY;
+        } else {
+            weapon.x = verticalX;
+            weapon.y = (originY - (i * 35)) + 25;
+        }
+    }
+}
+
+bool upgraded(jjPLAYER@ player, int id) {
+    return player.powerup[id];
+}
+
+AnimatedSprite@ idToWeapon(int id) {
+    if(id == 3) return ice;
+    if(id == 4) return seeker;
+    if(id == 5) return rf;
+    if(id == 6) return toaster;
+    if(id == 7) return tnt;
+    if(id == 8) return fireball;
+    if(id == 9) return electroblaster;
+
+    return bouncer;
+}
+
+void onPlayer(jjPLAYER@ player) {
+    for (uint i = 2; i < 10; i++)
+    {
+        if(upgraded(player, i)) {
+            idToWeapon(i).setId(upgradedIds[i - 2]);
+        } else {
+            idToWeapon(i).setId(unupgradedIds[i - 2]);
+        }
+    }
+
+    if(player.clientID >= 1) {
+        show = false;
+
+        if(splitscreenWarning_triggered == false) {
+            showSplitscreenWarning = true;
+            splitscreenWarning_triggered = true;
+
+            TimerV(200, function() {
+                showSplitscreenWarning = false;
+            });
+        }
+    }
+}
+
+void onPlayerInput(jjPLAYER@ player) {
+    // key 192 is the tilde (`)
+    if(mode == "toggle") {
+        if(jjKey[192] && not holdingTilde) {
+            show = not show;
+            holdingTilde = true;
+
+            TimerV(15, function() {
+                holdingTilde = false;
+            });
+        }
+    } else if(mode == "hold") {
+        if(jjKey[192]) {
+            show = true;
+        } else {
+            show = false;
+        }
+    }
+}
+
+void onMain() {
+    for (int i = 2; i < 10; i++)
+    {
+        AnimatedSprite@ weapon = idToWeapon(i);
+        weapon.x = 0;
+        weapon.y = 0;
+        
+        if(horizontal) {
+            weapon.x = (originX - (i * 75));
+            weapon.y = horizontalY;
+        } else {
+            weapon.x = verticalX;
+            weapon.y = (originY - (i * 35)) + 25;
+        }
+    }
+
+    bouncer.update();
+    ice.update();
+    seeker.update();
+    rf.update();
+    toaster.update();
+    tnt.update();
+    fireball.update();
+    electroblaster.update();
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {    
+    if(chatType != CHAT::NORMAL) return false;
+
+    if(stringReceived == "!wl help") {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl help - Shows this help message");
+        jjConsole("! wl toggle - Sets the weapon list to Toggle mode");
+        jjConsole("! wl hold - Sets the weapon list to Hold mode");
+        jjConsole("! wl index - Show the weapons' index");
+        jjConsole("! wl position - Changes the position of the weapon list");
+        jjConsole("! wl mode - Shows the current weapon list mode");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if(stringReceived == "!wl mode") {
+        jjConsole("[WL] Weapon list mode is currently " + (mode == "toggle" ? "Toggle" : "Hold"));
+        return true;
+    }
+
+    if(stringReceived == "!wl toggle") {
+        mode = "toggle";
+        show = true;
+        jjConsole("[WL] Set the weapon mode to Toggle");
+
+        jjSTREAM file;
+		file.push(true);
+		file.save(toggle_filename);
+
+        return true;
+    }
+
+    if(stringReceived == "!wl hold") {
+        mode = "hold";
+        jjConsole("[WL] Set the weapon mode to Hold");
+        jjSTREAM file;
+		file.save(toggle_filename);
+        return true;
+    }
+
+    if(stringReceived == "!wl index") {
+        showIndex = not showIndex;
+        jjConsole("[WL] " + (showIndex ? "Showing" : "Hiding") + " the weapons' index");
+        
+        jjSTREAM file;
+        if(showIndex) file.push(true);
+		file.save(index_filename);
+        return true;
+    }
+
+    if(stringReceived == "!wl position") {
+        horizontal = not horizontal;
+        jjConsole("[WL] The weapons' list is now " + (horizontal ? "Horizontal" : "Vertical"));
+        
+        jjSTREAM file;
+        if(horizontal) file.push(true);
+		file.save(position_filename);
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl") == 0) {
+        jjConsole("[WL] Invalid command."); return true;
+    }
+
+    return false;
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
+{
+    if(show) {
+        bouncer.draw(canvas);
+        ice.draw(canvas);
+        seeker.draw(canvas);
+        rf.draw(canvas);
+        toaster.draw(canvas);
+        tnt.draw(canvas);
+        fireball.draw(canvas);
+        electroblaster.draw(canvas);
+
+        for (uint i = 2; i < 10; i++)
+        {
+            int x = 0;
+            int y = 0;
+            int indexX = 0;
+            int indexY = 0;
+
+            if(horizontal) {
+                x = (originX - (i * 75)) + 15;
+                y = horizontalY;
+                indexX = (originX - (i * 75)) - 20;
+                indexY = horizontalY;
+            } else {
+                x = verticalX;
+                y = (originY - (i * 35)) + 35;
+                indexX = verticalX - 20;
+                indexY = (originY - (i * 35)) + 25 - 5;
+            }
+
+            if(showIndex) canvas.drawString(indexX, indexY, "" + i, STRING::SMALL, STRING::NORMAL, 0);
+            canvas.drawString(x, y, "x" + player.ammo[i], STRING::MEDIUM, STRING::NORMAL, 0);
+        }
+
+    }
+    
+    if(showSplitscreenWarning) canvas.drawString(jjResolutionWidth / 6, jjResolutionHeight / 8, "Splitscreen is not compatible with the weapon list mutator", STRING::SMALL, STRING::NORMAL, 0);
+
+    return false;
+}
