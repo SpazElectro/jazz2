@@ -989,17 +989,7 @@ void onMain() {
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {    
     if(chatType != CHAT::NORMAL) return false;
 
-    if(stringReceived == "!wl help" or stringReceived == "!wl help 1") {
-        jjConsole("-----------------------------------------------------");
-        jjConsole("! wl help 1-3 - Shows a help message");
-        jjConsole("! wl position - Changes the position of the weapon list");
-        jjConsole("! wl toggle - Sets the weapon list to Toggle mode");
-        jjConsole("! wl hold - Sets the weapon list to Hold mode");
-        jjConsole("-----------------------------------------------------");
-        return true;
-    }
-
-    if(stringReceived == "!wl help 2") {
+    if(stringReceived.findFirst("!wl help 2") == 0) {
         jjConsole("-----------------------------------------------------");
         jjConsole("! wl index - Show the weapons' index");
         jjConsole("! wl color ammo - Changes the ammo color");
@@ -1010,16 +1000,37 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived == "!wl help 3") {
+    if(stringReceived.findFirst("!wl help 3") == 0) {
         jjConsole("-----------------------------------------------------");
         jjConsole("! wl emptyammo - Toggles whether to show empty ammo or show all ammo");
 		jjConsole("! wl size index - Switch between small and medium sizes");
 		jjConsole("! wl size ammo - Switch between small and medium sizes");
+        jjConsole("! wl newprofile - Creates a new profile that you input in.");
         jjConsole("-----------------------------------------------------");
         return true;
     }
 
-	if(stringReceived == "!wl size index") {
+    if(stringReceived.findFirst("!wl help 4") == 0) {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl deleteprofile - Deletes a profile that you input in.");
+        jjConsole("! wl profile - Uses a profile that you input in.");
+        jjConsole("! wl profiles - Shows all the profiles.");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl help") == 0) {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl help 1-4 - Shows a help message");
+        jjConsole("! wl position - Changes the position of the weapon list");
+        jjConsole("! wl toggle - Sets the weapon list to Toggle mode");
+        jjConsole("! wl hold - Sets the weapon list to Hold mode");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+
+	if(stringReceived.findFirst("!wl size index") == 0) {
 		if(index_fontsize == "small") {
 			index_fontsize = "medium";
 			jjConsole("[WL] Index font size set to medium.");
@@ -1032,7 +1043,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 		return true;
 	}
 
-	if(stringReceived == "!wl size ammo") {
+	if(stringReceived.findFirst("!wl size ammo") == 0) {
 		if(ammo_fontsize == "small") {
 			ammo_fontsize = "medium";
 			jjConsole("[WL] Ammo font size set to medium.");
@@ -1045,7 +1056,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 		return true;
 	}
 
-    if(stringReceived == "!wl emptyammo") {
+    if(stringReceived.findFirst("!wl emptyammo") == 0) {
         show_empty_ammo = not show_empty_ammo;
 
         jjConsole("[WL] Showing " + (show_empty_ammo ? "empty" : "all") + " ammo.");
@@ -1055,18 +1066,18 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived == "!wl bind") {
+    if(stringReceived.findFirst("!wl bind") == 0) {
         binding = true;
         jjConsole("[WL] Press a key to bind the weapon list to it.");
         return true;
     }
 
-    // if(stringReceived == "!wl mode") { // useless
+    // if(stringReceived.findFirst("!wl mode") == 0) { // useless
     //     jjConsole("[WL] Weapon list mode is currently " + (mode == "toggle" ? "Toggle" : "Hold"));
     //     return true;
     // }
 
-    if(stringReceived == "!wl toggle") {
+    if(stringReceived.findFirst("!wl toggle") == 0) {
         mode = "toggle";
         show = true;
         jjConsole("[WL] Set the weapon mode to Toggle");
@@ -1076,14 +1087,14 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived == "!wl hold") {
+    if(stringReceived.findFirst("!wl hold") == 0) {
         mode = "hold";
         jjConsole("[WL] Set the weapon mode to Hold");
         save();
         return true;
     }
 
-    if(stringReceived == "!wl index") {
+    if(stringReceived.findFirst("!wl index") == 0) {
         showIndex = not showIndex;
         jjConsole("[WL] " + (showIndex ? "Showing" : "Hiding") + " the weapons' index");
         
@@ -1091,7 +1102,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived == "!wl position") {
+    if(stringReceived.findFirst("!wl position") == 0) {
         string direction;
 
         if(not horizontal and not horizontal2) {
@@ -1118,7 +1129,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived == "!wl color index") {
+    if(stringReceived.findFirst("!wl color index") == 0) {
         index_color = not index_color;
         jjConsole("[WL] Changed the weapons' index color to " + (index_color ? "colorful" : "normal"));
 
@@ -1126,7 +1137,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived == "!wl color ammo") {
+    if(stringReceived.findFirst("!wl color ammo") == 0) {
         ammo_color = not ammo_color;
         jjConsole("[WL] Changed the weapons' ammo color to " + (ammo_color ? "colorful" : "normal"));
 
@@ -1236,6 +1247,18 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         jjConsole("[WL] Deleted the profile " + profileName + ".");
 
         save();
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl profiles") == 0) {
+        string profilesString = "";
+
+        for(uint i = 0; i < profiles.length; i++) {
+            profilesString += profiles[i] + ", ";
+        }
+
+        jjConsole("[WL] Available profiles: " + profilesString);
+
         return true;
     }
 
