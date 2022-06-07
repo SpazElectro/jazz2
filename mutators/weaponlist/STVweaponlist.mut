@@ -166,10 +166,12 @@ class Key
 class Button
 {
 	MenuButton@ mainButton;
-	bool debounce = false;
 	int horizontalId = 0;
+    int xOffset = 0;
+    int yOffset = 0;
+	bool debounce = false;
 	bool value = false;
-	bool showText = true;
+	bool visible = true;
 	jjVOIDFUNC@ callback;
 
 	Button(int horizontalId, jjVOIDFUNC@ callback)
@@ -194,8 +196,8 @@ class Button
 	void input(jjPLAYER@ player) {
 		if(jjKey[0x01] && this.debounce == false) {
 			if(checkCollision(
-				jjResolutionWidth / 2 + 100 + (horizontalId * 50),
-				jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50),
+				jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset,
+				jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset,
 				50, 50,
 				jjMouseX, jjMouseY,
 				1, 1
@@ -216,10 +218,10 @@ class Button
 	}
 
 	void draw(jjCANVAS@ canvas) {
-		canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50), 25, 25, 0, SPRITE::NORMAL, 0);
-		canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50), 12, 12, getColorValue(this.value), SPRITE::NORMAL, 0);
-
-		if(this.showText) canvas.drawString(jjResolutionWidth / 2 - 275, jjResolutionHeight / 2 - 150 + ((this.mainButton.id + 1) * 50), this.mainButton.text, STRING::MEDIUM, STRING::NORMAL, 0);
+        if(this.visible) {
+		    canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50), 25, 25, 0, SPRITE::NORMAL, 0);
+		    canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50) + yOffset, jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50), 12, 12, getColorValue(this.value), SPRITE::NORMAL, 0);
+        }
 	}
 }
 
@@ -231,8 +233,12 @@ class MenuButton
 	int width;
 	int height;
 	int id;
+    int xOffset;
+    int yOffset;
 	bool debounce;
 	bool visible = true;
+    bool showText = true;
+    string size = "medium";
 	array<Button@> buttons;
 
 	MenuButton(string text, int id, array<Button@> buttons)
@@ -260,6 +266,8 @@ class MenuButton
 			for(uint i = 0; i < this.buttons.length(); i++) {
 				this.buttons[i].draw(canvas);
 			}
+
+            if(this.showText) canvas.drawString(jjResolutionWidth / 2 - 275 + this.xOffset, jjResolutionHeight / 2 - 150 + ((this.id + 1) * 50) + this.yOffset, this.text, string_size_to_size(this.size), STRING::NORMAL, 0);
 		}
 	}
 
@@ -426,11 +434,13 @@ array<MenuButton@> menu_buttons = {
             menu_buttons.resize(11);
         })));
 
-        menu_buttons.insertLast(MenuButton("New", 5, Button(1, function() {
-            getButton(12).buttons[0].setValue(false);
-
-            jjConsole("new");
-        })));
+        menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl profile new)", 5, Button(1, function() {})));
+        menu_buttons[12].size = "small";
+        menu_buttons[12].buttons[0].visible = false;
+        menu_buttons[12].xOffset = -10;
+        menu_buttons[12].yOffset = 20;
+        menu_buttons[12].buttons[0].xOffset = -10;
+        menu_buttons[12].buttons[0].yOffset = 20;
 
         for(uint i = 0; i < profiles.length(); i++) {
             array<Button@> buttons = {Button(1, function() {
@@ -440,6 +450,17 @@ array<MenuButton@> menu_buttons = {
             })};
 
             menu_buttons.insertLast(MenuButton(profiles[i], i, buttons));
+            menu_buttons[i+13].buttons[0].debounce = true;
+            menu_buttons[i+13].buttons[1].debounce = true;
+
+            dictionary d = {{"index", i}};
+
+            TimerV(35, function(index) {
+                int t;
+                index.get("index", t);
+                menu_buttons[t+13].buttons[0].debounce = false;
+                menu_buttons[t+13].buttons[1].debounce = false;
+            }, d);
         }
 	}))
 };
@@ -1000,7 +1021,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!wl profile new ") == 0) {
+    if(stringReceived.findFirst("!wl profile new ") == 0 && profiles.length() < 6) {
         string profileName = stringReceived.substr(16);
 
         if(profileName == "") {
