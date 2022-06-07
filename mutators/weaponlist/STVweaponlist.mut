@@ -163,6 +163,57 @@ class Key
     }
 }
 
+class Button
+{
+	MenuButton@ mainButton;
+	bool debounce = false;
+	int horizontalId = 0;
+
+	Button(int horizontalId)
+	{
+		this.horizontalId = horizontalId;
+	}
+
+	bool checkCollision(int sourceX, int sourceY, int sourceWidth, int sourceHeight, int targetX, int targetY, int targetWidth, int targetHeight)
+	{
+		if(sourceX + sourceWidth > targetX && sourceX < targetX + targetWidth && sourceY + sourceHeight > targetY && sourceY < targetY + targetHeight)
+		{
+			return true;
+		} else { return false; }
+	}
+
+	void input(jjPLAYER@ player) {
+		if(jjKey[0x01] && this.debounce == false) {
+			if(checkCollision(
+				jjResolutionWidth / 2 + 100 + (horizontalId * 50),
+				jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50),
+				50, 50,
+				jjMouseX, jjMouseY,
+				1, 1
+			)) {
+				this.debounce = true;
+				mainButton.setValue(not this.mainButton.value);
+				dictionary dict = {{"main", @this}};
+
+				this.mainButton.callback();
+				
+				TimerV(10, function(this) {
+					Button@ t;
+					this.get("main", @t);
+					t.debounce = false;
+				}, dict);
+			}
+		}
+	}
+
+	void draw(jjCANVAS@ canvas) {
+		canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50), 25, 25, 0, SPRITE::NORMAL, 0);
+		canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50), 12, 12, getColorValue(this.mainButton.value), SPRITE::NORMAL, 0);
+
+		if(this.mainButton.showText) canvas.drawString(jjResolutionWidth / 2 - 275, jjResolutionHeight / 2 - 150 + ((this.mainButton.id + 1) * 50), this.mainButton.text, STRING::MEDIUM, STRING::NORMAL, 0);
+	}
+}
+
 class MenuButton
 {
 	string text;
@@ -175,12 +226,19 @@ class MenuButton
 	bool debounce;
 	bool showText = true;
 	jjVOIDFUNC@ callback;
+	array<Button@> buttons;
 
-	MenuButton(string text, int id, jjVOIDFUNC@ callback)
+	MenuButton(string text, int id, array<Button@> buttons, jjVOIDFUNC@ callback)
 	{
 		this.text = text;
 		this.id = id;
+		this.buttons = buttons;
 		@this.callback = @callback;
+
+		for(int i = 0; i < this.buttons.length(); i++) {
+			Button@ button = this.buttons[i];
+			@button.mainButton = @this;
+		}
 	}
 
 	void setValue(bool value)
@@ -189,74 +247,55 @@ class MenuButton
 	}
 
 	void draw(jjCANVAS@ canvas) {
-		canvas.drawRectangle(jjResolutionWidth / 2 + 100, jjResolutionHeight / 2 - 165 + ((id + 1) * 50), 25, 25, 0, SPRITE::NORMAL, 0);
-		// checkbox
-		canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100, jjResolutionHeight / 2 - 159 + ((id + 1) * 50), 12, 12, getColorValue(value), SPRITE::NORMAL, 0);
-		
-		if(showText) canvas.drawString(jjResolutionWidth / 2 - 275, jjResolutionHeight / 2 - 150 + ((id + 1) * 50), text, STRING::MEDIUM, STRING::NORMAL, 0);	
-	}
-	
-	bool checkCollision(int sourceX, int sourceY, int sourceWidth, int sourceHeight, int targetX, int targetY, int targetWidth, int targetHeight)
-	{
-		if(sourceX + sourceWidth > targetX && sourceX < targetX + targetWidth && sourceY + sourceHeight > targetY && sourceY < targetY + targetHeight)
-		{
-			return true;
-		} else { return false; }
+		for(int i = 0; i < this.buttons.length(); i++) {
+			this.buttons[i].draw(canvas);
+		}
 	}
 
 	void input(jjPLAYER@ player) {
-		if(jjKey[0x01] && this.debounce == false) {
-			if(checkCollision(jjResolutionWidth / 2 + 100, jjResolutionHeight / 2 - 165 + ((id + 1) * 50), 50, 50, jjMouseX, jjMouseY, 1, 1)) {
-				this.debounce = true;
-				this.setValue(not this.value);
-				dictionary dict = {{"main", @this}};
-
-				callback();
-				TimerV(10, function(this) {
-					MenuButton@ t;
-					this.get("main", @t);
-					t.debounce = false;
-				}, dict);
-			}
+		for(int i = 0; i < this.buttons.length(); i++) {
+			this.buttons[i].input(player);
 		}
 	}
 }
 
+array<Button@> fdsaadsf = {Button(1)};
+
 array<MenuButton@> menu_buttons = {
-	MenuButton("Show Index", -1, function() {
+	MenuButton("Show Index", -1, fdsaadsf, function() {
 		showIndex = not showIndex;
 		save();
-	}),
-
-	MenuButton("Vertical", 0, function() {
-		horizontal = not horizontal;
-		save();
-	}),
-
-	MenuButton("Color Index", 1, function() {
-		index_color = not index_color;
-		save();
-	}),
-
-	MenuButton("Color Ammo", 2, function() {
-		ammo_color = not ammo_color;
-		save();
-	}),
-
-	MenuButton("Show Empty Ammo", 3, function() {
-		show_empty_ammo = not show_empty_ammo;
-		save();
-	}),
-
-	MenuButton("Index medium font size", 4, function() {
-		if(index_fontsize == "small") { index_fontsize = "medium"; } else if(index_fontsize == "medium") { index_fontsize = "small"; }
-		save();
-	}),
-
-	MenuButton("Ammo medium font size", 5, function() {
-		if(ammo_fontsize == "small") { ammo_fontsize = "medium"; } else if(ammo_fontsize == "medium") { ammo_fontsize = "small"; }
-		save();
 	})
+
+	// MenuButton("Horizontal", 0, function() {
+	// 	horizontal = not horizontal;
+	// 	save();
+	// }),
+
+	// MenuButton("Color Index", 1, function() {
+	// 	index_color = not index_color;
+	// 	save();
+	// }),
+
+	// MenuButton("Color Ammo", 2, function() {
+	// 	ammo_color = not ammo_color;
+	// 	save();
+	// }),
+
+	// MenuButton("Show Empty Ammo", 3, function() {
+	// 	show_empty_ammo = not show_empty_ammo;
+	// 	save();
+	// }),
+
+	// MenuButton("Index font size", 4, function() {
+	// 	if(index_fontsize == "small") { index_fontsize = "medium"; } else if(index_fontsize == "medium") { index_fontsize = "small"; }
+	// 	save();
+	// }),
+
+	// MenuButton("Ammo font size", 5, function() {
+	// 	if(ammo_fontsize == "small") { ammo_fontsize = "medium"; } else if(ammo_fontsize == "medium") { ammo_fontsize = "small"; }
+	// 	save();
+	// })
 };
 
 array<Key@> KEYS = {
@@ -349,11 +388,11 @@ array<Key@> KEYS = {
 
 string data_filename = "WLdata_data.asdat";
 
-int originX = 800;
-int originY = 585;
+int originX = jjResolutionWidth;
+int originY = jjResolutionHeight - 15;
 
-int verticalX = 710;
-int horizontalY = 585;
+int verticalX = jjResolutionWidth - 85;
+int horizontalY = jjResolutionHeight - 15;
 
 AnimatedSprite@ bouncer = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
 AnimatedSprite@ ice = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
@@ -441,12 +480,12 @@ void onLevelBegin() {
 	}
 
 	menu_buttons[0].setValue(showIndex);
-	menu_buttons[1].setValue(horizontal);
-	menu_buttons[2].setValue(index_color);
-	menu_buttons[3].setValue(ammo_color);
-	menu_buttons[4].setValue(show_empty_ammo);
-	menu_buttons[5].setValue(m_index_fontsize);
-	menu_buttons[6].setValue(m_ammo_fontsize);
+	// menu_buttons[1].setValue(horizontal);
+	// menu_buttons[2].setValue(index_color);
+	// menu_buttons[3].setValue(ammo_color);
+	// menu_buttons[4].setValue(show_empty_ammo);
+	// menu_buttons[5].setValue(m_index_fontsize);
+	// menu_buttons[6].setValue(m_ammo_fontsize);
 
     if(mode == "") mode = "toggle";
     if(bind_open == 0) bind_open = 192;
@@ -584,6 +623,12 @@ void onPlayerInput(jjPLAYER@ player) {
 }
 
 void onMain() {
+	originX = jjResolutionWidth;
+	originY = jjResolutionHeight - 15;
+
+	verticalX = jjResolutionWidth - 85;
+	horizontalY = jjResolutionHeight - 15;
+
     for (int i = 2; i < 10; i++)
     {
         AnimatedSprite@ weapon = idToWeapon(i);
@@ -812,6 +857,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
 			MenuButton@ button = menu_buttons[i];
 			button.draw(canvas);
 		}
+
+		canvas.drawRectangle(jjMouseX - 10, jjMouseY - 10, 10, 10, 18, SPRITE::NORMAL, 0);
 	}
 
     if(binding) canvas.drawString(jjResolutionWidth / 3, jjResolutionHeight / 2, "Binding... (press a key)", STRING::SMALL, STRING::NORMAL, 0);
