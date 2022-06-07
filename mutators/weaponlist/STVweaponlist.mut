@@ -169,8 +169,8 @@ class Button
 	bool debounce = false;
 	int horizontalId = 0;
 	bool value = false;
+	bool showText = true;
 	jjVOIDFUNC@ callback;
-	
 
 	Button(int horizontalId, jjVOIDFUNC@ callback)
 	{
@@ -219,7 +219,7 @@ class Button
 		canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50), 25, 25, 0, SPRITE::NORMAL, 0);
 		canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50), 12, 12, getColorValue(this.value), SPRITE::NORMAL, 0);
 
-		if(this.mainButton.showText) canvas.drawString(jjResolutionWidth / 2 - 275, jjResolutionHeight / 2 - 150 + ((this.mainButton.id + 1) * 50), this.mainButton.text, STRING::MEDIUM, STRING::NORMAL, 0);
+		if(this.showText) canvas.drawString(jjResolutionWidth / 2 - 275, jjResolutionHeight / 2 - 150 + ((this.mainButton.id + 1) * 50), this.mainButton.text, STRING::MEDIUM, STRING::NORMAL, 0);
 	}
 }
 
@@ -232,7 +232,7 @@ class MenuButton
 	int height;
 	int id;
 	bool debounce;
-	bool showText = true;
+	bool visible = true;
 	array<Button@> buttons;
 
 	MenuButton(string text, int id, array<Button@> buttons)
@@ -256,66 +256,71 @@ class MenuButton
 	}
 
 	void draw(jjCANVAS@ canvas) {
-		for(int i = 0; i < this.buttons.length(); i++) {
-			this.buttons[i].draw(canvas);
+		if(visible) {
+			for(int i = 0; i < this.buttons.length(); i++) {
+				this.buttons[i].draw(canvas);
+			}
 		}
 	}
 
 	void input(jjPLAYER@ player) {
-		for(int i = 0; i < this.buttons.length(); i++) {
-			this.buttons[i].input(player);
+		if(visible) {
+			for(int i = 0; i < this.buttons.length(); i++) {
+				this.buttons[i].input(player);
+			}
 		}
 	}
 }
 
 MenuButton@ getButton(int index) { return menu_buttons[index]; }
 
-array<Button@> fdsaadsf = {
-	Button(1, function() {
-		getButton(0).buttons[0].setValue(true);
-		getButton(0).buttons[1].setValue(false);
-		showIndex = true;
-		save();
-	}),
-	Button(2, function() {
-		getButton(0).buttons[1].setValue(true);
-		getButton(0).buttons[0].setValue(false);
-		showIndex = false;
-		save();
-	})
-};
+array<Button@> indexFontSizes = {Button(1, function() {
+	getButton(5).buttons[0].setValue(true);
+	getButton(5).buttons[1].setValue(false);
+	index_fontsize = "small";
+	save();
+}), Button(2, function() {
+	getButton(5).buttons[0].setValue(false);
+	getButton(5).buttons[1].setValue(true);
+	index_fontsize = "medium";
+	save();
+})};
+
+array<Button@> ammoFontSizes = {Button(1, function() {
+	getButton(6).buttons[0].setValue(true);
+	getButton(6).buttons[1].setValue(false);
+	ammo_fontsize = "small";
+	save();
+}), Button(2, function() {
+	getButton(6).buttons[0].setValue(false);
+	getButton(6).buttons[1].setValue(true);
+	ammo_fontsize = "medium";
+	save();
+})};
 
 array<MenuButton@> menu_buttons = {
-	MenuButton("Show Index", -1, fdsaadsf),
+	MenuButton("Show Index", -1, Button(1, function() {
+		showIndex = false;
+		save();
+	})),
 	MenuButton("Horizontal", 0, Button(1, function() {
 		horizontal = not horizontal;
 		save();
 	})),
-
 	MenuButton("Color Index", 1, Button(1, function() {
 		index_color = not index_color;
 		save();
 	})),
-
 	MenuButton("Color Ammo", 2, Button(1, function() {
 		ammo_color = not ammo_color;
 		save();
 	})),
-
 	MenuButton("Show Empty Ammo", 3, Button(1, function() {
 		show_empty_ammo = not show_empty_ammo;
 		save();
 	})),
-
-	MenuButton("Index font size", 4, Button(1, function() {
-		if(index_fontsize == "small") { index_fontsize = "medium"; } else if(index_fontsize == "medium") { index_fontsize = "small"; }
-		save();
-	})),
-
-	MenuButton("Ammo font size", 5, Button(1, function() {
-		if(ammo_fontsize == "small") { ammo_fontsize = "medium"; } else if(ammo_fontsize == "medium") { ammo_fontsize = "small"; }
-		save();
-	}))
+	MenuButton("Index font size", 4, indexFontSizes),
+	MenuButton("Ammo font size", 5, ammoFontSizes)
 };
 
 array<Key@> KEYS = {
@@ -487,25 +492,13 @@ void onLevelBegin() {
 	file.pop(ammo_fontsize);
 
 	// menu stuff
-	bool m_index_fontsize = false;
-
-	if(index_fontsize == "medium") {
-		m_index_fontsize = true;
-	}
-
-	bool m_ammo_fontsize = false;
-
-	if(ammo_fontsize == "medium") {
-		m_ammo_fontsize = true;
-	}
-
 	menu_buttons[0].buttons[0].setValue(showIndex);
 	menu_buttons[1].buttons[0].setValue(horizontal);
 	menu_buttons[2].buttons[0].setValue(index_color);
 	menu_buttons[3].buttons[0].setValue(ammo_color);
 	menu_buttons[4].buttons[0].setValue(show_empty_ammo);
-	menu_buttons[5].buttons[0].setValue(m_index_fontsize);
-	menu_buttons[6].buttons[0].setValue(m_ammo_fontsize);
+	if(index_fontsize == "small") { menu_buttons[5].buttons[0].setValue(true); } else { menu_buttons[5].buttons[1].setValue(true); }
+	if(ammo_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
 
     if(mode == "") mode = "toggle";
     if(bind_open == 0) bind_open = 192;
