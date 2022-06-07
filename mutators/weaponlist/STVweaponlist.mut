@@ -256,7 +256,7 @@ class MenuButton
 	}
 
 	void draw(jjCANVAS@ canvas) {
-		if(visible) {
+		if(visible and showMenu) {
 			for(uint i = 0; i < this.buttons.length(); i++) {
 				this.buttons[i].draw(canvas);
 			}
@@ -264,7 +264,7 @@ class MenuButton
 	}
 
 	void input(jjPLAYER@ player) {
-		if(visible) {
+		if(visible and showMenu) {
 			for(uint i = 0; i < this.buttons.length(); i++) {
 				this.buttons[i].input(player);
 			}
@@ -347,16 +347,41 @@ array<Button@> bindModes = {Button(1, function() {
     save();
 })};
 
+array<Button@> positions = {Button(1, function() {
+    getButton(2).buttons[0].setValue(false);
+
+    string direction;
+
+    if(not horizontal and not horizontal2) {
+        horizontal = true;
+        horizontal2 = false;
+        direction = "bottom";
+    } else if(horizontal and not horizontal2) {
+        horizontal = false;
+        horizontal2 = true;
+        direction = "left";
+    } else if(not horizontal and horizontal2) {
+        horizontal = true;
+        horizontal2 = true;
+        direction = "top";
+    } else if(horizontal and horizontal2) {
+        horizontal = false;
+        horizontal2 = false;
+        direction = "right";
+    }
+
+    jjConsole("[WL] The weapons' list's direction is " + direction);
+
+	save();
+})};
+
 array<MenuButton@> menu_buttons = {
     MenuButton("Page", -1, pageButtons),
-	MenuButton("Show Index", 0, Button(1, function() {
+	MenuButton("Show Index", 1, Button(1, function() {
 		showIndex = not showIndex;
 		save();
 	})),
-	MenuButton("Horizontal", 1, Button(1, function() {
-		horizontal = not horizontal;
-		save();
-	})),
+	MenuButton("Position", 0, positions),
 	MenuButton("Color Index", 2, Button(1, function() {
 		index_color = not index_color;
 		save();
@@ -467,6 +492,7 @@ array<Key@> KEYS = {
   Key("Z", 0x5A),
 };
 
+
 string data_filename = "WLdata_data.asdat";
 
 int originX = jjResolutionWidth;
@@ -474,6 +500,9 @@ int originY = jjResolutionHeight - 15;
 
 int verticalX = jjResolutionWidth - 85;
 int horizontalY = jjResolutionHeight - 15;
+
+int verticalX2 = 85;
+int horizontalY2 = 15;
 
 AnimatedSprite@ bouncer = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
 AnimatedSprite@ ice = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
@@ -485,6 +514,7 @@ AnimatedSprite@ fireball = AnimatedSprite(0, 0, 9, 0, 0, 0.25, false);
 AnimatedSprite@ electroblaster = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
 
 bool horizontal = false;
+bool horizontal2 = true;
 
 bool show = true;
 bool showIndex = true;
@@ -532,6 +562,7 @@ void save() {
     file.push(bind_open);
 	file.push(index_fontsize);
 	file.push(ammo_fontsize);
+    file.push(horizontal2);
     file.save(data_filename);
 }
 
@@ -546,11 +577,12 @@ void onLevelBegin() {
     file.pop(bind_open);
 	file.pop(index_fontsize);
 	file.pop(ammo_fontsize);
+	file.pop(horizontal2);
 
 	// menu stuff
 	menu_buttons[0].buttons[0].setValue(true);
 	menu_buttons[1].buttons[0].setValue(showIndex);
-	menu_buttons[2].buttons[0].setValue(horizontal);
+	menu_buttons[2].buttons[0].setValue(false);
 	menu_buttons[3].buttons[0].setValue(index_color);
 	menu_buttons[4].buttons[0].setValue(ammo_color);
 	menu_buttons[5].buttons[0].setValue(show_empty_ammo);
@@ -722,6 +754,7 @@ void onMain() {
 
     for (int i = 2; i < 10; i++)
     {
+        
         AnimatedSprite@ weapon = idToWeapon(i);
         weapon.x = 0;
         weapon.y = 0;
@@ -731,6 +764,14 @@ void onMain() {
             weapon.y = horizontalY;
         } else {
             weapon.x = verticalX;
+            weapon.y = (originY - (i * 35)) + 25;
+        }
+
+        if(horizontal and horizontal2) {
+            weapon.x = (originX - (i * 75)) + 25;
+            weapon.y = horizontalY2;
+        } else if(not horizontal and horizontal2) {
+            weapon.x = verticalX2;
             weapon.y = (originY - (i * 35)) + 25;
         }
     }
@@ -747,7 +788,7 @@ void onMain() {
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {    
     if(chatType != CHAT::NORMAL) return false;
-    
+
     if(stringReceived == "!wl help" or stringReceived == "!wl help 1") {
         jjConsole("-----------------------------------------------------");
         jjConsole("! wl help 1-3 - Shows a help message");
@@ -851,8 +892,27 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     }
 
     if(stringReceived == "!wl position") {
-        horizontal = not horizontal;
-        jjConsole("[WL] The weapons' list is now " + (horizontal ? "Horizontal" : "Vertical"));
+        string direction;
+
+        if(not horizontal and not horizontal2) {
+            horizontal = true;
+            horizontal2 = false;
+            direction = "bottom";
+        } else if(horizontal and not horizontal2) {
+            horizontal = false;
+            horizontal2 = true;
+            direction = "left";
+        } else if(not horizontal and horizontal2) {
+            horizontal = true;
+            horizontal2 = true;
+            direction = "top";
+        } else if(horizontal and horizontal2) {
+            horizontal = false;
+            horizontal2 = false;
+            direction = "right";
+        }
+
+        jjConsole("[WL] The weapons' list's direction is " + direction);
         
         save();
         return true;
@@ -928,6 +988,18 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
                 x = verticalX;
                 y = (originY - (i * 35)) + 35;
                 indexX = verticalX - 20;
+                indexY = (originY - (i * 35)) + 25 - 5;
+            }
+
+            if(horizontal and horizontal2) {
+                x = (originX - (i * 75)) + 30;
+                y = horizontalY2 + 5;
+                indexX = (originX - (i * 75)) + 3;
+                indexY = horizontalY2 - 5;
+            } else if(not horizontal and horizontal2) {
+                x = verticalX2;
+                y = (originY - (i * 35)) + 35;
+                indexX = verticalX2 - 20;
                 indexY = (originY - (i * 35)) + 25 - 5;
             }
 
