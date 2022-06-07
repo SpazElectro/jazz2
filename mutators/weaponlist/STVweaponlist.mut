@@ -163,18 +163,21 @@ class Key
     }
 }
 
+
+funcdef void ButtonCallback(Button@);
 class Button
 {
 	MenuButton@ mainButton;
 	int horizontalId = 0;
     int xOffset = 0;
     int yOffset = 0;
+    string hoverText;
 	bool debounce = false;
 	bool value = false;
 	bool visible = true;
-	jjVOIDFUNC@ callback;
+	ButtonCallback@ callback;
 
-	Button(int horizontalId, jjVOIDFUNC@ callback)
+	Button(int horizontalId, ButtonCallback@ callback)
 	{
 		this.horizontalId = horizontalId;
 		@this.callback = @callback;
@@ -203,10 +206,9 @@ class Button
 				1, 1
 			)) {
 				this.debounce = true;
-				this.setValue(not this.value);
 				dictionary dict = {{"main", @this}};
 
-				this.callback();
+				this.callback(this);
 
 				TimerV(10, function(this) {
 					Button@ t;
@@ -219,8 +221,18 @@ class Button
 
 	void draw(jjCANVAS@ canvas) {
         if(this.visible) {
-		    canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50), 25, 25, 0, SPRITE::NORMAL, 0);
-		    canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50) + yOffset, jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50), 12, 12, getColorValue(this.value), SPRITE::NORMAL, 0);
+		    canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset, 25, 25, 0, SPRITE::NORMAL, 0);
+		    canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50) + yOffset, 12, 12, getColorValue(this.value), SPRITE::NORMAL, 0);
+
+            if(checkCollision(
+				jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset,
+				jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset,
+				50, 50,
+				jjMouseX, jjMouseY,
+				1, 1
+			) && this.hoverText != "") {
+                canvas.drawString(jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset, this.hoverText, STRING::SMALL, STRING::NORMAL, 0);
+            }
         }
 	}
 }
@@ -284,31 +296,36 @@ int menu_page = 1;
 
 MenuButton@ getButton(int index) { return menu_buttons[index]; }
 
-array<Button@> indexFontSizes = {Button(1, function() {
+array<Button@> indexFontSizes = {Button(1, function(button) {
+    button.setValue(not button.value);
 	getButton(6).buttons[0].setValue(true);
 	getButton(6).buttons[1].setValue(false);
 	index_fontsize = "small";
 	save();
-}), Button(2, function() {
+}), Button(2, function(button) {
+    button.setValue(not button.value);
 	getButton(6).buttons[0].setValue(false);
 	getButton(6).buttons[1].setValue(true);
 	index_fontsize = "medium";
 	save();
 })};
 
-array<Button@> ammoFontSizes = {Button(1, function() {
+array<Button@> ammoFontSizes = {Button(1, function(button) {
+    button.setValue(not button.value);
 	getButton(7).buttons[0].setValue(true);
 	getButton(7).buttons[1].setValue(false);
 	ammo_fontsize = "small";
 	save();
-}), Button(2, function() {
+}), Button(2, function(button) {
+    button.setValue(not button.value);
 	getButton(7).buttons[0].setValue(false);
 	getButton(7).buttons[1].setValue(true);
 	ammo_fontsize = "medium";
 	save();
 })};
 
-array<Button@> pageButtons = {Button(1, function() {
+array<Button@> pageButtons = {Button(1, function(button) {
+    button.setValue(not button.value);
     getButton(0).buttons[0].setValue(true);
     getButton(0).buttons[1].setValue(false);
 
@@ -324,7 +341,8 @@ array<Button@> pageButtons = {Button(1, function() {
     getButton(8).visible = false;
     getButton(9).visible = false;
     getButton(10).visible = false;
-}), Button(2, function() {
+}), Button(2, function(button) {
+    button.setValue(not button.value);
     getButton(0).buttons[0].setValue(false);
     getButton(0).buttons[1].setValue(true);
 
@@ -342,14 +360,16 @@ array<Button@> pageButtons = {Button(1, function() {
     getButton(10).visible = true;
 })};
 
-array<Button@> bindModes = {Button(1, function() {
+array<Button@> bindModes = {Button(1, function(button) {
+    button.setValue(not button.value);
     getButton(8).buttons[0].setValue(true);
     getButton(8).buttons[1].setValue(false);
     mode = "toggle";
     show = true;
 
     save();
-}), Button(2, function() {
+}), Button(2, function(button) {
+    button.setValue(not button.value);
     getButton(8).buttons[0].setValue(false);
     getButton(8).buttons[1].setValue(true);
     mode = "hold";
@@ -357,7 +377,8 @@ array<Button@> bindModes = {Button(1, function() {
     save();
 })};
 
-array<Button@> positions = {Button(1, function() {
+array<Button@> positions = {Button(1, function(button) {
+    button.setValue(not button.value);
     getButton(2).buttons[0].setValue(false);
 
     string direction;
@@ -387,39 +408,43 @@ array<Button@> positions = {Button(1, function() {
 
 array<MenuButton@> menu_buttons = {
     MenuButton("Page", -1, pageButtons),
-	MenuButton("Show Index", 1, Button(1, function() {
+	MenuButton("Show Index", 1, Button(1, function(button) {
+        button.setValue(not button.value);
 		showIndex = not showIndex;
 		save();
 	})),
 	MenuButton("Position", 0, positions),
-	MenuButton("Color Index", 2, Button(1, function() {
+	MenuButton("Color Index", 2, Button(1, function(button) {
+        button.setValue(not button.value);
 		index_color = not index_color;
 		save();
 	})),
-	MenuButton("Color Ammo", 3, Button(1, function() {
+	MenuButton("Color Ammo", 3, Button(1, function(button) {
+        button.setValue(not button.value);
 		ammo_color = not ammo_color;
 		save();
 	})),
-	MenuButton("Show Empty Ammo", 4, Button(1, function() {
+	MenuButton("Show Empty Ammo", 4, Button(1, function(button) {
+        button.setValue(not button.value);
 		show_empty_ammo = not show_empty_ammo;
 		save();
 	})),
 	MenuButton("Index font size", 5, indexFontSizes),
 	MenuButton("Ammo font size", 0, ammoFontSizes),
     MenuButton("Bind Mode", 1, bindModes),
-    MenuButton("Bind Key", 2, Button(1, function() {
+    MenuButton("Bind Key", 2, Button(1, function(button) {
         getButton(9).buttons[0].setValue(false);
         binding = true;
         showMenu = false;
     })),
-    MenuButton("Profiles", 3, Button(1, function() {  
+    MenuButton("Profiles", 3, Button(1, function(button) {  
         getButton(10).buttons[0].setValue(false);
 
         for(uint i = 0; i < menu_buttons.length(); i++) {
             getButton(i).visible = false;
         }
 
-        menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function() {
+        menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function(button) {
             getButton(0).visible = true;
             getButton(0).buttons[0].debounce = true;
 
@@ -432,9 +457,16 @@ array<MenuButton@> menu_buttons = {
             }
 
             menu_buttons.resize(11);
+
+            menu_buttons[0].buttons[0].setValue(false);
+            menu_buttons[1].buttons[0].setValue(showIndex);
+            menu_buttons[2].buttons[0].setValue(false);
+            menu_buttons[3].buttons[0].setValue(index_color);
+            menu_buttons[4].buttons[0].setValue(ammo_color);
+            menu_buttons[5].buttons[0].setValue(show_empty_ammo);
         })));
 
-        menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl profile new)", 5, Button(1, function() {})));
+        menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl profile new)", 5, Button(1, function(button) {})));
         menu_buttons[12].size = "small";
         menu_buttons[12].buttons[0].visible = false;
         menu_buttons[12].xOffset = -10;
@@ -442,26 +474,7 @@ array<MenuButton@> menu_buttons = {
         menu_buttons[12].buttons[0].xOffset = -10;
         menu_buttons[12].buttons[0].yOffset = 20;
 
-        for(uint i = 0; i < profiles.length(); i++) {
-            array<Button@> buttons = {Button(1, function() {
-                jjConsole("use");
-            }), Button(2, function() {
-                jjConsole("delete");
-            })};
-
-            menu_buttons.insertLast(MenuButton(profiles[i], i, buttons));
-            menu_buttons[i+13].buttons[0].debounce = true;
-            menu_buttons[i+13].buttons[1].debounce = true;
-
-            dictionary d = {{"index", i}};
-
-            TimerV(35, function(index) {
-                int t;
-                index.get("index", t);
-                menu_buttons[t+13].buttons[0].debounce = false;
-                menu_buttons[t+13].buttons[1].debounce = false;
-            }, d);
-        }
+        createProfileButtons();
 	}))
 };
 
@@ -605,6 +618,65 @@ string ammo_fontsize = "small";
 array<int> unupgradedIds;
 array<int> upgradedIds;
 
+void createProfileButtons() {
+    for(uint i = 0; i < profiles.length(); i++) {
+        array<Button@> buttons = {Button(1, function(button) {
+            for(uint i = 0; i < menu_buttons.length(); i++) {
+                getButton(i).buttons[0].setValue(false);
+            }
+
+            button.setValue(true);
+            
+            profile = button.mainButton.text;
+            jjConsole("[WL] Now using the profile " + profile + ".");
+        }), Button(2, function(button) {
+            if(button.value == false) {
+                button.value = true;
+                return;
+            }
+            
+            for(uint i = 0; i < menu_buttons.length(); i++) {
+                getButton(i).buttons[0].setValue(false);
+            }
+
+            button.setValue(false);
+
+            for(uint i = 0; i < profiles.length(); i++) {
+                if(profiles[i] == button.mainButton.text) {
+                    jjConsole("[WL] Deleted the " + button.mainButton.text + " profile.");
+
+                    button.mainButton.text = "";
+                    button.mainButton.visible = false;
+                    
+                    profiles.removeAt(i);
+
+                    createProfileButtons();
+                    
+                    break;
+                }
+            }
+
+            save();
+        })};
+            
+        if(profiles[i] == profile) {
+            buttons[0].setValue(true);
+        }
+
+        menu_buttons.insertLast(MenuButton(profiles[i], i, buttons));
+        menu_buttons[i+13].buttons[0].debounce = true;
+        menu_buttons[i+13].buttons[1].debounce = true;
+        dictionary d = {{"index", i}};
+
+        TimerV(35, function(index) {
+            int t;
+            index.get("index", t);
+            menu_buttons[t+13].buttons[0].debounce = false;
+            menu_buttons[t+13].buttons[1].debounce = false;
+        }, d);
+    }
+}
+
 STRING::Size string_size_to_size(string str) {
 	if(str == "small" or str == "tiny") {
 		return STRING::SMALL;
@@ -673,6 +745,8 @@ void onLevelBegin() {
 	menu_buttons[4].buttons[0].setValue(ammo_color);
 	menu_buttons[5].buttons[0].setValue(show_empty_ammo);
     menu_buttons[7].visible = false;
+    menu_buttons[8].buttons[0].hoverText = "TOGGLE";
+    menu_buttons[8].buttons[1].hoverText = "HOLD";
     menu_buttons[8].visible = false;
     menu_buttons[9].visible = false;
     menu_buttons[10].visible = false;
@@ -680,10 +754,13 @@ void onLevelBegin() {
 	if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
 	if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
 
-    if(mode == "") mode = "toggle";
-    if(bind_open == 0) bind_open = 192;
-	if(index_fontsize == "") index_fontsize = "small";
-	if(ammo_fontsize == "") ammo_fontsize = "small";
+    if(mode == "") {
+        mode = "toggle";
+        bind_open = 192;
+        index_fontsize = "small";
+        ammo_fontsize = "small";
+        show_empty_ammo = true;
+    }
 
     if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
 
@@ -831,7 +908,7 @@ Key@ getKey(int code) {
 }
 
 void onMain() {
-    menu_buttons[9].text = "Bind Key                   " + getKey(bind_open).id;
+    menu_buttons[9].text = "Bind Key                 " + getKey(bind_open).id;
 
 	originX = jjResolutionWidth;
 	originY = jjResolutionHeight - 15;
