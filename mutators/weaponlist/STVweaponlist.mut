@@ -315,6 +315,7 @@ array<Button@> pageButtons = {Button(1, function() {
     getButton(7).visible = false;
     getButton(8).visible = false;
     getButton(9).visible = false;
+    getButton(10).visible = false;
 }), Button(2, function() {
     getButton(0).buttons[0].setValue(false);
     getButton(0).buttons[1].setValue(true);
@@ -330,6 +331,7 @@ array<Button@> pageButtons = {Button(1, function() {
     getButton(7).visible = true;
     getButton(8).visible = true;
     getButton(9).visible = true;
+    getButton(10).visible = true;
 })};
 
 array<Button@> bindModes = {Button(1, function() {
@@ -401,7 +403,45 @@ array<MenuButton@> menu_buttons = {
         getButton(9).buttons[0].setValue(false);
         binding = true;
         showMenu = false;
-    }))
+    })),
+    MenuButton("Profiles", 3, Button(1, function() {  
+        getButton(10).buttons[0].setValue(false);
+
+        for(uint i = 0; i < menu_buttons.length(); i++) {
+            getButton(i).visible = false;
+        }
+
+        menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function() {
+            getButton(0).visible = true;
+            getButton(0).buttons[0].debounce = true;
+
+            TimerV(35, function() {
+                getButton(0).buttons[0].debounce = false;
+            });
+
+            for(uint i = 7; i < menu_buttons.length(); i++) {
+                getButton(i).visible = true;
+            }
+
+            menu_buttons.resize(11);
+        })));
+
+        menu_buttons.insertLast(MenuButton("New", 5, Button(1, function() {
+            getButton(12).buttons[0].setValue(false);
+
+            jjConsole("new");
+        })));
+
+        for(uint i = 0; i < profiles.length(); i++) {
+            array<Button@> buttons = {Button(1, function() {
+                jjConsole("use");
+            }), Button(2, function() {
+                jjConsole("delete");
+            })};
+
+            menu_buttons.insertLast(MenuButton(profiles[i], i, buttons));
+        }
+	}))
 };
 
 array<Key@> KEYS = {
@@ -504,6 +544,10 @@ int horizontalY = jjResolutionHeight - 15;
 int verticalX2 = 85;
 int horizontalY2 = 15;
 
+string profile = "default";
+
+array<string> profiles;
+
 AnimatedSprite@ bouncer = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
 AnimatedSprite@ ice = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
 AnimatedSprite@ seeker = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
@@ -563,11 +607,21 @@ void save() {
 	file.push(index_fontsize);
 	file.push(ammo_fontsize);
     file.push(horizontal2);
-    file.save(data_filename);
+    file.save(profile + "_" + data_filename);
+
+    jjSTREAM profilesFile();
+    profilesFile.push(profile); // default profile
+    profilesFile.push(profiles.length());
+
+    for(int i = 0; i < profiles.length(); i++) {
+        profilesFile.push(profiles[i]);
+    }
+
+    profilesFile.save("WLdata_profiles.asdat");
 }
 
 void onLevelBegin() {
-    jjSTREAM file(data_filename);
+    jjSTREAM file(profile + "_" + data_filename);
     file.pop(mode);
     file.pop(showIndex);
     file.pop(horizontal);
@@ -579,6 +633,17 @@ void onLevelBegin() {
 	file.pop(ammo_fontsize);
 	file.pop(horizontal2);
 
+    uint profileAmount;
+    jjSTREAM profilesFile("WLdata_profiles.asdat");
+    profilesFile.pop(profile);
+    profilesFile.pop(profileAmount);
+
+    for(uint i = 0; i < profileAmount; i++) {
+        string profileName;
+        profilesFile.pop(profileName);
+        profiles.insertLast(profileName);
+    }
+
 	// menu stuff
 	menu_buttons[0].buttons[0].setValue(true);
 	menu_buttons[1].buttons[0].setValue(showIndex);
@@ -589,6 +654,7 @@ void onLevelBegin() {
     menu_buttons[7].visible = false;
     menu_buttons[8].visible = false;
     menu_buttons[9].visible = false;
+    menu_buttons[10].visible = false;
     
 	if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
 	if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
@@ -744,7 +810,7 @@ Key@ getKey(int code) {
 }
 
 void onMain() {
-    menu_buttons[9].text = "Bind Key                     " + getKey(bind_open).id;
+    menu_buttons[9].text = "Bind Key                   " + getKey(bind_open).id;
 
 	originX = jjResolutionWidth;
 	originY = jjResolutionHeight - 15;
@@ -929,6 +995,101 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived == "!wl color ammo") {
         ammo_color = not ammo_color;
         jjConsole("[WL] Changed the weapons' ammo color to " + (ammo_color ? "colorful" : "normal"));
+
+        save();
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl profile new ") == 0) {
+        string profileName = stringReceived.substr(16);
+
+        if(profileName == "") {
+            jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        for(uint i = 0; i < profiles.length; i++) {
+            if(profiles[i] == profileName) {
+                jjConsole("[WL] A profile with that name already exists.");
+                return true;
+            }
+        }
+
+        jjConsole("[WL] Creating a new profile named " + profileName);
+
+        profiles.insertLast(profileName);
+
+        jjConsole("[WL] Created profile " + profileName + ".");
+
+        save();
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl profile use ") == 0) {
+        string profileName = stringReceived.substr(16);
+
+        if(profileName == "") {
+            jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        bool exists = false;
+
+        for(uint i = 0; i < profiles.length; i++) {
+            if(profiles[i] == profileName) {
+                exists = true;
+                break;
+            }
+        }
+
+        if(!exists && profileName != "default") {
+            jjConsole("[WL] A profile with that name does not exist.");
+            return true;
+        }
+
+        profile = profileName;
+
+        jjConsole("[WL] Now using the profile " + profileName + ".");
+
+        save();
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl profile delete ") == 0) {
+        string profileName = stringReceived.substr(19);
+
+        if(profileName == "") {
+            jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        bool exists = false;
+
+        for(uint i = 0; i < profiles.length; i++) {
+            if(profiles[i] == profileName) {
+                exists = true;
+                break;
+            }
+        }
+
+        if(!exists && profileName != "default") {
+            jjConsole("[WL] A profile with that name does not exist. (" + profileName + ")");
+            return true;
+        }
+
+        if(profileName == profile) {
+            jjConsole("[WL] You can't delete the profile you're using.");
+            return true;
+        }
+
+        for(uint i = 0; i < profiles.length; i++) {
+            if(profiles[i] == profileName) {
+                profiles.removeAt(i);
+                break;
+            }
+        }
+
+        jjConsole("[WL] Deleted the profile " + profileName + ".");
 
         save();
         return true;
