@@ -651,6 +651,7 @@ void createProfileButton(int i, int position = 0, string prfName = "3dkwkvmwlvne
     }), Button(2, function(button) {
         if(button.mainButton.text == profile) { jjConsole("[WL] You can't delete the profile you're using."); return; }
         if(button.value == false) {
+            button.hoverText = "Confirm Delete";
             button.value = true;
             return;
         }
@@ -678,6 +679,9 @@ void createProfileButton(int i, int position = 0, string prfName = "3dkwkvmwlvne
 
         save();
     })};
+
+    buttons[0].hoverText = "Use";
+    buttons[1].hoverText = "Delete";
 
     if(prfName == "default") {
         buttons.removeLast();
@@ -798,7 +802,6 @@ void onLevelBegin() {
         ammo_fontsize = "small";
         show_empty_ammo = true;
     }
-
 
     jjConsole("[WL] Type ! wl help for a list of commands.");
 
@@ -1270,17 +1273,27 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 }
 
 int getColorValue(string mode) {
-	if(mode == "hold") {
-		return 0;
-	} else { return 255; }
+    if(jjColorDepth == 16) {
+        if(mode == "hold") {
+            return 0;
+        } else { return 255; }
+    } else {
+        if(mode == "hold") {
+            return 0;
+        } else { return 255; }
+    }
 }
 
 int getColorValue(bool boolean) {
-	if(boolean) {
-		return 255;
-	} else {
-		return 0;
-	}
+    if(jjColorDepth == 16) {
+        if(boolean) {
+            return 255;
+        } else { return 0; }
+    } else {
+        if(boolean) {
+            return 255;
+        } else { return 0; }
+    }
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
@@ -1341,7 +1354,13 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
 
 	// menu
 	if(showMenu) {
-		canvas.drawRectangle(jjResolutionWidth / 2 - 300, jjResolutionHeight / 2 - 200, 600, 400, 255, SPRITE::BLEND_NORMAL, 128);
+        int BACKGROUND_COLOR = 255;
+        
+        if(jjColorDepth == 8) {
+            BACKGROUND_COLOR = 15;
+        }
+
+		canvas.drawRectangle(jjResolutionWidth / 2 - 300, jjResolutionHeight / 2 - 200, 600, 400, BACKGROUND_COLOR, SPRITE::BLEND_NORMAL, 128);
 		canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 10, "Weapon List", string_size_to_size("medium"), STRING::NORMAL, 0);
 
 		for(uint i = 0; i < menu_buttons.length(); i++) {
