@@ -241,7 +241,7 @@ class MenuButton
 		this.id = id;
 		this.buttons = buttons;
 
-		for(int i = 0; i < this.buttons.length(); i++) {
+		for(uint i = 0; i < this.buttons.length(); i++) {
 			@this.buttons[i].mainButton = @this;
 		}
 	}
@@ -257,7 +257,7 @@ class MenuButton
 
 	void draw(jjCANVAS@ canvas) {
 		if(visible) {
-			for(int i = 0; i < this.buttons.length(); i++) {
+			for(uint i = 0; i < this.buttons.length(); i++) {
 				this.buttons[i].draw(canvas);
 			}
 		}
@@ -265,62 +265,118 @@ class MenuButton
 
 	void input(jjPLAYER@ player) {
 		if(visible) {
-			for(int i = 0; i < this.buttons.length(); i++) {
+			for(uint i = 0; i < this.buttons.length(); i++) {
 				this.buttons[i].input(player);
 			}
 		}
 	}
 }
 
+int menu_page = 1;
+
 MenuButton@ getButton(int index) { return menu_buttons[index]; }
 
 array<Button@> indexFontSizes = {Button(1, function() {
-	getButton(5).buttons[0].setValue(true);
-	getButton(5).buttons[1].setValue(false);
+	getButton(6).buttons[0].setValue(true);
+	getButton(6).buttons[1].setValue(false);
 	index_fontsize = "small";
 	save();
 }), Button(2, function() {
-	getButton(5).buttons[0].setValue(false);
-	getButton(5).buttons[1].setValue(true);
+	getButton(6).buttons[0].setValue(false);
+	getButton(6).buttons[1].setValue(true);
 	index_fontsize = "medium";
 	save();
 })};
 
 array<Button@> ammoFontSizes = {Button(1, function() {
-	getButton(6).buttons[0].setValue(true);
-	getButton(6).buttons[1].setValue(false);
+	getButton(7).buttons[0].setValue(true);
+	getButton(7).buttons[1].setValue(false);
 	ammo_fontsize = "small";
 	save();
 }), Button(2, function() {
-	getButton(6).buttons[0].setValue(false);
-	getButton(6).buttons[1].setValue(true);
+	getButton(7).buttons[0].setValue(false);
+	getButton(7).buttons[1].setValue(true);
 	ammo_fontsize = "medium";
 	save();
 })};
 
+array<Button@> pageButtons = {Button(1, function() {
+    getButton(0).buttons[0].setValue(true);
+    getButton(0).buttons[1].setValue(false);
+
+    menu_page = 1;
+
+    getButton(1).visible = true;
+    getButton(2).visible = true;
+    getButton(3).visible = true;
+    getButton(4).visible = true;
+    getButton(5).visible = true;
+    getButton(6).visible = true;
+    getButton(7).visible = false;
+    getButton(8).visible = false;
+    getButton(9).visible = false;
+}), Button(2, function() {
+    getButton(0).buttons[0].setValue(false);
+    getButton(0).buttons[1].setValue(true);
+
+    menu_page = 2;
+
+    getButton(1).visible = false;
+    getButton(2).visible = false;
+    getButton(3).visible = false;
+    getButton(4).visible = false;
+    getButton(5).visible = false;
+    getButton(6).visible = false;
+    getButton(7).visible = true;
+    getButton(8).visible = true;
+    getButton(9).visible = true;
+})};
+
+array<Button@> bindModes = {Button(1, function() {
+    getButton(8).buttons[0].setValue(true);
+    getButton(8).buttons[1].setValue(false);
+    mode = "toggle";
+    show = true;
+
+    save();
+}), Button(2, function() {
+    getButton(8).buttons[0].setValue(false);
+    getButton(8).buttons[1].setValue(true);
+    mode = "hold";
+
+    save();
+})};
+
 array<MenuButton@> menu_buttons = {
-	MenuButton("Show Index", -1, Button(1, function() {
-		showIndex = false;
+    MenuButton("Page", -1, pageButtons),
+	MenuButton("Show Index", 0, Button(1, function() {
+		showIndex = not showIndex;
 		save();
 	})),
-	MenuButton("Horizontal", 0, Button(1, function() {
+	MenuButton("Horizontal", 1, Button(1, function() {
 		horizontal = not horizontal;
 		save();
 	})),
-	MenuButton("Color Index", 1, Button(1, function() {
+	MenuButton("Color Index", 2, Button(1, function() {
 		index_color = not index_color;
 		save();
 	})),
-	MenuButton("Color Ammo", 2, Button(1, function() {
+	MenuButton("Color Ammo", 3, Button(1, function() {
 		ammo_color = not ammo_color;
 		save();
 	})),
-	MenuButton("Show Empty Ammo", 3, Button(1, function() {
+	MenuButton("Show Empty Ammo", 4, Button(1, function() {
 		show_empty_ammo = not show_empty_ammo;
 		save();
 	})),
-	MenuButton("Index font size", 4, indexFontSizes),
-	MenuButton("Ammo font size", 5, ammoFontSizes)
+	MenuButton("Index font size", 5, indexFontSizes),
+	MenuButton("Ammo font size", 0, ammoFontSizes),
+    MenuButton("Bind Mode", 1, bindModes),
+    MenuButton("Bind Key", 2, Button(1, function() {
+        getButton(9).buttons[0].setValue(false);
+        binding = true;
+        showMenu = false;
+    }))
 };
 
 array<Key@> KEYS = {
@@ -438,7 +494,7 @@ bool showMenuDebounce = false;
 bool showSplitscreenWarning = false;
 bool splitscreenWarning_triggered = false;
 
-bool holdingTilde = false;
+bool holdingBind = false;
 
 bool ammo_color = true;
 bool index_color = true;
@@ -492,18 +548,25 @@ void onLevelBegin() {
 	file.pop(ammo_fontsize);
 
 	// menu stuff
-	menu_buttons[0].buttons[0].setValue(showIndex);
-	menu_buttons[1].buttons[0].setValue(horizontal);
-	menu_buttons[2].buttons[0].setValue(index_color);
-	menu_buttons[3].buttons[0].setValue(ammo_color);
-	menu_buttons[4].buttons[0].setValue(show_empty_ammo);
-	if(index_fontsize == "small") { menu_buttons[5].buttons[0].setValue(true); } else { menu_buttons[5].buttons[1].setValue(true); }
-	if(ammo_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
+	menu_buttons[0].buttons[0].setValue(true);
+	menu_buttons[1].buttons[0].setValue(showIndex);
+	menu_buttons[2].buttons[0].setValue(horizontal);
+	menu_buttons[3].buttons[0].setValue(index_color);
+	menu_buttons[4].buttons[0].setValue(ammo_color);
+	menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+    menu_buttons[7].visible = false;
+    menu_buttons[8].visible = false;
+    menu_buttons[9].visible = false;
+    
+	if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
+	if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
 
     if(mode == "") mode = "toggle";
     if(bind_open == 0) bind_open = 192;
 	if(index_fontsize == "") index_fontsize = "small";
 	if(ammo_fontsize == "") ammo_fontsize = "small";
+
+    if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
 
     jjConsole("[WL] Type ! wl help for a list of commands.");
 
@@ -615,12 +678,12 @@ void onPlayerInput(jjPLAYER@ player) {
 	}
 
     if(mode == "toggle") {
-        if(jjKey[bind_open] && not holdingTilde) {
+        if(jjKey[bind_open] && not holdingBind) {
             show = not show;
-            holdingTilde = true;
+            holdingBind = true;
 
             TimerV(15, function() {
-                holdingTilde = false;
+                holdingBind = false;
             });
         }
     } else if(mode == "hold") {
@@ -635,7 +698,22 @@ void onPlayerInput(jjPLAYER@ player) {
     }
 }
 
+Key@ getKey(int code) {
+    for (uint i = 0; i < KEYS.length() - 1; i++)
+    {
+        Key@ key = KEYS[i];
+
+        if(key.code == code) {
+            return @key;
+        }
+    }
+
+    return Key("Backquote", 0xC0);
+}
+
 void onMain() {
+    menu_buttons[9].text = "Bind Key                     " + getKey(bind_open).id;
+
 	originX = jjResolutionWidth;
 	originY = jjResolutionHeight - 15;
 
