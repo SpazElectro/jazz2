@@ -437,7 +437,7 @@ array<MenuButton@> menu_buttons = {
         binding = true;
         showMenu = false;
     })),
-    MenuButton("Profiles", 3, Button(1, function(button) {  
+    MenuButton("Profiles", 3, Button(1, function(button) { 
         getButton(10).buttons[0].setValue(false);
 
         for(uint i = 0; i < menu_buttons.length(); i++) {
@@ -445,6 +445,7 @@ array<MenuButton@> menu_buttons = {
         }
 
         menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function(button) {
+            getButton(10).buttons[0].debounce = false;
             getButton(0).visible = true;
             getButton(0).buttons[0].debounce = true;
 
@@ -464,9 +465,15 @@ array<MenuButton@> menu_buttons = {
             menu_buttons[3].buttons[0].setValue(index_color);
             menu_buttons[4].buttons[0].setValue(ammo_color);
             menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+            menu_buttons[8].buttons[0].hoverText = "TOGGLE";
+            menu_buttons[8].buttons[1].hoverText = "HOLD";
+            
+            if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
+            if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
+            if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
         })));
 
-        menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl profile new)", 5, Button(1, function(button) {})));
+        menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(1, function(button) {})));
         menu_buttons[12].size = "small";
         menu_buttons[12].buttons[0].visible = false;
         menu_buttons[12].xOffset = -10;
@@ -619,62 +626,91 @@ array<int> unupgradedIds;
 array<int> upgradedIds;
 
 void createProfileButtons() {
+    createProfileButton(-1, 0, "default");
+
+    if(profile == "default") {
+        menu_buttons[13].buttons[0].setValue(true);
+    }
+
     for(uint i = 0; i < profiles.length(); i++) {
-        array<Button@> buttons = {Button(1, function(button) {
-            for(uint i = 0; i < menu_buttons.length(); i++) {
-                getButton(i).buttons[0].setValue(false);
+        createProfileButton(i, i + 1);
+    }
+}
+
+void createProfileButton(int i, int position = 0, string prfName = "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc") {
+    array<Button@> buttons = {Button(1, function(button) {
+        for(uint ia = 0; ia < menu_buttons.length(); ia++) {
+            getButton(ia).buttons[0].setValue(false);
+        }
+
+        button.setValue(true);
+        
+        profile = button.mainButton.text;
+        
+        jjConsole("[WL] Now using the profile " + profile + ".");
+    }), Button(2, function(button) {
+        if(button.mainButton.text == profile) { jjConsole("[WL] You can't delete the profile you're using."); return; }
+        if(button.value == false) {
+            button.value = true;
+            return;
+        }
+        
+        for(uint iq = 0; iq < menu_buttons.length(); iq++) {
+            getButton(iq).buttons[0].setValue(false);
+        }
+
+        button.setValue(false);
+
+        for(uint iz = 0; iz < profiles.length(); iz++) {
+            if(profiles[iz] == button.mainButton.text) {
+                jjConsole("[WL] Deleted the " + button.mainButton.text + " profile.");
+
+                button.mainButton.text = "";
+                button.mainButton.visible = false;
+                
+                profiles.removeAt(iz);
+
+                createProfileButtons();
+                
+                break;
             }
+        }
 
-            button.setValue(true);
-            
-            profile = button.mainButton.text;
-            jjConsole("[WL] Now using the profile " + profile + ".");
-        }), Button(2, function(button) {
-            if(button.value == false) {
-                button.value = true;
-                return;
-            }
-            
-            for(uint i = 0; i < menu_buttons.length(); i++) {
-                getButton(i).buttons[0].setValue(false);
-            }
+        save();
+    })};
 
-            button.setValue(false);
-
-            for(uint i = 0; i < profiles.length(); i++) {
-                if(profiles[i] == button.mainButton.text) {
-                    jjConsole("[WL] Deleted the " + button.mainButton.text + " profile.");
-
-                    button.mainButton.text = "";
-                    button.mainButton.visible = false;
-                    
-                    profiles.removeAt(i);
-
-                    createProfileButtons();
-                    
-                    break;
-                }
-            }
-
-            save();
-        })};
-            
+    if(prfName == "default") {
+        buttons.removeLast();
+    }
+    
+    if(prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc") {
         if(profiles[i] == profile) {
             buttons[0].setValue(true);
         }
-
-        menu_buttons.insertLast(MenuButton(profiles[i], i, buttons));
-        menu_buttons[i+13].buttons[0].debounce = true;
-        menu_buttons[i+13].buttons[1].debounce = true;
-        dictionary d = {{"index", i}};
-
-        TimerV(35, function(index) {
-            int t;
-            index.get("index", t);
-            menu_buttons[t+13].buttons[0].debounce = false;
-            menu_buttons[t+13].buttons[1].debounce = false;
-        }, d);
     }
+
+    if(prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc") {
+        menu_buttons.insertLast(MenuButton(profiles[i], position, buttons));
+    } else {
+        menu_buttons.insertLast(MenuButton(prfName, position, buttons));
+    }
+
+    menu_buttons[i+14].buttons[0].debounce = true;
+
+    if(prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc") {
+        menu_buttons[i+14].buttons[1].debounce = true;
+    }
+
+    dictionary d = {{"index", i}, {"prfname", prfName}};
+
+    TimerV(35, function(index) {
+        int t;
+        index.get("index", t);
+        string prfName;
+        index.get("prfname", prfName);
+        menu_buttons[t+14].buttons[0].debounce = false;
+        if(prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc") menu_buttons[t+14].buttons[1].debounce = false;
+    }, d);
 }
 
 STRING::Size string_size_to_size(string str) {
@@ -706,7 +742,7 @@ void save() {
     profilesFile.push(profile); // default profile
     profilesFile.push(profiles.length());
 
-    for(int i = 0; i < profiles.length(); i++) {
+    for(uint i = 0; i < profiles.length(); i++) {
         profilesFile.push(profiles[i]);
     }
 
@@ -753,6 +789,7 @@ void onLevelBegin() {
     
 	if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
 	if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
+    if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
 
     if(mode == "") {
         mode = "toggle";
@@ -762,7 +799,6 @@ void onLevelBegin() {
         show_empty_ammo = true;
     }
 
-    if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
 
     jjConsole("[WL] Type ! wl help for a list of commands.");
 
@@ -1098,11 +1134,21 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!wl profile new ") == 0 && profiles.length() < 6) {
-        string profileName = stringReceived.substr(16);
+    if(stringReceived.findFirst("!wl newprofile ") == 0) {
+        string profileName = stringReceived.substr(15);
 
         if(profileName == "") {
             jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        if(profiles.length() == 5) {
+            jjConsole("[WL] You can't create more than 5 profiles.");
+            return true;
+        }
+
+        if(profileName == "default") {
+            jjConsole("[WL] You can't create a profile named 'default'.");
             return true;
         }
 
@@ -1123,8 +1169,8 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!wl profile use ") == 0) {
-        string profileName = stringReceived.substr(16);
+    if(stringReceived.findFirst("!wl profile ") == 0) {
+        string profileName = stringReceived.substr(12);
 
         if(profileName == "") {
             jjConsole("[WL] Please specify a profile name.");
@@ -1153,8 +1199,8 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!wl profile delete ") == 0) {
-        string profileName = stringReceived.substr(19);
+    if(stringReceived.findFirst("!wl deleteprofile ") == 0) {
+        string profileName = stringReceived.substr(18);
 
         if(profileName == "") {
             jjConsole("[WL] Please specify a profile name.");
