@@ -168,10 +168,19 @@ class Button
 	MenuButton@ mainButton;
 	bool debounce = false;
 	int horizontalId = 0;
+	bool value = false;
+	jjVOIDFUNC@ callback;
+	
 
-	Button(int horizontalId)
+	Button(int horizontalId, jjVOIDFUNC@ callback)
 	{
 		this.horizontalId = horizontalId;
+		@this.callback = @callback;
+	}
+
+	void setValue(bool value)
+	{
+		this.value = value;
 	}
 
 	bool checkCollision(int sourceX, int sourceY, int sourceWidth, int sourceHeight, int targetX, int targetY, int targetWidth, int targetHeight)
@@ -192,11 +201,11 @@ class Button
 				1, 1
 			)) {
 				this.debounce = true;
-				mainButton.setValue(not this.mainButton.value);
+				this.setValue(not this.value);
 				dictionary dict = {{"main", @this}};
 
-				this.mainButton.callback();
-				
+				this.callback();
+
 				TimerV(10, function(this) {
 					Button@ t;
 					this.get("main", @t);
@@ -208,7 +217,7 @@ class Button
 
 	void draw(jjCANVAS@ canvas) {
 		canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50), 25, 25, 0, SPRITE::NORMAL, 0);
-		canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50), 12, 12, getColorValue(this.mainButton.value), SPRITE::NORMAL, 0);
+		canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50), jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50), 12, 12, getColorValue(this.value), SPRITE::NORMAL, 0);
 
 		if(this.mainButton.showText) canvas.drawString(jjResolutionWidth / 2 - 275, jjResolutionHeight / 2 - 150 + ((this.mainButton.id + 1) * 50), this.mainButton.text, STRING::MEDIUM, STRING::NORMAL, 0);
 	}
@@ -222,28 +231,28 @@ class MenuButton
 	int width;
 	int height;
 	int id;
-	bool value;
 	bool debounce;
 	bool showText = true;
-	jjVOIDFUNC@ callback;
 	array<Button@> buttons;
 
-	MenuButton(string text, int id, array<Button@> buttons, jjVOIDFUNC@ callback)
+	MenuButton(string text, int id, array<Button@> buttons)
 	{
 		this.text = text;
 		this.id = id;
 		this.buttons = buttons;
-		@this.callback = @callback;
 
 		for(int i = 0; i < this.buttons.length(); i++) {
-			Button@ button = this.buttons[i];
-			@button.mainButton = @this;
+			@this.buttons[i].mainButton = @this;
 		}
 	}
 
-	void setValue(bool value)
+	MenuButton(string text, int id, Button@ button)
 	{
-		this.value = value;
+		this.text = text;
+		this.id = id;
+		this.buttons = buttons;
+		this.buttons.insertLast(button);
+		@this.buttons[0].mainButton = @this;
 	}
 
 	void draw(jjCANVAS@ canvas) {
@@ -259,43 +268,54 @@ class MenuButton
 	}
 }
 
-array<Button@> fdsaadsf = {Button(1)};
+MenuButton@ getButton(int index) { return menu_buttons[index]; }
 
-array<MenuButton@> menu_buttons = {
-	MenuButton("Show Index", -1, fdsaadsf, function() {
-		showIndex = not showIndex;
+array<Button@> fdsaadsf = {
+	Button(1, function() {
+		getButton(0).buttons[0].setValue(true);
+		getButton(0).buttons[1].setValue(false);
+		showIndex = true;
+		save();
+	}),
+	Button(2, function() {
+		getButton(0).buttons[1].setValue(true);
+		getButton(0).buttons[0].setValue(false);
+		showIndex = false;
 		save();
 	})
+};
 
-	// MenuButton("Horizontal", 0, function() {
-	// 	horizontal = not horizontal;
-	// 	save();
-	// }),
+array<MenuButton@> menu_buttons = {
+	MenuButton("Show Index", -1, fdsaadsf),
+	MenuButton("Horizontal", 0, Button(1, function() {
+		horizontal = not horizontal;
+		save();
+	})),
 
-	// MenuButton("Color Index", 1, function() {
-	// 	index_color = not index_color;
-	// 	save();
-	// }),
+	MenuButton("Color Index", 1, Button(1, function() {
+		index_color = not index_color;
+		save();
+	})),
 
-	// MenuButton("Color Ammo", 2, function() {
-	// 	ammo_color = not ammo_color;
-	// 	save();
-	// }),
+	MenuButton("Color Ammo", 2, Button(1, function() {
+		ammo_color = not ammo_color;
+		save();
+	})),
 
-	// MenuButton("Show Empty Ammo", 3, function() {
-	// 	show_empty_ammo = not show_empty_ammo;
-	// 	save();
-	// }),
+	MenuButton("Show Empty Ammo", 3, Button(1, function() {
+		show_empty_ammo = not show_empty_ammo;
+		save();
+	})),
 
-	// MenuButton("Index font size", 4, function() {
-	// 	if(index_fontsize == "small") { index_fontsize = "medium"; } else if(index_fontsize == "medium") { index_fontsize = "small"; }
-	// 	save();
-	// }),
+	MenuButton("Index font size", 4, Button(1, function() {
+		if(index_fontsize == "small") { index_fontsize = "medium"; } else if(index_fontsize == "medium") { index_fontsize = "small"; }
+		save();
+	})),
 
-	// MenuButton("Ammo font size", 5, function() {
-	// 	if(ammo_fontsize == "small") { ammo_fontsize = "medium"; } else if(ammo_fontsize == "medium") { ammo_fontsize = "small"; }
-	// 	save();
-	// })
+	MenuButton("Ammo font size", 5, Button(1, function() {
+		if(ammo_fontsize == "small") { ammo_fontsize = "medium"; } else if(ammo_fontsize == "medium") { ammo_fontsize = "small"; }
+		save();
+	}))
 };
 
 array<Key@> KEYS = {
@@ -479,13 +499,13 @@ void onLevelBegin() {
 		m_ammo_fontsize = true;
 	}
 
-	menu_buttons[0].setValue(showIndex);
-	// menu_buttons[1].setValue(horizontal);
-	// menu_buttons[2].setValue(index_color);
-	// menu_buttons[3].setValue(ammo_color);
-	// menu_buttons[4].setValue(show_empty_ammo);
-	// menu_buttons[5].setValue(m_index_fontsize);
-	// menu_buttons[6].setValue(m_ammo_fontsize);
+	menu_buttons[0].buttons[0].setValue(showIndex);
+	menu_buttons[1].buttons[0].setValue(horizontal);
+	menu_buttons[2].buttons[0].setValue(index_color);
+	menu_buttons[3].buttons[0].setValue(ammo_color);
+	menu_buttons[4].buttons[0].setValue(show_empty_ammo);
+	menu_buttons[5].buttons[0].setValue(m_index_fontsize);
+	menu_buttons[6].buttons[0].setValue(m_ammo_fontsize);
 
     if(mode == "") mode = "toggle";
     if(bind_open == 0) bind_open = 192;
