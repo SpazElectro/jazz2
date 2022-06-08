@@ -465,8 +465,6 @@ array<MenuButton@> menu_buttons = {
             menu_buttons[3].buttons[0].setValue(index_color);
             menu_buttons[4].buttons[0].setValue(ammo_color);
             menu_buttons[5].buttons[0].setValue(show_empty_ammo);
-            menu_buttons[8].buttons[0].hoverText = "TOGGLE";
-            menu_buttons[8].buttons[1].hoverText = "HOLD";
             
             if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
             if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
@@ -575,6 +573,7 @@ array<Key@> KEYS = {
 
 
 string data_filename = "WLdata_data.asdat";
+string profiles_filename = "WLdata_profiles.asdat";
 
 int originX = jjResolutionWidth;
 int originY = jjResolutionHeight - 15;
@@ -750,7 +749,7 @@ void save() {
         profilesFile.push(profiles[i]);
     }
 
-    profilesFile.save("WLdata_profiles.asdat");
+    profilesFile.save(profiles_filename);
 }
 
 void onLevelBegin() {
@@ -790,6 +789,10 @@ void onLevelBegin() {
     menu_buttons[8].visible = false;
     menu_buttons[9].visible = false;
     menu_buttons[10].visible = false;
+    menu_buttons[6].buttons[0].hoverText = "SMALL";
+    menu_buttons[6].buttons[1].hoverText = "MEDIUM";
+    menu_buttons[7].buttons[0].hoverText = "SMALL";
+    menu_buttons[7].buttons[1].hoverText = "MEDIUM";
     
 	if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
 	if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
