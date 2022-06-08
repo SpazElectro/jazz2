@@ -292,7 +292,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         }
     }
 
-    if(erase(stringReceived, 5, 99) == "!close") {
+    if(erase(stringReceived, 6, 99) == "!close") {
         int input = parseInt(erase(stringReceived, 0, 6));
 
         if(input != 0 && rooms[input - 1] != null) {
