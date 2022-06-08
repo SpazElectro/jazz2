@@ -1,0 +1,46 @@
+void onLevelBegin() {
+    jjConsole("onLevelBegin");
+}
+
+void particlesWork(jjPLAYER@ player) {
+    jjPARTICLE@ particle = jjAddParticle(PARTICLE::FIRE);
+    if (particle !is null) {
+        particle.xPos = player.xPos + 5;
+        particle.yPos = player.yPos + 12;
+        particle.ySpeed = 1;
+    }
+    jjPARTICLE@ particle2 = jjAddParticle(PARTICLE::FIRE);
+    if (particle2 !is null) {
+        particle2.xPos = player.xPos - 5;
+        particle2.yPos = player.yPos + 12;
+        particle2.ySpeed = 1;
+    }
+
+    jjPARTICLE@ particle3 = jjAddParticle(PARTICLE::FIRE);
+    if (particle3 !is null) {
+        particle3.xPos = player.xPos + 5;
+        particle3.yPos = player.yPos + 15;
+        particle3.ySpeed = 1;
+    }
+    jjPARTICLE@ particle4 = jjAddParticle(PARTICLE::FIRE);
+    if (particle4 !is null) {
+        particle4.xPos = player.xPos - 5;
+        particle4.yPos = player.yPos + 15;
+        particle4.ySpeed = 1;
+    }
+    jjPARTICLE@ particle5 = jjAddParticle(PARTICLE::STRING);
+    if (particle5 !is null) {
+        particle5.xPos = player.xPos - 5;
+        particle5.yPos = player.yPos + 15;
+        particle5.ySpeed = 0.1;
+        particle5.string.text = ".";
+    }
+}
+
+void onPlayer(jjPLAYER@ player) {
+    player.fly = FLIGHT::FLYCARROT;
+
+    if(player.yPos / 32 <= 60) {
+        particlesWork(player);
+    }
+}
