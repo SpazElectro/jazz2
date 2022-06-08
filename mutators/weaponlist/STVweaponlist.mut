@@ -585,6 +585,7 @@ int verticalX2 = 85;
 int horizontalY2 = 15;
 
 string profile = "default";
+string version = "0.1";
 
 array<string> profiles;
 
@@ -1365,12 +1366,14 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
 
 		canvas.drawRectangle(jjResolutionWidth / 2 - 300, jjResolutionHeight / 2 - 200, 600, 400, BACKGROUND_COLOR, SPRITE::BLEND_NORMAL, 128);
 		canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 10, "Weapon List", string_size_to_size("medium"), STRING::NORMAL, 0);
+        canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 390, "Weapon List, Made by Spaz Electro, Version: v" + version, string_size_to_size("small"), STRING::NORMAL, 0);
 
 		for(uint i = 0; i < menu_buttons.length(); i++) {
 			MenuButton@ button = menu_buttons[i];
 			button.draw(canvas);
 		}
 
+        // cursor
 		canvas.drawRectangle(jjMouseX - 10, jjMouseY - 10, 10, 10, 18, SPRITE::NORMAL, 0);
 	}
 
