@@ -1,0 +1,4 @@
+void onLevelBegin() {
+    jjConsole("onLevelBegin");
+    
+}

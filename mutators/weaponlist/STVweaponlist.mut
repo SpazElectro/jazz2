@@ -146,7 +146,7 @@ class AnimatedSprite
     void draw(jjCANVAS@ canvas)
     {
         if(this.visible) {
-            canvas.drawSprite(this.x, this.y, this.animSet, this.id, this.frame, 0, SPRITE::NORMAL, 123);
+            canvas.drawSprite(this.x, this.y, this.animSet, this.id, int(this.frame), 0, SPRITE::NORMAL, 123);
         }
     }
 }
