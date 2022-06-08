@@ -87,7 +87,7 @@ int rand(int min, int max) {
 }
 
 void onLevelBegin() {
-	for(int i = 0; i < 500; i++)
+	for(uint i = 0; i < 500; i++)
 	{
 		int xPos;
 		int rndPos = rand(1, 4);

@@ -813,6 +813,7 @@ void onLevelBegin() {
     }
 
     jjConsole("[WL] Type ! wl help for a list of commands.");
+    jjConsole("[WL] Press F1 to open the settings menu.");
 
     // hardcoded stuff
     unupgradedIds.insertLast(25); // bouncer

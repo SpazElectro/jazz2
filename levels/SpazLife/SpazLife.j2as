@@ -124,7 +124,7 @@ class Room
 
     void buy()
     {
-        for(int i = 0; i < rooms.length(); i++) {
+        for(uint i = 0; i < rooms.length(); i++) {
             if(rooms[i].owner == jjLocalPlayers[0].nameUnformatted) {
                 return;
             }
@@ -353,7 +353,7 @@ void onReceive(jjSTREAM &in packet, int fromClientID) {
     packet.pop(type);
 
     if(type == BUY_HOUSE) {
-        for(int i = 0; i < rooms.length(); i++) {
+        for(uint i = 0; i < rooms.length(); i++) {
             if(rooms[i].owner == jjPlayers[fromClientID].nameUnformatted) {
                 return;
             }

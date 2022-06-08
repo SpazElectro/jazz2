@@ -98,7 +98,7 @@ array<int> unupgradedIds;
 array<int> upgradedIds;
 
 int getFlagHolder(string color) {
-    for(int i = 0; i < 32; i++) {
+    for(uint i = 0; i < 32; i++) {
         if(jjPlayers[i].isInGame == true) {
             if(((jjPlayers[i].flag == 153) or (jjPlayers[i].flag == 590)) and jjObjects[jjPlayers[i].flag].var[0] == 0) {
                 continue;
@@ -259,11 +259,11 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
         }
 
         // hearts
-        for(int i = 0; i < jjPlayers[getFlagHolder("red")].health; i++) {
+        for(uint i = 0; i < jjPlayers[getFlagHolder("red")].health; i++) {
             canvas.drawSprite(770 - (i * 30), 340, 71, 21, 6, 0, SPRITE::NORMAL, 123);
         }
 
-        for(int i = 0; i < jjPlayers[getFlagHolder("blue")].health; i++) {
+        for(uint i = 0; i < jjPlayers[getFlagHolder("blue")].health; i++) {
             canvas.drawSprite(770 - (i * 30), 440, 71, 21, 6, 0, SPRITE::NORMAL, 123);
         }
     }

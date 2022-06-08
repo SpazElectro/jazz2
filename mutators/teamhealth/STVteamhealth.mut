@@ -145,7 +145,7 @@ void onLevelBegin() {
 void onMain() {
     jjPLAYER@ localPlayer = jjLocalPlayers[0];
 
-    for(int i = 0; i < 32; i++) {
+    for(uint i = 0; i < 32; i++) {
         jjPLAYER@ player = jjPlayers[i];
 
         if(player.isInGame && player.team == localPlayer.team && players.find(i) == -1) {
@@ -189,7 +189,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
             if(fixedAmmo > 99 or datPlayer.currWeapon == 1) fixedAmmo = 99;
             canvas.drawString(615, 75 + (i2 * 100), fixedAmmo + "x", STRING::SMALL, STRING::NORMAL, 0);
 
-            for(int i = 0; i < datPlayer.health; i++) {
+            for(uint i = 0; i < datPlayer.health; i++) {
                 canvas.drawSprite(770 - (i * 30), 120 + (i2 * 100), 71, 21, 6, 0, SPRITE::NORMAL, 123);
             }
         }
