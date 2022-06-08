@@ -297,37 +297,32 @@ int menu_page = 1;
 MenuButton@ getButton(int index) { return menu_buttons[index]; }
 
 array<Button@> indexFontSizes = {Button(1, function(button) {
-    button.setValue(not button.value);
-	getButton(6).buttons[0].setValue(true);
-	getButton(6).buttons[1].setValue(false);
+	button.setValue(true);
+	button.mainButton.buttons[1].setValue(false);
 	index_fontsize = "small";
 	save();
 }), Button(2, function(button) {
-    button.setValue(not button.value);
-	getButton(6).buttons[0].setValue(false);
-	getButton(6).buttons[1].setValue(true);
+	button.setValue(true);
+	button.mainButton.buttons[0].setValue(false);
 	index_fontsize = "medium";
 	save();
 })};
 
 array<Button@> ammoFontSizes = {Button(1, function(button) {
-    button.setValue(not button.value);
-	getButton(7).buttons[0].setValue(true);
-	getButton(7).buttons[1].setValue(false);
+    button.mainButton.buttons[1].setValue(false);
+    button.setValue(true);
 	ammo_fontsize = "small";
 	save();
 }), Button(2, function(button) {
-    button.setValue(not button.value);
-	getButton(7).buttons[0].setValue(false);
-	getButton(7).buttons[1].setValue(true);
+    button.mainButton.buttons[0].setValue(false);
+    button.setValue(true);
 	ammo_fontsize = "medium";
 	save();
 })};
 
 array<Button@> pageButtons = {Button(1, function(button) {
-    button.setValue(not button.value);
-    getButton(0).buttons[0].setValue(true);
-    getButton(0).buttons[1].setValue(false);
+    button.setValue(true);
+    button.mainButton.buttons[1].setValue(false);
 
     menu_page = 1;
 
@@ -342,9 +337,8 @@ array<Button@> pageButtons = {Button(1, function(button) {
     getButton(9).visible = false;
     getButton(10).visible = false;
 }), Button(2, function(button) {
-    button.setValue(not button.value);
-    getButton(0).buttons[0].setValue(false);
-    getButton(0).buttons[1].setValue(true);
+    button.setValue(true);
+    button.mainButton.buttons[0].setValue(false);
 
     menu_page = 2;
 
@@ -361,25 +355,22 @@ array<Button@> pageButtons = {Button(1, function(button) {
 })};
 
 array<Button@> bindModes = {Button(1, function(button) {
-    button.setValue(not button.value);
-    getButton(8).buttons[0].setValue(true);
-    getButton(8).buttons[1].setValue(false);
+    button.setValue(true);
+    button.mainButton.buttons[1].setValue(false);
     mode = "toggle";
     show = true;
 
     save();
 }), Button(2, function(button) {
-    button.setValue(not button.value);
-    getButton(8).buttons[0].setValue(false);
-    getButton(8).buttons[1].setValue(true);
+    button.setValue(true);
+    button.mainButton.buttons[0].setValue(false);
     mode = "hold";
 
     save();
 })};
 
 array<Button@> positions = {Button(1, function(button) {
-    button.setValue(not button.value);
-    getButton(2).buttons[0].setValue(false);
+    button.setValue(false);
 
     string direction;
 
