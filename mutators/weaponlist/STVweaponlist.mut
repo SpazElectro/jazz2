@@ -646,8 +646,22 @@ void createProfileButton(int i, int position = 0, string prfName = "3dkwkvmwlvne
         button.setValue(true);
         
         profile = button.mainButton.text;
+
+        jjSTREAM file(profile + "_" + data_filename);
+        file.pop(mode);
+        file.pop(showIndex);
+        file.pop(horizontal);
+        file.pop(index_color);
+        file.pop(ammo_color);
+        file.pop(show_empty_ammo);
+        file.pop(bind_open);
+        file.pop(index_fontsize);
+        file.pop(ammo_fontsize);
+        file.pop(horizontal2);
         
         jjConsole("[WL] Now using the profile " + profile + ".");
+
+        save();
     }), Button(2, function(button) {
         if(button.mainButton.text == profile) { jjConsole("[WL] You can't delete the profile you're using."); return; }
         if(button.value == false) {
@@ -754,6 +768,17 @@ void save() {
 }
 
 void onLevelBegin() {
+    uint profileAmount;
+    jjSTREAM profilesFile("WLdata_profiles.asdat");
+    profilesFile.pop(profile);
+    profilesFile.pop(profileAmount);
+
+    for(uint i = 0; i < profileAmount; i++) {
+        string profileName;
+        profilesFile.pop(profileName);
+        profiles.insertLast(profileName);
+    }
+
     jjSTREAM file(profile + "_" + data_filename);
     file.pop(mode);
     file.pop(showIndex);
@@ -765,17 +790,6 @@ void onLevelBegin() {
 	file.pop(index_fontsize);
 	file.pop(ammo_fontsize);
 	file.pop(horizontal2);
-
-    uint profileAmount;
-    jjSTREAM profilesFile("WLdata_profiles.asdat");
-    profilesFile.pop(profile);
-    profilesFile.pop(profileAmount);
-
-    for(uint i = 0; i < profileAmount; i++) {
-        string profileName;
-        profilesFile.pop(profileName);
-        profiles.insertLast(profileName);
-    }
 
 	// menu stuff
 	menu_buttons[0].buttons[0].setValue(true);
@@ -1152,8 +1166,13 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!wl newprofile ") == 0) {
+    if(stringReceived.findFirst("!wl newprofile") == 0) {
         string profileName = stringReceived.substr(15);
+
+        if(stringReceived.findFirst("!wl newprofile ") != 0) {
+            jjConsole("[WL] The newprofile command must be followed by a profile name.");
+            return true;
+        }
 
         if(profileName == "") {
             jjConsole("[WL] Please specify a profile name.");
@@ -1187,8 +1206,13 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!wl profile ") == 0) {
+    if(stringReceived.findFirst("!wl profile") == 0) {
         string profileName = stringReceived.substr(12);
+
+        if(stringReceived.findFirst("!wl profile ") != 0) {
+            jjConsole("[WL] The profile command must be followed by a profile name.");
+            return true;
+        }
 
         if(profileName == "") {
             jjConsole("[WL] Please specify a profile name.");
@@ -1217,8 +1241,13 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!wl deleteprofile ") == 0) {
+    if(stringReceived.findFirst("!wl deleteprofile") == 0) {
         string profileName = stringReceived.substr(18);
+
+        if(stringReceived.findFirst("!wl deleteprofile ") != 0) {
+            jjConsole("[WL] The deleteprofile command must be followed by a profile name.");
+            return true;
+        }
 
         if(profileName == "") {
             jjConsole("[WL] Please specify a profile name.");
