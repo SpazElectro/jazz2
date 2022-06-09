@@ -1023,13 +1023,21 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         jjConsole("! wl deleteprofile - Deletes a profile that you input in.");
         jjConsole("! wl profile - Uses a profile that you input in.");
         jjConsole("! wl profiles - Shows all the profiles.");
+        jjConsole("! wl colorupgrade ammo - Toggles whether to make the weapons' color to be orange when they're upgraded");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl help 5") == 0) {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl colorupgrade index - Toggles whether to make the weapons' indexes color to be orange when they're upgraded");
         jjConsole("-----------------------------------------------------");
         return true;
     }
 
     if(stringReceived.findFirst("!wl help") == 0) {
         jjConsole("-----------------------------------------------------");
-        jjConsole("! wl help 1-4 - Shows a help message");
+        jjConsole("! wl help 1-5 - Shows a help message");
         jjConsole("! wl position - Changes the position of the weapon list");
         jjConsole("! wl toggle - Sets the weapon list to Toggle mode");
         jjConsole("! wl hold - Sets the weapon list to Hold mode");
@@ -1147,6 +1155,24 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived.findFirst("!wl color ammo") == 0) {
         ammo_color = not ammo_color;
         jjConsole("[WL] Changed the weapons' ammo color to " + (ammo_color ? "colorful" : "normal"));
+
+        save();
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl colorupgrade ammo") == 0) {
+        color_upgraded_ammo = not color_upgraded_ammo;
+
+        jjConsole("[WL] Now the weapons are " + (color_upgraded_ammo ? "colorful" : "normal") + " when they are upgraded.");
+
+        save();
+        return true;
+    }
+
+    if(stringReceived.findFirst("!wl colorupgrade index") == 0) {
+        color_upgraded_index = not color_upgraded_index;
+
+        jjConsole("[WL] Now the weapons' indexes are " + (color_upgraded_index ? "colorful" : "normal") + " when the weapons are upgraded.");
 
         save();
         return true;
