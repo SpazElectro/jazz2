@@ -739,6 +739,15 @@ void onLevelBegin() {
     file.pop(color_upgraded_ammo);
     file.pop(color_upgraded_index);
 
+    if(mode == "") {
+        mode = "toggle";
+        bind_open = 192;
+        index_fontsize = "small";
+        ammo_fontsize = "small";
+        show_empty_ammo = true;
+        profile = "default";
+    }
+
 	// menu stuff
 	menu_buttons[0].buttons[0].setValue(true);
 	menu_buttons[1].buttons[0].setValue(showIndex);
@@ -768,14 +777,6 @@ void onLevelBegin() {
 
     if(color_upgraded_ammo) menu_buttons[10].buttons[0].setValue(true);
     if(color_upgraded_index) menu_buttons[10].buttons[1].setValue(true);
-    
-    if(mode == "") {
-        mode = "toggle";
-        bind_open = 192;
-        index_fontsize = "small";
-        ammo_fontsize = "small";
-        show_empty_ammo = true;
-    }
 
     jjConsole("[WL] Type ! wl help for a list of commands.");
     jjConsole("[WL] Press F1 to open the settings menu.");
@@ -1253,6 +1254,16 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         } else {
             menu_buttons[8].buttons[0].setValue(false);
             menu_buttons[8].buttons[1].setValue(true);
+        }
+
+        menu_buttons[10].buttons[0].setValue(false);
+        menu_buttons[10].buttons[1].setValue(false);
+
+        if(color_upgraded_ammo) {
+            menu_buttons[10].buttons[0].setValue(true);
+        }
+        if(color_upgraded_index) {
+            menu_buttons[10].buttons[1].setValue(true);
         }
 
         jjConsole("[WL] Now using the profile " + profileName + ".");
