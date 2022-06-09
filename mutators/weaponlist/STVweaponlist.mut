@@ -1,4 +1,6 @@
 #pragma name "Weapon List"
+#pragma require "STVweaponlist_constants.asc"
+#include "STVweaponlist_constants.asc"
 
 funcdef void TimerVDictionaryFunction(dictionary@);
 class TimerV : jjBEHAVIORINTERFACE {
@@ -148,18 +150,6 @@ class AnimatedSprite
         if(this.visible) {
             canvas.drawSprite(this.x, this.y, this.animSet, this.id, int(this.frame), 0, SPRITE::NORMAL, 123);
         }
-    }
-}
-
-class Key
-{
-    string id;
-    int code;
-
-    Key(string id, int code)
-    {
-        this.id = id;
-        this.code = code;
     }
 }
 
@@ -336,6 +326,7 @@ array<Button@> pageButtons = {Button(1, function(button) {
     getButton(8).visible = false;
     getButton(9).visible = false;
     getButton(10).visible = false;
+    // getButton(111).visible = false;
 }), Button(2, function(button) {
     button.setValue(true);
     button.mainButton.buttons[0].setValue(false);
@@ -352,6 +343,7 @@ array<Button@> pageButtons = {Button(1, function(button) {
     getButton(8).visible = true;
     getButton(9).visible = true;
     getButton(10).visible = true;
+    // getButton(11).visible = true;
 })};
 
 array<Button@> bindModes = {Button(1, function(button) {
@@ -392,9 +384,19 @@ array<Button@> positions = {Button(1, function(button) {
         direction = "right";
     }
 
-    jjConsole("[WL] The weapons' list's direction is " + direction);
+    jjConsole("[WL] The weapons' list is now at the " + direction + " of your screen.");
 
 	save();
+})};
+
+array<Button@> colorUpgradedButtons = {Button(1, function(button) {
+    button.setValue(not button.value);
+    color_upgraded_ammo = not color_upgraded_ammo;
+    save();
+}), Button(2, function(button) {
+    button.setValue(not button.value);
+    color_upgraded_index = not color_upgraded_index;
+    save();
 })};
 
 array<MenuButton@> menu_buttons = {
@@ -428,140 +430,53 @@ array<MenuButton@> menu_buttons = {
         binding = true;
         showMenu = false;
     })),
-    MenuButton("Profiles", 3, Button(1, function(button) { 
-        getButton(10).buttons[0].setValue(false);
+    MenuButton("Color On Upgrade", 3, colorUpgradedButtons)
+    // })), // unfinished profiles
+    // MenuButton("Profiles", 5, Button(1, function(button) { 
+    //     button.setValue(false);
 
-        for(uint i = 0; i < menu_buttons.length(); i++) {
-            getButton(i).visible = false;
-        }
+    //     for(uint i = 0; i < menu_buttons.length(); i++) {
+    //         getButton(i).visible = false;
+    //     }
 
-        menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function(button) {
-            getButton(10).buttons[0].debounce = false;
-            getButton(0).visible = true;
-            getButton(0).buttons[0].debounce = true;
+    //     menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function(button) {
+    //         button.debounce = false;
+    //         getButton(0).visible = true;
+    //         getButton(0).buttons[0].debounce = true;
 
-            TimerV(35, function() {
-                getButton(0).buttons[0].debounce = false;
-            });
+    //         TimerV(35, function() {
+    //             getButton(0).buttons[0].debounce = false;
+    //         });
 
-            for(uint i = 7; i < menu_buttons.length(); i++) {
-                getButton(i).visible = true;
-            }
+    //         for(uint i = 7; i < menu_buttons.length(); i++) {
+    //             getButton(i).visible = true;
+    //         }
 
-            menu_buttons.resize(11);
+    //         menu_buttons.resize(12);
 
-            menu_buttons[0].buttons[0].setValue(false);
-            menu_buttons[1].buttons[0].setValue(showIndex);
-            menu_buttons[2].buttons[0].setValue(false);
-            menu_buttons[3].buttons[0].setValue(index_color);
-            menu_buttons[4].buttons[0].setValue(ammo_color);
-            menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+    //         menu_buttons[0].buttons[0].setValue(false);
+    //         menu_buttons[1].buttons[0].setValue(showIndex);
+    //         menu_buttons[2].buttons[0].setValue(false);
+    //         menu_buttons[3].buttons[0].setValue(index_color);
+    //         menu_buttons[4].buttons[0].setValue(ammo_color);
+    //         menu_buttons[5].buttons[0].setValue(show_empty_ammo);
             
-            if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
-            if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
-            if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
-        })));
+    //         if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
+    //         if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
+    //         if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
+    //     })));
 
-        menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(1, function(button) {})));
-        menu_buttons[12].size = "small";
-        menu_buttons[12].buttons[0].visible = false;
-        menu_buttons[12].xOffset = -10;
-        menu_buttons[12].yOffset = 20;
-        menu_buttons[12].buttons[0].xOffset = -10;
-        menu_buttons[12].buttons[0].yOffset = 20;
+    //     menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(1, function(button) {})));
+    //     menu_buttons[12].size = "small";
+    //     menu_buttons[12].buttons[0].visible = false;
+    //     menu_buttons[12].xOffset = -10;
+    //     menu_buttons[12].yOffset = 20;
+    //     menu_buttons[12].buttons[0].xOffset = -10;
+    //     menu_buttons[12].buttons[0].yOffset = 20;
 
-        createProfileButtons();
-	}))
+    //     createProfileButtons();
+	// }))
 };
-
-array<Key@> KEYS = {
-  Key("F2", 0x71),
-  Key("F5", 0x74),
-  Key("F6", 0x75),
-  Key("F7", 0x76),
-  Key("F10", 0x79),
-  Key("F11", 0x7A),
-  Key("Insert", 0x2D),
-  Key("Home", 0x24),
-  Key("PageUp", 0x21),
-  Key("Delete", 0x2E),
-  Key("End", 0x23),
-  Key("PageDown", 0x22),
-  Key("Colon", 0xBA),
-  Key("QuotationMark", 0xDE),
-  Key("Backspace", 0x08),
-  Key("Backslash", 0xDC),
-  Key("Backquote", 0xC0), // default
-  Key("BracketLeft", 0xDB),
-  Key("BracketRight", 0xDD),
-  Key("Comma", 0xBC),
-  Key("Minus", 0xBD),
-  Key("Period", 0xBE),
-  Key("Slash", 0xBF),
-  Key("Plus", 0xBB),
-  Key("Shift", 0x10),
-  Key("Alt", 0x12),
-  Key("Control", 0x11),
-  Key("Tab", 0x09),
-  Key("Caps Lock", 0x14),
-  Key("Space", 0x20),
-  Key("Up", 0x26),
-  Key("Down", 0x28),
-  Key("Left", 0x25),
-  Key("Right", 0x27),
-  Key("NumpadSlash", 0x6F),
-  Key("NumpadAsterisk", 0x6A),
-  Key("NumpadMinus", 0x6D),
-  Key("NumpadPlus", 0x6B),
-  Key("Numpad1", 0x61),
-  Key("Numpad2", 0x62),
-  Key("Numpad3", 0x63),
-  Key("Numpad4", 0x64),
-  Key("Numpad5", 0x65),
-  Key("Numpad6", 0x66),
-  Key("Numpad7", 0x67),
-  Key("Numpad8", 0x68),
-  Key("Numpad9", 0x69),
-  Key("Numpad0", 0x60),
-  Key("NumpadPeriod", 0x6E),
-  Key("0", 0x30),
-  Key("1", 0x31),
-  Key("2", 0x32),
-  Key("3", 0x33),
-  Key("4", 0x34),
-  Key("5", 0x35),
-  Key("6", 0x36),
-  Key("7", 0x37),
-  Key("8", 0x38),
-  Key("9", 0x39),
-  Key("A", 0x41),
-  Key("B", 0x42),
-  Key("C", 0x43),
-  Key("D", 0x44),
-  Key("E", 0x45),
-  Key("F", 0x46),
-  Key("G", 0x47),
-  Key("H", 0x48),
-  Key("I", 0x49),
-  Key("J", 0x4A),
-  Key("K", 0x4B),
-  Key("L", 0x4C),
-  Key("M", 0x4D),
-  Key("N", 0x4E),
-  Key("O", 0x4F),
-  Key("P", 0x50),
-  Key("Q", 0x51),
-  Key("R", 0x52),
-  Key("S", 0x53),
-  Key("T", 0x54),
-  Key("U", 0x55),
-  Key("V", 0x56),
-  Key("W", 0x57),
-  Key("X", 0x58),
-  Key("Y", 0x59),
-  Key("Z", 0x5A),
-};
-
 
 string data_filename = "WLdata_data.asdat";
 string profiles_filename = "WLdata_profiles.asdat";
@@ -604,6 +519,8 @@ bool holdingBind = false;
 
 bool ammo_color = true;
 bool index_color = true;
+bool color_upgraded_ammo = false;
+bool color_upgraded_index = false;
 
 bool show_empty_ammo = true;
 
@@ -745,6 +662,8 @@ void save() {
 	file.push(index_fontsize);
 	file.push(ammo_fontsize);
     file.push(horizontal2);
+    file.push(color_upgraded_ammo);
+    file.push(color_upgraded_index);
     file.save(profile + "_" + data_filename);
 
     jjSTREAM profilesFile();
@@ -781,6 +700,8 @@ void onLevelBegin() {
 	file.pop(index_fontsize);
 	file.pop(ammo_fontsize);
 	file.pop(horizontal2);
+    file.pop(color_upgraded_ammo);
+    file.pop(color_upgraded_index);
 
 	// menu stuff
 	menu_buttons[0].buttons[0].setValue(true);
@@ -789,21 +710,29 @@ void onLevelBegin() {
 	menu_buttons[3].buttons[0].setValue(index_color);
 	menu_buttons[4].buttons[0].setValue(ammo_color);
 	menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+    menu_buttons[10].buttons[0].setValue(color_upgraded_ammo);
+
     menu_buttons[7].visible = false;
     menu_buttons[8].buttons[0].hoverText = "TOGGLE";
     menu_buttons[8].buttons[1].hoverText = "HOLD";
     menu_buttons[8].visible = false;
     menu_buttons[9].visible = false;
     menu_buttons[10].visible = false;
+    // menu_buttons[11].visible = false; // unfinished profiles
     menu_buttons[6].buttons[0].hoverText = "SMALL";
     menu_buttons[6].buttons[1].hoverText = "MEDIUM";
     menu_buttons[7].buttons[0].hoverText = "SMALL";
     menu_buttons[7].buttons[1].hoverText = "MEDIUM";
+    menu_buttons[10].buttons[0].hoverText = "AMMO";
+    menu_buttons[10].buttons[1].hoverText = "INDEX";
     
 	if(index_fontsize == "small") { menu_buttons[6].buttons[0].setValue(true); } else { menu_buttons[6].buttons[1].setValue(true); }
 	if(ammo_fontsize == "small") { menu_buttons[7].buttons[0].setValue(true); } else { menu_buttons[7].buttons[1].setValue(true); }
     if(mode == "toggle") { menu_buttons[8].buttons[0].setValue(true); } else { menu_buttons[8].buttons[1].setValue(true); }
 
+    if(color_upgraded_ammo) menu_buttons[10].buttons[0].setValue(true);
+    if(color_upgraded_index) menu_buttons[10].buttons[1].setValue(true);
+    
     if(mode == "") {
         mode = "toggle";
         bind_open = 192;
@@ -1042,7 +971,6 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-
 	if(stringReceived.findFirst("!wl size index") == 0) {
 		if(index_fontsize == "small") {
 			index_fontsize = "medium";
@@ -1136,7 +1064,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
             direction = "right";
         }
 
-        jjConsole("[WL] The weapons' list's direction is " + direction);
+        jjConsole("[WL] The weapons' list is now at the " + direction + " of your screen.");
         
         save();
         return true;
@@ -1158,6 +1086,18 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
+    if(stringReceived.findFirst("!wl profiles") == 0) {
+        string profilesString = "";
+
+        for(uint i = 0; i < profiles.length; i++) {
+            profilesString += profiles[i] + ", ";
+        }
+
+        jjConsole("[WL] Available profiles: default, " + profilesString);
+
+        return true;
+    }
+
     if(stringReceived.findFirst("!wl newprofile") == 0) {
         string profileName = stringReceived.substr(15);
 
@@ -1168,6 +1108,11 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 
         if(profileName == "") {
             jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        if(profileName == "default") {
+            jjConsole("[WL] The profile name 'default' is reserved.");
             return true;
         }
 
@@ -1255,7 +1200,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
             }
         }
 
-        if(!exists && profileName != "default") {
+        if(profileName != "default") {
             jjConsole("[WL] A profile with that name does not exist. (" + profileName + ")");
             return true;
         }
@@ -1275,18 +1220,6 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         jjConsole("[WL] Deleted the profile " + profileName + ".");
 
         save();
-        return true;
-    }
-
-    if(stringReceived.findFirst("!wl profiles") == 0) {
-        string profilesString = "";
-
-        for(uint i = 0; i < profiles.length; i++) {
-            profilesString += profiles[i] + ", ";
-        }
-
-        jjConsole("[WL] Available profiles: " + profilesString);
-
         return true;
     }
 
@@ -1333,6 +1266,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
         if(player.ammo[8] > 0 or show_empty_ammo) fireball.draw(canvas);
         if(player.ammo[9] > 0 or show_empty_ammo) electroblaster.draw(canvas);
         string coloring = "";
+        string coloring2 = "";
 
         for (uint i = 2; i < 10; i++)
         {
@@ -1343,7 +1277,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
             int indexX = 0;
             int indexY = 0;
 
-            coloring = coloring + "|";
+            if(index_color) coloring = coloring + "|";
+            if(ammo_color) coloring2 = coloring2 + "|";
 
             if(horizontal) {
                 x = (originX - (i * 75)) + 15;
@@ -1369,10 +1304,22 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
                 indexY = (originY - (i * 35)) + 25 - 5;
             }
 
-            if(showIndex)
-                canvas.drawString(indexX, indexY, (index_color ? coloring : "") + i, string_size_to_size(index_fontsize), STRING::NORMAL, 0);
+            if(color_upgraded_index && upgraded(player, i))
+                coloring = "||||";
 
-            canvas.drawString(x, y, (ammo_color ? coloring : "") + "x" + player.ammo[i], string_size_to_size(ammo_fontsize), STRING::NORMAL, 0);
+            if(color_upgraded_ammo && upgraded(player, i))
+                coloring2 = "||||";     
+
+            if(showIndex)
+                canvas.drawString(indexX, indexY, coloring + i, string_size_to_size(index_fontsize), STRING::NORMAL, 0);
+
+            canvas.drawString(x, y, coloring2 + "x" + player.ammo[i], string_size_to_size(ammo_fontsize), STRING::NORMAL, 0);
+            
+            if(color_upgraded_index && upgraded(player, i))
+                coloring = "";
+
+            if(color_upgraded_ammo && upgraded(player, i))
+                coloring2 = "";  
         }
 
     }
