@@ -1,1 +1,4 @@
 *.log
+/mutators/weaponlist/packme/STVweaponlist_constants.asc
+/mutators/weaponlist/packme/STVweaponlist.mut
+/mutators/weaponlist/packme/weaponlist.zip
