@@ -1,5 +1,5 @@
  void onLevelBegin(){
-    jjConsole("hello fuckers!");
+    jjConsole("started!");
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType)
