@@ -1,0 +1,286 @@
+funcdef void TimerVDictionaryFunction(dictionary@);
+class TimerV : jjBEHAVIORINTERFACE {
+  TimerV(int time, jjVOIDFUNC@ callback) {
+    @_callback = @callback;
+    _start(time);
+  }
+  TimerV(int time, TimerVDictionaryFunction@ callback, dictionary@ arguments) {
+    @_callbackWithArguments = @callback;
+    @_arguments = @arguments;
+    _start(time);
+  }
+  bool get_Active() const {
+    return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
+  }
+  int get_Elapsed() const {
+    if (Active) return _object.age;
+    return -1;
+  }
+  int get_Total() const {
+    if (Active) return _object.counter;
+    return -1;
+  }
+  int get_Remaining() const {
+    if (Active) return _object.counter - _object.age;
+    return -1;
+  }
+  bool Stop() {
+    if (Active && _object.age < _object.counter) {
+      _object.delete();
+      return true;
+    }
+    return false;
+  }
+  bool Paused = false;
+ 
+ 
+ 
+ 
+ 
+  private jjVOIDFUNC@ _callback = null;
+  private TimerVDictionaryFunction@ _callbackWithArguments;
+  private dictionary@ _arguments;
+  private jjOBJ@ _object;
+  private int _startTime;
+  private void _start(int time) {
+    if (time > 0) {
+      @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
+      _object.behavior = this;
+      _object.counter = time;
+      _object.age = 0;
+      _object.playerHandling = HANDLING::PARTICLE;
+      _object.deactivates = false;
+      _startTime = jjGameTicks;
+    } else {
+      @_object = jjObjects[0]; //avoid null pointer access
+      _pickCallback();
+    }
+  }
+  private void onBehave(jjOBJ@ obj) {
+    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
+      _pickCallback();
+      _object.delete();
+    }
+  }
+  private void _pickCallback() {
+    if (_callback !is null)
+      _callback();
+    else
+      _callbackWithArguments(_arguments);
+  }
+}
+
+enum PACKET_ID {
+    GET_EXECUTIONED_USER, GAME_STARTED, SERVER_MESSAGE
+}
+
+bool lightsOn = true;
+bool gameStarted = false;
+
+string servermessage = "";
+
+jjPLAYER@ currentExecution;
+
+jjRNG mainRNG = jjRNG();
+
+int getRandom(int min, int max) {
+    int num = mainRNG();
+
+    if (num < 0)
+        num *= -1;
+
+    num = (num % (max - min + 1)) + min;
+
+    return num;
+}
+
+int getPlayerCount() {
+	int count = 0;
+
+	for (int i = 0; i < 32; i++) {
+		if (jjPlayers[i].isActive)
+			count++;
+	}
+
+	return count;
+}
+
+jjPLAYER@ getRandomPlayer() {
+    jjPLAYER@ user = jjPlayers[getRandom(0, getPlayerCount())];
+
+    if(user.isActive and !user.isOut)
+        return user;
+    else
+        return getRandomPlayer();
+}
+
+void onLevelBegin() {
+    if(jjIsServer) {
+        jjConsole("[RR] Starting in 10 seconds", true);
+
+        jjChat("/maxlives 1");
+        jjChat("/setlives 1 1");
+        
+        TimerV(10 * 70, function() {
+            gameStarted = true;
+            jjConsole("[RR] Started.", true);
+
+			gameLoop();
+        });
+    }
+}
+
+void gameLoop() {
+    jjPLAYER@ user = getRandomPlayer();
+    @currentExecution = @user;
+
+    jjConsole("[RR] Player: " + user.nameUnformatted, true);
+    jjConsole("[RR] .....", true);
+
+    dictionary@ args = {{"user", @user}};
+
+    TimerV(3 * 70, function(argz) {
+        lightsOn = false;
+
+        jjPLAYER@ user;
+        argz.get("user", @user);
+
+        int chance = getRandom(1, 100);
+        
+        if(chance > 70) {
+            user.hurt(8, true);
+            jjConsole("[RR] " + user.nameUnformatted + " was shot.", true);
+            servermessage = user.nameUnformatted + " was shot.";
+        } else {
+            jjConsole("[RR] The gun was not loaded.", true);
+            servermessage = "The gun was not loaded.";
+        }
+
+        jjSTREAM packet;
+        packet.push(uint8(SERVER_MESSAGE));
+        packet.push(servermessage);
+        jjSendPacket(packet, -999);
+
+        TimerV(4 * 70, function() {
+            jjSTREAM packet2;
+            packet2.push(uint8(SERVER_MESSAGE));
+            packet2.push("");
+            jjSendPacket(packet2, -1);
+            lightsOn = true;
+        });
+
+        @currentExecution = null;
+
+        jjConsole("[RR] Next execution starting in 10 seconds.", true);
+        
+        TimerV(10 * 70, gameLoop);
+    }, args);
+}
+
+string drawLight(int r, int brightness)
+{
+    string finalString = "";
+
+    for (int x = 0; x < r; x++)
+    {
+        finalString += "(";
+
+        for (int y = 0; y < x; y++)
+        {
+            finalString += ".";
+        }
+
+        for (int br = 0; br < brightness; br++)
+        {
+            finalString += ".";
+        }
+
+        finalString += ")n";
+    }
+
+    return finalString;
+}
+
+void onMain() {
+    mainRNG.seed(jjGameTicks + jjUnixTimeMs() + jjUnixTimeSec());
+
+    if(gameStarted && !jjIsServer) {
+        jjSTREAM packet;
+        packet.push(uint8(GET_EXECUTIONED_USER));
+        jjSendPacket(packet);
+    }
+
+    if(gameStarted && jjIsServer) {
+        jjSTREAM packet;
+        packet.push(uint8(GAME_STARTED));
+        packet.push(true);
+        jjSendPacket(packet, 0);
+    }
+
+    for(int i = 0; i < getPlayerCount(); i++) {
+        jjPLAYER@ player = jjPlayers[i];
+        player.noFire = true;
+        
+        if(player.isActive and !player.isOut) {
+            player.health = jjMaxHealth;
+        }
+    }
+}
+
+void onReceive(jjSTREAM &in packet, int fromClientID) {
+    uint8 type;
+    packet.pop(type);
+
+    if(jjIsServer) {
+        if(type == GET_EXECUTIONED_USER && @currentExecution != null) {
+            jjSTREAM packet2;
+            packet2.push(uint8(GET_EXECUTIONED_USER));
+            packet2.push(currentExecution.clientID);
+            jjSendPacket(packet2, fromClientID);
+        }
+    } else {
+        if(type == GET_EXECUTIONED_USER) {
+            int t;
+            packet.pop(t);
+            @currentExecution = jjPlayers[t];
+        } else if(type == GAME_STARTED) {
+            bool b;
+            packet.pop(b);
+            gameStarted = b;
+        } else if(type == SERVER_MESSAGE) {
+            packet.pop(servermessage);
+        }
+    }
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(@currentExecution != null) {
+        if(servermessage == "")
+            canvas.drawString(jjResolutionWidth / 2 - (currentExecution.nameUnformatted.length() * 10), jjResolutionHeight / 2, currentExecution.nameUnformatted, STRING::MEDIUM, STRING::NORMAL, 0);
+    }
+    
+    if(servermessage != "") canvas.drawString(jjResolutionWidth / 2 - (servermessage.length() * 11), jjResolutionHeight / 2, servermessage, STRING::MEDIUM, STRING::NORMAL, 0);
+
+    return false;
+}
+
+void onDrawLayer3(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(lightsOn) {
+        int yOffset = 0;
+        int xOffset = 0;
+        int xOffset_newline = 0;
+        string s = drawLight(8, 4);
+
+        for(int i = 0; i < s.length(); i++) {
+            xOffset += 10;
+
+            if(s.substr(i, 1) == "n") {
+                xOffset_newline += 1;
+                yOffset -= 10;
+                xOffset = (-5) * xOffset_newline;
+            } else {
+                canvas.drawString(12.3*32+xOffset, (6.9*32)-yOffset, s.substr(i, 1), STRING::SMALL, STRING::NORMAL, 0);
+            }
+        }
+    }
+}

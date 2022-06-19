@@ -1,0 +1,20 @@
+ void onLevelBegin(){
+    jjConsole("hello fuckers!");
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType)
+{
+    int number_1, number_2;
+
+    if (stringReceived.substr(0, 6) == "hello ")
+    {
+        // get the rest of the string
+        array<string>@ restOfString = stringReceived.split(" ");
+        number_1 = parseInt(restOfString[1]);
+        number_2 = parseInt(restOfString[2]);
+        jjConsole("" + (number_1 + number_2));
+        
+    }
+
+    return false;
+}

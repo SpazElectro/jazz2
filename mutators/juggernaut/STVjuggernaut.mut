@@ -1,35 +1,35 @@
 funcdef void TimerVDictionaryFunction(dictionary@);
 class TimerV : jjBEHAVIORINTERFACE {
   TimerV(int time, jjVOIDFUNC@ callback) {
-    @_callback = @callback;
-    _start(time);
+	@_callback = @callback;
+	_start(time);
   }
   TimerV(int time, TimerVDictionaryFunction@ callback, dictionary@ arguments) {
-    @_callbackWithArguments = @callback;
-    @_arguments = @arguments;
-    _start(time);
+	@_callbackWithArguments = @callback;
+	@_arguments = @arguments;
+	_start(time);
   }
   bool get_Active() const {
-    return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
+	return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
   }
   int get_Elapsed() const {
-    if (Active) return _object.age;
-    return -1;
+	if (Active) return _object.age;
+	return -1;
   }
   int get_Total() const {
-    if (Active) return _object.counter;
-    return -1;
+	if (Active) return _object.counter;
+	return -1;
   }
   int get_Remaining() const {
-    if (Active) return _object.counter - _object.age;
-    return -1;
+	if (Active) return _object.counter - _object.age;
+	return -1;
   }
   bool Stop() {
-    if (Active && _object.age < _object.counter) {
-      _object.delete();
-      return true;
-    }
-    return false;
+	if (Active && _object.age < _object.counter) {
+	  _object.delete();
+	  return true;
+	}
+	return false;
   }
   bool Paused = false;
  
@@ -43,30 +43,30 @@ class TimerV : jjBEHAVIORINTERFACE {
   private jjOBJ@ _object;
   private int _startTime;
   private void _start(int time) {
-    if (time > 0) {
-      @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
-      _object.behavior = this;
-      _object.counter = time;
-      _object.age = 0;
-      _object.playerHandling = HANDLING::PARTICLE;
-      _object.deactivates = false;
-      _startTime = jjGameTicks;
-    } else {
-      @_object = jjObjects[0]; //avoid null pointer access
-      _pickCallback();
-    }
+	if (time > 0) {
+	  @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
+	  _object.behavior = this;
+	  _object.counter = time;
+	  _object.age = 0;
+	  _object.playerHandling = HANDLING::PARTICLE;
+	  _object.deactivates = false;
+	  _startTime = jjGameTicks;
+	} else {
+	  @_object = jjObjects[0]; //avoid null pointer access
+	  _pickCallback();
+	}
   }
   private void onBehave(jjOBJ@ obj) {
-    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
-      _pickCallback();
-      _object.delete();
-    }
+	if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
+	  _pickCallback();
+	  _object.delete();
+	}
   }
   private void _pickCallback() {
-    if (_callback !is null)
-      _callback();
-    else
-      _callbackWithArguments(_arguments);
+	if (_callback !is null)
+	  _callback();
+	else
+	  _callbackWithArguments(_arguments);
   }
 }
 
@@ -77,14 +77,14 @@ enum packet_type {GET_JUGGERNAUT, SEND_JUGGERNAUT_HEALTH}
 jjRNG mainRNG = jjRNG();
 
 int getRandom(int min, int max) {
-    int num = mainRNG();
+	int num = mainRNG();
 
-    if (num < 0)
-        num *= -1;
+	if (num < 0)
+		num *= -1;
 
-    num = (num % (max - min + 1)) + min;
+	num = (num % (max - min + 1)) + min;
 
-    return num;
+	return num;
 }
 
 bool gameStarted = false;
@@ -94,18 +94,18 @@ int jnHealth = 1000;
 void onLevelBegin() {
 	jjAnimSets[ANIM::SNOW].load(0, "JuggernautAnims.j2a");
 
-    if(jjIsServer) selectJuggernaut();
+	if(jjIsServer) selectJuggernaut();
 	if(!jjIsServer) {
 		jjSTREAM packet;
 		packet.push(uint8(GET_JUGGERNAUT));
 		jjSendPacket(packet);
 	}
 
-    jjConsole("||||Custom Mode: Juggernaut");
+	jjConsole("||||Custom Mode: Juggernaut");
 }
 
 void onPlayer(jjPLAYER@ player) {
-    if(gameStarted) {
+	if(gameStarted) {
 		if(player.playerID != jagganut.playerID) {
 			
 		} else {
@@ -129,54 +129,54 @@ void onPlayer(jjPLAYER@ player) {
 }
 
 void selectJuggernaut() {
-    jjConsole("[JN] Game starting in 500 game ticks.");
-    TimerV(500, function() {		
-        jjConsole("[JN] Selecting juggernaut.");
+	jjConsole("[JN] Game starting in 500 game ticks.");
+	TimerV(500, function() {		
+		jjConsole("[JN] Selecting juggernaut.");
 
 		jnHealth = 1000;
 
-        jjPLAYER@ juggernaut = jjPlayers[getRandom(0, jjPlayerCount - 1)];
+		jjPLAYER@ juggernaut = jjPlayers[getRandom(0, jjPlayerCount - 1)];
 		
 		for(int i = 1; i < 9; i++)
 		{
 			juggernaut.ammo[i] = 999;
 		}
 
-        if(!juggernaut.isActive) {
-            jjConsole("[JN] Juggernaut is spectating, picking new juggernaut.");
-            selectJuggernaut();
-        }
+		if(!juggernaut.isActive) {
+			jjConsole("[JN] Juggernaut is spectating, picking new juggernaut.");
+			selectJuggernaut();
+		}
 
 		juggernaut.health = 7;
 
 		gameStarted = true;
 
-        @jagganut = @juggernaut;
-        jjConsole("[JN] The juggernaut is " + jagganut.nameUnformatted + ".");
+		@jagganut = @juggernaut;
+		jjConsole("[JN] The juggernaut is " + jagganut.nameUnformatted + ".");
 
-        jjSTREAM stream;
-        stream.push(int8(GET_JUGGERNAUT));
-        stream.push(juggernaut.playerID);
-        jjSendPacket(stream);
-    });
+		jjSTREAM stream;
+		stream.push(int8(GET_JUGGERNAUT));
+		stream.push(juggernaut.playerID);
+		jjSendPacket(stream);
+	});
 }
 
 void onReceive(jjSTREAM &in packet, int fromClientID) {
-    if(!jjIsServer) {
-        int8 type;
-        packet.pop(type);
+	if(!jjIsServer) {
+		int8 type;
+		packet.pop(type);
 
-        if(type == GET_JUGGERNAUT) {
-            int juggernautID;
-            packet.pop(juggernautID);
+		if(type == GET_JUGGERNAUT) {
+			int juggernautID;
+			packet.pop(juggernautID);
 
-            @jagganut = jjPlayers[juggernautID];
+			@jagganut = jjPlayers[juggernautID];
 			gameStarted = true;
-            jjConsole("[AU] Juggernaut has been received.");
-        } else if(type == SEND_JUGGERNAUT_HEALTH) {
+			jjConsole("[AU] Juggernaut has been received.");
+		} else if(type == SEND_JUGGERNAUT_HEALTH) {
 			packet.pop(jnHealth);
 		}
-    }
+	}
 
 	if(jjIsServer) {
 		int8 type;
