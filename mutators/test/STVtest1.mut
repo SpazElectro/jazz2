@@ -1,35 +1,35 @@
 funcdef void TimerVDictionaryFunction(dictionary@);
 class TimerV : jjBEHAVIORINTERFACE {
   TimerV(int time, jjVOIDFUNC@ callback) {
-    @_callback = @callback;
-    _start(time);
+	@_callback = @callback;
+	_start(time);
   }
   TimerV(int time, TimerVDictionaryFunction@ callback, dictionary@ arguments) {
-    @_callbackWithArguments = @callback;
-    @_arguments = @arguments;
-    _start(time);
+	@_callbackWithArguments = @callback;
+	@_arguments = @arguments;
+	_start(time);
   }
   bool get_Active() const {
-    return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
+	return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
   }
   int get_Elapsed() const {
-    if (Active) return _object.age;
-    return -1;
+	if (Active) return _object.age;
+	return -1;
   }
   int get_Total() const {
-    if (Active) return _object.counter;
-    return -1;
+	if (Active) return _object.counter;
+	return -1;
   }
   int get_Remaining() const {
-    if (Active) return _object.counter - _object.age;
-    return -1;
+	if (Active) return _object.counter - _object.age;
+	return -1;
   }
   bool Stop() {
-    if (Active && _object.age < _object.counter) {
-      _object.delete();
-      return true;
-    }
-    return false;
+	if (Active && _object.age < _object.counter) {
+	  _object.delete();
+	  return true;
+	}
+	return false;
   }
   bool Paused = false;
  
@@ -43,30 +43,30 @@ class TimerV : jjBEHAVIORINTERFACE {
   private jjOBJ@ _object;
   private int _startTime;
   private void _start(int time) {
-    if (time > 0) {
-      @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
-      _object.behavior = this;
-      _object.counter = time;
-      _object.age = 0;
-      _object.playerHandling = HANDLING::PARTICLE;
-      _object.deactivates = false;
-      _startTime = jjGameTicks;
-    } else {
-      @_object = jjObjects[0]; //avoid null pointer access
-      _pickCallback();
-    }
+	if (time > 0) {
+	  @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
+	  _object.behavior = this;
+	  _object.counter = time;
+	  _object.age = 0;
+	  _object.playerHandling = HANDLING::PARTICLE;
+	  _object.deactivates = false;
+	  _startTime = jjGameTicks;
+	} else {
+	  @_object = jjObjects[0]; //avoid null pointer access
+	  _pickCallback();
+	}
   }
   private void onBehave(jjOBJ@ obj) {
-    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
-      _pickCallback();
-      _object.delete();
-    }
+	if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
+	  _pickCallback();
+	  _object.delete();
+	}
   }
   private void _pickCallback() {
-    if (_callback !is null)
-      _callback();
-    else
-      _callbackWithArguments(_arguments);
+	if (_callback !is null)
+	  _callback();
+	else
+	  _callbackWithArguments(_arguments);
   }
 }
 
@@ -78,130 +78,132 @@ jjPLAYER@ impostor;
 
 enum packet_type { SET_DEAD, IS_IMPOSTOR }
 
-void log(string message) {
-    jjConsole("[AU] " + message);
+void log(string message, bool announce = false) {
+	jjConsole("[AU] " + message, announce);
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(!alive) {
-        log("Your dead, you can't talk.");
-        return true;
-    }
-
-    return false;
+	return true;
 }
 
 void onMain() {
-    if(jjMouseAim == false) {
-        jjChat("/mouseaim on");
-    }
+  if(jjMouseAim == false) {
+	 jjChat("/mouseaim on");
+  }
+
+  if(gameStarted && jjIsServer) {
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+	jjConsole("                                     ", true);
+  }
 }
 
-void onPlayer(jjPLAYER@ player) {
-    player.fly = FLIGHT::FLYCARROT;
-    player.ySpeed = 0;
 
-    if(@impostor != @null) {
-        if(player.clientID == impostor.clientID) {
-            player.noFire = false;
-        } else {
-            player.noFire = true;
-        }
-    } else {
-        player.noFire = true;
-    }
+void onPlayer(jjPLAYER@ player) {
+	player.fly = FLIGHT::FLYCARROT;
+	player.ySpeed = 0;
+
+	if(@impostor != @null) {
+		if(player.clientID == impostor.clientID) {
+			player.noFire = false;
+		} else {
+			player.noFire = true;
+		}
+	} else {
+		player.noFire = true;
+	}
 }
 
 void onLevelBegin() {
-    if(jjIsServer) {
-        dictionary@ n = {{"num", 10}};
+	if(jjIsServer) {
+		dictionary@ n = {{"num", 10}};
 
-        timerTick(n);
-    }
+		timerTick(n);
+	}
 }
 
 void onRoast(jjPLAYER@ victim, jjPLAYER@ killer) {
-    // making sure an impostor isn't trying to be the impostor
-    // see what i did there *drumroll*
-    if(killer.clientID == impostor.clientID) {
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        jjConsole("                                     ");
-        
-
-        jjSTREAM packet;
-        packet.push(uint8(SET_DEAD));
-        packet.push(victim.clientID);
-        jjSendPacket(packet, victim.clientID);
-    }
+	// making sure an impostor isn't trying to be the impostor
+	// see what i did there *drumroll*
+	if(killer.clientID == impostor.clientID) {
+		jjSTREAM packet;
+		packet.push(uint8(SET_DEAD));
+		packet.push(victim.clientID);
+		jjSendPacket(packet, victim.clientID);
+	}
 }
 
 void timerTick(dictionary@ n) {
-    int second;
-    n.get("num", second);
+	int second;
+	n.get("num", second);
 
-    if(second == 0) {
-        jjPLAYER@ player = getRandomPlayer();
-        @impostor = @player;
+	if(second == 0) {
+		jjPLAYER@ player = getRandomPlayer();
+		@impostor = @player;
 
-        jjSTREAM packet;
-        packet.push(uint8(IS_IMPOSTOR));
-        jjSendPacket(packet, impostor.clientID);
+		jjSTREAM packet;
+		packet.push(uint8(IS_IMPOSTOR));
+		jjSendPacket(packet, impostor.clientID);
 
-        log("The game has started.");
-        gameStarted = true;
-        return;
-    }
+		log("The game has started.");
+		gameStarted = true;
+		return;
+	}
 
-    dictionary@ num = {{"num", second}};
+	dictionary@ num = {{"num", second}};
 
-    TimerV(70, function(num) {
-        int second;
-        num.get("num", second);
-        log("Starting in " + second + " seconds...");
-        
-        dictionary@ newNum = {{"num", second - 1}};
+	TimerV(70, function(num) {
+		int second;
+		num.get("num", second);
+		log("Starting in " + second + " seconds...", true);
+		
+		dictionary@ newNum = {{"num", second - 1}};
 
-        timerTick(newNum);
-    }, num);
+		timerTick(newNum);
+	}, num);
 }
 
 void onReceive(jjSTREAM &in packet, int fromClientID) {
-    uint8 type;
-    packet.pop(type);
+	uint8 type;
+	packet.pop(type);
 
-    if(type == SET_DEAD) {
-        int userId;
-        packet.pop(userId);
+	if(type == SET_DEAD) {
+		int userId;
+		packet.pop(userId);
 
-        jjPLAYER@ user = jjPlayers[userId];
-        log("Killed by " + user.nameUnformatted);
+		jjPLAYER@ user = jjPlayers[userId];
+		log("Killed by " + user.nameUnformatted);
 
-        alive = false;
-    } else if(type == IS_IMPOSTOR) {
-        @impostor = @jjLocalPlayers[0];
+		alive = false;
+		gameStarted = false;
 
-        log("You're the impostor.");
-    }
+		TimerV(150, function() {
+			gameStarted = true;
+		});
+	} else if(type == IS_IMPOSTOR) {
+		@impostor = @jjLocalPlayers[0];
+
+		log("You're the impostor.");
+	}
 }
 
 int getRandom(int min, int max) {
-    int num = mainRNG();
+	int num = mainRNG();
 
-    if (num < 0)
-        num *= -1;
+	if (num < 0)
+		num *= -1;
 
-    num = (num % (max - min + 1)) + min;
+	num = (num % (max - min + 1)) + min;
 
-    return num;
+	return num;
 }
 
 int getPlayerCount() {
@@ -216,10 +218,10 @@ int getPlayerCount() {
 }
 
 jjPLAYER@ getRandomPlayer() {
-    jjPLAYER@ user = jjPlayers[getRandom(0, getPlayerCount())];
+	jjPLAYER@ user = jjPlayers[getRandom(0, getPlayerCount())];
 
-    if(user.isActive and !user.isOut)
-        return user;
-    else
-        return getRandomPlayer();
+	if(user.isActive and !user.isOut)
+		return user;
+	else
+		return getRandomPlayer();
 }
