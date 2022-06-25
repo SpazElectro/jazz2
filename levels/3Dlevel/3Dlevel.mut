@@ -52,8 +52,8 @@ void onMain() {
       double rayDirX = dirX + planeX * cameraX;
       double rayDirY = dirY + planeY * cameraX;
       //which box of the map we're in
-      int mapX = int(jjLocalPlayers[0].xPos);
-      int mapY = int(jjLocalPlayers[0].yPos);
+      int mapX = int(jjLocalPlayers[1].xPos);
+      int mapY = int(jjLocalPlayers[1].yPos);
 
       //length of ray from current position to next x or y-side
       double sideDistX;
@@ -85,22 +85,22 @@ void onMain() {
       if(rayDirX < 0)
       {
         stepX = -1;
-        sideDistX = (jjLocalPlayers[0].xPos - mapX) * deltaDistX;
+        sideDistX = (jjLocalPlayers[1].xPos - mapX) * deltaDistX;
       }
       else
       {
         stepX = 1;
-        sideDistX = (mapX + 1.0 - jjLocalPlayers[0].xPos) * deltaDistX;
+        sideDistX = (mapX + 1.0 - jjLocalPlayers[1].xPos) * deltaDistX;
       }
       if(rayDirY < 0)
       {
         stepY = -1;
-        sideDistY = (jjLocalPlayers[0].yPos - mapY) * deltaDistY;
+        sideDistY = (jjLocalPlayers[1].yPos - mapY) * deltaDistY;
       }
       else
       {
         stepY = 1;
-        sideDistY = (mapY + 1.0 - jjLocalPlayers[0].yPos) * deltaDistY;
+        sideDistY = (mapY + 1.0 - jjLocalPlayers[1].yPos) * deltaDistY;
       }
       //perform DDA
       while(hit == 0)
@@ -123,7 +123,7 @@ void onMain() {
       }
       //Calculate distance projected on camera direction. This is the shortest distance from the point where the wall is
       //hit to the camera plane. Euclidean to center camera point would give fisheye effect!
-      //This can be computed as (mapX - jjLocalPlayers[0].xPos + (1 - stepX) / 2) / rayDirX for side == 0, or same formula with Y
+      //This can be computed as (mapX - jjLocalPlayers[1].xPos + (1 - stepX) / 2) / rayDirX for side == 0, or same formula with Y
       //for size == 1, but can be simplified to the code below thanks to how sideDist and deltaDist are computed:
       //because they were left scaled to |rayDir|. sideDist is the entire length of the ray above after the multiple
       //steps, but we subtract deltaDist once because one step more into the wall was taken above.
@@ -172,15 +172,15 @@ void onMain() {
 void onPlayerInput(jjPLAYER@ player) {    
     // if(jjKey[0x26]) //up
     // {
-    //   if(worldMap[int(jjLocalPlayers[0].xPos + dirX * moveSpeed)][int(jjLocalPlayers[0].yPos)] == false) jjLocalPlayers[0].xPos += dirX * moveSpeed;
-    //   if(worldMap[int(jjLocalPlayers[0].xPos)][int(jjLocalPlayers[0].yPos + dirY * moveSpeed)] == false) jjLocalPlayers[0].yPos += dirY * moveSpeed;
+    //   if(worldMap[int(jjLocalPlayers[1].xPos + dirX * moveSpeed)][int(jjLocalPlayers[1].yPos)] == false) jjLocalPlayers[1].xPos += dirX * moveSpeed;
+    //   if(worldMap[int(jjLocalPlayers[1].xPos)][int(jjLocalPlayers[1].yPos + dirY * moveSpeed)] == false) jjLocalPlayers[1].yPos += dirY * moveSpeed;
     // }
 
     // //move backwards if no wall behind you
     // if(jjKey[0x28]) //down
     // {
-    //   if(worldMap[int(jjLocalPlayers[0].xPos - dirX * moveSpeed)][int(jjLocalPlayers[0].yPos)] == false) jjLocalPlayers[0].xPos -= dirX * moveSpeed;
-    //   if(worldMap[int(jjLocalPlayers[0].xPos)][int(jjLocalPlayers[0].yPos - dirY * moveSpeed)] == false) jjLocalPlayers[0].yPos -= dirY * moveSpeed;
+    //   if(worldMap[int(jjLocalPlayers[1].xPos - dirX * moveSpeed)][int(jjLocalPlayers[1].yPos)] == false) jjLocalPlayers[1].xPos -= dirX * moveSpeed;
+    //   if(worldMap[int(jjLocalPlayers[1].xPos)][int(jjLocalPlayers[1].yPos - dirY * moveSpeed)] == false) jjLocalPlayers[1].yPos -= dirY * moveSpeed;
     // }
 
     //rotate to the right
