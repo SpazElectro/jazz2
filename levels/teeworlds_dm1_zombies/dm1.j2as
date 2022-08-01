@@ -1,0 +1,84 @@
+#include "STVutil.asc"
+
+int lastGemAmount = 0;
+int lastHealth = jjMaxHealth;
+int shield = 0;
+
+RabbitNPC@ npc = RabbitNPC(10 * 32, 10 * 32, 50, CHAR::LORI);
+
+void onLevelBegin() {
+    // fur needs to be fixed
+    // npc.updateFur(673194016);
+
+    jjAnimSets[45].load();
+
+    // teeworlds.zombies
+    jjConsole("[TW.Z] Started!");
+}
+
+void onPlayer(jjPLAYER@ player) {    
+    npc.sprite.x = int(player.xPos);
+    npc.sprite.y = int(player.yPos);
+
+    if(lastGemAmount != player.gems[GEM::RED]) {
+        lastGemAmount = player.gems[GEM::RED];
+        shield = lastGemAmount;
+    }
+
+    // this is the worst way to do this but it works so FUCKING GOOD
+    // if you can find a better way to do this, please make a pull request
+
+    if(lastHealth != player.health) {
+        int actualHealth = player.health + shield;
+
+        if(actualHealth > jjMaxHealth) {
+            shield -= (actualHealth - jjMaxHealth);
+            player.gems[GEM::RED] = shield;
+            player.health = jjMaxHealth;
+            lastGemAmount = shield;
+        } else {
+            player.health = actualHealth;
+            shield = 0;
+            player.gems[GEM::RED] = 0;
+            lastGemAmount = 0;
+        }
+
+        lastHealth = player.health;
+    }
+}
+
+void onMain() {
+    for (int i = 1; i < jjObjectCount; i++) {
+        jjOBJ@ o = jjObjects[i];
+
+        if (o.isActive && o.eventID == 63) {
+            o.state = STATE::SLEEP;
+        }
+    }
+
+    npc.update();
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+    for (int i = 1; i < jjObjectCount; i++) {
+        jjOBJ@ o = jjObjects[i];
+
+        if (o.isActive && o.eventID == 63) {
+            // you're probably wondering why i always use '123' in the last parameter
+            // that's because its the default number from the documentation
+            
+            canvas.drawSprite(int(o.xPos), int(o.yPos), 45, 0, 0, 1, SPRITE::NORMAL, 123); 
+        }
+    }
+
+    npc.draw(canvas);
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+    for (int i = 0; i < shield; i++)
+    {
+        canvas.drawSprite(jjResolutionWidth - 10 - (i * 20), 25, 45, 0, 0, 1, SPRITE::NORMAL, 123);
+    }
+
+    return false;
+}
