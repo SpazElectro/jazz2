@@ -4,11 +4,15 @@ int lastGemAmount = 0;
 int lastHealth = jjMaxHealth;
 int shield = 0;
 
-RabbitNPC@ npc = RabbitNPC(10 * 32, 10 * 32, 50, CHAR::LORI);
+RabbitNPC@ npc = RabbitNPC(2463, 1164, 50, CHAR::SPAZ);
+float npcSpeed = 1.0;
+float fallSpeed = 5.0;
 
 void onLevelBegin() {
     // fur needs to be fixed
     // npc.updateFur(673194016);
+
+    npc.setState(RabbitState::RUNNING);
 
     jjAnimSets[45].load();
 
@@ -17,9 +21,42 @@ void onLevelBegin() {
 }
 
 void onPlayer(jjPLAYER@ player) {    
-    npc.sprite.x = int(player.xPos);
-    npc.sprite.y = int(player.yPos);
+    if(npc.sprite.x >= player.xPos) {
+        npc.direction = -1;
+    } else {
+        npc.direction = 1;
+    }
 
+    if(npc.direction == 1) {
+        npc.sprite.x += 2 * npcSpeed;
+    } else {
+        npc.sprite.x -= npcSpeed;
+    }
+
+    if (npc.colliding())
+    {
+        if(npc.direction == 1) {
+            npc.sprite.x -= npcSpeed;
+        } else {
+            npc.sprite.x += 2 * npcSpeed;
+        }
+    }
+    
+
+    if(
+        (not npc.onGround())
+    ) {
+        if(npc.state != RabbitState::FALLING) {
+            npc.setState(RabbitState::FALLING);
+        }
+
+        npc.sprite.y += fallSpeed;
+    } else {
+        if(npc.state != RabbitState::RUNNING) {
+            npc.setState(RabbitState::RUNNING);
+        }
+    }
+    
     if(lastGemAmount != player.gems[GEM::RED]) {
         lastGemAmount = player.gems[GEM::RED];
         shield = lastGemAmount;
