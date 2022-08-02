@@ -3,20 +3,18 @@
 int lastHealth = jjMaxHealth;
 int shield = 0;
 
-RabbitNPC@ npc = RabbitNPC(2463, 1164, 50, CHAR::SPAZ);
+RabbitNPC@ npc = RabbitNPC(50 * 32, 40 * 32, 50, CHAR::SPAZ);
 float npcSpeed = 1.0;
 float fallSpeed = 5.0;
 
-uint8 shieldEventId = 144;
+uint8 shieldEventId = 89;
 
 class ShieldCollectable : jjBEHAVIORINTERFACE {
-	void onBehave(jjOBJ@ obj) {
+	void onBehave(jjOBJ@ obj) { 
 		obj.behave(BEHAVIOR::PICKUP);
 	}
 
 	bool onObjectHit(jjOBJ@ obj, jjOBJ@ bullet, jjPLAYER@ player, int force) {
-        jjConsole("ShieldCollectable::onObjectHit");
-
 		shield += 1;
 
 		jjSample(obj.xPos, obj.yPos, SOUND::COMMON_HARP1);
@@ -77,11 +75,20 @@ void onPlayer(jjPLAYER@ player) {
         } else {
             npc.sprite.x -= int(2 * npcSpeed);
         }
+
+        if(collideLeft or collideRight) {
+            // jump
+            for(int i = 0; i < 10; i++) {
+                TimerV(i * 70, function() {
+                    if(!npc.colliding()) {
+                        npc.sprite.y -= int(fallSpeed);
+                    }
+                });
+            }
+        }
     }
 
-    if(
-        (not npc.onGround())
-    ) {
+    if(npc.distToGround() > 9) {
         if(npc.state != RabbitState::FALLING) {
             npc.setState(RabbitState::FALLING);
         }
@@ -116,9 +123,9 @@ void onMain() {
     for (int i = 1; i < jjObjectCount; i++) {
         jjOBJ@ o = jjObjects[i];
 
-        if (o.isActive && o.eventID == shieldEventId) {
-            o.state = STATE::HIDE;
+        if (o.eventID == shieldEventId) {
             o.behavior = ShieldCollectable();
+            o.scriptedCollisions = true;
         }
     }
 
@@ -126,17 +133,6 @@ void onMain() {
 }
 
 void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
-    for (int i = 1; i < jjObjectCount; i++) {
-        jjOBJ@ o = jjObjects[i];
-
-        if (o.isActive && o.eventID == shieldEventId) {
-            // you're probably wondering why i always use '123' in the last parameter
-            // that's because its the default number from the documentation
-            
-            canvas.drawSprite(int(o.xPos), int(o.yPos), 45, 0, 0, 1, SPRITE::NORMAL, 123); 
-        }
-    }
-
     npc.draw(canvas);
 }
 
