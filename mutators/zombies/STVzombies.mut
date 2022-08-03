@@ -73,7 +73,7 @@ void onPlayer(jjPLAYER@ player) {
         }
 
         if(npc.direction == 1) {
-            npc.sprite.x += int(2 * npcSpeed);
+            npc.sprite.x += int(npcSpeed);
         } else {
             npc.sprite.x -= int(npcSpeed);
         }
@@ -96,13 +96,13 @@ void onPlayer(jjPLAYER@ player) {
             if(collideLeft) {
                 npc.sprite.x -= int(npcSpeed);
             } else {
-                npc.sprite.x += int(2 * npcSpeed);
+                npc.sprite.x += int(npcSpeed);
             }
 
             if(collideRight) {
                 npc.sprite.x += int(npcSpeed);
             } else {
-                npc.sprite.x -= int(2 * npcSpeed);
+                npc.sprite.x -= int(npcSpeed);
             }
 
             if((collideLeft or collideRight) and npc.state != RabbitState::JUMPING) {
@@ -139,8 +139,10 @@ void onPlayer(jjPLAYER@ player) {
             npc.sprite.y += int(fallSpeed);
         } else {
             if(
-                (npc.colliding() and npc.state != RabbitState::RUNNING) or
-                (npc.state != RabbitState::RUNNING and npc.state != RabbitState::JUMPING and npc.distToGround() < 2 and not npc.colliding())
+                (
+                    (npc.colliding() and npc.state != RabbitState::RUNNING) or
+                    (npc.state != RabbitState::RUNNING and npc.state != RabbitState::JUMPING and npc.distToGround() < 2 and not npc.colliding())
+                ) and npc.state != RabbitState::SHOOTING
             ) {
                 npc.setState(RabbitState::RUNNING);
             }
