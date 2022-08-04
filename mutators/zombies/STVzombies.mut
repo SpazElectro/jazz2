@@ -3,7 +3,7 @@
 int lastHealth = jjMaxHealth;
 int shield = 0;
 
-float npcSpeed = 2.0;
+float npcSpeed = 4.0;
 float fallSpeed = 7.66;
 
 uint8 shieldEventId = 89;
@@ -66,19 +66,21 @@ void onPlayer(jjPLAYER@ player) {
     // }
 
     forEachNPC(function(npc) {
-        if(npc.sprite.x >= jjLocalPlayers[1].xPos) {
-            npc.direction = -1;
-        } else {
-            npc.direction = 1;
+        if(npc.state != RabbitState::DYING && npc.state != RabbitState::DEAD) {
+            if(npc.sprite.x >= jjLocalPlayers[1].xPos) {
+                npc.direction = -1;
+            } else {
+                npc.direction = 1;
+            }
+
+            if(npc.direction == 1) {
+                npc.sprite.x += int(npcSpeed);
+            } else {
+                npc.sprite.x -= int(npcSpeed);
+            }
         }
 
-        if(npc.direction == 1) {
-            npc.sprite.x += int(npcSpeed);
-        } else {
-            npc.sprite.x -= int(npcSpeed);
-        }
-
-        if (npc.colliding())
+        if (npc.colliding() && npc.state != RabbitState::DYING && npc.state != RabbitState::DEAD)
         {
             // i dont understand this but it works 👍
 
@@ -87,10 +89,48 @@ void onPlayer(jjPLAYER@ player) {
 
             if(not jjMaskedPixel(npc.sprite.x - (1 * 32), npc.sprite.y)) {
                 collideLeft = true;
+
+                for(int i = 0; i < 10; i++) {
+                    dictionary dict = {{"i", i}};
+
+                    TimerV(i * 5, function(this) {
+                        int i;
+                        this.get("i", i);
+
+                        forEachNPC(function(npc) {
+                            if(!npc.colliding()) {
+                                if(npc.state != RabbitState::JUMPING) {
+                                    npc.setState(RabbitState::JUMPING);
+                                }
+
+                                npc.sprite.y -= int(fallSpeed);
+                            }
+                        });
+                    }, dict);
+                }
             }
 
             if(not jjMaskedPixel(npc.sprite.x + (1 * 32), npc.sprite.y)) {
                 collideRight = true;
+
+                for(int i = 0; i < 10; i++) {
+                    dictionary dict = {{"i", i}};
+
+                    TimerV(i * 5, function(this) {
+                        int i;
+                        this.get("i", i);
+
+                        forEachNPC(function(npc) {
+                            if(!npc.colliding()) {
+                                if(npc.state != RabbitState::JUMPING) {
+                                    npc.setState(RabbitState::JUMPING);
+                                }
+
+                                npc.sprite.y -= int(fallSpeed);
+                            }
+                        });
+                    }, dict);
+                }
             }
 
             if(collideLeft) {
@@ -107,7 +147,7 @@ void onPlayer(jjPLAYER@ player) {
 
             if((collideLeft or collideRight) and npc.state != RabbitState::JUMPING) {
                 // jump (but its actually just wall climbing)
-                for(int i = 0; i < 50; i++) {
+                for(int i = 0; i < 20; i++) {
                     dictionary dict = {{"i", i}};
 
                     TimerV(i * 5, function(this) {
@@ -131,7 +171,7 @@ void onPlayer(jjPLAYER@ player) {
         // this number is the height of the npc
         // some maps have weird heights so you need to adjust this
         
-        if(npc.distToGround() > 2) {
+        if(!npc.onGround() && npc.state != RabbitState::DYING) {
             if(npc.state != RabbitState::FALLING) {
                 npc.setState(RabbitState::FALLING);
             }
@@ -140,9 +180,17 @@ void onPlayer(jjPLAYER@ player) {
         } else {
             if(
                 (
-                    (npc.colliding() and npc.state != RabbitState::RUNNING) or
-                    (npc.state != RabbitState::RUNNING and npc.state != RabbitState::JUMPING and npc.distToGround() < 2 and not npc.colliding())
-                ) and npc.state != RabbitState::SHOOTING
+                    (
+                        npc.colliding() and
+                        npc.state != RabbitState::RUNNING
+                    ) or
+                    (
+                        npc.state != RabbitState::RUNNING and
+                        npc.state != RabbitState::JUMPING and
+                        npc.onGround() and
+                        not npc.colliding()
+                    )
+                ) and npc.state != RabbitState::SHOOTING and npc.state != RabbitState::DYING
             ) {
                 npc.setState(RabbitState::RUNNING);
             }
