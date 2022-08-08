@@ -11,45 +11,41 @@
 
 int weaponSet = 0;
 int lastWeaponSet = 0;
+int maxWeaponSets = 2;
 
-bool weaponset_cooldown = false;
+bool weaponSetCooldown = false;
 
 AnimatedSprite@ sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
 
-array<int> original_upgradedIds;
-array<int> original_unupgradedIds;
+array<int> original_unupgradedIds = {
+    25,  // bouncer
+    29,  // ice
+    34,  // seeker
+    49,  // rf
+    57,  // toaster
+    59,  // tnt
+    62,  // fireball
+    68   // electroblaster
+};
 
-array<int> upgradedIds;
+array<int> original_upgradedIds = {
+    24,  // bouncer
+    28,  // ice
+    33,  // seeker
+    48,  // rf
+    56,  // toaster
+    58,  // tnt
+    61,  // fireball
+    67   // electroblaster
+};
+
 array<int> unupgradedIds;
+array<int> upgradedIds;
 
 array<int> oldWeaponAmmo;
 array<int> weaponAmmo;
 
 void onLevelBegin() {
-    // hardcoded stuff
-
-    // original weapons
-
-    original_unupgradedIds.insertLast(25); // bouncer
-    original_unupgradedIds.insertLast(29); // ice
-    original_unupgradedIds.insertLast(34); // seeker
-    original_unupgradedIds.insertLast(49); // rf
-    original_unupgradedIds.insertLast(57); // toaster
-    original_unupgradedIds.insertLast(59); // tnt
-    original_unupgradedIds.insertLast(62); // fireball
-    original_unupgradedIds.insertLast(68); // electroblaster
-
-    original_upgradedIds.insertLast(24); // bouncer
-    original_upgradedIds.insertLast(28); // ice
-    original_upgradedIds.insertLast(33); // seeker
-    original_upgradedIds.insertLast(48); // rf
-    original_upgradedIds.insertLast(56); // toaster
-    original_upgradedIds.insertLast(59); // tnt
-    original_upgradedIds.insertLast(61); // fireball
-    original_upgradedIds.insertLast(67); // electroblaster
-
-    // end of original weapons
-
     // start of custom weapons
 
     unupgradedIds.insertLast(68); // bouncer
@@ -62,35 +58,32 @@ void onLevelBegin() {
     weaponAmmo.insertLast(30); // test
 
     // end of custom weapons
-
-    // end of hardcoded stuff
-
+ 
     jjAnimSets[65].load();
 
     jjConsole("[STV] Custom Weapons v1.1 by Steve has started!");
 }
 
 void onPlayerInput(jjPLAYER@ player) {
-    if(jjKey[0x47] && weaponset_cooldown == false) {
-        if(weaponSet == 0) { weaponSet = 1; } else { weaponSet = 0; }
-
-        weaponset_cooldown = true;
+    if(jjKey[0x47] && !weaponSetCooldown) {
+        weaponSet = (++weaponSet) % maxWeaponSets;
+        weaponSetCooldown = true;
 
         TimerV(20, function() {
-            weaponset_cooldown = false;
+            weaponSetCooldown = false;
         });
     }
 
     // since the game thinks the weapon you want to equip has no ammo
     // we'll just bind them again but we'll check if the weapon set isnt 0
 
-    if(weaponSet != 0) {
+    // if(weaponSet != 0) {
         for(uint i = 0; i < 10; i++) {
             if(jjKey[0x30 + i] && player.currWeapon != i) {
                 player.currWeapon = i;
             }
         }
-    }
+    // }
 }
 
 bool upgraded(jjPLAYER@ player, int id) {
