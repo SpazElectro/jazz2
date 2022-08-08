@@ -64,7 +64,9 @@ void onLevelBegin() {
 
 void onPlayerInput(jjPLAYER@ play) {
     if(jjKey[0x5A] && showcooldown == false) {
-        show = not show;
+        // show = not show;
+        if(weaponSet == 0) weaponSet = 1 else weaponSet = 0;
+        
         showcooldown = true;
 
         TimerV(20, function() {
@@ -81,8 +83,11 @@ void onPlayer(jjPLAYER@ player) {
     sprite.x = jjResolutionWidth - 88;
     sprite.y = jjResolutionHeight - 14;
     sprite.update();
+}
 
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(player.currWeapon != 1) {
+        sprite.animSet = ANIM::AMMO;
         sprite.spriteMode = SPRITE::NORMAL;
 
         if(upgraded(player, player.currWeapon)) {
@@ -102,20 +107,16 @@ void onPlayer(jjPLAYER@ player) {
                 if(upgraded(player, 1)) {
                     sprite.setId(19);
                 } else {
-                    sprite.setId(19);
+                    sprite.animSet = ANIM::PICKUPS;
+                    sprite.setId(30);
                 }
 
                 break;
             
             case CHAR::LORI:
                 sprite.animSet = ANIM::PLUS_AMMO;
-
-                if(upgraded(player, 1)) {
-                    sprite.setId(5);
-                } else {
-                    sprite.setId(5);
-                }
-
+                sprite.setId(5);
+                
                 break;
 
             default:
@@ -123,15 +124,25 @@ void onPlayer(jjPLAYER@ player) {
                 if(upgraded(player, 1)) {
                     sprite.setId(18);
                 } else {
-                    sprite.setId(18);
+                    sprite.animSet = ANIM::PICKUPS;
+                    sprite.setId(29);
                 }
-                
+
                 break;
         }
     }
-}
 
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(weaponSet == 1) {
+        sprite.animSet = ANIM::AMMO;
+        sprite.spriteMode = SPRITE::NORMAL;
+
+        if(upgraded(player, player.currWeapon)) {
+            sprite.setId(upgradedIds[player.currWeapon - 2]);
+        } else {
+            sprite.setId(unupgradedIds[player.currWeapon - 2]);
+        }
+    }
+
     if(show == true) {
         string ammo = "" + player.ammo[player.currWeapon];
 
