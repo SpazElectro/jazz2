@@ -170,6 +170,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(weaponSet == 0 && lastWeaponSet != weaponSet) {
         jjConsole("ohoh");
 
+        
         for (uint i = 0; i < 10; i++)
         {
             if(i < weaponAmmo.length()) {
@@ -195,6 +196,9 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 
         if(player.currWeapon == 1) {
             jjWeapons[1].infinite = false;
+            jjWeapons[1].spread = SPREAD::RF;
+        } else if(player.currWeapon == 2) {
+            
         }
 
         if(upgraded(player, player.currWeapon)) {
@@ -207,6 +211,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(weaponSet == 0) {
         if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
             jjWeapons[1].infinite = true;
+            jjWeapons[1].spread = SPREAD::NORMAL;
         }
     }
 
