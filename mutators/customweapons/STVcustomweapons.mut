@@ -1,0 +1,146 @@
+// main goal:
+// making custom weapons with a weapons set feature without replacing the original weapons
+//
+// Version: 1.0
+// Date: 8/8/2022
+// Author: Steve
+//
+
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+int weaponSet = 0;
+bool show = true;
+bool showcooldown = false;
+
+// AnimatedSprite(int id, int frame, int x, int y, double anim_speed, bool can_reverse)
+
+AnimatedSprite@ sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
+
+array<int> original_upgradedIds;
+array<int> original_unupgradedIds;
+array<int> upgradedIds;
+array<int> unupgradedIds;
+
+void onLevelBegin() {
+    // hardcoded stuff
+
+    // original weapons
+
+    original_unupgradedIds.insertLast(25); // bouncer
+    original_unupgradedIds.insertLast(29); // ice
+    original_unupgradedIds.insertLast(34); // seeker
+    original_unupgradedIds.insertLast(49); // rf
+    original_unupgradedIds.insertLast(57); // toaster
+    original_unupgradedIds.insertLast(59); // tnt
+    original_unupgradedIds.insertLast(62); // fireball
+    original_unupgradedIds.insertLast(68); // electroblaster
+
+    original_upgradedIds.insertLast(24); // bouncer
+    original_upgradedIds.insertLast(28); // ice
+    original_upgradedIds.insertLast(33); // seeker
+    original_upgradedIds.insertLast(48); // rf
+    original_upgradedIds.insertLast(56); // toaster
+    original_upgradedIds.insertLast(59); // tnt
+    original_upgradedIds.insertLast(61); // fireball
+    original_upgradedIds.insertLast(67); // electroblaster
+
+    // end of original weapons
+
+    // start of custom weapons
+
+    unupgradedIds.insertLast(68); // bouncer
+
+    upgradedIds.insertLast(67); // bouncer
+
+    // end of custom weapons
+
+    // end of hardcoded stuff
+
+    jjAnimSets[65].load();
+
+    jjConsole("[STV] Custom Weapons v1.0 by Steve has started!");
+}
+
+void onPlayerInput(jjPLAYER@ play) {
+    if(jjKey[0x5A] && showcooldown == false) {
+        show = not show;
+        showcooldown = true;
+
+        TimerV(20, function() {
+            showcooldown = false;
+        });
+    }
+}
+
+bool upgraded(jjPLAYER@ player, int id) {
+    return player.powerup[id];
+}
+
+void onPlayer(jjPLAYER@ player) {
+    sprite.x = jjResolutionWidth - 88;
+    sprite.y = jjResolutionHeight - 14;
+    sprite.update();
+
+    if(player.currWeapon != 1) {
+        sprite.spriteMode = SPRITE::NORMAL;
+
+        if(upgraded(player, player.currWeapon)) {
+            sprite.setId(original_upgradedIds[player.currWeapon - 2]);
+        } else {
+            sprite.setId(original_unupgradedIds[player.currWeapon - 2]);
+        }
+    } else {
+        sprite.spriteMode = SPRITE::PLAYER;
+        sprite.spriteModeParam = 0;
+
+        if(sprite.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) sprite.animSet = ANIM::AMMO;
+
+        switch (player.charCurr)
+        {
+            case CHAR::SPAZ:
+                if(upgraded(player, 1)) {
+                    sprite.setId(19);
+                } else {
+                    sprite.setId(19);
+                }
+
+                break;
+            
+            case CHAR::LORI:
+                sprite.animSet = ANIM::PLUS_AMMO;
+
+                if(upgraded(player, 1)) {
+                    sprite.setId(5);
+                } else {
+                    sprite.setId(5);
+                }
+
+                break;
+
+            default:
+                // default as jazz
+                if(upgraded(player, 1)) {
+                    sprite.setId(18);
+                } else {
+                    sprite.setId(18);
+                }
+                
+                break;
+        }
+    }
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(show == true) {
+        string ammo = "" + player.ammo[player.currWeapon];
+
+        if(player.currWeapon == 1) ammo = "^";
+
+        canvas.drawString(jjResolutionWidth - 80, jjResolutionHeight - 14, "x" + ammo, STRING::MEDIUM);
+
+        sprite.draw(canvas);
+    }
+
+    return show;
+}

@@ -1,3 +1,4 @@
+#pragma require "STVutil.asc"
 #include "STVutil.asc"
 
 int lastHealth = jjMaxHealth;
@@ -99,7 +100,7 @@ void onPlayer(jjPLAYER@ player) {
 
                         forEachNPC(function(npc) {
                             if(!npc.colliding()) {
-                                if(npc.state != RabbitState::JUMPING) {
+                                if(npc.state != RabbitState::JUMPING && npc.state != RabbitState::DYING && npc.state != RabbitState::DEAD) {
                                     npc.setState(RabbitState::JUMPING);
                                 }
 
@@ -232,7 +233,8 @@ void onMain() {
 
 void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
     forEachNPC(function(npc) {
-        npc.draw();
+        // untested dont kill me
+        npc.draw(canvas);
     });
 }
 
