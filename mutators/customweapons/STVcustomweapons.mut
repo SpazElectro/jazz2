@@ -10,8 +10,8 @@
 #include "STVutil.asc"
 
 int weaponSet = 0;
-bool show = true;
-bool showcooldown = false;
+
+bool weaponset_cooldown = false;
 
 // AnimatedSprite(int id, int frame, int x, int y, double anim_speed, bool can_reverse)
 
@@ -21,6 +21,7 @@ array<int> original_upgradedIds;
 array<int> original_unupgradedIds;
 array<int> upgradedIds;
 array<int> unupgradedIds;
+array<int> oldWeaponAmmo;
 
 void onLevelBegin() {
     // hardcoded stuff
@@ -63,14 +64,13 @@ void onLevelBegin() {
 }
 
 void onPlayerInput(jjPLAYER@ play) {
-    if(jjKey[0x5A] && showcooldown == false) {
-        // show = not show;
-        if(weaponSet == 0) weaponSet = 1 else weaponSet = 0;
-        
-        showcooldown = true;
+    if(jjKey[0x47] && weaponset_cooldown == false) {
+        if(weaponSet == 0) { weaponSet = 1; } else { weaponSet = 0; }
+
+        weaponset_cooldown = true;
 
         TimerV(20, function() {
-            showcooldown = false;
+            weaponset_cooldown = false;
         });
     }
 }
@@ -132,26 +132,53 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         }
     }
 
+    for (int i = 0; i < oldWeaponAmmo.length(); i++)
+    {
+        oldWeaponAmmo.removeAt(i);
+    }
+
+    for (int i = 0; i < 10; i++)
+    {
+        oldWeaponAmmo.insertLast(player.ammo[i]);
+    }
+    
+    if(weaponSet == 1 && player.currWeapon > upgradedIds.length) {
+        weaponSet = 0;
+
+        for (int i = 0; i < 10; i++)
+        {
+            player.ammo[i] = oldWeaponAmmo[i];
+        }
+    }
+
     if(weaponSet == 1) {
         sprite.animSet = ANIM::AMMO;
         sprite.spriteMode = SPRITE::NORMAL;
 
+        if(player.currWeapon == 1) {
+            jjWeapons[1].infinite = false;
+        }
+
         if(upgraded(player, player.currWeapon)) {
-            sprite.setId(upgradedIds[player.currWeapon - 2]);
+            sprite.setId(upgradedIds[player.currWeapon - 1]);
         } else {
-            sprite.setId(unupgradedIds[player.currWeapon - 2]);
+            sprite.setId(unupgradedIds[player.currWeapon - 1]);
         }
     }
 
-    if(show == true) {
-        string ammo = "" + player.ammo[player.currWeapon];
-
-        if(player.currWeapon == 1) ammo = "^";
-
-        canvas.drawString(jjResolutionWidth - 80, jjResolutionHeight - 14, "x" + ammo, STRING::MEDIUM);
-
-        sprite.draw(canvas);
+    if(weaponSet == 0) {
+        if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
+            jjWeapons[1].infinite = true;
+        }
     }
 
-    return show;
+    string ammo = "" + player.ammo[player.currWeapon];
+
+    if(jjWeapons[player.currWeapon].infinite == true) ammo = "^";
+
+    canvas.drawString(jjResolutionWidth - 80, jjResolutionHeight - 14, "x" + ammo, STRING::MEDIUM);
+
+    sprite.draw(canvas);
+    
+    return true;
 }
