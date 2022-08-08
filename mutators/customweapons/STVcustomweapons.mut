@@ -1,7 +1,7 @@
 // main goal:
 // making custom weapons with a weapons set feature without replacing the original weapons
 //
-// Version: 1.0
+// Version: 1.1
 // Date: 8/8/2022
 // Author: Steve
 //
@@ -10,18 +10,20 @@
 #include "STVutil.asc"
 
 int weaponSet = 0;
+int lastWeaponSet = 0;
 
 bool weaponset_cooldown = false;
-
-// AnimatedSprite(int id, int frame, int x, int y, double anim_speed, bool can_reverse)
 
 AnimatedSprite@ sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
 
 array<int> original_upgradedIds;
 array<int> original_unupgradedIds;
+
 array<int> upgradedIds;
 array<int> unupgradedIds;
+
 array<int> oldWeaponAmmo;
+array<int> weaponAmmo;
 
 void onLevelBegin() {
     // hardcoded stuff
@@ -51,8 +53,13 @@ void onLevelBegin() {
     // start of custom weapons
 
     unupgradedIds.insertLast(68); // bouncer
+    unupgradedIds.insertLast(62); // test
 
     upgradedIds.insertLast(67); // bouncer
+    upgradedIds.insertLast(61); // test
+
+    weaponAmmo.insertLast(50); // bouncer
+    weaponAmmo.insertLast(30); // test
 
     // end of custom weapons
 
@@ -60,10 +67,10 @@ void onLevelBegin() {
 
     jjAnimSets[65].load();
 
-    jjConsole("[STV] Custom Weapons v1.0 by Steve has started!");
+    jjConsole("[STV] Custom Weapons v1.1 by Steve has started!");
 }
 
-void onPlayerInput(jjPLAYER@ play) {
+void onPlayerInput(jjPLAYER@ player) {
     if(jjKey[0x47] && weaponset_cooldown == false) {
         if(weaponSet == 0) { weaponSet = 1; } else { weaponSet = 0; }
 
@@ -72,6 +79,17 @@ void onPlayerInput(jjPLAYER@ play) {
         TimerV(20, function() {
             weaponset_cooldown = false;
         });
+    }
+
+    // since the game thinks the weapon you want to equip has no ammo
+    // we'll just bind them again but we'll check if the weapon set isnt 0
+
+    if(weaponSet != 0) {
+        for(uint i = 0; i < 10; i++) {
+            if(jjKey[0x30 + i] && player.currWeapon != i) {
+                player.currWeapon = i;
+            }
+        }
     }
 }
 
@@ -132,22 +150,42 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         }
     }
 
-    for (int i = 0; i < oldWeaponAmmo.length(); i++)
-    {
-        oldWeaponAmmo.removeAt(i);
-    }
+    if(weaponSet == 0) {
+        for (uint i = 0; i < oldWeaponAmmo.length(); i++)
+        {
+            oldWeaponAmmo.removeAt(i);
+        }
 
-    for (int i = 0; i < 10; i++)
-    {
-        oldWeaponAmmo.insertLast(player.ammo[i]);
+        for (int i = 0; i < 10; i++)
+        {
+            oldWeaponAmmo.insertLast(player.ammo[i]);
+        }
     }
     
     if(weaponSet == 1 && player.currWeapon > upgradedIds.length) {
         weaponSet = 0;
+        lastWeaponSet = 1;
+    }
 
-        for (int i = 0; i < 10; i++)
+    if(weaponSet == 0 && lastWeaponSet != weaponSet) {
+        jjConsole("ohoh");
+
+        for (uint i = 0; i < 10; i++)
         {
+            if(i < weaponAmmo.length()) {
+                weaponAmmo[i] = player.ammo[i + 1];
+            }
+            
             player.ammo[i] = oldWeaponAmmo[i];
+        }
+    }
+    
+    if(weaponSet != 0 && lastWeaponSet != weaponSet) {
+        jjConsole("ohohe");
+
+        for (uint i = 0; i < weaponAmmo.length(); i++)
+        {
+            player.ammo[i + 1] = weaponAmmo[i];
         }
     }
 
@@ -172,6 +210,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         }
     }
 
+    lastWeaponSet = weaponSet;
+
     string ammo = "" + player.ammo[player.currWeapon];
 
     if(jjWeapons[player.currWeapon].infinite == true) ammo = "^";
@@ -181,4 +221,15 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     sprite.draw(canvas);
     
     return true;
+}
+
+bool onCheat(string &in cheat) {
+    if(cheat == "jjgod" or cheat == "jjguns") {
+        for (uint weaponIndex = 0; weaponIndex < unupgradedIds.length(); weaponIndex++)
+        {
+            weaponAmmo[weaponIndex] = 50;
+        }
+    }
+
+    return false;
 }
