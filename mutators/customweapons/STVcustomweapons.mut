@@ -45,6 +45,73 @@ array<int> upgradedIds;
 array<int> oldWeaponAmmo;
 array<int> weaponAmmo;
 
+namespace StevesCustomWeapons
+{
+    array<WeaponSet@> weaponSets;
+    
+    class WeaponSet {
+        int id;
+        array<CustomWeapon@> weapons;
+
+        WeaponSet(int id) {
+            this.id = id;
+        }
+
+        void insertWeapon(CustomWeapon@ weapon) {
+            weapons.insertLast(weapon);
+        }
+
+        void update(jjPLAYER@ player) {
+            if(weaponSet == this.id) {
+                // if(player.currWeapon == 1) {
+                //     jjWeapons[1].infinite = false;
+                //     jjWeapons[1].spread = SPREAD::RF;
+                // } else if(player.currWeapon == 2) {
+                    
+                // }
+                
+                for(uint i = 0; i < weapons.length; i++) {
+                    if(player.currWeapon == i) {
+                        weapons[i].onEquip(weapons[i].inheritance, player);
+                    }
+                }
+            }
+        }
+    };
+
+    funcdef void customWeaponEquipCallback(jjWEAPON@, jjPLAYER@);
+    class CustomWeapon {
+        int ammo;
+        int maxAmmo;
+
+        int unupgradedTexture;
+        int upgradedTexture;
+
+        WeaponSet@ weaponSet;
+        jjWEAPON@ inheritance;
+        customWeaponEquipCallback@ onEquip;
+
+        CustomWeapon(int unupgradedTexture, int upgradedTexture, int maxAmmo, WeaponSet@ weaponSet, customWeaponEquipCallback@ onEquip) {
+            this.unupgradedTexture = unupgradedTexture;
+            this.upgradedTexture = upgradedTexture;
+            this.maxAmmo = maxAmmo;
+
+            @this.weaponSet = weaponSet;
+            @this.inheritance = jjWeapons[weaponSet.weapons.length];
+            @this.onEquip = onEquip;
+        }
+
+        void draw(jjCANVAS@ canvas) {
+
+        }
+
+        void update(jjPLAYER@ player) {
+            
+        }
+    };
+};
+
+
 void onLevelBegin() {
     // start of custom weapons
 
@@ -97,7 +164,6 @@ void onPlayer(jjPLAYER@ player) {
     // and then goes to weapon set 0 he will have max ammo
     // same goes for weapon set 1
     // it's really confusing
-
         
     if(weaponSet == 0) {
         for (int i = 0; i < 10; i++)
@@ -114,19 +180,27 @@ void onPlayer(jjPLAYER@ player) {
         }
     }
 
-    if(weaponSet == 1 && player.currWeapon > upgradedIds.length) {
-        player.currWeapon = 1;
-    }
-
-    if(weaponSet == 0 && lastWeaponSet != weaponSet) {        
+    if(weaponSet == 0 && lastWeaponSet != weaponSet) { // half finished      
         jjConsole("weapon set is now 0 setting weaponammo to current");
 
-        for (uint i = -1; i < 10; i++)
+        for (int i = -1; i < 10; i++)
         {
             if(i < weaponAmmo.length()) {
                 jjConsole("" + player.ammo[i + 1]);
 
                 weaponAmmo[i] = player.ammo[i + 1];
+
+                for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons.weaponSets.length(); weaponSetIndex++)
+                {
+                    StevesCustomWeapons.WeaponSet@ set = StevesCustomWeapons.weaponSets[weaponSetIndex];
+
+                    for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
+                    {
+                        // error because of namespaces someone help me lol
+                        StevesCustomWeapons.CustomWeapon@ weapon = set.weapons[weaponIndex];
+                        weapon.ammo = player.ammo[i + 1];
+                    }
+                }
             }
 
             jjConsole("o" + oldWeaponAmmo[i]);
@@ -135,35 +209,58 @@ void onPlayer(jjPLAYER@ player) {
         }
     }
     
-    if(weaponSet != 0 && lastWeaponSet != weaponSet) {
+    if(weaponSet != 0 && lastWeaponSet != weaponSet) { // finished
         // jjConsole("setting current ammo to weaponammo");
 
-        for (uint i = 0; i < weaponAmmo.length(); i++)
+        for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons.weaponSets.length(); weaponSetIndex++)
         {
-            player.ammo[i + 1] = weaponAmmo[i];
+            StevesCustomWeapons.WeaponSet@ set = StevesCustomWeapons.weaponSets[weaponSetIndex];
+
+            for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
+            {
+                StevesCustomWeapons.CustomWeapon@ weapon = set.weapons[weaponIndex];
+                player.ammo[i + 1] = weapon.ammo;
+            }
         }
+
+        // for (uint i = 0; i < weaponAmmo.length(); i++)
+        // {
+        //     player.ammo[i + 1] = weaponAmmo[i];
+        // }
     }
 
-    if(weaponSet == 1) {
-        if(player.currWeapon == 1) {
-            jjWeapons[1].infinite = false;
-            jjWeapons[1].spread = SPREAD::RF;
-        } else if(player.currWeapon == 2) {
+    // if(weaponSet == 1) { // finished
+    //     if(player.currWeapon == 1) {
+    //         jjWeapons[1].infinite = false;
+    //         jjWeapons[1].spread = SPREAD::RF;
+    //     } else if(player.currWeapon == 2) {
             
-        }
-    }
+    //     }
+    // }
 
     if(weaponSet == 0) {
-        if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
-            jjConsole("reset weapon abilities");
+        // use the class's inheritance instead
+        for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons.weaponSets.length(); weaponSetIndex++)
+        {
+            StevesCustomWeapons.WeaponSet@ set = StevesCustomWeapons.weaponSets[weaponSetIndex];
 
-            jjWeapons[1].infinite = true;
-            jjWeapons[1].spread = SPREAD::NORMAL;
+            for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
+            {
+                StevesCustomWeapons.CustomWeapon@ weapon = set.weapons[weaponIndex];
+                jjWeapons[weaponIndex] = @weapon.inheritance;
+            }
         }
+        
+        // if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
+        //     jjConsole("reset weapon abilities");
+
+        //     jjWeapons[1].infinite = true;
+        //     jjWeapons[1].spread = SPREAD::NORMAL;
+        // }
     }
 
     if(weaponSet != 0) {
-        for (int i = 0; i < 10; i++)
+        for (uint i = 0; i < 10; i++)
         {
             if(oldWeaponAmmo[i] != player.ammo[i]) {
                 if(i > oldWeaponAmmo.length) {
@@ -174,7 +271,6 @@ void onPlayer(jjPLAYER@ player) {
             }
         }
     }
-
 
     lastWeaponSet = weaponSet;
 
@@ -231,7 +327,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         }
     }
 
-    if(weaponSet == 1) {
+    if(weaponSet != 0) {
         sprite.animSet = ANIM::AMMO;
         sprite.spriteMode = SPRITE::NORMAL;
 
