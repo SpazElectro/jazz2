@@ -77,13 +77,13 @@ void onPlayerInput(jjPLAYER@ player) {
     // since the game thinks the weapon you want to equip has no ammo
     // we'll just bind them again but we'll check if the weapon set isnt 0
 
-    // if(weaponSet != 0) {
+    if(weaponSet != 0) {
         for(uint i = 0; i < 10; i++) {
             if(jjKey[0x30 + i] && player.currWeapon != i) {
                 player.currWeapon = i;
             }
         }
-    // }
+    }
 }
 
 bool upgraded(jjPLAYER@ player, int id) {
@@ -91,6 +91,94 @@ bool upgraded(jjPLAYER@ player, int id) {
 }
 
 void onPlayer(jjPLAYER@ player) {
+    // jjConsole("WeaponSet: " + weaponSet + " lastWeaponSet: " + lastWeaponSet);
+    // theres a bug with the ammo where the player gets inf ammo
+    // if the player is on weaponset 1 and shoots
+    // and then goes to weapon set 0 he will have max ammo
+    // same goes for weapon set 1
+    // it's really confusing
+
+        
+    if(weaponSet == 0) {
+        for (int i = 0; i < 10; i++)
+        {
+            if(oldWeaponAmmo.find(i) == -1) {
+                oldWeaponAmmo.insertLast(player.ammo[i]);
+            }
+
+            if(player.ammo[i] != oldWeaponAmmo[i]) {
+                jjConsole("called");
+
+                oldWeaponAmmo[i] = player.ammo[i];
+            }
+        }
+    }
+
+    if(weaponSet == 1 && player.currWeapon > upgradedIds.length) {
+        player.currWeapon = 1;
+    }
+
+    if(weaponSet == 0 && lastWeaponSet != weaponSet) {        
+        jjConsole("weapon set is now 0 setting weaponammo to current");
+
+        for (uint i = -1; i < 10; i++)
+        {
+            if(i < weaponAmmo.length()) {
+                jjConsole("" + player.ammo[i + 1]);
+
+                weaponAmmo[i] = player.ammo[i + 1];
+            }
+
+            jjConsole("o" + oldWeaponAmmo[i]);
+            
+            player.ammo[i + 1] = oldWeaponAmmo[i];
+        }
+    }
+    
+    if(weaponSet != 0 && lastWeaponSet != weaponSet) {
+        // jjConsole("setting current ammo to weaponammo");
+
+        for (uint i = 0; i < weaponAmmo.length(); i++)
+        {
+            player.ammo[i + 1] = weaponAmmo[i];
+        }
+    }
+
+    if(weaponSet == 1) {
+        if(player.currWeapon == 1) {
+            jjWeapons[1].infinite = false;
+            jjWeapons[1].spread = SPREAD::RF;
+        } else if(player.currWeapon == 2) {
+            
+        }
+    }
+
+    if(weaponSet == 0) {
+        if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
+            jjConsole("reset weapon abilities");
+
+            jjWeapons[1].infinite = true;
+            jjWeapons[1].spread = SPREAD::NORMAL;
+        }
+    }
+
+    if(weaponSet != 0) {
+        for (int i = 0; i < 10; i++)
+        {
+            if(oldWeaponAmmo[i] != player.ammo[i]) {
+                if(i > oldWeaponAmmo.length) {
+                    jjConsole("old gun got more ammo setting oldweaponammo " + oldWeaponAmmo[i] + " X " + player.ammo[i]);
+
+                    oldWeaponAmmo[i] = player.ammo[i];
+                }
+            }
+        }
+    }
+
+
+    lastWeaponSet = weaponSet;
+
+    // sprites
     sprite.x = jjResolutionWidth - 88;
     sprite.y = jjResolutionHeight - 14;
     sprite.update();
@@ -143,56 +231,9 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         }
     }
 
-    if(weaponSet == 0) {
-        for (uint i = 0; i < oldWeaponAmmo.length(); i++)
-        {
-            oldWeaponAmmo.removeAt(i);
-        }
-
-        for (int i = 0; i < 10; i++)
-        {
-            oldWeaponAmmo.insertLast(player.ammo[i]);
-        }
-    }
-    
-    if(weaponSet == 1 && player.currWeapon > upgradedIds.length) {
-        weaponSet = 0;
-        lastWeaponSet = 1;
-    }
-
-    if(weaponSet == 0 && lastWeaponSet != weaponSet) {
-        jjConsole("ohoh");
-
-        
-        for (uint i = 0; i < 10; i++)
-        {
-            if(i < weaponAmmo.length()) {
-                weaponAmmo[i] = player.ammo[i + 1];
-            }
-            
-            player.ammo[i] = oldWeaponAmmo[i];
-        }
-    }
-    
-    if(weaponSet != 0 && lastWeaponSet != weaponSet) {
-        jjConsole("ohohe");
-
-        for (uint i = 0; i < weaponAmmo.length(); i++)
-        {
-            player.ammo[i + 1] = weaponAmmo[i];
-        }
-    }
-
     if(weaponSet == 1) {
         sprite.animSet = ANIM::AMMO;
         sprite.spriteMode = SPRITE::NORMAL;
-
-        if(player.currWeapon == 1) {
-            jjWeapons[1].infinite = false;
-            jjWeapons[1].spread = SPREAD::RF;
-        } else if(player.currWeapon == 2) {
-            
-        }
 
         if(upgraded(player, player.currWeapon)) {
             sprite.setId(upgradedIds[player.currWeapon - 1]);
@@ -201,18 +242,9 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         }
     }
 
-    if(weaponSet == 0) {
-        if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
-            jjWeapons[1].infinite = true;
-            jjWeapons[1].spread = SPREAD::NORMAL;
-        }
-    }
-
-    lastWeaponSet = weaponSet;
-
     string ammo = "" + player.ammo[player.currWeapon];
 
-    if(jjWeapons[player.currWeapon].infinite == true) ammo = "^";
+    // if(jjWeapons[player.currWeapon].infinite == true) ammo = "^";
 
     canvas.drawString(jjResolutionWidth - 80, jjResolutionHeight - 14, "x" + ammo, STRING::MEDIUM);
 
@@ -222,12 +254,12 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 }
 
 bool onCheat(string &in cheat) {
-    if(cheat == "jjgod" or cheat == "jjguns") {
-        for (uint weaponIndex = 0; weaponIndex < unupgradedIds.length(); weaponIndex++)
-        {
-            weaponAmmo[weaponIndex] = 50;
-        }
-    }
+    // if(cheat == "jjgod" or cheat == "jjguns") {
+    //     for (uint weaponIndex = 0; weaponIndex < weaponAmmo.length(); weaponIndex++)
+    //     {
+    //         weaponAmmo[weaponIndex] = 50;
+    //     }
+    // }
 
     return false;
 }
