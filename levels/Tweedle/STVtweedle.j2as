@@ -155,12 +155,16 @@ class AnimatedSprite
     }
 }
 
+// TODO use stvutil
+
 jjRNG mainRNG = jjRNG();
 
 jjOBJ@ tweedle;
 jjOBJ@ tweedle2;
+
 AnimatedSprite@ tweedleSprite = AnimatedSprite(6, 0, 10, 0, 0, 0.15, false);
 AnimatedSprite@ tweedle2Sprite = AnimatedSprite(6, 0, 10, 0, 0, 0.15, false);
+
 int tweedleState = 0;
 int tweedle2State = 0;
 int tweedleLastEnergy = -1;
