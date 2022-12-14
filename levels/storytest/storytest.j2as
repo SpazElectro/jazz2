@@ -54,11 +54,11 @@ void onFunction0(jjPLAYER@ player) {
 
 void onFunction1(jjPLAYER@ player) {
     dialogId = 2;
-    dialog.text = "You will never win!";
+    dialog.text = "troll";
     dialog.moreDialog = true;
 
     TimerV(150, function() {
-        dialog.text = "My countless bitches will fucking kill you!";
+        dialog.text = "TROLLED";
         dialog.moreDialog = false;
         dialog.initalize();
         dialogId = 3;
