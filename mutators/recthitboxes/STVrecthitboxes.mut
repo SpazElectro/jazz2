@@ -6,7 +6,31 @@ int playerHitboxY = 45;
 int objHitboxX = 20;
 int objHitboxY = 10;
 
-bool collisionBULLETandPLAYER(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
+int getDamage(jjPLAYER@ player) {
+    uint weapon = player.currWeapon;
+    bool powerup = player.powerup[weapon];
+
+    switch(weapon) {
+        case 3:
+            return 0;
+        case 7:
+            return 0;
+
+        default:
+            if(powerup) {
+                return 2;
+            } else {
+                return 1;
+            }
+    }
+
+    return 5;
+}
+
+bool collisionBULLETandPLAYER(
+    float x1, float y1, int w1, int h1,
+    float x2, float y2, int w2, int h2
+) {
     return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
 }
 
@@ -32,28 +56,29 @@ void onPlayer(jjPLAYER@ player) {
 
         // hate this
         if(obj.isActive && (
-            obj.eventID == OBJECT::BLASTERBULLET || obj.eventID == OBJECT::BOUNCERBULLET ||
-            obj.eventID == OBJECT::ICEBULLET || obj.eventID == OBJECT::SEEKERBULLET ||
-            obj.eventID == OBJECT::RFBULLET || obj.eventID == OBJECT::TOASTERBULLET ||
-            obj.eventID == OBJECT::FIREBALLBULLET || obj.eventID == OBJECT::ELECTROBULLET ||
-            obj.eventID == OBJECT::BLASTERBULLETPU || obj.eventID == OBJECT::BOUNCERBULLETPU ||
-            obj.eventID == OBJECT::ICEBULLETPU || obj.eventID == OBJECT::SEEKERBULLETPU ||
-            obj.eventID == OBJECT::RFBULLETPU || obj.eventID == OBJECT::TOASTERBULLETPU ||
-            obj.eventID == OBJECT::FIREBALLBULLETPU || obj.eventID == OBJECT::ELECTROBULLETPU ||
-            obj.eventID == OBJECT::FIRESHIELDBULLET || obj.eventID == OBJECT::WATERSHIELDBULLET ||
-            obj.eventID == OBJECT::BUBBLESHIELDBULLET || obj.eventID == OBJECT::LIGHTNINGSHIELDBULLET ||
-            obj.eventID == OBJECT::PLASMASHIELDBULLET || obj.eventID == OBJECT::BULLET
+            obj.eventID == OBJECT::BLASTERBULLET        ||  obj.eventID == OBJECT::BOUNCERBULLET         ||
+            obj.eventID == OBJECT::ICEBULLET            ||  obj.eventID == OBJECT::SEEKERBULLET          ||
+            obj.eventID == OBJECT::RFBULLET             ||  obj.eventID == OBJECT::TOASTERBULLET         ||
+            obj.eventID == OBJECT::FIREBALLBULLET       ||  obj.eventID == OBJECT::ELECTROBULLET         ||
+            obj.eventID == OBJECT::BLASTERBULLETPU      ||  obj.eventID == OBJECT::BOUNCERBULLETPU       ||
+            obj.eventID == OBJECT::ICEBULLETPU          ||  obj.eventID == OBJECT::SEEKERBULLETPU        ||
+            obj.eventID == OBJECT::RFBULLETPU           ||  obj.eventID == OBJECT::TOASTERBULLETPU       ||
+            obj.eventID == OBJECT::FIREBALLBULLETPU     ||  obj.eventID == OBJECT::ELECTROBULLETPU       ||
+            obj.eventID == OBJECT::FIRESHIELDBULLET     ||  obj.eventID == OBJECT::WATERSHIELDBULLET     ||
+            obj.eventID == OBJECT::BUBBLESHIELDBULLET   ||  obj.eventID == OBJECT::LIGHTNINGSHIELDBULLET ||
+            obj.eventID == OBJECT::PLASMASHIELDBULLET   ||  obj.eventID == OBJECT::BULLET                ||
+            obj.eventID == OBJECT::TNT
         )) {
             if(DEBUG) {
-                jjDrawRectangle(obj.xPos - 20, obj.yPos - 10, objHitboxX, objHitboxY, 5);
+                jjDrawRectangle(obj.xPos - objHitboxX, obj.yPos - objHitboxY, objHitboxX, objHitboxY, 5);
             }
 
             if(
                 collisionBULLETandPLAYER(player.xPos, player.yPos, playerHitboxX, playerHitboxY, obj.xPos, obj.yPos, objHitboxX, objHitboxY) &&
                 player.health > 0 &&
-                obj.creatorID != player.playerID
+                int8(obj.creatorID) != player.playerID
             ) {
-                player.hurt(1, false, jjPlayers[obj.creatorID]);
+                player.hurt(getDamage(jjPlayers[obj.creatorID]), false, jjPlayers[obj.creatorID]);
             }
         }
     }
