@@ -1,3 +1,5 @@
+bool DEBUG = false;
+
 int playerHitboxX = 40;
 int playerHitboxY = 45;
 
@@ -17,9 +19,11 @@ void onPlayerDraw(jjPLAYERDRAW& draw) {
 
     draw.invincibility = false;
 
-    jjDrawRectangle(
-        draw.player.xPos - 20, draw.player.yPos - 20,
-        playerHitboxX, playerHitboxY, 4);
+    if(DEBUG) {
+        jjDrawRectangle(
+            draw.player.xPos - 20, draw.player.yPos - 20,
+            playerHitboxX, playerHitboxY, 4);
+    }
 }
 
 void onPlayer(jjPLAYER@ player) {
@@ -40,8 +44,10 @@ void onPlayer(jjPLAYER@ player) {
             obj.eventID == OBJECT::BUBBLESHIELDBULLET || obj.eventID == OBJECT::LIGHTNINGSHIELDBULLET ||
             obj.eventID == OBJECT::PLASMASHIELDBULLET || obj.eventID == OBJECT::BULLET
         )) {
-            jjDrawRectangle(obj.xPos - 20, obj.yPos - 10, objHitboxX, objHitboxY, 5);
-            
+            if(DEBUG) {
+                jjDrawRectangle(obj.xPos - 20, obj.yPos - 10, objHitboxX, objHitboxY, 5);
+            }
+
             if(
                 collisionBULLETandPLAYER(player.xPos, player.yPos, playerHitboxX, playerHitboxY, obj.xPos, obj.yPos, objHitboxX, objHitboxY) &&
                 player.health > 0 &&
