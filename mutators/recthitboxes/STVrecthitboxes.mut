@@ -4,19 +4,22 @@ int playerHitboxY = 45;
 int objHitboxX = 20;
 int objHitboxY = 10;
 
-array<jjPLAYER@> trueInvincibility;
-array<int> trueInvincibilityTime;
-
-bool collisionBULLETandPLAYER(int px, int py, int psx, int psy, int ox, int oy, int osx, int osy) {
-    return true;
+bool collisionBULLETandPLAYER(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2) {
+    return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
 }
 
 void onPlayerDraw(jjPLAYERDRAW& draw) {
-    // remove hitboxes ))
-    draw.player.invincibility = 1000;
+    if(draw.player.blink >= 0) {
+        draw.player.invincibility = 10000;
+    } else {
+        draw.player.invincibility = 0;
+    }
+
     draw.invincibility = false;
 
-    jjDrawRectangle(draw.player.xPos - 20, draw.player.yPos - 20, playerHitboxX, playerHitboxY, 4);
+    jjDrawRectangle(
+        draw.player.xPos - 20, draw.player.yPos - 20,
+        playerHitboxX, playerHitboxY, 4);
 }
 
 void onPlayer(jjPLAYER@ player) {
@@ -39,13 +42,14 @@ void onPlayer(jjPLAYER@ player) {
         )) {
             jjDrawRectangle(obj.xPos - 20, obj.yPos - 10, objHitboxX, objHitboxY, 5);
             
-            if(collisionBULLETandPLAYER(
-                player.xPos, player.yPos, playerHitboxX, playerHitboxY,
-            obj.xPos, obj.yPos, objHitboxX, objHitboxY)) {
-                player.health -= 1;
-
-                trueInvincibility.push_back(player);
-                trueInvincibilityTime.push_back(5);
+            jjConsole(formatInt(player.invincibility));
+            if(
+                collisionBULLETandPLAYER(player.xPos, player.yPos, playerHitboxX, playerHitboxY, obj.xPos, obj.yPos, objHitboxX, objHitboxY) &&
+                player.health > 0 &&
+                player.blink >= 0 &&
+                obj.creatorID != player.playerID
+            ) {
+                player.hurt(1, true, jjPlayers[obj.creatorID]);
             }
         }
     }
