@@ -42,14 +42,12 @@ void onPlayer(jjPLAYER@ player) {
         )) {
             jjDrawRectangle(obj.xPos - 20, obj.yPos - 10, objHitboxX, objHitboxY, 5);
             
-            jjConsole(formatInt(player.blink));
             if(
                 collisionBULLETandPLAYER(player.xPos, player.yPos, playerHitboxX, playerHitboxY, obj.xPos, obj.yPos, objHitboxX, objHitboxY) &&
                 player.health > 0 &&
-                player.blink >= 0 &&
                 obj.creatorID != player.playerID
             ) {
-                player.hurt(1, true, jjPlayers[obj.creatorID]);
+                player.hurt(1, false, jjPlayers[obj.creatorID]);
             }
         }
     }
