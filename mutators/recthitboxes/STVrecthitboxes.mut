@@ -1,0 +1,52 @@
+int playerHitboxX = 40;
+int playerHitboxY = 45;
+
+int objHitboxX = 20;
+int objHitboxY = 10;
+
+array<jjPLAYER@> trueInvincibility;
+array<int> trueInvincibilityTime;
+
+bool collisionBULLETandPLAYER(int px, int py, int psx, int psy, int ox, int oy, int osx, int osy) {
+    return true;
+}
+
+void onPlayerDraw(jjPLAYERDRAW& draw) {
+    // remove hitboxes ))
+    draw.player.invincibility = 1000;
+    draw.invincibility = false;
+
+    jjDrawRectangle(draw.player.xPos - 20, draw.player.yPos - 20, playerHitboxX, playerHitboxY, 4);
+}
+
+void onPlayer(jjPLAYER@ player) {
+    for(int i = 0; i < jjObjectCount; i++) {
+        jjOBJ@ obj = jjObjects[i];
+
+        // hate this
+        if(obj.isActive && (
+            obj.eventID == OBJECT::BLASTERBULLET || obj.eventID == OBJECT::BOUNCERBULLET ||
+            obj.eventID == OBJECT::ICEBULLET || obj.eventID == OBJECT::SEEKERBULLET ||
+            obj.eventID == OBJECT::RFBULLET || obj.eventID == OBJECT::TOASTERBULLET ||
+            obj.eventID == OBJECT::FIREBALLBULLET || obj.eventID == OBJECT::ELECTROBULLET ||
+            obj.eventID == OBJECT::BLASTERBULLETPU || obj.eventID == OBJECT::BOUNCERBULLETPU ||
+            obj.eventID == OBJECT::ICEBULLETPU || obj.eventID == OBJECT::SEEKERBULLETPU ||
+            obj.eventID == OBJECT::RFBULLETPU || obj.eventID == OBJECT::TOASTERBULLETPU ||
+            obj.eventID == OBJECT::FIREBALLBULLETPU || obj.eventID == OBJECT::ELECTROBULLETPU ||
+            obj.eventID == OBJECT::FIRESHIELDBULLET || obj.eventID == OBJECT::WATERSHIELDBULLET ||
+            obj.eventID == OBJECT::BUBBLESHIELDBULLET || obj.eventID == OBJECT::LIGHTNINGSHIELDBULLET ||
+            obj.eventID == OBJECT::PLASMASHIELDBULLET || obj.eventID == OBJECT::BULLET
+        )) {
+            jjDrawRectangle(obj.xPos - 20, obj.yPos - 10, objHitboxX, objHitboxY, 5);
+            
+            if(collisionBULLETandPLAYER(
+                player.xPos, player.yPos, playerHitboxX, playerHitboxY,
+            obj.xPos, obj.yPos, objHitboxX, objHitboxY)) {
+                player.health -= 1;
+
+                trueInvincibility.push_back(player);
+                trueInvincibilityTime.push_back(5);
+            }
+        }
+    }
+}
