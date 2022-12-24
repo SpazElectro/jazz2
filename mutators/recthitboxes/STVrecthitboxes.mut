@@ -42,7 +42,7 @@ void onPlayer(jjPLAYER@ player) {
         )) {
             jjDrawRectangle(obj.xPos - 20, obj.yPos - 10, objHitboxX, objHitboxY, 5);
             
-            jjConsole(formatInt(player.invincibility));
+            jjConsole(formatInt(player.blink));
             if(
                 collisionBULLETandPLAYER(player.xPos, player.yPos, playerHitboxX, playerHitboxY, obj.xPos, obj.yPos, objHitboxX, objHitboxY) &&
                 player.health > 0 &&
