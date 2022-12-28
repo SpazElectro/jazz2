@@ -1,7 +1,7 @@
 #pragma require "STVutil.asc"
 #include "STVutil.asc"
 
-Dialogue@ dialog = Dialogue("Devan stole the rabbits' carrots!");
+Dialogue@ dialog = Dialogue("Devan stole the rabbits' carrots!", {});
 int dialogId = 0;
 
 // 1 | == green

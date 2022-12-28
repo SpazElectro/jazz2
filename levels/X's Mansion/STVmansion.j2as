@@ -1,0 +1,40 @@
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+Dialogue@ dialog = Dialogue("Devan stole the rabbits' carrots!", {
+	DialogueChoice@("test"),
+	DialogueChoice@("test 2"),
+	DialogueChoice@("test 3")
+});
+
+int dialogId = 0;
+
+// 1 | == green
+// 2 | == red
+// 3 | == blue
+// 4 | == yellow
+// 5 | == pink
+// 6 | == default
+// 7 | == gray
+// 8 | == greenish
+// repeat from 1 (green, red, blue, etc)
+
+void onLevelBegin() {
+    jjConsole("[MS] started");
+
+    dialog.speed = 3;
+}
+
+void onMain() {
+    dialog.update();
+}
+
+void onPlayerInput(jjPLAYER@ player) {
+    dialog.input(player);
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    dialog.draw(canvas);
+
+    return false;
+}

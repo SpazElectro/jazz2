@@ -1,6 +1,6 @@
 @echo off
 echo Copying
-copy STVstartposviewer.mut "D:\Games\Jazz Jackrabbit 2+\" /y
+copy STVstartposviewer.mut "F:\Games\Jazz2\" /y
 echo Starting
-"D:\Games\Jazz Jackrabbit 2+\Jazz2.exe" -server -mutators=STVstartposviewer.mut face
+"F:\Games\Jazz2\Jazz2+.exe" -server -mutators=STVstartposviewer.mut face
 @echo on

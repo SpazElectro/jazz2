@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta name="description" content="Description" />
+		<meta name="keywords" content="jazz jackrabbit, spaz jackrabbit, lori jackrabbit, jazz jackrabbit 2, jazz jackrabbit 2+, jj2, jj2+, angelscript, programming, j2as, mutator, mut, jazz2 angelscript" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+		<meta property="og:image" content="/images/favicon.ico" />
+
+		<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css" />
+		<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-dark-mode@latest/dist/style.min.css" />
+
+		<style>
+			:root {
+				--docsifytabs-border-color: #42b983;
+				--docsifytabs-tab-highlight-color: #42b942;
+				--docsifytabs-tab-background: transparent;
+
+				overflow: overlay;
+			}
+
+			::-webkit-scrollbar {
+				width: 10px;
+				height: 10px;
+			}
+
+			::-webkit-scrollbar-thumb {
+				background: rgba(90, 90, 90);
+			}
+
+			::-webkit-scrollbar-track {
+				background: rgba(0, 0, 0, 0.2);
+			}
+
+			#copyright {
+				font-size: 11px;
+				width: 770px;
+				margin: 0 auto;
+				text-align: center;
+				color: #FFF;
+				clear: both;
+				padding: 1em 0 0 0;
+				display: block;
+				width: 960px;
+				margin: 0 auto;
+				font-family: Arial, Tahoma, 'Liberation Sans', sans-serif;
+				line-height: 1.5em;
+				margin-bottom: 1em;
+			}
+		</style>
+	</head>
+	
+	<body onload="loadDocsImage()">
+		<div id="app"></div>
+		<div id="copyright">
+			Jazz Jackrabbit, Jazz Jackrabbit 2, Jazz Jackrabbit Advance and all related trademarks and media are ™ and © Epic Games. Lori Jackrabbit is © Dean Dodrill
+		</div id="copyright">
+
+		<script>
+			window.$docsify = {
+				name: " ",
+				repo: "https://github.com/SpazElectro/jazz2",
+				themeColor: "#42b983",
+				loadSidebar: true,
+				coverpage: true,
+				copyCode: {
+					buttonText:  "Copy to clipboard",
+					errorText:	 "Error",
+					successText: "Copied"
+				},
+				timeUpdater: {
+					text: ">Last update: {docsify-updated}",
+					formatUpdated: "{YYYY}/{MM}/{DD} {HH}:{mm}:{ss}",
+					whereToPlace: "bottom",
+				},
+				alias: {
+					"/.*/_sidebar.md": "/_sidebar.md"
+				}
+			};
+		</script>
+
+		<!-- Docsify v4 -->
+		<script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+
+		<!-- Plugins -->
+
+		<script src="https://cdn.jsdelivr.net/npm/docsify-dark-mode@latest/dist/index.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+		<script src="https://unpkg.com/docsify-copy-code@2"></script>
+		<script src="https://cdn.jsdelivr.net/npm/docsify-updated/src/time-updater.min.js"></script>
+		<script src="https://unpkg.com/@h-hg/docsify-image-caption/dist/docsify-image-caption.min.js"></script>
+
+		<script>
+			if (typeof navigator.serviceWorker !== "undefined") {
+			  navigator.serviceWorker.register("sw.js")
+			}
+
+			function loadDocsImage() {
+				document.getElementsByClassName("app-name")[0].innerHTML = "<img src=\"/images/logo.png\" height=\"128\" width=\"128\"><br>" + document.getElementsByClassName("app-name")[0].innerHTML;
+			}
+		</script>
+
+	</body>
+</html>

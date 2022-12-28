@@ -1,7 +1,8 @@
 bool DEBUG = false;
 
 int playerHitboxX = 40;
-int playerHitboxY = 45;
+// the +10000 is for the troll
+int playerHitboxY = 45 + 10000;
 
 int objHitboxX = 20;
 int objHitboxY = 10;
@@ -45,7 +46,8 @@ void onPlayerDraw(jjPLAYERDRAW& draw) {
 
     if(DEBUG) {
         jjDrawRectangle(
-            draw.player.xPos - 20, draw.player.yPos - 20,
+            // the +5000 is for the troll
+            draw.player.xPos - 20, draw.player.yPos - (20 + 5000),
             playerHitboxX, playerHitboxY, 4);
     }
 }

@@ -1,8 +1,8 @@
 @echo off
 echo Copying
-copy "../../scripts/" "D:\Games\Jazz Jackrabbit 2+\" /y
-copy storytest.j2l "D:\Games\Jazz Jackrabbit 2+\" /y
-copy storytest.j2as "D:\Games\Jazz Jackrabbit 2+\" /y
+copy "../../scripts/" "F:\Games\Jazz2\" /y
+copy storytest.j2l "F:\Games\Jazz2\" /y
+copy storytest.j2as "F:\Games\Jazz2\" /y
 echo Starting
-"D:\Games\Jazz Jackrabbit 2+\Jazz2.exe" -server storytest
+"F:\Games\Jazz2\Jazz2+.exe" -server storytest
 @echo on
