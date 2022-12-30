@@ -2,9 +2,19 @@
 #include "STVutil.asc"
 
 Dialogue@ dialog = Dialogue("Devan stole the rabbits' carrots!", {
-	DialogueChoice@("test"),
-	DialogueChoice@("test 2"),
-	DialogueChoice@("test 3")
+	DialogueChoice("test 1", 0, function(DialogueChoice@ self) {
+        jjConsole("t 1");
+        return true;
+    }),
+	DialogueChoice("[ON]", 1, function(DialogueChoice@ self) {
+        self.text = (self.text == "[ON]" ? "[OFF]" : "[ON]");
+
+        return false;
+    }),
+	DialogueChoice("test 3", 2, function(DialogueChoice@ self) {
+        jjConsole("t 3");
+        return true;
+    })
 });
 
 int dialogId = 0;
@@ -22,7 +32,9 @@ int dialogId = 0;
 void onLevelBegin() {
     jjConsole("[MS] started");
 
-    dialog.speed = 3;
+    dialog.speed = 2;
+	dialog.can_skip = false;
+	dialog.initalize();
 }
 
 void onMain() {
