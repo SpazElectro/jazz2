@@ -1,6 +1,6 @@
 @echo off
 echo Copying
-copy STVteamhealth.mut "F:\Games\Jazz2\" /y
+copy STVteamhealth.mut "C:\Game\Jazz Jackrabbit 2\createdbyme\" /y
 echo Starting
-"F:\Games\Jazz2\Jazz2+.exe" -server -mutators=STVteamhealth.mut face.j2l -ctf
+"C:\Game\Jazz Jackrabbit 2\Jazz2.exe" -server -mutators=STVteamhealth.mut face.j2l -ctf
 @echo on

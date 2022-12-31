@@ -1,6 +1,6 @@
 @echo off
 echo Copying
-copy STVrecthitboxes.mut "F:\Games\Jazz2\" /y
+copy STVrecthitboxes.mut "C:\Game\Jazz Jackrabbit 2\createdbyme\" /y
 echo Starting
-"F:\Games\Jazz2\Jazz2+.exe" -server -mutators=STVrecthitboxes.mut battle1
+"C:\Game\Jazz Jackrabbit 2\Jazz2.exe" -server -mutators=STVrecthitboxes.mut battle1
 @echo on

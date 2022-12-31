@@ -1,208 +1,155 @@
 // 3D level using raycasting
 
-array<array<int>> worldMap = {
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+int screenWidth = jjSubscreenWidth;
+int screeenHeight = jjSubscreenHeight;
+
+int screenHalfWidth = screenWidth / 2;
+int screenHalfHeight = screeenHeight / 2;
+
+int rayCastingPrecision = 64;
+
+array<array<float>> worldMap = {
+  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 1, 0, 1, 0, 0, 1},
+  {1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+  {1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+  {1, 0, 0, 1, 0, 1, 1, 0, 0, 1},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
 
-double dirX = -1, dirY = 0; //initial direction vector
-double planeX = 0, planeY = 0.66; //the 2d raycaster version of camera plane
+float degreeToRadians(float degree) {
+//         degree * PI / 180
+    return degree * 3.141592653589793 / 180;
+}
 
-double time = 0; // time of current frame
-double oldTime = 0; // time of previous frame
+class Vector2
+{
+  float x, y;
 
-//speed modifiers
-double moveSpeed; //the constant value is in squares/second
-double rotSpeed; //the constant value is in radians/second
+  Vector2(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
+};
+
+class ThirdDimensionPlayer
+{
+  float fov = 60;
+  // float halfFov = fov / 2;
+  float halfFov = 30;
+  float x = 2;
+  float y = 2;
+  float angle = 90;
+  float movementSpeed = 0.3;
+  float rotationSpeed = 5.0;
+  // float incrementAngle = fov / screenWidth;
+  float incrementAngle = 60 / 800;
+
+  ThirdDimensionPlayer() {}
+};
+
+class Line
+{
+  int x1, y1, x2, y2;
+  string color;
+
+  Line(int x1, int y1, int x2, int y2, string color) {
+    this.x1 = x1; this.x2 = x2;
+    this.y1 = y1; this.y2 = y2;
+    this.color = color;   
+  }
+};
+
+class Raycaster
+{
+  ThirdDimensionPlayer@ player;
+
+  Raycaster(ThirdDimensionPlayer@ player) {
+    @this.player = player;
+  }
+
+  array<Line@> sendRay() {
+    array<Line@> lineQueue;
+
+    float rayAngle = this.player.angle - this.player.halfFov;
+
+    for(int rayCount = 0; rayCount < screenWidth; rayCount++) {
+      float rayX = this.player.x;
+      float rayY = this.player.y;
+
+      float rayCos = cos(degreeToRadians(rayAngle)) / rayCastingPrecision;
+      float raySin = sin(degreeToRadians(rayAngle)) / rayCastingPrecision;
+
+      float wall = 0;
+
+      while(wall == 0) {
+        rayX += rayCos;
+        rayY += raySin;
+
+        wall = worldMap[floor(rayY)][floor(rayX)];
+      }
+
+      float distance = sqrt(pow(this.player.x - rayX, 2) + pow(this.player.y - rayY, 2));
+      distance = distance * cos(degreeToRadians(rayAngle - this.player.angle));
+
+      float wallHeight = floor(screenHalfHeight / distance);
+
+      lineQueue.insertLast(Line(rayCount, 0, rayCount, screenHalfHeight - wallHeight, "cyan"));
+      lineQueue.insertLast(Line(rayCount, screenHalfHeight - wallHeight, rayCount, screenHalfHeight + wallHeight, "red"));
+      lineQueue.insertLast(Line(rayCount, screenHalfHeight + wallHeight, rayCount, screeenHeight, "green"));
+
+      rayAngle += this.player.incrementAngle;
+    }
+
+    return lineQueue;
+  }
+};
+
+Raycaster@ mainRaycaster;
 
 void onLevelBegin() {
+    screenWidth = jjSubscreenWidth;
+    screeenHeight = jjSubscreenHeight;
+
+    @mainRaycaster = Raycaster(ThirdDimensionPlayer());
+
     jjConsole("[3D] Level started.");
 }
 
-void onMain() {
-    int w = jjResolutionWidth;
-    int h = jjResolutionHeight;
+array<Vector2@> drawLine(float x1, float y1, float x2, float y2) {
+  array<Vector2@> pixelArray;
 
-    for(int x = 0; x < w; x++)
-    {
-      //calculate ray position and direction
-      double cameraX = 2 * x / w - 1; //x-coordinate in camera space
-      double rayDirX = dirX + planeX * cameraX;
-      double rayDirY = dirY + planeY * cameraX;
-      //which box of the map we're in
-      int mapX = int(jjLocalPlayers[1].xPos);
-      int mapY = int(jjLocalPlayers[1].yPos);
+  float dx = x2 - x1;
+  float dy = y2 - y1;
 
-      //length of ray from current position to next x or y-side
-      double sideDistX;
-      double sideDistY;
+  for(float x = 0; x1 < x2; x++) {
+      float y = y1 + dy * (x - x1) / dx;
+      
+      pixelArray.insertLast(Vector2(x, y));
+  }
 
-      //length of ray from one x or y-side to next x or y-side
-      //these are derived as:
-      //deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX))
-      //deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
-      //which can be simplified to abs(|rayDir| / rayDirX) and abs(|rayDir| / rayDirY)
-      //where |rayDir| is the length of the vector (rayDirX, rayDirY). Its length,
-      //unlike (dirX, dirY) is not 1, however this does not matter, only the
-      //ratio between deltaDistX and deltaDistY matters, due to the way the DDA
-      //stepping further below works. So the values can be computed as below.
-      // Division through zero is prevented, even though technically that's not
-      // needed in C++ with IEEE 754 floating point values.
-      double deltaDistX = (rayDirX == 0) ? 1e30 : abs(1 / rayDirX);
-      double deltaDistY = (rayDirY == 0) ? 1e30 : abs(1 / rayDirY);
-
-      double perpWallDist;
-
-      //what direction to step in x or y-direction (either +1 or -1)
-      int stepX;
-      int stepY;
-
-      int hit = 0; //was there a wall hit?
-      int side; //was a NS or a EW wall hit?
-      //calculate step and initial sideDist
-      if(rayDirX < 0)
-      {
-        stepX = -1;
-        sideDistX = (jjLocalPlayers[1].xPos - mapX) * deltaDistX;
-      }
-      else
-      {
-        stepX = 1;
-        sideDistX = (mapX + 1.0 - jjLocalPlayers[1].xPos) * deltaDistX;
-      }
-      if(rayDirY < 0)
-      {
-        stepY = -1;
-        sideDistY = (jjLocalPlayers[1].yPos - mapY) * deltaDistY;
-      }
-      else
-      {
-        stepY = 1;
-        sideDistY = (mapY + 1.0 - jjLocalPlayers[1].yPos) * deltaDistY;
-      }
-      //perform DDA
-      while(hit == 0)
-      {
-        //jump to next map square, either in x-direction, or in y-direction
-        if(sideDistX < sideDistY)
-        {
-          sideDistX += deltaDistX;
-          mapX += stepX;
-          side = 0;
-        }
-        else
-        {
-          sideDistY += deltaDistY;
-          mapY += stepY;
-          side = 1;
-        }
-        //Check if ray has hit a wall
-        if(worldMap[mapX][mapY] > 0) hit = 1;
-      }
-      //Calculate distance projected on camera direction. This is the shortest distance from the point where the wall is
-      //hit to the camera plane. Euclidean to center camera point would give fisheye effect!
-      //This can be computed as (mapX - jjLocalPlayers[1].xPos + (1 - stepX) / 2) / rayDirX for side == 0, or same formula with Y
-      //for size == 1, but can be simplified to the code below thanks to how sideDist and deltaDist are computed:
-      //because they were left scaled to |rayDir|. sideDist is the entire length of the ray above after the multiple
-      //steps, but we subtract deltaDist once because one step more into the wall was taken above.
-      if(side == 0) perpWallDist = (sideDistX - deltaDistX);
-      else          perpWallDist = (sideDistY - deltaDistY);
-
-      //Calculate height of line to draw on screen
-      int lineHeight = (h / perpWallDist);
-
-      //calculate lowest and highest pixel to fill in current stripe
-      int drawStart = -lineHeight / 2 + h / 2;
-      if(drawStart < 0) drawStart = 0;
-      int drawEnd = lineHeight / 2 + h / 2;
-      if(drawEnd >= h) drawEnd = h - 1;
-
-      //choose wall color
-      int color;
-    //   switch(worldMap[mapX][mapY])
-    //   {
-    //     case 1:  color = RGB_Red;    break; //red
-    //     case 2:  color = RGB_Green;  break; //green
-    //     case 3:  color = RGB_Blue;   break; //blue
-    //     case 4:  color = RGB_White;  break; //white
-    //     default: color = RGB_Yellow; break; //yellow
-    //   }
-      color = 0;
-
-      //give x and y sides different brightness
-      if(side == 1) {color = color / 2;}
-
-      //draw the pixels of the stripe as a vertical line
-      jjDrawRectangle(x, drawStart, 5, lineHeight, color, SPRITE::NORMAL, 0, 4, 4, -1);
-    // void jjDrawRectangle(float xPixel, float yPixel, int width, int height, uint8 color, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1)
-        
-    }
-
-    //timing for input and FPS counter
-    oldTime = time;
-    time = jjGameTicks;
-    double frameTime = (time - oldTime) / 1000.0; //frameTime is the time this frame has taken, in seconds
-    jjConsole("" + 1.0 / frameTime); //FPS counter
-    moveSpeed = frameTime * 5.0;
-    rotSpeed = frameTime * 3.0;
+  return pixelArray;
 }
 
-void onPlayerInput(jjPLAYER@ player) {    
-    // if(jjKey[0x26]) //up
-    // {
-    //   if(worldMap[int(jjLocalPlayers[1].xPos + dirX * moveSpeed)][int(jjLocalPlayers[1].yPos)] == false) jjLocalPlayers[1].xPos += dirX * moveSpeed;
-    //   if(worldMap[int(jjLocalPlayers[1].xPos)][int(jjLocalPlayers[1].yPos + dirY * moveSpeed)] == false) jjLocalPlayers[1].yPos += dirY * moveSpeed;
-    // }
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+  array<Line@> lineQueue = mainRaycaster.sendRay();
 
-    // //move backwards if no wall behind you
-    // if(jjKey[0x28]) //down
-    // {
-    //   if(worldMap[int(jjLocalPlayers[1].xPos - dirX * moveSpeed)][int(jjLocalPlayers[1].yPos)] == false) jjLocalPlayers[1].xPos -= dirX * moveSpeed;
-    //   if(worldMap[int(jjLocalPlayers[1].xPos)][int(jjLocalPlayers[1].yPos - dirY * moveSpeed)] == false) jjLocalPlayers[1].yPos -= dirY * moveSpeed;
-    // }
+  for (uint lineIndex = 0; lineIndex < lineQueue.length; lineIndex++)
+  {
+      Line@ line = lineQueue[lineIndex];
+      array<Vector2@> pixelArray = drawLine(line.x1, line.y1, line.x2, line.y2);
+      
+      for (uint pixelIndex = 0; pixelIndex < pixelArray.length; pixelIndex++)
+      {
+        Vector2@ pixel = pixelArray[pixelIndex];
 
-    //rotate to the right
-    if(jjKey[0x27]) // right
-    {
-      //both camera direction and camera plane must be rotated
-      double oldDirX = dirX;
-      dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-      dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-      double oldPlaneX = planeX;
-      planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-      planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-    }
+        canvas.drawPixel(pixel.x, pixel.y, 8);
+      }
+  }
 
-    if(jjKey[0x25])
-    {
-      //both camera direction and camera plane must be rotated
-      double oldDirX = dirX;
-      dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-      dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-      double oldPlaneX = planeX;
-      planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-      planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-    }
+  return false;
 }

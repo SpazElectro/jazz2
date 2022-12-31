@@ -1,0 +1,54 @@
+
+int maxDistance = 130*32;
+
+class Vector2
+{
+    float x, y;
+
+    Vector2(float x, float y) { this.x = x; this.y = y; }
+};
+
+class Ray
+{
+    Vector2@ position;
+    Vector2@ end;
+
+    Ray(Vector2@ position) { @this.position = position; }
+
+    void send(int8 direction) {
+        int x = position.x;
+        int y = position.y;
+
+        int rayX = x;
+        int rayY = y;
+
+        int foundTile = jjTileGet(4, int(rayX/32), int(rayY/32));
+
+        while(true) {
+            if(foundTile != 0 || rayX >= maxDistance) {
+                break;
+            }
+
+            if(direction >= 1) {
+                rayX += 1;
+            } else {
+                rayX -= 1;
+            }
+
+            foundTile = jjTileGet(4, int(rayX/32), int(rayY/32));
+        }
+
+        @this.end = Vector2(rayX, rayY);
+    }
+};
+
+void onLevelBegin() {
+    jjConsole("LASER!");
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+    Ray@ ray = Ray(Vector2(player.xPos, player.yPos));
+    ray.send(player.direction);
+
+    canvas.drawRectangle(int(ray.end.x), int(ray.end.y), 10, 10, 1);
+}
