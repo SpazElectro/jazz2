@@ -1,4 +1,3 @@
-
 int maxDistance = 130*32;
 
 class Vector2
@@ -16,34 +15,30 @@ class Ray
     Ray(Vector2@ position) { @this.position = position; }
 
     void send(int8 direction) {
-        int x = position.x;
-        int y = position.y;
+        Vector2@ rayPosition = Vector2(this.position.x, this.position.y);
 
-        int rayX = x;
-        int rayY = y;
-
-        int foundTile = jjTileGet(4, int(rayX/32), int(rayY/32));
+        int foundTile = jjTileGet(4, int(rayPosition.x/32), int(rayPosition.y/32));
 
         while(true) {
-            if(foundTile != 0 || rayX >= maxDistance) {
+            if(foundTile != 0 || rayPosition.x >= maxDistance) {
                 break;
             }
 
             if(direction >= 1) {
-                rayX += 1;
+                rayPosition.x += 1;
             } else {
-                rayX -= 1;
+                rayPosition.x -= 1;
             }
 
-            foundTile = jjTileGet(4, int(rayX/32), int(rayY/32));
+            foundTile = jjTileGet(4, int(rayPosition.x/32), int(rayPosition.y/32));
         }
 
-        @this.end = Vector2(rayX, rayY);
+        @this.end = rayPosition;
     }
 };
 
 void onLevelBegin() {
-    jjConsole("LASER!");
+    jjConsole("[RAYCAST_TEST] Started.");
 }
 
 void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
