@@ -15,7 +15,7 @@ Dialogue@ dialog = Dialogue("Devan stole the rabbits' carrots!", {
         jjConsole("t 3");
         return true;
     })
-});
+}, "test.png", 0, Box(50, 50, 229, 449));
 
 int dialogId = 0;
 
@@ -46,7 +46,7 @@ void onPlayerInput(jjPLAYER@ player) {
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    dialog.draw(canvas);
+    // dialog.draw(canvas);
 
     return false;
 }
