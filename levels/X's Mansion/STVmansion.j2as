@@ -1,21 +1,22 @@
 #pragma require "STVutil.asc"
 #include "STVutil.asc"
 
-Dialogue@ dialog = Dialogue("Devan stole the rabbits' carrots!", {
-	DialogueChoice("test 1", 0, function(DialogueChoice@ self) {
-        jjConsole("t 1");
-        return true;
-    }),
-	DialogueChoice("[ON]", 1, function(DialogueChoice@ self) {
-        self.text = (self.text == "[ON]" ? "[OFF]" : "[ON]");
+Dialogue@ dialog = Dialogue("Can I have that carrot?", {
+	DialogueChoice("YES", 0, function(DialogueChoice@ self, Dialogue@ dialogue) {
+        dialogue.text = "Yay!";
+
+        dialogue.loadNewCharacter("test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
 
         return false;
     }),
-	DialogueChoice("test 3", 2, function(DialogueChoice@ self) {
-        jjConsole("t 3");
-        return true;
+	DialogueChoice("NO", 1, function(DialogueChoice@ self, Dialogue@ dialogue) {
+        dialogue.text = "GRAHHHHHHH";
+
+        dialogue.loadNewCharacter("test2.png", 0, Box(135, (600-300)+(300/2), 262, 300));
+
+        return false;
     })
-}, "test.png", 0, Box(50, 50, 229, 449));
+}, "test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
 
 int dialogId = 0;
 
