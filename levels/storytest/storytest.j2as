@@ -30,7 +30,7 @@ void onMain() {
         TimerV(time, function() {
             dialog.text = "Go get the carrots back!";
             dialog.moreDialog = false;
-            dialog.initalize();
+            dialog.initialize();
             dialogId = 1;
         });
     }
@@ -49,7 +49,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 }
 
 void onFunction0(jjPLAYER@ player) {
-    dialog.initalize();
+    dialog.initialize();
 }
 
 void onFunction1(jjPLAYER@ player) {
@@ -60,7 +60,7 @@ void onFunction1(jjPLAYER@ player) {
     TimerV(150, function() {
         dialog.text = "TROLLED";
         dialog.moreDialog = false;
-        dialog.initalize();
+        dialog.initialize();
         dialogId = 3;
 
         TimerV(300, function() {
@@ -68,5 +68,5 @@ void onFunction1(jjPLAYER@ player) {
         });
     });
 
-    dialog.initalize();
+    dialog.initialize();
 }
