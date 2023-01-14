@@ -4,7 +4,7 @@
 Dialogue@ dialog = Dialogue("Can I have that carrot?", {
 	DialogueChoice("YES", 0, function(DialogueChoice@ self, Dialogue@ dialogue) {
         dialogue.text = "Yay!";
-        dialogue.loadNewCharacter("test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
+        dialogue.loadNewCharacter("test.png", 0, Box(135, (jjResolutionWidth - 409) + (409 / 2), 209, 409));
 
         dialogue.initalize();
 
@@ -12,7 +12,7 @@ Dialogue@ dialog = Dialogue("Can I have that carrot?", {
     }),
 	DialogueChoice("NO", 1, function(DialogueChoice@ self, Dialogue@ dialogue) {
         dialogue.text = "GRAHHHHHHH";
-        dialogue.loadNewCharacter("test2.png", 0, Box(135, (600-300)+(300/2), 262, 300));
+        dialogue.loadNewCharacter("test2.png", 0, Box(135, (jjResolutionWidth - 300) + (300 / 2), 262, 300));
 
         dialogue.initalize();
 
@@ -20,7 +20,7 @@ Dialogue@ dialog = Dialogue("Can I have that carrot?", {
         dialogue.choices = {
             DialogueChoice("Okay, okay, You can have it!", 0, function(DialogueChoice@ self, Dialogue@ dialogue) {
                 dialogue.text = "Thanks :P";
-                dialogue.loadNewCharacter("test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
+                dialogue.loadNewCharacter("test.png", 0, Box(135, (jjResolutionWidth - 409) + (409 / 2), 209, 409));
 
                 dialogue.choices = {};
 
@@ -37,7 +37,7 @@ Dialogue@ dialog = Dialogue("Can I have that carrot?", {
         
         return false;
     })
-}, "test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
+}, "test.png", 0, Box(135, (jjResolutionWidth - 409) + (409 / 2), 209, 409));
 
 int dialogId = 0;
 
