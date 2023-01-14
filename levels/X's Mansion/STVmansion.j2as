@@ -4,16 +4,37 @@
 Dialogue@ dialog = Dialogue("Can I have that carrot?", {
 	DialogueChoice("YES", 0, function(DialogueChoice@ self, Dialogue@ dialogue) {
         dialogue.text = "Yay!";
-
         dialogue.loadNewCharacter("test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
+
+        dialogue.initalize();
 
         return false;
     }),
 	DialogueChoice("NO", 1, function(DialogueChoice@ self, Dialogue@ dialogue) {
         dialogue.text = "GRAHHHHHHH";
-
         dialogue.loadNewCharacter("test2.png", 0, Box(135, (600-300)+(300/2), 262, 300));
 
+        dialogue.initalize();
+
+        dialogue.choice = 0;
+        dialogue.choices = {
+            DialogueChoice("Okay, okay, You can have it!", 0, function(DialogueChoice@ self, Dialogue@ dialogue) {
+                dialogue.text = "Thanks :P";
+                dialogue.loadNewCharacter("test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
+
+                dialogue.choices = {};
+
+                dialogue.initalize();
+
+                return false;
+            }),
+            DialogueChoice("No!", 1, function(DialogueChoice@ self, Dialogue@ dialogue) {
+                jjLocalPlayers[1].kill();
+
+                return true;
+            })
+        };
+        
         return false;
     })
 }, "test.png", 0, Box(135, (600-409)+(409/2), 209, 409));
