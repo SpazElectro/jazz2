@@ -789,7 +789,7 @@ void onPlayerInput(jjPLAYER@ player) {
     }
 }
 
-Key@ getKey(int code) {
+Key@ getKey(uint code) {
     for (uint i = 0; i < KEYS.length() - 1; i++)
     {
         Key@ key = KEYS[i];
