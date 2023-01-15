@@ -1,158 +1,9 @@
 #pragma name "Weapon List"
+
 #pragma require "STVweaponlist_constants.asc"
-#include "STVweaponlist_constants.asc"
+#pragma require "STVutil.asc"
 
-funcdef void TimerVDictionaryFunction(dictionary@);
-class TimerV : jjBEHAVIORINTERFACE {
-  TimerV(int time, jjVOIDFUNC@ callback) {
-    @_callback = @callback;
-    _start(time);
-  }
-  TimerV(int time, TimerVDictionaryFunction@ callback, dictionary@ arguments) {
-    @_callbackWithArguments = @callback;
-    @_arguments = @arguments;
-    _start(time);
-  }
-  bool get_Active() const {
-    return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
-  }
-  int get_Elapsed() const {
-    if (Active) return _object.age;
-    return -1;
-  }
-  int get_Total() const {
-    if (Active) return _object.counter;
-    return -1;
-  }
-  int get_Remaining() const {
-    if (Active) return _object.counter - _object.age;
-    return -1;
-  }
-  bool Stop() {
-    if (Active && _object.age < _object.counter) {
-      _object.delete();
-      return true;
-    }
-    return false;
-  }
-  bool Paused = false;
- 
- 
- 
- 
- 
-  private jjVOIDFUNC@ _callback = null;
-  private TimerVDictionaryFunction@ _callbackWithArguments;
-  private dictionary@ _arguments;
-  private jjOBJ@ _object;
-  private int _startTime;
-  private void _start(int time) {
-    if (time > 0) {
-      @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
-      _object.behavior = this;
-      _object.counter = time;
-      _object.age = 0;
-      _object.playerHandling = HANDLING::PARTICLE;
-      _object.deactivates = false;
-      _startTime = jjGameTicks;
-    } else {
-      @_object = jjObjects[0]; //avoid null pointer access
-      _pickCallback();
-    }
-  }
-  private void onBehave(jjOBJ@ obj) {
-    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
-      _pickCallback();
-      _object.delete();
-    }
-  }
-  private void _pickCallback() {
-    if (_callback !is null)
-      _callback();
-    else
-      _callbackWithArguments(_arguments);
-  }
-}
-
-class AnimatedSprite
-{
-    int id;
-    float frame;
-    int frame_count;
-    int x;
-    int y;
-    float anim_speed;
-    bool can_reverse;
-    bool reverse = false;
-    bool visible = true;
-    ANIM::Set animSet = ANIM::AMMO;
-
-    AnimatedSprite(int id, int frame, int frame_count, int x, int y, float anim_speed, bool can_reverse)
-    {
-        this.id = id;
-        this.frame = frame;
-        this.frame_count = frame_count;
-        this.x = x;
-        this.y = y;
-        this.anim_speed = anim_speed;
-        this.can_reverse = can_reverse;
-    }
-
-    void setVisible(bool visible)
-    {
-        this.visible = visible;
-    }
-
-    void setAnimSet(ANIM::Set animSet)
-    {
-        this.animSet = animSet;
-    }
-
-    void setId(int id)
-    {
-        this.id = id;
-    }
-
-    void setFrameCount(int frame_count)
-    {
-        this.frame_count = frame_count;
-    }
-
-    void update()
-    {
-        if(this.reverse == false) {
-            this.frame += this.anim_speed;
-        } else {
-            this.frame -= this.anim_speed;
-        }
-
-        if (this.frame > this.frame_count)
-        {
-            if(this.can_reverse == true) {
-                this.reverse = not this.reverse;
-            } else {
-                this.frame = 0;
-            }
-        }
-
-        if(this.frame <= 0)
-        {
-            if(this.can_reverse == true) {
-                this.reverse = not this.reverse;
-            } else {
-                this.frame = 0;
-            }
-        }
-    }
-
-    void draw(jjCANVAS@ canvas)
-    {
-        if(this.visible) {
-            canvas.drawSprite(this.x, this.y, this.animSet, this.id, int(this.frame), 0, SPRITE::NORMAL, 123);
-        }
-    }
-}
-
+#include "STVutil.asc"
 
 funcdef void ButtonCallback(Button@);
 class Button
@@ -531,14 +382,14 @@ string version = "0.1";
 
 array<string> profiles;
 
-AnimatedSprite@ bouncer = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
-AnimatedSprite@ ice = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
-AnimatedSprite@ seeker = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
-AnimatedSprite@ rf = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
-AnimatedSprite@ toaster = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
-AnimatedSprite@ tnt = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
-AnimatedSprite@ fireball = AnimatedSprite(0, 0, 9, 0, 0, 0.25, false);
-AnimatedSprite@ electroblaster = AnimatedSprite(0, 0, 10, 0, 0, 0.25, false);
+AnimatedSprite@ bouncer = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ ice = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ seeker = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ rf = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ toaster = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ tnt = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ fireball = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ electroblaster = AnimatedSprite(0, 0, 0, 0, 0.25, false);
 
 bool horizontal = false;
 bool horizontal2 = true;
