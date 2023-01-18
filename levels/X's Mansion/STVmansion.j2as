@@ -14,7 +14,18 @@
 #include "STVutil.asc"
 #include "STVprogress.asc"
 
+ProgressManager@ progress = ProgressManager();
+
 void onLevelBegin() {
     jjConsole("[MS] started");
 }
 
+void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!save") {
+        progress.save(jjPlayersWithClientID(clientID)[0], 1, {});
+    }
+    
+    if(stringReceived == "!load") {
+        progress.load(jjPlayersWithClientID(clientID)[0], 1);
+    }
+}
