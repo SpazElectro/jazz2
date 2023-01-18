@@ -22,10 +22,19 @@ void onLevelBegin() {
 
 void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived == "!save") {
-        progress.save(jjPlayersWithClientID(clientID)[0], 1, {});
+        array<string> infoArray;
+        infoArray.insertLast(formatInt(jjGameTicks));
+
+        progress.save(jjPlayersWithClientID(clientID)[0], 1, infoArray);
+
+        jjConsole("Saved!");
     }
-    
+
     if(stringReceived == "!load") {
-        progress.load(jjPlayersWithClientID(clientID)[0], 1);
+        array<string> d = progress.load(jjPlayersWithClientID(clientID)[0], 1);
+
+        jjConsole("Game tick was: " + d[0]);
+
+        jjConsole("Loaded!");
     }
 }
