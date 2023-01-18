@@ -29,8 +29,10 @@ class Button
 		this.value = value;
 	}
 
-	bool checkCollision(int sourceX, int sourceY, int sourceWidth, int sourceHeight, int targetX, int targetY, int targetWidth, int targetHeight)
-	{
+	bool checkCollision(
+        int sourceX, int sourceY, int sourceWidth, int sourceHeight,
+        int targetX, int targetY, int targetWidth, int targetHeight
+    ) {
 		if(sourceX + sourceWidth > targetX && sourceX < targetX + targetWidth && sourceY + sourceHeight > targetY && sourceY < targetY + targetHeight)
 		{
 			return true;
@@ -194,7 +196,7 @@ array<Button@> pageButtons = {Button(1, function(button) {
     getButton(8).visible = true;
     getButton(9).visible = true;
     getButton(10).visible = true;
-    // getButton(11).visible = true;
+    getButton(11).visible = true;
 })};
 
 array<Button@> bindModes = {Button(1, function(button) {
@@ -281,88 +283,93 @@ array<MenuButton@> menu_buttons = {
         binding = true;
         showMenu = false;
     })),
-    MenuButton("Color On Upgrade", 3, colorUpgradedButtons)
-    // })), // unfinished profiles
-    // MenuButton("Profiles", 5, Button(1, function(button) { 
-    //     button.setValue(false);
+    MenuButton("Color On Upgrade", 3, colorUpgradedButtons),
+    // unfinished profiles
+    MenuButton("Profiles", 5, Button(1, function(button) { 
+        jjConsole("OOOOOOOOOOO");
 
-    //     for(uint i = 0; i < menu_buttons.length(); i++) {
-    //         getButton(i).visible = false;
-    //     }
+        button.setValue(false);
 
-    //     menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function(button) {
-    //         button.debounce = false;
-    //         getButton(0).visible = true;
-    //         getButton(0).buttons[0].debounce = true;
+        for(uint i = 0; i < menu_buttons.length(); i++) {
+            getButton(i).visible = false;
+        }
 
-    //         TimerV(35, function() {
-    //             getButton(0).buttons[0].debounce = false;
-    //         });
-
-    //         for(uint i = 7; i < menu_buttons.length(); i++) {
-    //             getButton(i).visible = true;
-    //         }
-
-    //         menu_buttons.resize(12);
-
-    // save();
-
-    // jjSTREAM file(profile + "_" + data_filename);
-    // file.pop(mode);
-    // file.pop(showIndex);
-    // file.pop(horizontal);
-    // file.pop(index_color);
-    // file.pop(ammo_color);
-    // file.pop(show_empty_ammo);
-    // file.pop(bind_open);
-    // file.pop(index_fontsize);
-    // file.pop(ammo_fontsize);
-    // file.pop(horizontal2);
-    // file.pop(color_upgraded_ammo);
-    // file.pop(color_upgraded_index);
-
-    //         menu_buttons[0].buttons[0].setValue(false);
-    //         menu_buttons[1].buttons[0].setValue(showIndex);
-    //         menu_buttons[2].buttons[0].setValue(false);
-    //         menu_buttons[3].buttons[0].setValue(index_color);
-    //         menu_buttons[4].buttons[0].setValue(ammo_color);
-    //         menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+        menu_buttons.insertLast(MenuButton("Back", -1, Button(1, function(button) {
+            button.debounce = false;
             
-        // if(index_fontsize == "small") {
-        //     menu_buttons[6].buttons[0].setValue(true);
-        //     menu_buttons[6].buttons[1].setValue(false);
-        // } else {
-        //     menu_buttons[6].buttons[0].setValue(false);
-        //     menu_buttons[6].buttons[1].setValue(true);
-        // }
+            getButton(0).visible = true;
+            getButton(0).buttons[0].debounce = true;
 
-        // if(ammo_fontsize == "small") {
-        //     menu_buttons[7].buttons[0].setValue(true);
-        //     menu_buttons[7].buttons[1].setValue(false);
-        // } else {
-        //     menu_buttons[7].buttons[0].setValue(false);
-        //     menu_buttons[7].buttons[1].setValue(true);
-        // }
+            TimerV(35, function() {
+                getButton(0).buttons[0].debounce = false;
+            });
 
-        // if(mode == "toggle") {
-        //     menu_buttons[8].buttons[0].setValue(true);
-        //     menu_buttons[8].buttons[1].setValue(false);
-        // } else {
-        //     menu_buttons[8].buttons[0].setValue(false);
-        //     menu_buttons[8].buttons[1].setValue(true);
-        // }
-   //     })));
+            menu_buttons[12].buttons[0].visible = false;
 
-    //     menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(1, function(button) {})));
-    //     menu_buttons[12].size = "small";
-    //     menu_buttons[12].buttons[0].visible = false;
-    //     menu_buttons[12].xOffset = -10;
-    //     menu_buttons[12].yOffset = 20;
-    //     menu_buttons[12].buttons[0].xOffset = -10;
-    //     menu_buttons[12].buttons[0].yOffset = 20;
+            for(uint i = 7; i < menu_buttons.length(); i++) {
+                getButton(i).visible = true;
+            }
 
-    //     createProfileButtons();
-	// }))
+            menu_buttons.resize(12);
+
+            save();
+
+            jjSTREAM file(profile + "_" + data_filename);
+            file.pop(mode);
+            file.pop(showIndex);
+            file.pop(horizontal);
+            file.pop(index_color);
+            file.pop(ammo_color);
+            file.pop(show_empty_ammo);
+            file.pop(bind_open);
+            file.pop(index_fontsize);
+            file.pop(ammo_fontsize);
+            file.pop(horizontal2);
+            file.pop(color_upgraded_ammo);
+            file.pop(color_upgraded_index);
+
+            menu_buttons[0].buttons[0].setValue(false);
+            menu_buttons[1].buttons[0].setValue(showIndex);
+            menu_buttons[2].buttons[0].setValue(false);
+            menu_buttons[3].buttons[0].setValue(index_color);
+            menu_buttons[4].buttons[0].setValue(ammo_color);
+            menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+            
+        if(index_fontsize == "small") {
+            menu_buttons[6].buttons[0].setValue(true);
+            menu_buttons[6].buttons[1].setValue(false);
+        } else {
+            menu_buttons[6].buttons[0].setValue(false);
+            menu_buttons[6].buttons[1].setValue(true);
+        }
+
+        if(ammo_fontsize == "small") {
+            menu_buttons[7].buttons[0].setValue(true);
+            menu_buttons[7].buttons[1].setValue(false);
+        } else {
+            menu_buttons[7].buttons[0].setValue(false);
+            menu_buttons[7].buttons[1].setValue(true);
+        }
+
+        if(mode == "toggle") {
+            menu_buttons[8].buttons[0].setValue(true);
+            menu_buttons[8].buttons[1].setValue(false);
+        } else {
+            menu_buttons[8].buttons[0].setValue(false);
+            menu_buttons[8].buttons[1].setValue(true);
+        }
+       })));
+
+        menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(99, function(button) {})));
+        menu_buttons[12].size = "small";
+        menu_buttons[12].buttons[0].visible = true;
+        menu_buttons[12].xOffset = -10;
+        menu_buttons[12].yOffset = 20;
+        menu_buttons[12].buttons[0].xOffset = -10;
+        menu_buttons[12].buttons[0].yOffset = 20;
+
+        createProfileButtons();
+	}))
 };
 
 string data_filename = "WLdata_data.asdat";
@@ -378,7 +385,7 @@ int verticalX2 = 85;
 int horizontalY2 = 15;
 
 string profile = "default";
-string version = "0.1";
+string version = "0.2";
 
 array<string> profiles;
 
@@ -584,7 +591,7 @@ void onLevelBegin() {
     menu_buttons[8].visible = false;
     menu_buttons[9].visible = false;
     menu_buttons[10].visible = false;
-    // menu_buttons[11].visible = false; // unfinished profiles
+    menu_buttons[11].visible = false; // unfinished profiles
     menu_buttons[6].buttons[0].hoverText = "SMALL";
     menu_buttons[6].buttons[1].hoverText = "MEDIUM";
     menu_buttons[7].buttons[0].hoverText = "SMALL";
