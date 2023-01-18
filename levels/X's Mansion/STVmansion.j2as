@@ -1,49 +1,3 @@
-#pragma require "STVutil.asc"
-#include "STVutil.asc"
-
-string test1Path = "STVMansion_test.png";
-string test2Path = "STVMansion_test2.png";
-
-Dialogue@ dialog = Dialogue("Can I have that carrot?", {
-	DialogueChoice("YES", 0, function(DialogueChoice@ self, Dialogue@ dialogue) {
-        dialogue.text = "Yay!";
-        dialogue.loadNewCharacter(test1Path, 0, Box(135, (jjResolutionHeight - 409) + (409 / 2), 209, 409));
-
-        dialogue.initialize();
-
-        return false;
-    }),
-	DialogueChoice("NO", 1, function(DialogueChoice@ self, Dialogue@ dialogue) {
-        dialogue.text = "GRAHHHHHHH";
-        dialogue.loadNewCharacter(test2Path, 0, Box(135, (jjResolutionHeight - 300) + (300 / 2), 262, 300));
-
-        dialogue.choice = 0;
-        dialogue.choices = {
-            DialogueChoice("Okay, okay, You can have it!", 0, function(DialogueChoice@ self, Dialogue@ dialogue) {
-                dialogue.text = "Thanks :P";
-                dialogue.loadNewCharacter(test1Path, 0, Box(135, (jjResolutionHeight - 409) + (409 / 2), 209, 409));
-
-                dialogue.choices = {};
-
-                dialogue.initialize();
-
-                return false;
-            }),
-            DialogueChoice("No!", 1, function(DialogueChoice@ self, Dialogue@ dialogue) {
-                jjLocalPlayers[1].kill();
-
-                return true;
-            })
-        };
-
-        dialogue.initialize();
-        
-        return false;
-    })
-}, test1Path, 0, Box(135, (jjResolutionHeight - 409) + (409 / 2), 209, 409));
-
-int dialogId = 0;
-
 // 1 | == green
 // 2 | == red
 // 3 | == blue
@@ -54,24 +8,13 @@ int dialogId = 0;
 // 8 | == greenish
 // repeat from 1 (green, red, blue, etc)
 
+#pragma require "STVutil.asc"
+#pragma require "STVprogress.asc"
+
+#include "STVutil.asc"
+#include "STVprogress.asc"
+
 void onLevelBegin() {
     jjConsole("[MS] started");
-
-    dialog.speed = 2;
-	dialog.can_skip = false;
-	dialog.initialize();
 }
 
-void onMain() {
-    dialog.update();
-}
-
-void onPlayerInput(jjPLAYER@ player) {
-    dialog.input(player);
-}
-
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    dialog.draw(canvas);
-
-    return false;
-}
