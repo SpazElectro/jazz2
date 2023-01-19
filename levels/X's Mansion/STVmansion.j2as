@@ -18,6 +18,7 @@ ProgressManager@ progress = ProgressManager();
 
 void onLevelBegin() {
     jjConsole("[MS] started");
+    progress.saveObjects = true;
 }
 
 void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
