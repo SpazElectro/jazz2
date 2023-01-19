@@ -27,4 +27,11 @@
 		],
 		"description": "BoolItem"
 	},
+	"floatitem": {
+		"prefix": "floatitem",
+		"body": [
+			"items.insertLast(formatFloat(obj.$0));",
+		],
+		"description": "FloatItem"
+	}
 }
