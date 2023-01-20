@@ -27,6 +27,6 @@ option2, index2 = pick(["CD Directory", "Run"], "CD the directory, or run?")
 if index2 == 0:
     os.system("start /B start cmd.exe @cmd /k cd " + str(option) + "")
 else:
-    os.system("start /B start cmd.exe @cmd /k cd " + str(option) + " && run.bat")
+    os.system("cd " + str(option) + " && run.bat")
 
 os._exit(0)
