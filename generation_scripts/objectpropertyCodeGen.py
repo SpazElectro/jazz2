@@ -1,8 +1,8 @@
 codeInput = """info.set("age", parseInt(items[0]));
 info.set("animSpeed", parseInt(items[1]));
-info.set("causesRichochet", parseBool(items[2]));
+info.set("causesRicochet", parseBool(items[2]));
 info.set("counter", parseInt(items[3]));
-info.set("counterEnd", formatUInt(items[4]));
+info.set("counterEnd", parseUInt(items[4]));
 info.set("creator", parseInt(items[5]));
 info.set("creatorID", parseInt(items[6]));
 info.set("curAnim", parseInt(items[7]));
@@ -48,6 +48,8 @@ info.set("ySpeed", parseFloat(items[45]));"""
 output = ""
 
 for line in codeInput.split("\n"):
-    output += "object." + line.split("\"")[1] + " = info.get(\"" + line.split("\"")[1] + "\");\n"
+    itemType = line.split(", ")[1].split("(")[0].split("parse")[1].lower()
+
+    output += "object." + line.split("\"")[1] + " = " + itemType + "(info[\"" + line.split("\"")[1] + "\"]);\n"
 
 print(output)
