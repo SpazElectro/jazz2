@@ -190,14 +190,14 @@ void onPlayer(jjPLAYER@ player) {
 
                 weaponAmmo[i] = player.ammo[i + 1];
 
-                for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons.weaponSets.length(); weaponSetIndex++)
+                for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons::weaponSets.length(); weaponSetIndex++)
                 {
-                    StevesCustomWeapons.WeaponSet@ set = StevesCustomWeapons.weaponSets[weaponSetIndex];
+                    StevesCustomWeapons::WeaponSet@ set = StevesCustomWeapons::weaponSets[weaponSetIndex];
 
                     for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
                     {
                         // error because of namespaces someone help me lol
-                        StevesCustomWeapons.CustomWeapon@ weapon = set.weapons[weaponIndex];
+                        StevesCustomWeapons::CustomWeapon@ weapon = set.weapons[weaponIndex];
                         weapon.ammo = player.ammo[i + 1];
                     }
                 }
@@ -212,14 +212,14 @@ void onPlayer(jjPLAYER@ player) {
     if(weaponSet != 0 && lastWeaponSet != weaponSet) { // finished
         // jjConsole("setting current ammo to weaponammo");
 
-        for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons.weaponSets.length(); weaponSetIndex++)
+        for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons::weaponSets.length(); weaponSetIndex++)
         {
-            StevesCustomWeapons.WeaponSet@ set = StevesCustomWeapons.weaponSets[weaponSetIndex];
+            StevesCustomWeapons::WeaponSet@ set = StevesCustomWeapons::weaponSets[weaponSetIndex];
 
             for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
             {
-                StevesCustomWeapons.CustomWeapon@ weapon = set.weapons[weaponIndex];
-                player.ammo[i + 1] = weapon.ammo;
+                StevesCustomWeapons::CustomWeapon@ weapon = set.weapons[weaponIndex];
+                player.ammo[weaponIndex + 1] = weapon.ammo;
             }
         }
 
@@ -240,16 +240,16 @@ void onPlayer(jjPLAYER@ player) {
 
     if(weaponSet == 0) {
         // use the class's inheritance instead
-        for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons.weaponSets.length(); weaponSetIndex++)
-        {
-            StevesCustomWeapons.WeaponSet@ set = StevesCustomWeapons.weaponSets[weaponSetIndex];
+        // for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons::weaponSets.length(); weaponSetIndex++)
+        // {
+        //     StevesCustomWeapons::WeaponSet@ set = StevesCustomWeapons::weaponSets[weaponSetIndex];
 
-            for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
-            {
-                StevesCustomWeapons.CustomWeapon@ weapon = set.weapons[weaponIndex];
-                jjWeapons[weaponIndex] = @weapon.inheritance;
-            }
-        }
+        //     for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
+        //     {
+        //         StevesCustomWeapons::CustomWeapon@ weapon = set.weapons[weaponIndex];
+        //         @jjWeapons[weaponIndex] = weapon.inheritance;
+        //     }
+        // }
         
         // if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
         //     jjConsole("reset weapon abilities");
