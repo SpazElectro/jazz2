@@ -6,7 +6,7 @@
 #include "STVprogress.asc"
 #include "STVmansion_dialogue.asc"
 
-jjTEXTAPPEARANCE dialogueTextAppearance = jjTEXTAPPEARANCE(STRING::NORMAL);
+jjTEXTAPPEARANCE dialogueTextAppearance = jjTEXTAPPEARANCE(STRING::SPIN);
 
 ProgressManager @progress = ProgressManager();
 
@@ -41,7 +41,7 @@ void onMain()
     if (partId == 0)
     {
         if(partIntegers[0] + 10 < jjGameTicks) {
-            if (uint(jjGetStringWidth(part0Dialogue0, STRING::MEDIUM, normalTextAppearance)) >= jjResolutionWidth / 2)
+            if (jjGetStringWidth(part0Dialogue0, STRING::MEDIUM, normalTextAppearance) >= jjResolutionWidth / 2)
             {
                 partStrings[0] = part0Dialogue0.substr(0, partStrings[0].length() + 1) + "@";
             }
