@@ -4,6 +4,9 @@
 
 #include "STVutil.asc"
 #include "STVprogress.asc"
+#include "STVmansion_dialogue.asc"
+
+jjTEXTAPPEARANCE dialogueTextAppearance = jjTEXTAPPEARANCE(STRING::NORMAL);
 
 ProgressManager @progress = ProgressManager();
 
@@ -11,11 +14,22 @@ int partId = 0;
 
 array<string> partStrings;
 array<int> partIntegers;
+array<bool> partBools;
+string part0Dialogue0 = jjRegexReplace(_part0Dialogue0, "\\$PLAYER", jjLocalPlayers[1].name + "~~");
 
 void onLevelBegin()
 {
     // text displayed
-    partStrings[0] = "";
+    partStrings.insertLast("");
+
+    // last dialogue character tick
+    partIntegers.insertLast(0);
+
+    // finished dialogue
+    partBools.insertLast(false);
+
+    dialogueTextAppearance.pipe = STRING::SPECIALSIGN;
+    dialogueTextAppearance.tilde = STRING::SPECIALSIGN;
 
     progress.saveObjects = false;
 
@@ -26,21 +40,23 @@ void onMain()
 {
     if (partId == 0)
     {
-        if (uint(jjGetStringWidth(this.text, STRING::MEDIUM, normalTextAppearance)) >= this.box.y)
-        {
-            this.textDisplayed = this.text.substr(0, this.textDisplayed.length() + 1) + "@";
-        }
-        else
-        {
-            this.textDisplayed = this.text.substr(0, this.textDisplayed.length() + 1);
-        }
+        if(partIntegers[0] + 10 < jjGameTicks) {
+            if (uint(jjGetStringWidth(part0Dialogue0, STRING::MEDIUM, normalTextAppearance)) >= jjResolutionWidth / 2)
+            {
+                partStrings[0] = part0Dialogue0.substr(0, partStrings[0].length() + 1) + "@";
+            }
+            else
+            {
+                partStrings[0] = part0Dialogue0.substr(0, partStrings[0].length() + 1);
+            }
 
-        if (getStringLength(this.textDisplayed) >= getStringLength(this.text))
-        {
-            this.finished = true;
-        }
+            if (getStringLength(partStrings[0]) >= getStringLength(part0Dialogue0))
+            {
+                partBools[0] = true;
+            }
 
-        lastCharTick = jjGameTicks;
+            partIntegers[0] = jjGameTicks;
+        }
     }
 }
 
@@ -48,12 +64,12 @@ bool onDrawScore(jjPLAYER @player, jjCANVAS @canvas)
 {
     if (partId == 0)
     {
-        canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
+        // canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
 
         canvas.drawString(
-            jjResolutionWidth / 2 - jjGetStringWidth(partStrings[0], STRING::MEDIUM, normalTextAppearance),
+            jjResolutionWidth - jjGetStringWidth(partStrings[0], STRING::MEDIUM, normalTextAppearance),
             jjResolutionHeight / 2 - getStringHeight(partStrings[0]),
-            partStrings[0], STRING::MEDIUM, STRING::NORMAL, 15);
+            partStrings[0], STRING::MEDIUM, dialogueTextAppearance, 0);
     }
 
     return false;
