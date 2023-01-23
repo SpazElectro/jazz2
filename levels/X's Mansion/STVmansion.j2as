@@ -15,7 +15,13 @@ int partId = 0;
 void onLevelBegin()
 {
     registerInteraction(Interaction(255, function(jjPLAYER@ player) {
-        jjConsole(player.name + " interacted!");
+        player.xPos = 225 * 32;
+        player.yPos = 62 * 32;
+    }));
+
+    registerInteraction(Interaction(254, function(jjPLAYER@ player) {
+        player.xPos = 182 * 32;
+        player.yPos = 62 * 32;
     }));
 
     progress.saveObjects = false;
