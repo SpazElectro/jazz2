@@ -14,18 +14,26 @@ int partId = 0;
 
 void onLevelBegin()
 {
+    registerInteraction(Interaction(255));
+
     progress.saveObjects = false;
 
     jjConsole("[MS] started");
 }
 
-// void onMain()
-// {
-//     if (partId == 0)
-//     {
+void onPlayer(jjPLAYER@ player)
+{
+    // if (partId == 0)
+    // {
         
-//     }
-// }
+    // }
+
+    updateInteractions(player);
+}
+
+void onDrawLayer3(jjPLAYER@ player, jjCANVAS@ canvas) {
+    drawInteractions(canvas);
+}
 
 // saving
 void onChat(int clientID, string &in stringReceived, CHAT::Type chatType)
