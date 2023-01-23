@@ -20,7 +20,7 @@ void onLevelBegin()
     }));
 
     registerInteraction(Interaction(254, function(jjPLAYER@ player) {
-        player.xPos = 182 * 32;
+        player.xPos = 16 * 32;
         player.yPos = 62 * 32;
     }));
 
