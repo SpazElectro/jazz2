@@ -1,9 +1,11 @@
 #pragma require "STVutil.asc"
 #pragma require "STVprogress.asc"
+#pragma require "STVinteract.asc"
 #pragma require "STVmansion_dialogue.asc"
 
 #include "STVutil.asc"
 #include "STVprogress.asc"
+#include "STVinteract.asc"
 #include "STVmansion_dialogue.asc"
 
 ProgressManager @progress = ProgressManager();
