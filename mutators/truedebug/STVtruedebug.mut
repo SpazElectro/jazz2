@@ -75,7 +75,7 @@ string getGamemodeString() {
 }
 
 void draw(int id, string str, jjCANVAS@ canvas) {
-    canvas.drawString(0, 20 * (id + 3), str);
+    canvas.drawString(0, 20 * (id + 4), str);
 }
 
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { 
