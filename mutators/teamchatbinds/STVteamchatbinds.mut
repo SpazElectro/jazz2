@@ -1,49 +1,65 @@
-funcdef void TimerVDictionaryFunction(dictionary@);
-class TimerV : jjBEHAVIORINTERFACE {
-  TimerV(int time, jjVOIDFUNC@ callback) {
+funcdef void TimerVDictionaryFunction(dictionary @);
+class TimerV : jjBEHAVIORINTERFACE
+{
+  TimerV(int time, jjVOIDFUNC @callback)
+  {
     @_callback = @callback;
     _start(time);
   }
-  TimerV(int time, TimerVDictionaryFunction@ callback, dictionary@ arguments) {
+  TimerV(int time, TimerVDictionaryFunction @callback, dictionary @arguments)
+  {
     @_callbackWithArguments = @callback;
     @_arguments = @arguments;
     _start(time);
   }
-  bool get_Active() const {
-    return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
+  bool get_Active() const
+  {
+    return cast<jjBEHAVIORINTERFACE @>(_object.behavior) is this;
   }
-  int get_Elapsed() const {
-    if (Active) return _object.age;
+  int get_Elapsed() const
+  {
+    if (Active)
+      return _object.age;
     return -1;
   }
-  int get_Total() const {
-    if (Active) return _object.counter;
+  int get_Total() const
+  {
+    if (Active)
+      return _object.counter;
     return -1;
   }
-  int get_Remaining() const {
-    if (Active) return _object.counter - _object.age;
+  int get_Remaining() const
+  {
+    if (Active)
+      return _object.counter - _object.age;
     return -1;
   }
-  bool Stop() {
-    if (Active && _object.age < _object.counter) {
+  bool Stop()
+  {
+    if (Active && _object.age < _object.counter)
+    {
       _object.delete();
       return true;
     }
     return false;
   }
   bool Paused = false;
- 
- 
- 
- 
- 
-  private jjVOIDFUNC@ _callback = null;
-  private TimerVDictionaryFunction@ _callbackWithArguments;
-  private dictionary@ _arguments;
-  private jjOBJ@ _object;
-  private int _startTime;
-  private void _start(int time) {
-    if (time > 0) {
+
+private
+  jjVOIDFUNC @_callback = null;
+private
+  TimerVDictionaryFunction @_callbackWithArguments;
+private
+  dictionary @_arguments;
+private
+  jjOBJ @_object;
+private
+  int _startTime;
+private
+  void _start(int time)
+  {
+    if (time > 0)
+    {
       @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
       _object.behavior = this;
       _object.counter = time;
@@ -51,18 +67,25 @@ class TimerV : jjBEHAVIORINTERFACE {
       _object.playerHandling = HANDLING::PARTICLE;
       _object.deactivates = false;
       _startTime = jjGameTicks;
-    } else {
-      @_object = jjObjects[0]; //avoid null pointer access
+    }
+    else
+    {
+      @_object = jjObjects[0]; // avoid null pointer access
       _pickCallback();
     }
   }
-  private void onBehave(jjOBJ@ obj) {
-    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
+private
+  void onBehave(jjOBJ @obj)
+  {
+    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter)
+    {
       _pickCallback();
       _object.delete();
     }
   }
-  private void _pickCallback() {
+private
+  void _pickCallback()
+  {
     if (_callback !is null)
       _callback();
     else
@@ -72,116 +95,124 @@ class TimerV : jjBEHAVIORINTERFACE {
 
 class Key
 {
-    string id;
-    int code;
-    bool pressed = false;
+  string id;
+  int code;
+  bool pressed = false;
 
-    Key(string id, int code)
-    {
-        this.id = id;
-        this.code = code;
-    }
+  Key(string id, int code)
+  {
+    this.id = id;
+    this.code = code;
+  }
 }
 
-array<Key@> KEYS = {
-  Key(":", 0xBA),
-  Key("?", 0xDE),
-  Key("$DELETE", 0x08),
-  Key("\\", 0xDC),
-  Key("`", 0xC0),
-  Key("<", 0xDB),
-  Key(">", 0xDD),
-  Key(",", 0xBC),
-  Key("-", 0xBD),
-  Key(".", 0xBE),
-  Key("/", 0xBF),
-  Key("+", 0xBB),
-  Key(" ", 0x20),
-  Key("/", 0x6F),
-  Key("*", 0x6A),
-  Key("-", 0x6D),
-  Key("+", 0x6B),
-  Key("1", 0x61),
-  Key("2", 0x62),
-  Key("3", 0x63),
-  Key("4", 0x64),
-  Key("5", 0x65),
-  Key("6", 0x66),
-  Key("7", 0x67),
-  Key("8", 0x68),
-  Key("9", 0x69),
-  Key("0", 0x60),
-  Key(".", 0x6E),
-  Key("0", 0x30),
-  Key("1", 0x31),
-  Key("2", 0x32),
-  Key("3", 0x33),
-  Key("4", 0x34),
-  Key("5", 0x35),
-  Key("6", 0x36),
-  Key("7", 0x37),
-  Key("8", 0x38),
-  Key("9", 0x39),
-  Key("a", 0x41),
-  Key("b", 0x42),
-  Key("c", 0x43),
-  Key("d", 0x44),
-  Key("e", 0x45),
-  Key("f", 0x46),
-  Key("g", 0x47),
-  Key("h", 0x48),
-  Key("i", 0x49),
-  Key("j", 0x4A),
-  Key("k", 0x4B),
-  Key("l", 0x4C),
-  Key("m", 0x4D),
-  Key("n", 0x4E),
-  Key("o", 0x4F),
-  Key("p", 0x50),
-  Key("q", 0x51),
-  Key("r", 0x52),
-  Key("s", 0x53),
-  Key("t", 0x54),
-  Key("u", 0x55),
-  Key("v", 0x56),
-  Key("w", 0x57),
-  Key("x", 0x58),
-  Key("y", 0x59),
-  Key("z", 0x5A),
+array<Key @>
+    KEYS = {
+        Key(":", 0xBA),
+        Key("?", 0xDE),
+        Key("$DELETE", 0x08),
+        Key("\\", 0xDC),
+        Key("`", 0xC0),
+        Key("<", 0xDB),
+        Key(">", 0xDD),
+        Key(",", 0xBC),
+        Key("-", 0xBD),
+        Key(".", 0xBE),
+        Key("/", 0xBF),
+        Key("+", 0xBB),
+        Key(" ", 0x20),
+        Key("/", 0x6F),
+        Key("*", 0x6A),
+        Key("-", 0x6D),
+        Key("+", 0x6B),
+        Key("1", 0x61),
+        Key("2", 0x62),
+        Key("3", 0x63),
+        Key("4", 0x64),
+        Key("5", 0x65),
+        Key("6", 0x66),
+        Key("7", 0x67),
+        Key("8", 0x68),
+        Key("9", 0x69),
+        Key("0", 0x60),
+        Key(".", 0x6E),
+        Key("0", 0x30),
+        Key("1", 0x31),
+        Key("2", 0x32),
+        Key("3", 0x33),
+        Key("4", 0x34),
+        Key("5", 0x35),
+        Key("6", 0x36),
+        Key("7", 0x37),
+        Key("8", 0x38),
+        Key("9", 0x39),
+        Key("a", 0x41),
+        Key("b", 0x42),
+        Key("c", 0x43),
+        Key("d", 0x44),
+        Key("e", 0x45),
+        Key("f", 0x46),
+        Key("g", 0x47),
+        Key("h", 0x48),
+        Key("i", 0x49),
+        Key("j", 0x4A),
+        Key("k", 0x4B),
+        Key("l", 0x4C),
+        Key("m", 0x4D),
+        Key("n", 0x4E),
+        Key("o", 0x4F),
+        Key("p", 0x50),
+        Key("q", 0x51),
+        Key("r", 0x52),
+        Key("s", 0x53),
+        Key("t", 0x54),
+        Key("u", 0x55),
+        Key("v", 0x56),
+        Key("w", 0x57),
+        Key("x", 0x58),
+        Key("y", 0x59),
+        Key("z", 0x5A),
 };
 
 bool beginTeamChat = false;
 uint8 origChatKey = 0;
 
-void onLevelBegin() {
-    // temporary
-    jjChat("/ctf");
+void onLevelBegin()
+{
+  // temporary
+  jjChat("/ctf");
 }
 
-void onPlayerInput(jjPLAYER@ player) {
-    if(jjKey[0x59] and !beginTeamChat) {
-        beginTeamChat = true;
-        origChatKey = jjKeyChat;
-        jjKeyChat = 0x59;
-    }
+void onPlayerInput(jjPLAYER @player)
+{
+  if (jjKey[0x59] and !beginTeamChat)
+  {
+    beginTeamChat = true;
+    origChatKey = jjKeyChat;
+    jjKeyChat = 0x59;
+  }
 
-    if(jjKey[0x54] and beginTeamChat) {
-        beginTeamChat = false;
-        jjKeyChat = origChatKey;
-    }
+  if (jjKey[0x54] and beginTeamChat)
+  {
+    beginTeamChat = false;
+    jjKeyChat = origChatKey;
+  }
 
-    if(origChatKey != 0 and not beginTeamChat) {
-        jjKeyChat = origChatKey;
-    }
+  if (origChatKey != 0 and not beginTeamChat)
+  {
+    jjKeyChat = origChatKey;
+  }
 }
 
-bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(chatType == CHAT::NORMAL and beginTeamChat) {
-        jjChat(stringReceived, true);
-        beginTeamChat = false;
-        jjKeyChat = origChatKey;
-        return true;
-    }
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType)
+{
+  if (chatType == CHAT::NORMAL and beginTeamChat)
+  {
+    jjChat(stringReceived, true);
+    beginTeamChat = false;
+    jjKeyChat = origChatKey;
+    return true;
+  }
 
-    return false;
+  return false;
 }

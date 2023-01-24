@@ -1,48 +1,60 @@
-int maxDistance = 130*32;
+int maxDistance = 130 * 32;
 
 class Vector2
 {
     float x, y;
 
-    Vector2(float x, float y) { this.x = x; this.y = y; }
+    Vector2(float x, float y)
+    {
+        this.x = x;
+        this.y = y;
+    }
 };
 
 class Ray
 {
-    Vector2@ position;
-    Vector2@ end;
+    Vector2 @position;
+    Vector2 @end;
 
-    Ray(Vector2@ position) { @this.position = position; }
+    Ray(Vector2 @position) { @ this.position = position; }
 
-    void send(int8 direction) {
-        Vector2@ rayPosition = Vector2(this.position.x, this.position.y);
+    void send(int8 direction)
+    {
+        Vector2 @rayPosition = Vector2(this.position.x, this.position.y);
 
-        int foundTile = jjTileGet(4, int(rayPosition.x/32), int(rayPosition.y/32));
+        int foundTile = jjTileGet(4, int(rayPosition.x / 32), int(rayPosition.y / 32));
 
-        while(true) {
-            if(foundTile != 0 || rayPosition.x >= maxDistance) {
+        while (true)
+        {
+            if (foundTile != 0 || rayPosition.x >= maxDistance)
+            {
                 break;
             }
 
-            if(direction >= 1) {
+            if (direction >= 1)
+            {
                 rayPosition.x += 1;
-            } else {
+            }
+            else
+            {
                 rayPosition.x -= 1;
             }
 
-            foundTile = jjTileGet(4, int(rayPosition.x/32), int(rayPosition.y/32));
+            foundTile = jjTileGet(4, int(rayPosition.x / 32), int(rayPosition.y / 32));
         }
 
-        @this.end = rayPosition;
+        @ this.end = rayPosition;
     }
 };
 
-void onLevelBegin() {
+void onLevelBegin()
+{
     jjConsole("[RAYCAST_TEST] Started.");
 }
 
-void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
-    Ray@ ray = Ray(Vector2(player.xPos, player.yPos));
+void onDrawLayer4(jjPLAYER @player, jjCANVAS @canvas)
+{
+    Ray @ray = Ray(Vector2(player.xPos, player.yPos));
     ray.send(player.direction);
 
     canvas.drawRectangle(int(ray.end.x), int(ray.end.y), 10, 10, 1);

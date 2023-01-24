@@ -15,28 +15,28 @@ int maxWeaponSets = 2;
 
 bool weaponSetCooldown = false;
 
-AnimatedSprite@ sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
+AnimatedSprite @sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
 
 array<int> original_unupgradedIds = {
-    25,  // bouncer
-    29,  // ice
-    34,  // seeker
-    49,  // rf
-    57,  // toaster
-    59,  // tnt
-    62,  // fireball
-    68   // electroblaster
+    25, // bouncer
+    29, // ice
+    34, // seeker
+    49, // rf
+    57, // toaster
+    59, // tnt
+    62, // fireball
+    68  // electroblaster
 };
 
 array<int> original_upgradedIds = {
-    24,  // bouncer
-    28,  // ice
-    33,  // seeker
-    48,  // rf
-    56,  // toaster
-    58,  // tnt
-    61,  // fireball
-    67   // electroblaster
+    24, // bouncer
+    28, // ice
+    33, // seeker
+    48, // rf
+    56, // toaster
+    58, // tnt
+    61, // fireball
+    67  // electroblaster
 };
 
 array<int> unupgradedIds;
@@ -47,31 +47,38 @@ array<int> weaponAmmo;
 
 namespace StevesCustomWeapons
 {
-    array<WeaponSet@> weaponSets;
-    
-    class WeaponSet {
-        int id;
-        array<CustomWeapon@> weapons;
+    array<WeaponSet @> weaponSets;
 
-        WeaponSet(int id) {
+    class WeaponSet
+    {
+        int id;
+        array<CustomWeapon @> weapons;
+
+        WeaponSet(int id)
+        {
             this.id = id;
         }
 
-        void insertWeapon(CustomWeapon@ weapon) {
+        void insertWeapon(CustomWeapon @weapon)
+        {
             weapons.insertLast(weapon);
         }
 
-        void update(jjPLAYER@ player) {
-            if(weaponSet == this.id) {
+        void update(jjPLAYER @player)
+        {
+            if (weaponSet == this.id)
+            {
                 // if(player.currWeapon == 1) {
                 //     jjWeapons[1].infinite = false;
                 //     jjWeapons[1].spread = SPREAD::RF;
                 // } else if(player.currWeapon == 2) {
-                    
+
                 // }
-                
-                for(uint i = 0; i < weapons.length; i++) {
-                    if(player.currWeapon == i) {
+
+                for (uint i = 0; i < weapons.length; i++)
+                {
+                    if (player.currWeapon == i)
+                    {
                         weapons[i].onEquip(weapons[i].inheritance, player);
                     }
                 }
@@ -79,40 +86,42 @@ namespace StevesCustomWeapons
         }
     };
 
-    funcdef void customWeaponEquipCallback(jjWEAPON@, jjPLAYER@);
-    class CustomWeapon {
+    funcdef void customWeaponEquipCallback(jjWEAPON @, jjPLAYER @);
+    class CustomWeapon
+    {
         int ammo;
         int maxAmmo;
 
         int unupgradedTexture;
         int upgradedTexture;
 
-        WeaponSet@ weaponSet;
-        jjWEAPON@ inheritance;
-        customWeaponEquipCallback@ onEquip;
+        WeaponSet @weaponSet;
+        jjWEAPON @inheritance;
+        customWeaponEquipCallback @onEquip;
 
-        CustomWeapon(int unupgradedTexture, int upgradedTexture, int maxAmmo, WeaponSet@ weaponSet, customWeaponEquipCallback@ onEquip) {
+        CustomWeapon(int unupgradedTexture, int upgradedTexture, int maxAmmo, WeaponSet @weaponSet, customWeaponEquipCallback @onEquip)
+        {
             this.unupgradedTexture = unupgradedTexture;
             this.upgradedTexture = upgradedTexture;
             this.maxAmmo = maxAmmo;
 
-            @this.weaponSet = weaponSet;
-            @this.inheritance = jjWeapons[weaponSet.weapons.length];
-            @this.onEquip = onEquip;
+            @ this.weaponSet = weaponSet;
+            @ this.inheritance = jjWeapons[weaponSet.weapons.length];
+            @ this.onEquip = onEquip;
         }
 
-        void draw(jjCANVAS@ canvas) {
-
+        void draw(jjCANVAS @canvas)
+        {
         }
 
-        void update(jjPLAYER@ player) {
-            
+        void update(jjPLAYER @player)
+        {
         }
     };
 };
 
-
-void onLevelBegin() {
+void onLevelBegin()
+{
     // start of custom weapons
 
     unupgradedIds.insertLast(68); // bouncer
@@ -125,54 +134,65 @@ void onLevelBegin() {
     weaponAmmo.insertLast(30); // test
 
     // end of custom weapons
- 
+
     jjAnimSets[65].load();
 
     jjConsole("[STV] Custom Weapons v1.1 by Steve has started!");
 }
 
-void onPlayerInput(jjPLAYER@ player) {
-    if(jjKey[0x47] && !weaponSetCooldown) {
+void onPlayerInput(jjPLAYER @player)
+{
+    if (jjKey[0x47] && !weaponSetCooldown)
+    {
         weaponSet = (++weaponSet) % maxWeaponSets;
         weaponSetCooldown = true;
 
-        TimerV(20, function() {
-            weaponSetCooldown = false;
-        });
+        TimerV(
+            20, function() {
+                weaponSetCooldown = false;
+            });
     }
 
     // since the game thinks the weapon you want to equip has no ammo
     // we'll just bind them again but we'll check if the weapon set isnt 0
 
-    if(weaponSet != 0) {
-        for(uint i = 0; i < 10; i++) {
-            if(jjKey[0x30 + i] && player.currWeapon != i) {
+    if (weaponSet != 0)
+    {
+        for (uint i = 0; i < 10; i++)
+        {
+            if (jjKey[0x30 + i] && player.currWeapon != i)
+            {
                 player.currWeapon = i;
             }
         }
     }
 }
 
-bool upgraded(jjPLAYER@ player, int id) {
+bool upgraded(jjPLAYER @player, int id)
+{
     return player.powerup[id];
 }
 
-void onPlayer(jjPLAYER@ player) {
+void onPlayer(jjPLAYER @player)
+{
     // jjConsole("WeaponSet: " + weaponSet + " lastWeaponSet: " + lastWeaponSet);
     // theres a bug with the ammo where the player gets inf ammo
     // if the player is on weaponset 1 and shoots
     // and then goes to weapon set 0 he will have max ammo
     // same goes for weapon set 1
     // it's really confusing
-        
-    if(weaponSet == 0) {
+
+    if (weaponSet == 0)
+    {
         for (int i = 0; i < 10; i++)
         {
-            if(oldWeaponAmmo.find(i) == -1) {
+            if (oldWeaponAmmo.find(i) == -1)
+            {
                 oldWeaponAmmo.insertLast(player.ammo[i]);
             }
 
-            if(player.ammo[i] != oldWeaponAmmo[i]) {
+            if (player.ammo[i] != oldWeaponAmmo[i])
+            {
                 jjConsole("called");
 
                 oldWeaponAmmo[i] = player.ammo[i];
@@ -180,45 +200,48 @@ void onPlayer(jjPLAYER@ player) {
         }
     }
 
-    if(weaponSet == 0 && lastWeaponSet != weaponSet) { // half finished      
+    if (weaponSet == 0 && lastWeaponSet != weaponSet)
+    { // half finished
         jjConsole("weapon set is now 0 setting weaponammo to current");
 
         for (int i = -1; i < 10; i++)
         {
-            if(i < weaponAmmo.length()) {
+            if (i < weaponAmmo.length())
+            {
                 jjConsole("" + player.ammo[i + 1]);
 
                 weaponAmmo[i] = player.ammo[i + 1];
 
                 for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons::weaponSets.length(); weaponSetIndex++)
                 {
-                    StevesCustomWeapons::WeaponSet@ set = StevesCustomWeapons::weaponSets[weaponSetIndex];
+                    StevesCustomWeapons::WeaponSet @set = StevesCustomWeapons::weaponSets[weaponSetIndex];
 
                     for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
                     {
                         // error because of namespaces someone help me lol
-                        StevesCustomWeapons::CustomWeapon@ weapon = set.weapons[weaponIndex];
+                        StevesCustomWeapons::CustomWeapon @weapon = set.weapons[weaponIndex];
                         weapon.ammo = player.ammo[i + 1];
                     }
                 }
             }
 
             jjConsole("o" + oldWeaponAmmo[i]);
-            
+
             player.ammo[i + 1] = oldWeaponAmmo[i];
         }
     }
-    
-    if(weaponSet != 0 && lastWeaponSet != weaponSet) { // finished
+
+    if (weaponSet != 0 && lastWeaponSet != weaponSet)
+    { // finished
         // jjConsole("setting current ammo to weaponammo");
 
         for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons::weaponSets.length(); weaponSetIndex++)
         {
-            StevesCustomWeapons::WeaponSet@ set = StevesCustomWeapons::weaponSets[weaponSetIndex];
+            StevesCustomWeapons::WeaponSet @set = StevesCustomWeapons::weaponSets[weaponSetIndex];
 
             for (int weaponIndex = 0; weaponIndex < set.weapons.length(); weaponIndex++)
             {
-                StevesCustomWeapons::CustomWeapon@ weapon = set.weapons[weaponIndex];
+                StevesCustomWeapons::CustomWeapon @weapon = set.weapons[weaponIndex];
                 player.ammo[weaponIndex + 1] = weapon.ammo;
             }
         }
@@ -234,11 +257,12 @@ void onPlayer(jjPLAYER@ player) {
     //         jjWeapons[1].infinite = false;
     //         jjWeapons[1].spread = SPREAD::RF;
     //     } else if(player.currWeapon == 2) {
-            
+
     //     }
     // }
 
-    if(weaponSet == 0) {
+    if (weaponSet == 0)
+    {
         // use the class's inheritance instead
         // for (int weaponSetIndex = 0; weaponSetIndex < StevesCustomWeapons::weaponSets.length(); weaponSetIndex++)
         // {
@@ -250,7 +274,7 @@ void onPlayer(jjPLAYER@ player) {
         //         @jjWeapons[weaponIndex] = weapon.inheritance;
         //     }
         // }
-        
+
         // if(player.currWeapon == 1 && jjWeapons[1].infinite == false) {
         //     jjConsole("reset weapon abilities");
 
@@ -259,11 +283,14 @@ void onPlayer(jjPLAYER@ player) {
         // }
     }
 
-    if(weaponSet != 0) {
+    if (weaponSet != 0)
+    {
         for (uint i = 0; i < 10; i++)
         {
-            if(oldWeaponAmmo[i] != player.ammo[i]) {
-                if(i > oldWeaponAmmo.length) {
+            if (oldWeaponAmmo[i] != player.ammo[i])
+            {
+                if (i > oldWeaponAmmo.length)
+                {
                     jjConsole("old gun got more ammo setting oldweaponammo " + oldWeaponAmmo[i] + " X " + player.ammo[i]);
 
                     oldWeaponAmmo[i] = player.ammo[i];
@@ -280,60 +307,78 @@ void onPlayer(jjPLAYER@ player) {
     sprite.update();
 }
 
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    if(player.currWeapon != 1) {
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
+{
+    if (player.currWeapon != 1)
+    {
         sprite.animSet = ANIM::AMMO;
         sprite.spriteMode = SPRITE::NORMAL;
 
-        if(upgraded(player, player.currWeapon)) {
+        if (upgraded(player, player.currWeapon))
+        {
             sprite.setId(original_upgradedIds[player.currWeapon - 2]);
-        } else {
+        }
+        else
+        {
             sprite.setId(original_unupgradedIds[player.currWeapon - 2]);
         }
-    } else {
+    }
+    else
+    {
         sprite.spriteMode = SPRITE::PLAYER;
         sprite.spriteModeParam = 0;
 
-        if(sprite.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) sprite.animSet = ANIM::AMMO;
+        if (sprite.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI)
+            sprite.animSet = ANIM::AMMO;
 
         switch (player.charCurr)
         {
-            case CHAR::SPAZ:
-                if(upgraded(player, 1)) {
-                    sprite.setId(19);
-                } else {
-                    sprite.animSet = ANIM::PICKUPS;
-                    sprite.setId(30);
-                }
+        case CHAR::SPAZ:
+            if (upgraded(player, 1))
+            {
+                sprite.setId(19);
+            }
+            else
+            {
+                sprite.animSet = ANIM::PICKUPS;
+                sprite.setId(30);
+            }
 
-                break;
-            
-            case CHAR::LORI:
-                sprite.animSet = ANIM::PLUS_AMMO;
-                sprite.setId(5);
-                
-                break;
+            break;
 
-            default:
-                // default as jazz
-                if(upgraded(player, 1)) {
-                    sprite.setId(18);
-                } else {
-                    sprite.animSet = ANIM::PICKUPS;
-                    sprite.setId(29);
-                }
+        case CHAR::LORI:
+            sprite.animSet = ANIM::PLUS_AMMO;
+            sprite.setId(5);
 
-                break;
+            break;
+
+        default:
+            // default as jazz
+            if (upgraded(player, 1))
+            {
+                sprite.setId(18);
+            }
+            else
+            {
+                sprite.animSet = ANIM::PICKUPS;
+                sprite.setId(29);
+            }
+
+            break;
         }
     }
 
-    if(weaponSet != 0) {
+    if (weaponSet != 0)
+    {
         sprite.animSet = ANIM::AMMO;
         sprite.spriteMode = SPRITE::NORMAL;
 
-        if(upgraded(player, player.currWeapon)) {
+        if (upgraded(player, player.currWeapon))
+        {
             sprite.setId(upgradedIds[player.currWeapon - 1]);
-        } else {
+        }
+        else
+        {
             sprite.setId(unupgradedIds[player.currWeapon - 1]);
         }
     }
@@ -345,11 +390,12 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     canvas.drawString(jjResolutionWidth - 80, jjResolutionHeight - 14, "x" + ammo, STRING::MEDIUM);
 
     sprite.draw(canvas);
-    
+
     return true;
 }
 
-bool onCheat(string &in cheat) {
+bool onCheat(string &in cheat)
+{
     // if(cheat == "jjgod" or cheat == "jjguns") {
     //     for (uint weaponIndex = 0; weaponIndex < weaponAmmo.length(); weaponIndex++)
     //     {

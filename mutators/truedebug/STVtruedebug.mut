@@ -8,67 +8,106 @@ int page = 1;
 int pages = 2;
 int drawId = 1;
 
-string getDifficultyString() {
-    if(jjDifficulty <= 0) return "Easy";
-    if(jjDifficulty == 2) return "Hard";
-    
+string getDifficultyString()
+{
+    if (jjDifficulty <= 0)
+        return "Easy";
+    if (jjDifficulty == 2)
+        return "Hard";
+
     return "Turbo";
 }
 
-string getTeamsString() {
+string getTeamsString()
+{
     string teams = "";
 
     bool team = false;
 
-    if(jjEnabledTeams[TEAM::BLUE]) {
+    if (jjEnabledTeams[TEAM::BLUE])
+    {
         teams = "Blue";
         team = true;
     }
 
-    if(jjEnabledTeams[TEAM::RED]) {
-        if(team) {
+    if (jjEnabledTeams[TEAM::RED])
+    {
+        if (team)
+        {
             teams = teams + " and Red";
-        } else { teams = teams + "Red"; }
-        
+        }
+        else
+        {
+            teams = teams + "Red";
+        }
+
         team = true;
     }
 
-    if(jjEnabledTeams[TEAM::GREEN]) {
-        if(team) {
+    if (jjEnabledTeams[TEAM::GREEN])
+    {
+        if (team)
+        {
             teams = teams + " and Green";
-        } else { teams = teams + "Green"; }
+        }
+        else
+        {
+            teams = teams + "Green";
+        }
 
         team = true;
     }
 
-    if(jjEnabledTeams[TEAM::YELLOW]) {
-        if(team) teams = teams + " and Yellow";
-            else teams = teams + "Yellow";
-        
+    if (jjEnabledTeams[TEAM::YELLOW])
+    {
+        if (team)
+            teams = teams + " and Yellow";
+        else
+            teams = teams + "Yellow";
+
         team = true;
     }
 
     return teams;
 }
 
-string getGamemodeString() {
-    if(jjGameCustom == GAME::NOCUSTOM) {
-        if(jjGameMode == GAME::SP) return "Singleplayer";
-        if(jjGameMode == GAME::COOP) return "Coop";
-        if(jjGameMode == GAME::BATTLE) return "Battle";
-        if(jjGameMode == GAME::CTF) return "CTF";
-        if(jjGameMode == GAME::TREASURE) return "Treasure Hunt";
-    } else {
-        if(jjGameCustom == GAME::RT) return "Roast Tag";
-        if(jjGameCustom == GAME::LRS) return "Last Rabbit Standing";
-        if(jjGameCustom == GAME::XLRS) return "Extended Last Rabbit Standing";
-        if(jjGameCustom == GAME::PEST) return "Pestilence";
-        if(jjGameCustom == GAME::TB) return "Team Battle";
-        if(jjGameCustom == GAME::JB) return "Jailbreak";
-        if(jjGameCustom == GAME::DCTF) return "Death CTF";
-        if(jjGameCustom == GAME::FR) return "Flag Run";
-        if(jjGameCustom == GAME::TLRS) return "Team Last Rabbit Standing";
-        if(jjGameCustom == GAME::DOM) return "Domination";
+string getGamemodeString()
+{
+    if (jjGameCustom == GAME::NOCUSTOM)
+    {
+        if (jjGameMode == GAME::SP)
+            return "Singleplayer";
+        if (jjGameMode == GAME::COOP)
+            return "Coop";
+        if (jjGameMode == GAME::BATTLE)
+            return "Battle";
+        if (jjGameMode == GAME::CTF)
+            return "CTF";
+        if (jjGameMode == GAME::TREASURE)
+            return "Treasure Hunt";
+    }
+    else
+    {
+        if (jjGameCustom == GAME::RT)
+            return "Roast Tag";
+        if (jjGameCustom == GAME::LRS)
+            return "Last Rabbit Standing";
+        if (jjGameCustom == GAME::XLRS)
+            return "Extended Last Rabbit Standing";
+        if (jjGameCustom == GAME::PEST)
+            return "Pestilence";
+        if (jjGameCustom == GAME::TB)
+            return "Team Battle";
+        if (jjGameCustom == GAME::JB)
+            return "Jailbreak";
+        if (jjGameCustom == GAME::DCTF)
+            return "Death CTF";
+        if (jjGameCustom == GAME::FR)
+            return "Flag Run";
+        if (jjGameCustom == GAME::TLRS)
+            return "Team Last Rabbit Standing";
+        if (jjGameCustom == GAME::DOM)
+            return "Domination";
 
         return "Head Hunters";
     }
@@ -76,33 +115,45 @@ string getGamemodeString() {
     return "Race";
 }
 
-string getGameConnection() {
-    if(jjGameConnection == GAME::LOCAL) return "Local";
-    if(jjGameConnection == GAME::ONLINE) return "Online";
-    
+string getGameConnection()
+{
+    if (jjGameConnection == GAME::LOCAL)
+        return "Local";
+    if (jjGameConnection == GAME::ONLINE)
+        return "Online";
+
     return "LAN";
 }
 
-string getGameState() {
-    if(jjGameState == GAME::STOPPED) return "Stopped";
-    if(jjGameState == GAME::STARTED) return "Started";
-    if(jjGameState == GAME::PAUSED) return "Paused";
-    if(jjGameState == GAME::PREGAME) return "Pregame";
-    
+string getGameState()
+{
+    if (jjGameState == GAME::STOPPED)
+        return "Stopped";
+    if (jjGameState == GAME::STARTED)
+        return "Started";
+    if (jjGameState == GAME::PAUSED)
+        return "Paused";
+    if (jjGameState == GAME::PREGAME)
+        return "Pregame";
+
     return "Overtime";
 }
 
-void draw(string str) {
-    if(int(drawQueue.length) < drawId) drawQueue.insertLast("");
+void draw(string str)
+{
+    if (int(drawQueue.length) < drawId)
+        drawQueue.insertLast("");
     drawQueue[drawId - 1] = str;
 
     drawId += 1;
 }
 
-void onMain() {
+void onMain()
+{
     draw("|||! |truedebug||||||| !");
-    
-    if(page == 1) {
+
+    if (page == 1)
+    {
         draw("|X: ||" + formatInt(jjMouseX));
         draw("|Y: ||" + formatInt(jjMouseY));
         draw("|Difficulty: ||" + getDifficultyString());
@@ -115,7 +166,9 @@ void onMain() {
         draw("|Border Height: ||" + formatInt(jjBorderHeight));
         draw("|Color depth: ||" + formatInt(jjColorDepth));
         draw("|FPS: ||" + formatInt(jjFPS));
-    } else if(page == 2) {
+    }
+    else if (page == 2)
+    {
         draw("|Gamemode: ||" + getGamemodeString());
         draw("|Game Connection: ||" + getGameConnection());
         draw("|Game State: ||" + getGameState());
@@ -133,11 +186,14 @@ void onMain() {
     drawId = 1;
 }
 
-bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(stringReceived.substr(0, 6) == "!page ") {
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType)
+{
+    if (stringReceived.substr(0, 6) == "!page ")
+    {
         page = parseInt(stringReceived.split(" ")[1]);
-        
-        if(page > pages) page = pages;
+
+        if (page > pages)
+            page = pages;
 
         return true;
     }
@@ -145,7 +201,8 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     return false;
 }
 
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
+{
     for (uint drawQueueIndex = 0; drawQueueIndex < drawQueue.length; drawQueueIndex++)
     {
         canvas.drawString(0, 20 * (drawQueueIndex + 4), drawQueue[drawQueueIndex]);

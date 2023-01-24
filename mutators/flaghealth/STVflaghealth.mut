@@ -38,7 +38,7 @@ class AnimatedSprite
     {
         this.id = id;
     }
-    
+
     void setFrame(int frame)
     {
         this.frame = frame;
@@ -51,95 +51,119 @@ class AnimatedSprite
 
     void update()
     {
-        if(this.reverse == false) {
+        if (this.reverse == false)
+        {
             this.frame += this.anim_speed;
-        } else {
+        }
+        else
+        {
             this.frame -= this.anim_speed;
         }
 
         if (this.frame > this.frame_count)
         {
-            if(this.can_reverse == true) {
+            if (this.can_reverse == true)
+            {
                 this.reverse = not this.reverse;
-            } else {
+            }
+            else
+            {
                 this.frame = 0;
             }
         }
 
-        if(this.frame <= 0)
+        if (this.frame <= 0)
         {
-            if(this.can_reverse == true) {
+            if (this.can_reverse == true)
+            {
                 this.reverse = not this.reverse;
-            } else {
+            }
+            else
+            {
                 this.frame = 0;
             }
         }
     }
 
-    void draw(jjCANVAS@ canvas)
+    void draw(jjCANVAS @canvas)
     {
-        if(this.visible) {
+        if (this.visible)
+        {
             canvas.drawSprite(this.x, this.y, this.animSet, this.id, this.frame, 0, SPRITE::NORMAL, 123);
         }
     }
 }
 
-AnimatedSprite@ red = AnimatedSprite(8, 0, 8, 750, 300, 0.15, false);
-AnimatedSprite@ red_weapon = AnimatedSprite(0, 0, 10, 650, 300, 0.25, false);
-AnimatedSprite@ red_character = AnimatedSprite(10, 0, 0, 725, 300, 0.25, false);
+AnimatedSprite @red = AnimatedSprite(8, 0, 8, 750, 300, 0.15, false);
+AnimatedSprite @red_weapon = AnimatedSprite(0, 0, 10, 650, 300, 0.25, false);
+AnimatedSprite @red_character = AnimatedSprite(10, 0, 0, 725, 300, 0.25, false);
 
-AnimatedSprite@ blue = AnimatedSprite(4, 0, 8, 750, 400, 0.15, false);
-AnimatedSprite@ blue_weapon = AnimatedSprite(0, 0, 10, 650, 400, 0.25, false);
-AnimatedSprite@ blue_character = AnimatedSprite(10, 0, 0, 725, 400, 0.25, false);
+AnimatedSprite @blue = AnimatedSprite(4, 0, 8, 750, 400, 0.15, false);
+AnimatedSprite @blue_weapon = AnimatedSprite(0, 0, 10, 650, 400, 0.25, false);
+AnimatedSprite @blue_character = AnimatedSprite(10, 0, 0, 725, 400, 0.25, false);
 
 bool show = true;
 
 array<int> unupgradedIds;
 array<int> upgradedIds;
 
-int getFlagHolder(string color) {
-    for(uint i = 0; i < 32; i++) {
-        if(jjPlayers[i].isInGame == true) {
-            if(((jjPlayers[i].flag == 153) or (jjPlayers[i].flag == 590)) and jjObjects[jjPlayers[i].flag].var[0] == 0) {
+int getFlagHolder(string color)
+{
+    for (uint i = 0; i < 32; i++)
+    {
+        if (jjPlayers[i].isInGame == true)
+        {
+            if (((jjPlayers[i].flag == 153) or (jjPlayers[i].flag == 590)) and jjObjects[jjPlayers[i].flag].var[0] == 0)
+            {
                 continue;
             }
 
-            if((color == "blue" and jjPlayers[i].flag == 153) or (color == "red" and jjPlayers[i].flag == 590)) {
+            if ((color == "blue" and jjPlayers[i].flag == 153) or (color == "red" and jjPlayers[i].flag == 590))
+            {
                 return i;
             }
         }
     }
-    
+
     return -1;
 }
 
-int getCorrespondingGunId(jjPLAYER@ player) {
-    if(player.charCurr == CHAR::SPAZ) {
+int getCorrespondingGunId(jjPLAYER @player)
+{
+    if (player.charCurr == CHAR::SPAZ)
+    {
         return 19;
     }
 
     return 20;
 }
 
-int getCorrespondingCharacterFrame(jjPLAYER@ player) {
+int getCorrespondingCharacterFrame(jjPLAYER @player)
+{
     return 0;
 }
 
-int getCorrespondingCharacterId(jjPLAYER@ player) {    
+int getCorrespondingCharacterId(jjPLAYER @player)
+{
     return 10;
 }
 
-ANIM::Set getCorrespondingAnimSet(jjPLAYER@ player) {
-    if(player.charCurr == CHAR::SPAZ) {
+ANIM::Set getCorrespondingAnimSet(jjPLAYER @player)
+{
+    if (player.charCurr == CHAR::SPAZ)
+    {
         return ANIM::SPAZ;
-    } else if(player.charCurr == CHAR::LORI) {
+    }
+    else if (player.charCurr == CHAR::LORI)
+    {
         return ANIM::LORI;
     }
-    
+
     return ANIM::JAZZ;
 }
 
-void onLevelBegin() {
+void onLevelBegin()
+{
     jjAnimSets[ANIM::FLARE].load();
 
     jjConsole("[FH] Flag Health started.");
@@ -168,7 +192,8 @@ void onLevelBegin() {
     blue_character.setAnimSet(ANIM::SPAZ);
 }
 
-void onMain() {
+void onMain()
+{
     red.update();
     blue.update();
     red_weapon.update();
@@ -176,13 +201,16 @@ void onMain() {
     red_character.update();
     blue_character.update();
 
-    int redFlagHolder = getFlagHolder("red");    
+    int redFlagHolder = getFlagHolder("red");
 
-    if(redFlagHolder == -1) {
+    if (redFlagHolder == -1)
+    {
         red.setVisible(false);
         red_character.setVisible(false);
         red_weapon.setVisible(false);
-    } else {
+    }
+    else
+    {
         red_character.setAnimSet(getCorrespondingAnimSet(jjPlayers[redFlagHolder]));
         red_character.setId(getCorrespondingCharacterId(jjPlayers[redFlagHolder]));
         red_character.setFrame(getCorrespondingCharacterFrame(jjPlayers[redFlagHolder]));
@@ -190,46 +218,62 @@ void onMain() {
         red_character.setVisible(true);
         red_weapon.setVisible(true);
 
-        if(jjPlayers[redFlagHolder].currWeapon != 1) {
-            if(jjPlayers[redFlagHolder].powerup[jjPlayers[redFlagHolder].currWeapon] == true) {
+        if (jjPlayers[redFlagHolder].currWeapon != 1)
+        {
+            if (jjPlayers[redFlagHolder].powerup[jjPlayers[redFlagHolder].currWeapon] == true)
+            {
                 red_weapon.setId(upgradedIds[jjPlayers[redFlagHolder].currWeapon - 2]);
-            } else {
+            }
+            else
+            {
                 red_weapon.setId(unupgradedIds[jjPlayers[redFlagHolder].currWeapon - 2]);
             }
-        } else {
+        }
+        else
+        {
             red_weapon.setId(getCorrespondingGunId(jjPlayers[redFlagHolder]));
         }
     }
 
     int blueFlagHolder = getFlagHolder("blue");
 
-    if(blueFlagHolder == -1) {
+    if (blueFlagHolder == -1)
+    {
         blue_character.setId(getCorrespondingCharacterId(jjPlayers[blueFlagHolder]));
         blue_character.setFrame(getCorrespondingCharacterFrame(jjPlayers[blueFlagHolder]));
         blue_weapon.setId(getCorrespondingGunId(jjPlayers[blueFlagHolder]));
         blue.setVisible(false);
         blue_character.setVisible(false);
         blue_weapon.setVisible(false);
-    } else {
+    }
+    else
+    {
         blue.setVisible(true);
         blue_character.setVisible(true);
         blue_weapon.setVisible(true);
 
-        if(jjPlayers[blueFlagHolder].currWeapon != 1) {
-            if(jjPlayers[blueFlagHolder].powerup[jjPlayers[blueFlagHolder].currWeapon] == true) {
+        if (jjPlayers[blueFlagHolder].currWeapon != 1)
+        {
+            if (jjPlayers[blueFlagHolder].powerup[jjPlayers[blueFlagHolder].currWeapon] == true)
+            {
                 blue_weapon.setId(upgradedIds[jjPlayers[blueFlagHolder].currWeapon - 2]);
-            } else {
+            }
+            else
+            {
                 blue_weapon.setId(unupgradedIds[jjPlayers[blueFlagHolder].currWeapon - 2]);
             }
-        } else {
+        }
+        else
+        {
             blue_weapon.setId(getCorrespondingGunId(jjPlayers[blueFlagHolder]));
         }
     }
 }
 
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
 {
-    if(show) {
+    if (show)
+    {
         red.draw(canvas);
         blue.draw(canvas);
         red_weapon.draw(canvas);
@@ -238,32 +282,40 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas)
         blue_character.draw(canvas);
 
         // names
-        if(getFlagHolder("red") != -1) canvas.drawString(660, 275, jjPlayers[getFlagHolder("red")].nameUnformatted, STRING::SMALL, STRING::NORMAL, 0);
-        if(getFlagHolder("blue") != -1) canvas.drawString(660, 375, jjPlayers[getFlagHolder("blue")].nameUnformatted, STRING::SMALL, STRING::NORMAL, 0);
+        if (getFlagHolder("red") != -1)
+            canvas.drawString(660, 275, jjPlayers[getFlagHolder("red")].nameUnformatted, STRING::SMALL, STRING::NORMAL, 0);
+        if (getFlagHolder("blue") != -1)
+            canvas.drawString(660, 375, jjPlayers[getFlagHolder("blue")].nameUnformatted, STRING::SMALL, STRING::NORMAL, 0);
 
         // ammo
-        if(getFlagHolder("red") != -1) {
+        if (getFlagHolder("red") != -1)
+        {
             int fixedAmmo = jjPlayers[getFlagHolder("red")].ammo[jjPlayers[getFlagHolder("red")].currWeapon];
-            
-            if(fixedAmmo > 99 or jjPlayers[getFlagHolder("red")].currWeapon == 1) fixedAmmo = 99;
+
+            if (fixedAmmo > 99 or jjPlayers[getFlagHolder("red")].currWeapon == 1)
+                fixedAmmo = 99;
 
             canvas.drawString(660, 300, "x" + fixedAmmo, STRING::MEDIUM, STRING::NORMAL, 0);
         }
 
-        if(getFlagHolder("blue") != -1) {
+        if (getFlagHolder("blue") != -1)
+        {
             int fixedAmmo = jjPlayers[getFlagHolder("blue")].ammo[jjPlayers[getFlagHolder("blue")].currWeapon];
-            
-            if(fixedAmmo > 99 or jjPlayers[getFlagHolder("blue")].currWeapon == 1) fixedAmmo = 99;
-            
+
+            if (fixedAmmo > 99 or jjPlayers[getFlagHolder("blue")].currWeapon == 1)
+                fixedAmmo = 99;
+
             canvas.drawString(660, 400, "x" + fixedAmmo, STRING::MEDIUM, STRING::NORMAL, 0);
         }
 
         // hearts
-        for(uint i = 0; i < jjPlayers[getFlagHolder("red")].health; i++) {
+        for (uint i = 0; i < jjPlayers[getFlagHolder("red")].health; i++)
+        {
             canvas.drawSprite(770 - (i * 30), 340, 71, 21, 6, 0, SPRITE::NORMAL, 123);
         }
 
-        for(uint i = 0; i < jjPlayers[getFlagHolder("blue")].health; i++) {
+        for (uint i = 0; i < jjPlayers[getFlagHolder("blue")].health; i++)
+        {
             canvas.drawSprite(770 - (i * 30), 440, 71, 21, 6, 0, SPRITE::NORMAL, 123);
         }
     }

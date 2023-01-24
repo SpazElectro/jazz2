@@ -1,73 +1,96 @@
-funcdef void TimerVDictionaryFunction(dictionary@);
-class TimerV : jjBEHAVIORINTERFACE {
-  TimerV(int time, jjVOIDFUNC@ callback) {
-    @_callback = @callback;
-    _start(time);
-  }
-  TimerV(int time, TimerVDictionaryFunction@ callback, dictionary@ arguments) {
-    @_callbackWithArguments = @callback;
-    @_arguments = @arguments;
-    _start(time);
-  }
-  bool get_Active() const {
-    return cast<jjBEHAVIORINTERFACE@>(_object.behavior) is this;
-  }
-  int get_Elapsed() const {
-    if (Active) return _object.age;
-    return -1;
-  }
-  int get_Total() const {
-    if (Active) return _object.counter;
-    return -1;
-  }
-  int get_Remaining() const {
-    if (Active) return _object.counter - _object.age;
-    return -1;
-  }
-  bool Stop() {
-    if (Active && _object.age < _object.counter) {
-      _object.delete();
-      return true;
+funcdef void TimerVDictionaryFunction(dictionary @);
+class TimerV : jjBEHAVIORINTERFACE
+{
+    TimerV(int time, jjVOIDFUNC @callback)
+    {
+        @_callback = @callback;
+        _start(time);
     }
-    return false;
-  }
-  bool Paused = false;
- 
- 
- 
- 
- 
-  private jjVOIDFUNC@ _callback = null;
-  private TimerVDictionaryFunction@ _callbackWithArguments;
-  private dictionary@ _arguments;
-  private jjOBJ@ _object;
-  private int _startTime;
-  private void _start(int time) {
-    if (time > 0) {
-      @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
-      _object.behavior = this;
-      _object.counter = time;
-      _object.age = 0;
-      _object.playerHandling = HANDLING::PARTICLE;
-      _object.deactivates = false;
-      _startTime = jjGameTicks;
-    } else {
-      @_object = jjObjects[0]; //avoid null pointer access
-      _pickCallback();
+    TimerV(int time, TimerVDictionaryFunction @callback, dictionary @arguments)
+    {
+        @_callbackWithArguments = @callback;
+        @_arguments = @arguments;
+        _start(time);
     }
-  }
-  private void onBehave(jjOBJ@ obj) {
-    if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter) {
-      _pickCallback();
-      _object.delete();
+    bool get_Active() const
+    {
+        return cast<jjBEHAVIORINTERFACE @>(_object.behavior) is this;
     }
-  }
-  private void _pickCallback() {
-    if (_callback !is null)
-      _callback();
-    else
-      _callbackWithArguments(_arguments);
-  }
+    int get_Elapsed() const
+    {
+        if (Active)
+            return _object.age;
+        return -1;
+    }
+    int get_Total() const
+    {
+        if (Active)
+            return _object.counter;
+        return -1;
+    }
+    int get_Remaining() const
+    {
+        if (Active)
+            return _object.counter - _object.age;
+        return -1;
+    }
+    bool Stop()
+    {
+        if (Active && _object.age < _object.counter)
+        {
+            _object.delete();
+            return true;
+        }
+        return false;
+    }
+    bool Paused = false;
+
+private
+    jjVOIDFUNC @_callback = null;
+private
+    TimerVDictionaryFunction @_callbackWithArguments;
+private
+    dictionary @_arguments;
+private
+    jjOBJ @_object;
+private
+    int _startTime;
+private
+    void _start(int time)
+    {
+        if (time > 0)
+        {
+            @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
+            _object.behavior = this;
+            _object.counter = time;
+            _object.age = 0;
+            _object.playerHandling = HANDLING::PARTICLE;
+            _object.deactivates = false;
+            _startTime = jjGameTicks;
+        }
+        else
+        {
+            @_object = jjObjects[0]; // avoid null pointer access
+            _pickCallback();
+        }
+    }
+private
+    void onBehave(jjOBJ @obj)
+    {
+        if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter)
+        {
+            _pickCallback();
+            _object.delete();
+        }
+    }
+private
+    void _pickCallback()
+    {
+        if (_callback !is null)
+            _callback();
+        else
+            _callbackWithArguments(_arguments);
+    }
 }
 
 bool show_shop = false;
@@ -83,7 +106,7 @@ int playerFastfire = -69;
 
 bool hasShield = false;
 
-funcdef void ButtonCallback(Button@);
+funcdef void ButtonCallback(Button @);
 class Button
 {
     string text;
@@ -91,42 +114,47 @@ class Button
     int y;
     int width;
     bool isDown;
-    ButtonCallback@ callback;
+    ButtonCallback @callback;
 
-    Button(string text, int x, int y, ButtonCallback@ callback)
+    Button(string text, int x, int y, ButtonCallback @callback)
     {
         this.isDown = false;
         this.text = text;
         this.x = x;
         this.y = y;
         this.width = text.length() * 12;
-        @this.callback = @callback;
+        @ this.callback = @callback;
     }
 
-    void update() {
+    void update()
+    {
         if (jjMouseX >= x && jjMouseX <= x + width && jjMouseY >= y && jjMouseY <= y + 20)
         {
-            if (jjKey[0x01] && this.isDown == false) {
+            if (jjKey[0x01] && this.isDown == false)
+            {
                 this.isDown = true;
                 callback(this);
-                dictionary@ arguments = {{"button", @this}};
+                dictionary @arguments = {{"button", @ this}};
 
-                TimerV(25, function(args) {
-                    Button@ button;
-                    args.get("button", @button);
-                    button.isDown = false;
-                }, arguments);
+                TimerV(
+                    25, function(args) {
+                        Button @button;
+                        args.get("button", @button);
+                        button.isDown = false;
+                    },
+                    arguments);
             }
         }
     }
 
-    void draw(jjCANVAS@ canvas) {
+    void draw(jjCANVAS @canvas)
+    {
         canvas.drawRectangle(x, y, width, 20, 255, SPRITE::NORMAL, 0);
         canvas.drawString(x + 5, y + 13, text, STRING::SMALL, STRING::NORMAL, 0);
     }
 }
 
-funcdef string ShopItemCallback(ShopItem@, jjPLAYER@);
+funcdef string ShopItemCallback(ShopItem @, jjPLAYER @);
 class ShopItem : Button
 {
     int price;
@@ -138,12 +166,13 @@ class ShopItem : Button
     bool itemOwned;
     bool showAmountBought;
 
-    ShopItemCallback@ shopCallback;
+    ShopItemCallback @shopCallback;
 
     string description;
 
-    ShopItem(string text, int x, int y, string description, int price, bool canBuy, int maxAmountOwned, ShopItemCallback@ callback, bool showAmountBought) {
-        super(text, x, y, function(button) {});
+    ShopItem(string text, int x, int y, string description, int price, bool canBuy, int maxAmountOwned, ShopItemCallback @callback, bool showAmountBought)
+    {
+        super(text, x, y, function(button){});
 
         this.description = description;
         this.price = price;
@@ -151,96 +180,117 @@ class ShopItem : Button
         this.maxAmountOwned = maxAmountOwned;
         this.itemOwned = false;
         this.showAmountBought = showAmountBought;
-        @this.shopCallback = @callback;
+        @ this.shopCallback = @callback;
     }
 
-    void update() {
+    void update()
+    {
         if (jjMouseX >= this.x && jjMouseX <= this.x + this.width && jjMouseY >= this.y && jjMouseY <= this.y + 20)
         {
-            if (jjKey[0x01] && this.isDown == false) {
-                if(this.buy()) {
+            if (jjKey[0x01] && this.isDown == false)
+            {
+                if (this.buy())
+                {
                     this.isDown = true;
 
                     string shopCallbackText = shopCallback(this, jjLocalPlayers[0]);
-                    
-                    if(shopCallbackText != "Success") {
+
+                    if (shopCallbackText != "Success")
+                    {
                         tokens += this.price;
-                        
+
                         this.itemOwned = false;
 
-                        if(this.am) this.amountOwned -= 1;
+                        if (this.am)
+                            this.amountOwned -= 1;
 
-                        dictionary@ args = {{"shopItem", @this}, {"text", this.text}};
+                        dictionary @args = {{"shopItem", @ this}, {"text", this.text}};
 
                         this.text = shopCallbackText;
                         this.width = this.text.length() * 12;
 
-                        TimerV(60, function(args) {
-                            ShopItem@ shopItem;
-                            string oldText;
-                            args.get("shopItem", @shopItem);
-                            args.get("text", oldText);
-                            shopItem.width = oldText.length() * 12;
-                            shopItem.text = oldText;
-                        }, args);
+                        TimerV(
+                            60, function(args) {
+                                ShopItem @shopItem;
+                                string oldText;
+                                args.get("shopItem", @shopItem);
+                                args.get("text", oldText);
+                                shopItem.width = oldText.length() * 12;
+                                shopItem.text = oldText;
+                            },
+                            args);
                     }
 
-                    dictionary@ arguments = {{"button", @this}};
+                    dictionary @arguments = {{"button", @ this}};
 
-                    TimerV(25, function(args) {
-                        Button@ button;
-                        args.get("button", @button);
-                        button.isDown = false;
-                    }, arguments);
+                    TimerV(
+                        25, function(args) {
+                            Button @button;
+                            args.get("button", @button);
+                            button.isDown = false;
+                        },
+                        arguments);
                 }
             }
         }
     }
 
-    bool buy() {
-        if(this.text == "Not enough tokens" or this.text == "Maxxed out" or this.canBuy == false) {
+    bool buy()
+    {
+        if (this.text == "Not enough tokens" or this.text == "Maxxed out" or this.canBuy == false)
+        {
             return false;
         }
-        
-        if(
+
+        if (
             tokens >= this.price &&
             this.canBuy && ((this.maxAmountOwned != this.amountOwned) or (this.maxAmountOwned == -1)))
         {
             tokens -= this.price;
             this.itemOwned = true;
 
-            if(this.am) this.amountOwned += 1;
+            if (this.am)
+                this.amountOwned += 1;
 
             return true;
         }
 
-        dictionary@ args = {{"shopItem", @this}, {"text", this.text}};
+        dictionary @args = {{"shopItem", @ this}, {"text", this.text}};
 
         this.text = (this.maxAmountOwned == this.amountOwned ? "Maxxed out" : "Not enough tokens");
         this.width = this.text.length() * 12;
 
-        TimerV(60, function(args) {
-            ShopItem@ shopItem;
-            string oldText;
-            args.get("shopItem", @shopItem);
-            args.get("text", oldText);
-            shopItem.width = oldText.length() * 12;
-            shopItem.text = oldText;
-        }, args);
+        TimerV(
+            60, function(args) {
+                ShopItem @shopItem;
+                string oldText;
+                args.get("shopItem", @shopItem);
+                args.get("text", oldText);
+                shopItem.width = oldText.length() * 12;
+                shopItem.text = oldText;
+            },
+            args);
 
         return false;
     }
 
-    void draw(jjCANVAS@ canvas) {
+    void draw(jjCANVAS @canvas)
+    {
         Button::draw(canvas);
 
-        if(this.itemOwned) {
-            if(this.showAmountBought) {
+        if (this.itemOwned)
+        {
+            if (this.showAmountBought)
+            {
                 canvas.drawString(this.x + this.width + 20, this.y + 13, "Price: " + this.price + "   x" + this.amountOwned, STRING::SMALL, STRING::NORMAL, 0);
-            } else {
+            }
+            else
+            {
                 canvas.drawString(this.x + this.width + 20, this.y + 13, "Price: " + this.price, STRING::SMALL, STRING::NORMAL, 0);
             }
-        } else {
+        }
+        else
+        {
             canvas.drawString(this.x + this.width + 20, this.y + 13, "Price: " + this.price, STRING::SMALL, STRING::NORMAL, 0);
         }
 
@@ -248,50 +298,64 @@ class ShopItem : Button
     }
 }
 
-array<Button@> buttons = {
-    Button("Jazz's Shop", 200, 135, function(button) {
-        page = 1;
-    }),
-    Button("Spaz's Shop", 350, 135, function(button) {
-        page = 2;
-    }),
-    Button("Lori's Shop", 500, 135, function(button) {
-        page = 3;
-    })
-};
+array<Button @>
+    buttons = {
+        Button(
+            "Jazz's Shop", 200, 135, function(button) {
+                page = 1;
+            }),
+        Button(
+            "Spaz's Shop", 350, 135, function(button) {
+                page = 2;
+            }),
+        Button(
+            "Lori's Shop", 500, 135, function(button) {
+                page = 3;
+            })};
 
-array<ShopItem@> jazzShop = {
-    ShopItem("Carrot ", 200, 200, "Can be used mid-game to gain 1 heart", 20, true, 3, function(button, player) {
-        if(carrots < 3) {
-            carrots += 1;
+array<ShopItem @> jazzShop = {
+    ShopItem(
+        "Carrot ", 200, 200, "Can be used mid-game to gain 1 heart", 20, true, 3, function(button, player) {
+            if (carrots < 3)
+            {
+                carrots += 1;
+
+                return "Success";
+            }
+            else
+            {
+                return "[CS] You're carrying way too many carrots!";
+            }
+        },
+        false),
+    ShopItem(
+        "Fastfire", 200, 250, "Gets you more fastfire", 100, true, 6, function(button, player) {
+            playerFastfire -= 5;
 
             return "Success";
-        } else {            
-            return "[CS] You're carrying way too many carrots!";
-        }
-    }, false),
-    ShopItem("Fastfire", 200, 250, "Gets you more fastfire", 100, true, 6, function(button, player) {
-        playerFastfire -= 5;
-        
-        return "Success";
-    }, true)
-};
+        },
+        true)};
 
-array<ShopItem@> spazShop = {
-    ShopItem("Get Shield", 200, 200, "Defends you from 5 hits", 100, true, -1, function(button, player) {
-        if(!hasShield) {
-            hasShield = true;
-            
-            return "Success";
-        } else {
-            return "[CS] You already have a shield!";
-        }
-    }, false)
-};
+array<ShopItem @> spazShop = {
+    ShopItem(
+        "Get Shield", 200, 200, "Defends you from 5 hits", 100, true, -1, function(button, player) {
+            if (!hasShield)
+            {
+                hasShield = true;
 
-array<ShopItem@> loriShop = {};
+                return "Success";
+            }
+            else
+            {
+                return "[CS] You already have a shield!";
+            }
+        },
+        false)};
 
-void onLevelBegin() {
+array<ShopItem @> loriShop = {};
+
+void onLevelBegin()
+{
     jazzShop[0].am = false;
 
     jjAnimSets[45].load();
@@ -299,87 +363,116 @@ void onLevelBegin() {
     jjConsole("[CS] Started CharShop");
 }
 
-void onPlayerInput(jjPLAYER@ player) {
-    if(jjKey[0x70] && show_shop_debounce == false) { // f1
+void onPlayerInput(jjPLAYER @player)
+{
+    if (jjKey[0x70] && show_shop_debounce == false)
+    { // f1
         show_shop_debounce = true;
         show_shop = !show_shop;
 
-        TimerV(20, function() {
-            show_shop_debounce = false;
-        });
+        TimerV(
+            20, function() {
+                show_shop_debounce = false;
+            });
     }
 
-    if(jjKey[0x09] && useCarrotDebounce == false && player.health != jjMaxHealth && player.health != 0 && carrots > 0) { // tab
+    if (jjKey[0x09] && useCarrotDebounce == false && player.health != jjMaxHealth && player.health != 0 && carrots > 0)
+    { // tab
         useCarrotDebounce = true;
 
-        if(carrots > 0) {
+        if (carrots > 0)
+        {
             player.health += 1;
             carrots -= 1;
         }
 
-        TimerV(20, function() {
-            useCarrotDebounce = false;
-        });
+        TimerV(
+            20, function() {
+                useCarrotDebounce = false;
+            });
     }
 }
 
-void onMain() {
-    if(playerFastfire == -69) {
+void onMain()
+{
+    if (playerFastfire == -69)
+    {
         playerFastfire = jjLocalPlayers[0].fastfire;
     }
 
     jjLocalPlayers[0].fastfire = playerFastfire;
 
-    if(show_shop) {
-        for(uint i = 0; i < buttons.length(); i++) {
+    if (show_shop)
+    {
+        for (uint i = 0; i < buttons.length(); i++)
+        {
             buttons[i].update();
         }
 
-        if(page == 1) {
-            for(uint i = 0; i < jazzShop.length(); i++) {
+        if (page == 1)
+        {
+            for (uint i = 0; i < jazzShop.length(); i++)
+            {
                 jazzShop[i].update();
             }
-        } else if(page == 2) {
-            for(uint i = 0; i < spazShop.length(); i++) {
+        }
+        else if (page == 2)
+        {
+            for (uint i = 0; i < spazShop.length(); i++)
+            {
                 spazShop[i].update();
             }
-        } else if(page == 3) {
-            for(uint i = 0; i < loriShop.length(); i++) {
+        }
+        else if (page == 3)
+        {
+            for (uint i = 0; i < loriShop.length(); i++)
+            {
                 loriShop[i].update();
             }
         }
     }
 }
 
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
+{
     // items' drawing
 
     // carrots
-    canvas.drawSprite(jjResolutionWidth-20, jjResolutionHeight / 2, 71, 21, 6, 0, SPRITE::NORMAL, 123);
-    canvas.drawString(jjResolutionWidth-30-(("x" + carrots).length() * 10), jjResolutionHeight / 2, "x" + carrots, STRING::SMALL, STRING::NORMAL, 0);
+    canvas.drawSprite(jjResolutionWidth - 20, jjResolutionHeight / 2, 71, 21, 6, 0, SPRITE::NORMAL, 123);
+    canvas.drawString(jjResolutionWidth - 30 - (("x" + carrots).length() * 10), jjResolutionHeight / 2, "x" + carrots, STRING::SMALL, STRING::NORMAL, 0);
 
     // draw token amount
-    canvas.drawString(jjResolutionWidth-30-(("x" + tokens).length() * 10), 50, "x" + tokens, STRING::SMALL, STRING::NORMAL, 0);
-    canvas.drawString(jjResolutionWidth-80, 40, "tokens", STRING::SMALL, STRING::NORMAL, 0);
+    canvas.drawString(jjResolutionWidth - 30 - (("x" + tokens).length() * 10), 50, "x" + tokens, STRING::SMALL, STRING::NORMAL, 0);
+    canvas.drawString(jjResolutionWidth - 80, 40, "tokens", STRING::SMALL, STRING::NORMAL, 0);
 
-    if(!show_shop) return false;
+    if (!show_shop)
+        return false;
 
     canvas.drawRectangle(175, 100, 500, 400, 0, SPRITE::BLEND_NORMAL, 96);
-    
-    for(uint i = 0; i < buttons.length(); i++) {
+
+    for (uint i = 0; i < buttons.length(); i++)
+    {
         buttons[i].draw(canvas);
     }
 
-    if(page == 1) {
-        for(uint i = 0; i < jazzShop.length(); i++) {
+    if (page == 1)
+    {
+        for (uint i = 0; i < jazzShop.length(); i++)
+        {
             jazzShop[i].draw(canvas);
         }
-    } else if(page == 2) {
-        for(uint i = 0; i < spazShop.length(); i++) {
+    }
+    else if (page == 2)
+    {
+        for (uint i = 0; i < spazShop.length(); i++)
+        {
             spazShop[i].draw(canvas);
         }
-    } else if(page == 3) {
-        for(uint i = 0; i < loriShop.length(); i++) {
+    }
+    else if (page == 3)
+    {
+        for (uint i = 0; i < loriShop.length(); i++)
+        {
             loriShop[i].draw(canvas);
         }
     }
@@ -387,17 +480,21 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     return false;
 }
 
-void onDrawLayer3(jjPLAYER@ player, jjCANVAS@ canvas) {
+void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
+{
     // items' drawing
 
     // shield
-    if(hasShield) {
+    if (hasShield)
+    {
         canvas.drawSprite(player.xPos, player.yPos, 45, 0, 2, 0, SPRITE::NORMAL, 123);
     }
 }
 
-void onRoast(jjPLAYER@ victim, jjPLAYER@ killer) {
-    if(killer.clientID == jjLocalPlayers[0].clientID) {
+void onRoast(jjPLAYER @victim, jjPLAYER @killer)
+{
+    if (killer.clientID == jjLocalPlayers[0].clientID)
+    {
         tokens += 50;
     }
 }
