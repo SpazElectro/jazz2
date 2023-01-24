@@ -49,10 +49,34 @@ string getTeamsString() {
     return teams;
 }
 
-void draw(int id, string str, jjCANVAS@ canvas) {
-    canvas.drawString(0, 20 * (id + 2), str);
+string getGamemodeString() {
+    if(jjGameCustom == GAME::NOCUSTOM) {
+        if(jjGameMode == GAME::SP) return "Singleplayer";
+        if(jjGameMode == GAME::COOP) return "Coop";
+        if(jjGameMode == GAME::BATTLE) return "Battle";
+        if(jjGameMode == GAME::CTF) return "CTF";
+        if(jjGameMode == GAME::TREASURE) return "Treasure Hunt";
+    } else {
+        if(jjGameCustom == GAME::RT) return "Roast Tag";
+        if(jjGameCustom == GAME::LRS) return "Last Rabbit Standing";
+        if(jjGameCustom == GAME::XLRS) return "Extended Last Rabbit Standing";
+        if(jjGameCustom == GAME::PEST) return "Pestilence";
+        if(jjGameCustom == GAME::TB) return "Team Battle";
+        if(jjGameCustom == GAME::JB) return "Jailbreak";
+        if(jjGameCustom == GAME::DCTF) return "Death CTF";
+        if(jjGameCustom == GAME::FR) return "Flag Run";
+        if(jjGameCustom == GAME::TLRS) return "Team Last Rabbit Standing";
+        if(jjGameCustom == GAME::DOM) return "Domination";
+
+        return "Head Hunters";
+    }
+
+    return "Race";
 }
 
+void draw(int id, string str, jjCANVAS@ canvas) {
+    canvas.drawString(0, 20 * (id + 3), str);
+}
 
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { 
     draw(1, "|||! |truedebug||||||| !", canvas);
@@ -64,6 +88,7 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     draw(7, "|Border Height: ||" + formatInt(jjBorderHeight), canvas);
     draw(8, "|Color depth: ||" + formatInt(jjColorDepth), canvas);
     draw(9, "|FPS: ||" + formatInt(jjFPS), canvas);
+    draw(10, "|Gamemode: ||" + getGamemodeString(), canvas);
 
     return false;
 }
