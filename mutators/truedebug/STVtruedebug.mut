@@ -1,0 +1,69 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+void onLevelBegin() {
+	
+}
+
+string getDifficultyString() {
+    if(jjDifficulty <= 0) return "Easy";
+    if(jjDifficulty == 2) return "Hard";
+    
+    return "Turbo";
+}
+
+string getTeamsString() {
+    string teams = "";
+
+    bool team = false;
+
+    if(jjEnabledTeams[TEAM::BLUE]) {
+        teams = "Blue";
+        team = true;
+    }
+
+    if(jjEnabledTeams[TEAM::RED]) {
+        if(team) {
+            teams = teams + " and Red";
+        } else { teams = teams + "Red"; }
+        
+        team = true;
+    }
+
+    if(jjEnabledTeams[TEAM::GREEN]) {
+        if(team) {
+            teams = teams + " and Green";
+        } else { teams = teams + "Green"; }
+
+        team = true;
+    }
+
+    if(jjEnabledTeams[TEAM::YELLOW]) {
+        if(team) teams = teams + " and Yellow";
+            else teams = teams + "Yellow";
+        
+        team = true;
+    }
+
+    return teams;
+}
+
+void draw(int id, string str, jjCANVAS@ canvas) {
+    canvas.drawString(0, 20 * (id + 2), str);
+}
+
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { 
+    draw(1, "|||! |truedebug||||||| !", canvas);
+    draw(2, "|X: ||" + formatInt(jjMouseX), canvas);
+    draw(3, "|Y: ||" + formatInt(jjMouseY), canvas);
+    draw(4, "|Difficulty: ||" + getDifficultyString(), canvas);
+    draw(5, "|Teams: ||" + getTeamsString(), canvas);
+    draw(6, "|Border Width: ||" + formatInt(jjBorderWidth), canvas);
+    draw(7, "|Border Height: ||" + formatInt(jjBorderHeight), canvas);
+    draw(8, "|Color depth: ||" + formatInt(jjColorDepth), canvas);
+    draw(9, "|FPS: ||" + formatInt(jjFPS), canvas);
+
+    return false;
+}
