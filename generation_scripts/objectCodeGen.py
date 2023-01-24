@@ -1,8 +1,8 @@
 codeInput = """items.insertLast(formatUInt(obj.points));
 items.insertLast(formatUInt(obj.objectID));
-items.insertLast(formatBool(obj.scriptedCollisions));
+items.insertLast(formatBoolToStringInteger(obj.scriptedCollisions));
 items.insertLast(formatInt(obj.special));
-items.insertLast(formatBool(obj.triggersTNT));
+items.insertLast(formatBoolToStringInteger(obj.triggersTNT));
 items.insertLast(formatInt(obj.var[1]));
 items.insertLast(formatInt(obj.var[2]));
 items.insertLast(formatInt(obj.var[3]));

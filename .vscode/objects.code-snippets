@@ -23,7 +23,7 @@
 	"boolitem": {
 		"prefix": "boolitem",
 		"body": [
-			"items.insertLast(formatBool(obj.$0));",
+			"items.insertLast(formatBoolToStringInteger(obj.$0));",
 		],
 		"description": "BoolItem"
 	},

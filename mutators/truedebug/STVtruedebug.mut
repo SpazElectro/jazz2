@@ -2,9 +2,9 @@
 
 #include "STVutil.asc"
 
-void onLevelBegin() {
-	
-}
+array<string> drawQueue;
+
+int drawId = 1;
 
 string getDifficultyString() {
     if(jjDifficulty <= 0) return "Easy";
@@ -90,23 +90,40 @@ string getGameState() {
     return "Overtime";
 }
 
-void draw(int id, string str, jjCANVAS@ canvas) {
-    canvas.drawString(0, 20 * (id + 4), str);
+void draw(string str) {
+    if(int(drawQueue.length) < drawId) drawQueue.insertLast("");
+    drawQueue[drawId - 1] = str;
+
+    drawId += 1;
 }
 
-bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { 
-    draw(1, "|||! |truedebug||||||| !", canvas);
-    draw(2, "|X: ||" + formatInt(jjMouseX), canvas);
-    draw(3, "|Y: ||" + formatInt(jjMouseY), canvas);
-    draw(4, "|Difficulty: ||" + getDifficultyString(), canvas);
-    draw(5, "|Teams: ||" + getTeamsString(), canvas);
-    draw(6, "|Border Width: ||" + formatInt(jjBorderWidth), canvas);
-    draw(7, "|Border Height: ||" + formatInt(jjBorderHeight), canvas);
-    draw(8, "|Color depth: ||" + formatInt(jjColorDepth), canvas);
-    draw(9, "|FPS: ||" + formatInt(jjFPS), canvas);
-    draw(10, "|Gamemode: ||" + getGamemodeString(), canvas);
-    draw(11, "|Game Connection: ||" + getGameConnection(), canvas);
-    draw(12, "|Game State: ||" + getGameState(), canvas);
+void onMain() {
+    draw("|||! |truedebug||||||| !");
+    draw("|X: ||" + formatInt(jjMouseX));
+    draw("|Y: ||" + formatInt(jjMouseY));
+    draw("|Difficulty: ||" + getDifficultyString());
+    draw("|Teams: ||" + getTeamsString());
+    draw("|Border Width: ||" + formatInt(jjBorderWidth));
+    draw("|Border Height: ||" + formatInt(jjBorderHeight));
+    draw("|Color depth: ||" + formatInt(jjColorDepth));
+    draw("|FPS: ||" + formatInt(jjFPS));
+    draw("|Gamemode: ||" + getGamemodeString());
+    draw("|Game Connection: ||" + getGameConnection());
+    draw("|Game State: ||" + getGameState());
+    draw("|Game Ticks: ||" + formatInt(jjGameTicks));
+    draw("|Level: ||" + jjLevelName + " (" + jjLevelFileName + ")");
+    draw("|Local players: ||" + formatInt(jjLocalPlayerCount));
+    draw("|Low detail? ||" + formatBool(jjLowDetail));
+    draw("|TSF? ||" + formatBool(jjIsTSF));
+
+    drawId = 1;
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    for (uint drawQueueIndex = 0; drawQueueIndex < drawQueue.length; drawQueueIndex++)
+    {
+        canvas.drawString(0, 20 * (drawQueueIndex + 4), drawQueue[drawQueueIndex]);
+    }
 
     return false;
 }
