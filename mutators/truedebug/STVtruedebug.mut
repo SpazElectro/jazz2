@@ -4,6 +4,8 @@
 
 array<string> drawQueue;
 
+int page = 1;
+int pages = 2;
 int drawId = 1;
 
 string getDifficultyString() {
@@ -99,24 +101,48 @@ void draw(string str) {
 
 void onMain() {
     draw("|||! |truedebug||||||| !");
-    draw("|X: ||" + formatInt(jjMouseX));
-    draw("|Y: ||" + formatInt(jjMouseY));
-    draw("|Difficulty: ||" + getDifficultyString());
-    draw("|Teams: ||" + getTeamsString());
-    draw("|Border Width: ||" + formatInt(jjBorderWidth));
-    draw("|Border Height: ||" + formatInt(jjBorderHeight));
-    draw("|Color depth: ||" + formatInt(jjColorDepth));
-    draw("|FPS: ||" + formatInt(jjFPS));
-    draw("|Gamemode: ||" + getGamemodeString());
-    draw("|Game Connection: ||" + getGameConnection());
-    draw("|Game State: ||" + getGameState());
-    draw("|Game Ticks: ||" + formatInt(jjGameTicks));
-    draw("|Level: ||" + jjLevelName + " (" + jjLevelFileName + ")");
-    draw("|Local players: ||" + formatInt(jjLocalPlayerCount));
-    draw("|Low detail? ||" + formatBool(jjLowDetail));
-    draw("|TSF? ||" + formatBool(jjIsTSF));
+    
+    if(page == 1) {
+        draw("|X: ||" + formatInt(jjMouseX));
+        draw("|Y: ||" + formatInt(jjMouseY));
+        draw("|Difficulty: ||" + getDifficultyString());
+        draw("|Teams: ||" + getTeamsString());
+        draw("|Resolution Width: ||" + formatInt(jjResolutionWidth));
+        draw("|Resolution Height: ||" + formatInt(jjResolutionHeight));
+        draw("|Max Resolution Width: ||" + formatInt(jjResolutionMaxWidth));
+        draw("|Max Resolution Height: ||" + formatInt(jjResolutionMaxHeight));
+        draw("|Border Width: ||" + formatInt(jjBorderWidth));
+        draw("|Border Height: ||" + formatInt(jjBorderHeight));
+        draw("|Color depth: ||" + formatInt(jjColorDepth));
+        draw("|FPS: ||" + formatInt(jjFPS));
+    } else if(page == 2) {
+        draw("|Gamemode: ||" + getGamemodeString());
+        draw("|Game Connection: ||" + getGameConnection());
+        draw("|Game State: ||" + getGameState());
+        draw("|Active Game Ticks: ||" + formatUInt(jjActiveGameTicks));
+        draw("|Game Ticks: ||" + formatInt(jjGameTicks));
+        draw("|Render Frame: ||" + formatInt(jjRenderFrame));
+        draw("|Level: ||" + jjLevelName + " (" + jjLevelFileName + ")");
+        draw("|Tileset: ||" + jjTilesetFileName);
+        draw("|Music: ||" + jjMusicFileName);
+        draw("|Local players: ||" + formatInt(jjLocalPlayerCount));
+        draw("|Low detail? ||" + formatBool(jjLowDetail));
+        draw("|TSF? ||" + formatBool(jjIsTSF));
+    }
 
     drawId = 1;
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived.substr(0, 6) == "!page ") {
+        page = parseInt(stringReceived.split(" ")[1]);
+        
+        if(page > pages) page = pages;
+
+        return true;
+    }
+
+    return false;
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
