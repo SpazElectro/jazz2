@@ -14,32 +14,35 @@ int partId = 0;
 
 void onLevelBegin()
 {
-    registerInteraction(Interaction(255, function(jjPLAYER@ player) {
-        player.xPos = 225 * 32;
-        player.yPos = 62 * 32;
-    }));
+    registerInteraction(Interaction(
+        255, function(jjPLAYER @player) {
+            player.xPos = 225 * 32;
+            player.yPos = 62 * 32;
+        }));
 
-    registerInteraction(Interaction(254, function(jjPLAYER@ player) {
-        player.xPos = 16 * 32;
-        player.yPos = 62 * 32;
-    }));
+    registerInteraction(Interaction(
+        254, function(jjPLAYER @player) {
+            player.xPos = 16 * 32;
+            player.yPos = 62 * 32;
+        }));
 
     progress.saveObjects = false;
 
     jjConsole("[MS] started");
 }
 
-void onPlayer(jjPLAYER@ player)
+void onPlayer(jjPLAYER @player)
 {
     // if (partId == 0)
     // {
-        
+
     // }
 
     updateInteractions(player);
 }
 
-void onDrawLayer3(jjPLAYER@ player, jjCANVAS@ canvas) {
+void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
+{
     drawInteractions(canvas);
 }
 

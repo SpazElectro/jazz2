@@ -9,28 +9,30 @@ int screenHalfHeight = screeenHeight / 2;
 int rayCastingPrecision = 64;
 
 array<array<float>> worldMap = {
-  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 1, 1, 0, 1, 0, 0, 1},
-  {1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
-  {1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
-  {1, 0, 0, 1, 0, 1, 1, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-  {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 1, 1, 0, 1, 0, 0, 1},
+    {1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 1, 0, 1, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
 
-float degreeToRadians(float degree) {
-//         degree * PI / 180
-    return degree * 3.141592653589793 / 180;
+float degreeToRadians(float degree)
+{
+  //         degree * PI / 180
+  return degree * 3.141592653589793 / 180;
 }
 
 class Vector2
 {
   float x, y;
 
-  Vector2(float x, float y) {
+  Vector2(float x, float y)
+  {
     this.x = x;
     this.y = y;
   }
@@ -57,27 +59,33 @@ class Line
   int x1, y1, x2, y2;
   string color;
 
-  Line(int x1, int y1, int x2, int y2, string color) {
-    this.x1 = x1; this.x2 = x2;
-    this.y1 = y1; this.y2 = y2;
-    this.color = color;   
+  Line(int x1, int y1, int x2, int y2, string color)
+  {
+    this.x1 = x1;
+    this.x2 = x2;
+    this.y1 = y1;
+    this.y2 = y2;
+    this.color = color;
   }
 };
 
 class Raycaster
 {
-  ThirdDimensionPlayer@ player;
+  ThirdDimensionPlayer @player;
 
-  Raycaster(ThirdDimensionPlayer@ player) {
-    @this.player = player;
+  Raycaster(ThirdDimensionPlayer @player)
+  {
+    @ this.player = player;
   }
 
-  array<Line@> sendRay() {
-    array<Line@> lineQueue;
+  array<Line @> sendRay()
+  {
+    array<Line @> lineQueue;
 
     float rayAngle = this.player.angle - this.player.halfFov;
 
-    for(int rayCount = 0; rayCount < screenWidth; rayCount++) {
+    for (int rayCount = 0; rayCount < screenWidth; rayCount++)
+    {
       float rayX = this.player.x;
       float rayY = this.player.y;
 
@@ -86,7 +94,8 @@ class Raycaster
 
       float wall = 0;
 
-      while(wall == 0) {
+      while (wall == 0)
+      {
         rayX += rayCos;
         rayY += raySin;
 
@@ -109,46 +118,50 @@ class Raycaster
   }
 };
 
-Raycaster@ mainRaycaster;
+Raycaster @mainRaycaster;
 
-void onLevelBegin() {
-    screenWidth = jjSubscreenWidth;
-    screeenHeight = jjSubscreenHeight;
+void onLevelBegin()
+{
+  screenWidth = jjSubscreenWidth;
+  screeenHeight = jjSubscreenHeight;
 
-    @mainRaycaster = Raycaster(ThirdDimensionPlayer());
+  @mainRaycaster = Raycaster(ThirdDimensionPlayer());
 
-    jjConsole("[3D] Level started.");
+  jjConsole("[3D] Level started.");
 }
 
-array<Vector2@> drawLine(float x1, float y1, float x2, float y2) {
-  array<Vector2@> pixelArray;
+array<Vector2 @> drawLine(float x1, float y1, float x2, float y2)
+{
+  array<Vector2 @> pixelArray;
 
   float dx = x2 - x1;
   float dy = y2 - y1;
 
-  for(float x = 0; x1 < x2; x++) {
-      float y = y1 + dy * (x - x1) / dx;
-      
-      pixelArray.insertLast(Vector2(x, y));
+  for (float x = 0; x1 < x2; x++)
+  {
+    float y = y1 + dy * (x - x1) / dx;
+
+    pixelArray.insertLast(Vector2(x, y));
   }
 
   return pixelArray;
 }
 
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-  array<Line@> lineQueue = mainRaycaster.sendRay();
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
+{
+  array<Line @> lineQueue = mainRaycaster.sendRay();
 
   for (uint lineIndex = 0; lineIndex < lineQueue.length; lineIndex++)
   {
-      Line@ line = lineQueue[lineIndex];
-      array<Vector2@> pixelArray = drawLine(line.x1, line.y1, line.x2, line.y2);
-      
-      for (uint pixelIndex = 0; pixelIndex < pixelArray.length; pixelIndex++)
-      {
-        Vector2@ pixel = pixelArray[pixelIndex];
+    Line @line = lineQueue[lineIndex];
+    array<Vector2 @> pixelArray = drawLine(line.x1, line.y1, line.x2, line.y2);
 
-        canvas.drawPixel(pixel.x, pixel.y, 8);
-      }
+    for (uint pixelIndex = 0; pixelIndex < pixelArray.length; pixelIndex++)
+    {
+      Vector2 @pixel = pixelArray[pixelIndex];
+
+      canvas.drawPixel(pixel.x, pixel.y, 8);
+    }
   }
 
   return false;

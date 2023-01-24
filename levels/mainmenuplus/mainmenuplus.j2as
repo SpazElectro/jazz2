@@ -1,10 +1,12 @@
 jjTEXTAPPEARANCE funnyAppearance = jjTEXTAPPEARANCE(STRING::BOUNCE);
 
-void onLevelBegin() {
+void onLevelBegin()
+{
 	jjConsole("onLevelBegin");
 }
 
-bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+bool onDrawHealth(jjPLAYER @player, jjCANVAS @canvas)
+{
 	canvas.drawString(50, 50, "|P|l|a|y", STRING::MEDIUM, funnyAppearance, 60, SPRITE::PALSHIFT, 0);
 
 	return false;
