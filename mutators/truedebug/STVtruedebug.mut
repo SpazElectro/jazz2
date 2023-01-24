@@ -74,6 +74,22 @@ string getGamemodeString() {
     return "Race";
 }
 
+string getGameConnection() {
+    if(jjGameConnection == GAME::LOCAL) return "Local";
+    if(jjGameConnection == GAME::ONLINE) return "Online";
+    
+    return "LAN";
+}
+
+string getGameState() {
+    if(jjGameState == GAME::STOPPED) return "Stopped";
+    if(jjGameState == GAME::STARTED) return "Started";
+    if(jjGameState == GAME::PAUSED) return "Paused";
+    if(jjGameState == GAME::PREGAME) return "Pregame";
+    
+    return "Overtime";
+}
+
 void draw(int id, string str, jjCANVAS@ canvas) {
     canvas.drawString(0, 20 * (id + 4), str);
 }
@@ -89,6 +105,8 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     draw(8, "|Color depth: ||" + formatInt(jjColorDepth), canvas);
     draw(9, "|FPS: ||" + formatInt(jjFPS), canvas);
     draw(10, "|Gamemode: ||" + getGamemodeString(), canvas);
+    draw(11, "|Game Connection: ||" + getGameConnection(), canvas);
+    draw(12, "|Game State: ||" + getGameState(), canvas);
 
     return false;
 }
