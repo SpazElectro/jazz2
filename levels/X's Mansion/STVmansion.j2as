@@ -54,7 +54,8 @@ void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(drawMail) {
-        canvas.drawString(jjResolutionWidth / 2)
+        jj
+        canvas.drawString(jjResolutionWidth / 2, jjResolutionHeight / 2, );
     }
 
     return false;
