@@ -17,7 +17,7 @@
     },
     {
         "name": "jjAllowsWalljump",
-        "description": "Whether the server allows players to use the “walljumping” bug, as set by the /allowwalljump command. "
+        "description": "Whether the server allows players to use the \"walljumping\" bug, as set by the /allowwalljump command. "
     },
     {
         "name": "jjAlwaysRunning",

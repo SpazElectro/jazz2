@@ -1,4 +1,5 @@
-# var it = 0
+# var abc = document.getElementById("abc")
+
 # var items = []
 # var prevDescription = '';
 
