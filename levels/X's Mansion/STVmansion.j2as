@@ -10,6 +10,7 @@
 
 ProgressManager @progress = ProgressManager();
 
+bool drawMail = false;
 int partId = 0;
 
 void onLevelBegin()
@@ -24,6 +25,11 @@ void onLevelBegin()
         254, function(jjPLAYER @player) {
             player.xPos = 16 * 32;
             player.yPos = 62 * 32;
+        }));
+    
+    registerInteraction(Interaction(
+        253, function(jjPLAYER @player) {
+            drawMail = true;
         }));
 
     progress.saveObjects = false;
@@ -44,6 +50,14 @@ void onPlayer(jjPLAYER @player)
 void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
 {
     drawInteractions(canvas);
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(drawMail) {
+        canvas.drawString(jjResolutionWidth / 2)
+    }
+
+    return false;
 }
 
 // saving
