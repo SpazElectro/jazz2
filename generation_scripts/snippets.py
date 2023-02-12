@@ -1,71 +1,50 @@
-# // descriptions
-# var i = 0
-# var total = "";
+# var it = 0
+# var items = []
+# var prevDescription = '';
+
 # function findNextDD(element, startIndex) {
+#   let resultx = "";
+#   let counter = 0;
 #   for (let i = startIndex; i < element.children.length; i++) {
 #     if (element.children[i].tagName === "DD") {
-#       return element.children[i];
+#       resultx += element.children[i].textContent + " ";
+#     } else if (element.children[i].tagName === "DT") {
+#       if (prevDescription === resultx) {
+#         continue;
+#       }
+#       prevDescription = resultx;
+#       break;
+#     }
+#     counter++;
+#     if (counter === 10) {
+#       break;
 #     }
 #   }
-#   return null;
+#   prevDescription = '';
+#   return resultx;
 # }
-# abc.childNodes.forEach(child => {
-#     if(child.nodeType == 1 && (child.tagName == "DT")) {
-#         if(child.firstChild) {
-#             var description = findNextDD(abc, i);
-#             if(description) total = total + description.textContent + "\n";
-#         }
-#     }
-    
-#     i += 1;
-# });
-# console.log(total);
 
-# // names
-# abc.childNodes.forEach(child => {
-#     if(child.nodeType == 1 && (child.tagName == "DT" || child.tagName == "DD")) {
-#         if(child.firstChild) {
-#             var t = (child.getElementsByClassName("name") || child.getElementsByClassName("ns"))[0];
-#             if(!t) return;
-#             console.log(t.id)
-#         }
-#     }
-# });
+# for (let i = 0; i < abc.children.length; i++) {
+#   if (abc.children[i].tagName === "DT") {
+#     const name = abc.children[i].getElementsByClassName("name")[0].id;
+#     const description = findNextDD(abc, i + 1);
+#     items.push({
+#       name: name,
+#       description: description
+#     });
+#   }
+# }
 
 import json
 
-
-full = "jjActiveGameTicks\njjAllowsFireball\njjAllowsMouseAim\njjAllowsReady\njjAllowsWalljump\njjAlwaysRunning\njjAnimatedTiles\njjAnimations\njjAnimFrames\njjAnimSets\njjAutoWeaponChange\njjBackupPalette\njjBorderHeight\njjBorderWidth\njjBottomFeeder\njjCharacters\njjColorDepth\njjControlPoints\njjDeactivatingBecauseOfDeath\njjDebugF10\njjDelayGeneratedCrateOrigins\njjDifficulty\njjDifficultyNext\njjDifficultyOrig\njjDoZombiesAlreadyExist\njjEcho\njjEnabledASFunctions\njjEnabledTeams\njjEnforceLighting\njjEventAtLastMaskedPixel\njjFPS\njjFriendlyFire\njjGameConnection\njjGameCustom\njjGameMode\njjGameState\njjGameTicks\njjHelpStrings\njjIsAdmin\njjIsServer\njjIsSnowing\njjIsSnowingOutdoorsOnly\njjIsTSF\njjKeyjjKeyChat\njjLayerHasTiles\njjLayerHeight\njjLayerLimitVisibleRegion\njjLayerTileHeight\njjLayerTileWidth\njjLayerWidth\njjLayerWidthReal\njjLayerWidthRounded\njjLayerXAutoSpeed\njjLayerYAutoSpeed\njjLayerXOffset\njjLayerYOffset\njjLayerXSpeed\njjLayerYSpeed\njjLayers\njjLevelFileName\njjLevelName\njjLocalPlayerCount\njjLocalPlayers\njjLowDetail\njjMaxHealth\njjMaxScore\njjMouseAim\njjMouseX\njjMouseY\njjMusicActive\njjMusicFileName\njjMusicVolume\njjNoBlink\njjNoMovement\njjObjectCount\njjObjectMax\njjObjectPresets\njjObjects\njjPalette\njjParticles\njjPlayerCount\njjPlayers\njjQuirks\njjRenderFrame\njjResolutionHeight\njjResolutionWidth\njjResolutionMaxHeight\njjResolutionMaxWidth\njjScriptModuleID\njjShowMaxHealth\njjSnowingIntensity\njjSnowingType\njjSoundEnabled\njjSoundFXActive\njjSoundFXVolume\njjStartHealth\njjStrongPowerups\njjSubscreenHeight\njjSubscreenWidth\njjSugarRushAllowed\njjTeamScore\njjTexturedBGFadePositionX\njjTexturedBGFadePositionY\njjTexturedBGStars\njjTexturedBGStyle\njjTexturedBGTexture\njjTexturedBGUsed\njjTileCount\njjTiles\njjTilesetFileName\njjTileType\njjTriggers\njjTokenOwner\njjUseLayer8Speeds\njjVerticalSplitscreen\njjWarpsTransmuteCoins\njjWaterChangeSpeed\njjWaterInteraction\njjWaterLayer\njjWaterLevel\njjWaterLighting\njjWaterTarget\njjWeapons"
-descriptions = "How long the game has been actively running, at a rate of 70 ticks per second. Unlike jjGameTicks, this value is not incremented when the game is paused, stopped, or in pregame. This is a local value that counts up from 0 except in online Race games, where it is used to track lap times and is therefore synced between server and clients.\nWhether the server (or the SP level) allows mouse aim, as set by the /allowmouseaim command.\nWhether the server allows players to use the “walljumping” bug, as set by the /allowwalljump command.\nAnimated tiles defined by the level. For every tileID,jjAnimatedTiles[tileID] is jjTiles[tileID | TILE::ANIMATED].\nLoaded animation frames. See the jjANIMFRAME class description for more information.\nWhether automatic weapon change is locally enabled, as set by the /weaponchange command.\nThe size of the black borders that appear at the edges of each local player's subscreen when a subscreen is larger than the level/server's maximum resolution, when a subscreen is larger than Layer 4 (and Layer 4 does not have Tile Width/Tile Height checked), and/or when the F3 key has been used. Useful for deciding where to draw HUD/UI elements. Note that these values refer to the size of each border, not the overall size of the black space, so for instance if jjBorderWidth is 80, there will be 80 columns of black pixels on the left side of the subscreen and an additional 80 columns on the right side.\nCharacter profiles. Use either CHAR::JAZZ, CHAR::SPAZ, CHAR::LORI, CHAR::BIRD, CHAR::FROG or CHAR::BIRD2 as an index. Refer to the jjCHARACTER section for more information.\nAn array containing all Domination control points in the level. See the jjCONTROLPOINT section for further details.\nOnly ever true in single player, specifically when the player has pressed the F10 key to enable debug mode. Among other peculiarities during this time, neither onPlayer nor onPlayerInput nor any of the various non-layer-based jjCANVAS onDraw hook functions will be called, because JJ2+ will be ignoring all normal player interactions.\nThe current difficulty level. 1 for Normal difficulty; 0 and below for Easy; 2 for Hard; 3 and above for Turbo. Numerous enemies base their speeds at least partially on the difficulty, so numbers outside of the well-tested 0-3 range may have unexpected or undesirable effects with certain enemies; still, it's worth a try! This property cannot be used to determine whether to load events specified in JCS as Easy or Hard, since that has already been checked by the time AngelScript starts running in a level.\nThe difficulty at the start of the level, prior to it being potentially changed by scripts setting jjDifficulty. In online servers, clients who join this level partway through will be sent this value for their difficulty, so they will remove the same events from the event map that everyone else in the server did.\nThe current degree of echo, as set by the \"Echo\" event.\nUsually all true. When a Text event is touched with AngelScript=1,Vanish=1, the jjEnabledASFunctions[#] bool for that Text event's TextID value will be set to false and the corresponding onFunction# will be uncallable by other Text events until the bool is set to true again.\nCurrently enabled teams. Possible indices are TEAM::BLUE, TEAM::RED, TEAM::GREEN, and TEAM::YELLOW.\nWhenever one of the mask-detection functions, e.g. jjMaskedHLine, finds a masked pixel in layer 4, this property will be set to the event at the tile containing that pixel. This allows you to write code for object like seeker missiles, which ignore masked pixels on tiles with the AREA::ONEWAY, AREA::HOOK, or AREA::VINE events. There's not much reason to edit it manually, since JJ2 changes its value all but constantly, but you can if you want.\nWhether friendly fire is enabled, as set by the /friendlyfire command.\nIf using a custom gamemode, what is it? Options are NOCUSTOM, RT, LRS, XLRS, PEST, TB, JB, DCTF, FR, TLRS, DOM, and HEAD.\nIn an online/network server, is the game started, stopped, or some other variation? Options are. STOPPED, STARTED, PAUSED (only possible if there is a time limit), PREGAME, and OVERTIME.\nHelp strings as set in level properties and used by Text events and end bosses. These can be modified but are limited to 511 characters each, so longer strings will be truncated. For the standard function to display these strings, see showText.\nWhether the current game executable is hosting an online server.\nWhether the current weather effect is specified to only take effect on transparent tiles, i.e. appear to be limited to outdoors areas.\nThe current virtual key used to open the chat prompt in a multiplayer game, default value 0x54 ('T'). No matter the key (or mouse button), pressing the Shift key at the same time will open the chat prompt in Team Chat mode (in CTF games). Note that as a workaround to allow players to cycle and whatnot, pressing Ctrl+T will always open the chat prompt, even if jjKeyChat is set to 0 or something similarly inaccessible.\nShortcut global properties for the same-named jjLAYER properties on the same-indexed jjLayers objects.\nShortcut global properties for the same-named jjLAYER properties on the same-indexed jjLayers objects.\nShortcut global properties for the same-named jjLAYER properties on the same-indexed jjLayers objects.\nThe original eight layers placed in this level (i.e. jjLevelFileName) in JCS or some other level editor, 1-indexed to match the JCS numbers, e.g. jjLayers[4] for the main sprite layer or jjLayers[8] for the final background layer, regardless of what other code may have done to create new layers or alter their order. See the jjLAYER documentation above for further details.\nTitle of the current level, e.g. Dungeon Dilemma.\nThe number of local players.\nWhether the Low Detail video setting is enabled. When true, only jjLayers[8] and layers whose xSpeed/ySpeed both equal exactly 1 and whose xSpeedModel/ySpeedModel both equal LAYERSPEEDMODEL::NORMAL will be drawn, and even those only if hasTileMap and hasTiles are both true.\nIn competitive game modes, the score required to win, as set by the /maxscore command.\nThe current position of the mouse cursor relative to the top left corner of the game window. To convert these coordinates to coordinates within layer 4, you'll need to use the jjPLAYER cameraX and cameraY properties.\nMute Music, as seen in the Sound & Music Properties window.\nMusic Volume, as seen in the Sound & Music Properties window.\nWhether the game blocks movement during stopped games, as set by the /nomovement command.\nThe most jjOBJs that can ever exist at the same time. This equals 2048 in local Single Player/Coop, or 4096 otherwise.\nAll the objects currently in memory.\nThe current palette. See the jjPAL documentation above for further details.\nDoesn't work! Check back later.\nWhether the quirks mode is enabled, as set by the /quirks command.\nThe size of the current game window in pixels, usually 640 by 480.\nThe maximum size the game window is allowed to be in the current level/server.\nWhether the show max health option from the Plus menu is enabled.\nType of the current weather effect. Note that that this setting only influences the game if jjIsSnowing is true. Possible values are SNOW, FLOWER, RAIN, and LEAF, each spawning particles of the corresponding PARTICLE::Type.\nMute Sound, as seen in the Sound & Music Properties window.\nHow much health a player starts with, as set by the /starthealth command. Defaults to 5 in Single Player/Cooperative/Battle, or 3 in Capture The Flag.\nThe size of a player's subscreen in pixels. If there is only one local player and the game is not being viewed in 3D, these will be equal to jjResolutionHeight and jjResolutionWidth -- otherwise, either or both may be cut in half. The subscreen size includes, and is therefore not changed by the values of, jjBorderHeight and jjBorderWidth.\nThe size of a player's subscreen in pixels. If there is only one local player and the game is not being viewed in 3D, these will be equal to jjResolutionHeight and jjResolutionWidth -- otherwise, either or both may be cut in half. The subscreen size includes, and is therefore not changed by the values of, jjBorderHeight and jjBorderWidth.\nIn online multiplayer levels where this is false for the host, clients with sugar rushes will be kicked for hacking. This property is set to true between onLevelLoad and onLevelBegin if there are any events in the level that will spawn food objects. If you need to allow sugar rushes for another reason, e.g. jjPLAYER::startSugarRush, your script should set this property to true in onLevelBegin at the earliest. (See the description of jjWEAPON::allowed for more technical details, but as applied to the list of food events instead.)\nEach team's current score in team-based game modes and undefined value in other modes. Available indexes are BLUE, RED, GREEN and YELLOW.\nShortcut global properties for corresponding jjLAYER or jjLAYER::warpHorizon properties of the background layer, i.e. jjLayers[8].\nShortcut global properties for corresponding jjLAYER or jjLAYER::warpHorizon properties of the background layer, i.e. jjLayers[8].\nShortcut global properties for corresponding jjLAYER or jjLAYER::warpHorizon properties of the background layer, i.e. jjLayers[8].\nA shortcut property for jjLayers[8]'s textureSurface property. Returns true iff the property is anything other than SURFACE::UNTEXTURED. Set jjTexturedBGUsed to true to set to SURFACE::LEGACY, or to false to set to SURFACE::UNTEXTURED.\nThe number of (non-animated, non-flipped) tiles currently defined in the level, usually a multiple of 10. Can be increased using jjTilesFromTileset.\nStatic and animated tiles corresponding to tile IDs.\nFile name of the tileset used by the current level, e.g. castle1.j2t, all lowercase. The file extension (.j2t) will be included, but not the folder structure.\nEach tile's tile type: 0 for normal, 1 for translucent, 3 for invisible, and so on. Refer to your JCS.ini for the full list.\nThe triggers, as set by the Trigger Zone and Trigger Crate events.\nIn Roast Tag game mode, the player who is currently \"it\" or null if none. For the other special role in Roast Tag, see jjBottomFeeder.\nIf there are exactly two local players, how the window is divided into their two subscreens.\nHow fast water moves up or down when the water level is set (by event or function) with the \"Instant\" parameter set to false. Defaults to 1.\nWhich layer, 1-8, water is drawn in front of when visible. Defaults to 1. Set to any non-existing layer number to make water invisible. Note that this is a purely visual setting, and putting water behind the sprite layer will not prevent players from swimming in it.\nHow high the water currently is, in pixels.\nThe height the water is moving towards, in pixels. If the water level is set (by event or function) with the \"Instant\" parameter set to false, there will be a period in which jjWaterLevel and jjWaterTarget are two distinct values.\nVarious properties of the nine different weapons available to a player; see the jjWEAPON section. Possible constants appear in the appendix below, or you may use simple 1-indexed numbers instead.\n"
-
 result = {}
-lineId = 0
 
-# performance
-splitDescriptions = descriptions.split("\n")
-
-for line in full.split("\n"):
-    try:
-        # broken
-        description = splitDescriptions[lineId]
-    except IndexError:
-        result[line] = {
-            "scope": "*",
-            "prefix": line,
-            "body": [line],
-            "description": ""
-        }
-
-        lineId += 1
-
-    result[line] = {
-        "scope": "*",
-        "prefix": line,
-        "body": [line],
-        "description": ""
+for item in json.load(open("api.json")):
+    result[item["name"]] = {
+        "prefix": item["name"],
+        "body": item["name"],
+        "description": item["description"]
     }
-
-    lineId += 1
 
 with open("snippets.json", "w") as f:
     json.dump(result, f)
