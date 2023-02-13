@@ -9,12 +9,15 @@
 #include "STVmansion_dialogue.asc"
 
 ProgressManager @progress = ProgressManager();
+jjTEXTAPPEARANCE mailAppearance = jjTEXTAPPEARANCE(STRING::NORMAL);
 
 bool drawMail = false;
 int partId = 0;
 
 void onLevelBegin()
 {
+    mailAppearance.at = STRING::SPECIALSIGN;
+
     registerInteraction(Interaction(
         255, function(jjPLAYER @player) {
             player.xPos = 225 * 32;
@@ -54,8 +57,12 @@ void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(drawMail) {
-        jjAdd
-        canvas.drawString(jjResolutionWidth / 2, jjResolutionHeight / 2, );
+        canvas.drawString(jjResolutionWidth / 16, jjResolutionHeight / 4,
+            "|JazzMail|||||@|frank^mail.jazz|||||||@Hello, " +
+            jjLocalPlayers[1].nameUnformatted +
+            "@We invite you to a dinner at our mansion@(with multiple ||||||carrots||)@" + 
+            "If you're interested, please come by to @308 Negro City New Mexico Alberbeque|@Frank",
+            STRING::MEDIUM, mailAppearance);
     }
 
     return false;

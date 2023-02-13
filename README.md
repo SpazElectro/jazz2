@@ -13,4 +13,4 @@ paste it and name it "plus.code-snippets" (yes, remove the json and make it code
 and you're done!
 
 ### good syntax highlight
-download this extension for vsc: C/C++ Extension Pack
+download `C/C++ Extension Pack` for Visual Studio ****Code****
