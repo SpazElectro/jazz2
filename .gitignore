@@ -1,7 +1,7 @@
 *.log
-/mutators/weaponlist/packme/STVweaponlist_constants.asc
-/mutators/weaponlist/packme/STVweaponlist.mut
-/mutators/weaponlist/packme/weaponlist.zip
+mutators/weaponlist/packme/STVweaponlist_constants.asc
+mutators/weaponlist/packme/STVweaponlist.mut
+mutators/weaponlist/packme/weaponlist.zip
 
-# plusdocs == https://docs.jj2.plus/plus-angelscript.html
-plusdocs.md
+generation_scripts/snippets_build.json
+.vscode/plus.code-snippets
