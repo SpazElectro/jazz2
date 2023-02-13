@@ -1,0 +1,18 @@
+#pragma require "STVwinui.asc"
+#include "STVwinui.asc"
+
+WinControls_StackPanel@ testPanel = WinControls_StackPanel(
+    WinVector2(0, 0), WinVector2(400, 400)
+);
+
+void onLevelBegin() {
+    WinUI_Init();
+
+    jjConsole("Loaded!");
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    testPanel.draw(canvas);
+
+    return false;
+}

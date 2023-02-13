@@ -14,3 +14,6 @@ and you're done!
 
 ### good syntax highlight
 download `C/C++ Extension Pack` for Visual Studio ****Code****
+
+### notes
+a palette has a max of 256 colors

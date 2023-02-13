@@ -61,7 +61,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             "|JazzMail|||||@|frank^mail.jazz|||||||@Hello, " +
             jjLocalPlayers[1].nameUnformatted +
             "@We invite you to a dinner at our mansion@(with multiple ||||||carrots||)@" + 
-            "If you're interested, please come by to @308 Negro City New Mexico Alberbeque|@Frank",
+            "If you're interested, please come by to @308 Negro City New Mexico Alberbeque|@Frank" + 
+            "@(press up to accept)",
             STRING::MEDIUM, mailAppearance);
     }
 
