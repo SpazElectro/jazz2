@@ -1,0 +1,5 @@
+*.swp
+*.j2a
+__pycache__
+*.pyc
+icons-j2a
