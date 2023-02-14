@@ -7,3 +7,6 @@ generation_scripts/snippets_build.json
 .vscode/plus.code-snippets
 
 sprites/cache/*.*
+
+generation_scripts/iconbuilder/j2a/Anims-j2a
+generation_scripts/iconbuilder/j2a/Anims-j2a - Copy
