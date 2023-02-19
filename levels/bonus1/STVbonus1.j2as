@@ -1,0 +1,51 @@
+#include "STVwinui.asc"
+
+int GREEN;
+int RED;
+int GRAY;
+
+void onLevelBegin()
+{
+	WinUI_Init();
+
+	GREEN = WinColors_getColorById("GREEN");
+	RED = WinColors_getColorById("RED");
+	GRAY = WinColors_getColorById("GRAY");
+
+	jjConsole("onLevelBegin");
+}
+
+void onMain()
+{
+	for(int y = 0; y < jjResolutionHeight / 2; y++)
+	{
+		for(int x = 0; x < jjResolutionWidth; x++)
+		{
+			float fMiddlePoint = 0.5f;
+			float fRoadWidth = 0.6f;
+			float fClipWidth = fRoadWidth * 0.15f;
+
+			fRoadWidth *= 0.5f;
+
+			int nLeftGrass = (fMiddlePoint - fRoadWidth - fClipWidth) * jjResolutionWidth;
+			int nLeftClip = (fMiddlePoint - fRoadWidth) * jjResolutionWidth;
+
+			int nRightClip = (fMiddlePoint + fRoadWidth) * jjResolutionWidth;
+			int nRightGrass = (fMiddlePoint + fRoadWidth + fClipWidth) * jjResolutionWidth;
+
+			int nRow = jjResolutionHeight / 2 + y;
+
+			if(x >= 0 && x < nLeftGrass) 
+				jjDrawPixel(x, nRow, GREEN, SPRITE::MAPPING);
+			if(x >= nLeftGrass && x < nLeftClip)
+				jjDrawPixel(x, nRow, RED, SPRITE::MAPPING);
+			if(x >= nLeftClip && x < nRightClip)
+				jjDrawPixel(x, nRow, GRAY, SPRITE::MAPPING);
+			if(x >= nRightClip && x < nRightGrass)
+				jjDrawPixel(x, nRow, RED, SPRITE::MAPPING);
+			if(x >= nRightGrass && x < jjResolutionWidth)
+				jjDrawPixel(x, nRow, GREEN, SPRITE::MAPPING);
+			
+		}
+	}
+}
