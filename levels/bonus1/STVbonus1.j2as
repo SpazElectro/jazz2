@@ -8,18 +8,33 @@ float fMiddlePoint = 0.5f;
 float fRoadWidth = 0.6f;
 float fClipWidth = fRoadWidth * 0.15f;
 
-int resWidth = 800;
+int resWidth    = 0;
+int resHeight   = 0;
+int halfHeight  = 0;
 
-int nLeftGrass = (fMiddlePoint - fRoadWidth - fClipWidth) * resWidth;
-int nRightGrass = (fMiddlePoint + fRoadWidth + fClipWidth) * resWidth;
+int nLeftGrass  = 0;
+int nRightGrass = 0;
+int nLeftClip   = 0;
+int nRightClip  = 0;
 
-int nLeftClip = (fMiddlePoint - fRoadWidth) * resWidth;
-int nRightClip = (fMiddlePoint + fRoadWidth) * resWidth;
+jjPIXELMAP@ pixelMap;
 
 void onLevelBegin()
 {
 	fRoadWidth *= 0.5f;
-	
+
+	resWidth = jjResolutionWidth;
+	resHeight = jjResolutionHeight;
+
+	halfHeight = resHeight / 2;
+
+	nLeftGrass = (fMiddlePoint - fRoadWidth - fClipWidth) * resWidth;
+	nRightGrass = (fMiddlePoint + fRoadWidth + fClipWidth) * resWidth;
+	nLeftClip = (fMiddlePoint - fRoadWidth) * resWidth; 
+	nRightClip = (fMiddlePoint + fRoadWidth) * resWidth;
+
+	@pixelMap = jjPIXELMAP(resWidth, resHeight);
+
 	WinUI_Init();
 
 	GREEN = WinColors_getColorById("GREEN");
@@ -29,25 +44,36 @@ void onLevelBegin()
 	jjConsole("onLevelBegin");
 }
 
-void onMain()
-{
-	for(int y = 0; y < jjResolutionHeight / 2; y++)
-	{
-		for(int x = 0; x < jjResolutionWidth; x++)
-		{
-			int nRow = jjResolutionHeight / 2 + y;
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+  bool needRedraw = true;
+  if (jjGameTicks % 70 == 0)
+    needRedraw = true;
 
-			if(x >= 0 && x < nLeftGrass) 
-				jjDrawPixel(x, nRow, GREEN, SPRITE::MAPPING);
-			else if(x >= nLeftGrass && x < nLeftClip)
-				jjDrawPixel(x, nRow, RED, SPRITE::MAPPING);
-			else if(x >= nLeftClip && x < nRightClip)
-				jjDrawPixel(x, nRow, GRAY, SPRITE::MAPPING);
-			else if(x >= nRightClip && x < nRightGrass)
-				jjDrawPixel(x, nRow, RED, SPRITE::MAPPING);
-			else if(x >= nRightGrass && x < jjResolutionWidth)
-				jjDrawPixel(x, nRow, GREEN, SPRITE::MAPPING);
-			
-		}
-	}
+  if (needRedraw) {
+    for (int y = 0; y < halfHeight; y++) {
+      int nRow = halfHeight + y;
+      int x = 0;
+      for (; x < nLeftGrass; x++) {
+        pixelMap[x, nRow] = 6;
+      }
+      for (; x < nLeftClip; x++) {
+        pixelMap[x, nRow] = 2;
+      }
+      for (; x < nRightClip; x++) {
+        pixelMap[x, nRow] = 1;
+      }
+      for (; x < nRightGrass; x++) {
+        pixelMap[x, nRow] = 2;
+      }
+      for (; x < resWidth; x++) {
+        pixelMap[x, nRow] = 6;
+      }
+    }
+
+    pixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame]);
+  }
+
+  canvas.drawSprite(0, 0, ANIM::CUSTOM[0], 0, 0, SPRITE::NORMAL, param: WinColorsParam);
+
+  return false;
 }
