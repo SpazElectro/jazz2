@@ -8,7 +8,6 @@
 #include "STVinteract.asc"
 #include "STVmansion_dialogue.asc"
 
-ProgressManager @progress = ProgressManager();
 jjTEXTAPPEARANCE mailAppearance = jjTEXTAPPEARANCE(STRING::NORMAL);
 
 bool drawMail = false;
@@ -33,9 +32,9 @@ void onLevelBegin()
     registerInteraction(Interaction(
         253, function(jjPLAYER @player) {
             drawMail = true;
+        }, canCancel: true, cancelCallback: function(jjPLAYER @player) {
+            drawMail = false;
         }));
-
-    progress.saveObjects = false;
 
     jjConsole("[MS] started");
 }
@@ -61,33 +60,10 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             "|JazzMail|||||@|frank^mail.jazz|||||||@Hello, " +
             jjLocalPlayers[1].nameUnformatted +
             "@We invite you to a dinner at our mansion@(with multiple ||||||carrots||)@" + 
-            "If you're interested, please come by to @308 Negro City New Mexico Alberbeque|@Frank" + 
-            "@(press up to accept)",
+            "If you're interested, please come by to @308 Negro City New Mexico Alberbeque|@Frank||" + 
+            "@(press up to accept, |press down to discard)",
             STRING::MEDIUM, mailAppearance);
     }
 
     return false;
-}
-
-// saving
-void onChat(int clientID, string &in stringReceived, CHAT::Type chatType)
-{
-    if (stringReceived == "!save")
-    {
-        array<string> infoArray;
-        infoArray.insertLast(formatInt(jjGameTicks));
-
-        progress.save(jjPlayersWithClientID(clientID)[0], 1, infoArray);
-
-        jjConsole("Saved!");
-    }
-
-    if (stringReceived == "!load")
-    {
-        array<string> d = progress.load(jjPlayersWithClientID(clientID)[0], 1);
-
-        jjConsole("Game tick was: " + d[0]);
-
-        jjConsole("Loaded!");
-    }
 }
