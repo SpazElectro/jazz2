@@ -13,7 +13,7 @@ int watch_spectating;
 jjSTREAM recordStream;
 jjSTREAM watchStream;
 
-int playerHeaderLength = 7;
+int playerHeaderLength = 6;
 
 array<FakePlayer@> fakePlayers;
 
@@ -22,8 +22,8 @@ class FakePlayer {
 
     float xPos, yPos;
     
-    uint curAnim, curFrame;
-    uint fur;
+    uint curFrame;
+    int shieldType;
 
     int direction;
 
@@ -46,10 +46,9 @@ void onMain() {
                 recordStream.push(formatFloat(player.xPos));
                 recordStream.push(formatFloat(player.yPos));
                 
-                recordStream.push(formatUInt(player.curAnim));
                 recordStream.push(formatUInt(player.curFrame));
 
-                recordStream.push(formatUInt(player.fur));
+                recordStream.push(formatInt(player.shieldType));
                 recordStream.push(formatInt(player.direction));
             }
 	    }
@@ -72,6 +71,8 @@ void onMain() {
 
                 fakePlayers.removeRange(0, watch_playerCount);
 
+                jjLocalPlayers[1].cameraUnfreeze();
+
                 jjConsole("Watched to the end!");
                 break;
             } else if(items[0] == "CHAT_MESSAGE__________") {
@@ -90,16 +91,21 @@ void onMain() {
             watchStream.pop(items[3]);
             watchStream.pop(items[4]);
             watchStream.pop(items[5]);
-            watchStream.pop(items[6]);
 
             player.name = items[0];
             player.xPos = parseFloat(items[1]);
             player.yPos = parseFloat(items[2]);
-            player.curAnim = parseUInt(items[3]);
-            player.curFrame = parseUInt(items[4]);
-            player.fur = parseUInt(items[5]);
-            player.direction = parseInt(items[6]);
+            player.curFrame = parseUInt(items[3]);
+            player.shieldType = parseUInt(items[4]);
+            player.direction = parseInt(items[5]);
 	    }
+    }
+
+    if(isWatching) {
+        jjLocalPlayers[1].cameraFreeze(
+            fakePlayers[watch_spectating].xPos,
+            fakePlayers[watch_spectating].yPos,
+        true, true);
     }
 }
 
@@ -118,17 +124,32 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 
         return true;
     } else if(stringReceived == "!stop") {
-        jjConsole("Stopped recording!");
+        if(isRecording) {
+            jjConsole("Stopped recording!");
 
-        isRecording = false;
+            isRecording = false;
 
-        for (uint i = 0; i < playerHeaderLength * 2; i++)
-        {
-            recordStream.push("EOF");
+            for (uint i = 0; i < playerHeaderLength * 2; i++)
+            {
+                recordStream.push("EOF");
+            }
+            
+            recordStream.save("STVrecording_1.asdat");
+            recordStream.clear();
+        } else if(isWatching) {
+            jjConsole("Stopped watching!");
+            
+            isWatching = false;
+            watching = "";
+            watchStream.clear();
+
+            fakePlayers.removeRange(0, watch_playerCount);
+
+            jjLocalPlayers[1].cameraUnfreeze();
+        } else {
+            jjConsole("You're not watching or recording anything to stop!");
         }
-        
-        recordStream.save("STVrecording_1.asdat");
-        recordStream.clear();
+
         return true;
     } else if(stringReceived == "!watch") {
         if(isRecording) { jjConsole("You're already recording, you can't watch and record at the same time!"); return true; }
@@ -154,8 +175,9 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived.findFirst("!spectate") == 0) {
         int toSpectate = parseInt(stringReceived.split(" ")[0]);
         watch_spectating = toSpectate;
-    }
 
+        return true;
+    }
 
     return false;
 }
