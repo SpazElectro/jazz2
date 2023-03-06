@@ -665,6 +665,7 @@ void onLevelBegin()
 {
     uint profileAmount;
     jjSTREAM profilesFile("WLdata_profiles.asdat");
+    if(profilesFile.isEmpty()) save();
     profilesFile.pop(profile);
     profilesFile.pop(profileAmount);
 
