@@ -8,6 +8,7 @@ string watching = "";
 
 // middle of watching
 int watch_playerCount;
+int watch_spectating;
 
 jjSTREAM recordStream;
 jjSTREAM watchStream;
@@ -63,6 +64,27 @@ void onMain() {
             items.resize(playerHeaderLength);
 
             watchStream.pop(items[0]);
+
+            if(items[0] == "EOF") {
+                isWatching = false;
+                watching = "";
+                watchStream.clear();
+
+                fakePlayers.removeRange(0, watch_playerCount);
+
+                jjConsole("Watched to the end!");
+                break;
+            } else if(items[0] == "CHAT_MESSAGE__________") {
+                string sender;
+                string message;
+                watchStream.pop(sender);
+                watchStream.pop(message);
+                
+                jjConsole("[REPLAY] " + sender + ": " + message);
+                
+                return;
+            }
+
             watchStream.pop(items[1]);
             watchStream.pop(items[2]);
             watchStream.pop(items[3]);
@@ -77,14 +99,6 @@ void onMain() {
             player.curFrame = parseUInt(items[4]);
             player.fur = parseUInt(items[5]);
             player.direction = parseInt(items[6]);
-
-            if(player.name == "") {
-                isWatching = false;
-                watching = "";
-                watchStream.clear();
-
-                jjConsole("Watched to the end!");
-            }
 	    }
     }
 }
@@ -108,6 +122,11 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 
         isRecording = false;
 
+        for (uint i = 0; i < playerHeaderLength * 2; i++)
+        {
+            recordStream.push("EOF");
+        }
+        
         recordStream.save("STVrecording_1.asdat");
         recordStream.clear();
         return true;
@@ -128,22 +147,40 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
             fakePlayers.insertLast(FakePlayer());
         }
 
-        jjConsole("FakePlayers == PlayerCount: " + formatBool(fakePlayers.length == watch_playerCount));
-        
         return true;
     }
 
+    // watch commands
+    if(stringReceived.findFirst("!spectate") == 0) {
+        int toSpectate = parseInt(stringReceived.split(" ")[0]);
+        watch_spectating = toSpectate;
+    }
+
+
     return false;
+}
+
+void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
+    if(isRecording) {
+        recordStream.push("CHAT_MESSAGE__________");
+        recordStream.push(jjPlayers[clientID].nameUnformatted);
+        recordStream.push(stringReceived);
+    }
 }
 
 void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
     for (uint fpI = 0; fpI < fakePlayers.length; fpI++)
     {
         FakePlayer@ fplayer = fakePlayers[fpI];
-        canvas.drawSprite(
+
+        canvas.drawString(
+            int(fplayer.xPos) - jjGetStringWidth(fplayer.name, STRING::SMALL, normalTextAppearance) / 2,
+            int(fplayer.yPos) - 30, fplayer.name
+        );
+
+        canvas.drawSpriteFromCurFrame(
             int(fplayer.xPos), int(fplayer.yPos),
-            ANIM::SPAZ, uint8(fplayer.curAnim), uint8(fplayer.curFrame),
-            int8(fplayer.direction), SPRITE::PLAYER, fplayer.fur
+            uint(fplayer.curFrame), int8(fplayer.direction)
         );
     }
 }
