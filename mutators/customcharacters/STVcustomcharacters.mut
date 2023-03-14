@@ -1,0 +1,6 @@
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Mutator started!");
+}

@@ -15,5 +15,6 @@
         "xlocale": "cpp",
         "xstring": "cpp",
         "limits": "cpp"
-    }
+    },
+    "python.analysis.typeCheckingMode": "basic"
 }

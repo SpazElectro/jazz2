@@ -1,28 +1,28 @@
+#include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
 
-int main() {
-    char password[20];
-    int i, len;
+int main(int argc, char *argv[])
+{
+	if (argc == 2)
+	{
+		printf("Checking License: %s\n", argv[1]);
+		
+		int sum = 0;
 
-    len = sprintf(password, "mypassword");
+		for (int i = 0; i < strlen(argv[1]); i++)
+		{
+			sum += (int)argv[1][i];
+		}
 
-    for (i = 0; i < len; i++) {
-        password[i] ^= 0x1F;
-    }
+		if (sum == 916)
+		{
+			printf("Access Granted!\n");
+		} else {
+			printf("WRONG!\n");
+		}
+	} else {
+		printf("Usage: <key>\n");
+	}
 
-    printf("Enter password: ");
-    scanf("%s", password);
-
-    for (i = 0; i < len; i++) {
-        password[i] ^= 0x1F;
-    }
-
-    if (strcmp(password, "mypassword") == 0) {
-        printf("Access granted.\n");
-    } else {
-        printf("Access denied.\n");
-    }
-
-    return 0;
+	return 0;
 }
