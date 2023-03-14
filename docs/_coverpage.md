@@ -9,6 +9,6 @@
 - Challenges <small>and their answers</small>
 
 [Github](https://github.com/SpazElectro/jazz2)
-[Get Started](#introduction)
+[Introduction](/#Introduction)
 
 ![color](#66d855)

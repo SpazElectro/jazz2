@@ -1,3 +1,2 @@
-* [What is the JJ2+ AS guide?](/)
-** [Introduction](/#introduction)
-* [Guide](guide.md)
+* [What is the JJ2+ AS guide?](/README.md)
+* [Setup](setup.md)

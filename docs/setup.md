@@ -1,4 +1,4 @@
-# Easy way to test your mutator/j2as script.
+# The easiest ways to run your JJ2+ scripts!
 
 <!-- tabs:start -->
 
@@ -13,9 +13,6 @@ Windows python method
 #### **Linux**
 Linux python method
 
-#### **Mac**
-Mac python method
-
 <!-- tabs:end -->
 
 #### **Command prompt**
@@ -28,9 +25,6 @@ Windows Command prompt method
 
 #### **Linux**
 Linux Command prompt method
-
-#### **Mac**
-Mac Command prompt method
 
 <!-- tabs:end -->
 
