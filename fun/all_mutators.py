@@ -8,8 +8,9 @@ print("enabled")
 
 for x in os.listdir("F:\\Games\\Jazz2\\cache\\"):
     if x.endswith(".mut"):
-        pydirectinput.press("t")
-        time.sleep(0.1)
+        pydirectinput.write("t")
+        time.sleep(2)
         pydirectinput.write(f"/mutators {x} on")
+        time.sleep(1)
         pydirectinput.press("enter")
-        time.sleep(0.1)
+        time.sleep(2)
