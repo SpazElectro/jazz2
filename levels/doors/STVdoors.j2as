@@ -2,10 +2,8 @@
 #include "STVutil.asc"
 
 enum RoomType {
-    EMPTY = 0,
-    TEST,
-    TEST2,
-    TEST3
+    EMPTY,
+    TEST
 }
 
 namespace ROOMS {
@@ -40,19 +38,70 @@ namespace ROOMS {
             }
 
             // door
-            jjTileSet(4, startX + (endX), startY + (endY - 4), 174); // bottom
-            jjTileSet(4, startX + (endX), startY + (endY - 5), 164); // top
+            jjTileSet(4, startX + (endX), startY + (endY - 4), 284); // bottom
+            jjTileSet(4, startX + (endX), startY + (endY - 5), 274); // top
 
             if(!isStart) {
                 // next door
-                jjTileSet(4, startX, startY + (endY - 4), 174); // bottom
-                jjTileSet(4, startX, startY + (endY - 5), 164); // top
+                jjTileSet(4, startX, startY + (endY - 4), 284); // bottom
+                jjTileSet(4, startX, startY + (endY - 5), 274); // top
             }
+
+            // closet, for some reason doesnt work on layer 3, yay!
+            jjTileSet(3, startX + 4, startY + (endY - 5), 379);
+            jjTileSet(3, startX + 4, startY + (endY - 4), 379);
+        }
+    }
+
+    class TEST {
+        int endX = 10;
+        int endY = 10;
+
+        TEST() {}
+
+        void generate(int startX, int startY, bool isStart) {
+            // walls
+            for (uint i = 0; i < 10 - 2; i++)
+            {
+                jjTileSet(4, startX, startY + i, 87);
+            }
+            
+            for (uint i = 0; i < 10 - 2; i++)
+            {
+                jjTileSet(4, startX + endY, startY + i, 87);
+            }
+
+            // floor
+            for (uint i = 1; i < 10; i++)
+            {
+                jjTileSet(4, startX + i, startY+(10-3), 87);
+            }
+
+            // ceiling
+            for (uint i = 1; i < 10; i++)
+            {
+                jjTileSet(4, startX + i, startY, 87);
+            }
+
+            // door
+            jjTileSet(4, startX + (endX), startY + (endY - 4), 284); // bottom
+            jjTileSet(4, startX + (endX), startY + (endY - 5), 274); // top
+
+            if(!isStart) {
+                // next door
+                jjTileSet(4, startX, startY + (endY - 4), 284); // bottom
+                jjTileSet(4, startX, startY + (endY - 5), 274); // top
+            }
+
+            // closet
+            // jjTileSet(3, startX + 4, startY + (endY - 5), 379);
+            // jjTileSet(3, startX + 4, startY + (endY - 4), 379);
         }
     }
 };
 
 ROOMS::EMPTY@ EMPTY = ROOMS::EMPTY();
+ROOMS::TEST@ TEST = ROOMS::TEST();
 
 class Room
 {
@@ -63,7 +112,7 @@ class Room
 
     RoomType roomType;
 
-    Room(Vector2@ position, RoomType roomTypet, bool isStart) {
+    Room(Vector2@ position, RoomType roomType, bool isStart) {
         @this.position = position;
         @this.end = Vector2(position.x, position.y);
         this.roomType = roomType;
@@ -71,20 +120,29 @@ class Room
 
         if(roomType == RoomType::EMPTY) {
             this.end.x += EMPTY.endX;
+        } else if (roomType == RoomType::TEST) {
+            this.end.x += TEST.endX;
         }
     }
 
     void generate() {
-        EMPTY.generate(this.position.x, 0, this.isStart);
+        if(this.roomType == RoomType::EMPTY) {
+            EMPTY.generate(this.position.x, 0, this.isStart);
+        } else if(this.roomType == RoomType::TEST) {
+            TEST.generate(this.position.x, 0, this.isStart);
+        }
     }
 };
 
-Room@ testRoom = Room(Vector2(0, 0), RoomType::EMPTY, true);
+Room@ startRoom = Room(Vector2(0, 0), RoomType::EMPTY, true);
 
 Room@ lastRoom;
 
 void generateRoom() {
-    Room@ room = Room(Vector2(lastRoom.end.x, lastRoom.end.x), RoomType::TEST, false);
+    RoomType roomType;
+    if(getRandomNumber(1, 2) == 1) { roomType = RoomType::EMPTY; } else { roomType = RoomType::TEST; }
+
+    Room@ room = Room(Vector2(lastRoom.end.x, lastRoom.end.x), roomType, false);
     room.generate();
 
     @lastRoom = room;
@@ -94,10 +152,11 @@ void onLevelBegin() {
     jjConsole("Started!");
 
     jjLayers[4].generateSettableTileArea();
+    jjLayers[3].generateSettableTileArea();
     
-    testRoom.generate();
+    startRoom.generate();
 
-    @lastRoom = testRoom;
+    @lastRoom = startRoom;
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
