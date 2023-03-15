@@ -1,6 +1,87 @@
-// #pragma require "STVutil.asc"
-// #include "STVutil.asc"
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+enum RoomType {
+    EMPTY = 0,
+    TEST,
+    TEST2,
+    TEST3
+}
+
+namespace ROOMS {
+    class EMPTY {
+        int endX = 10;
+        int actualEndY = 10;
+        int endY = 0;
+
+        EMPTY() {}
+
+        void generate(int startX, int startY) {
+            // walls
+            for (uint i = 0; i < 10 - 2; i++)
+            {
+                jjTileSet(4, startX, startY + i, 12);
+            }
+            
+            for (uint i = 0; i < 10 - 2; i++)
+            {
+                jjTileSet(4, startX + actualEndY, startY + i, 12);
+            }
+
+            // floor
+            for (uint i = 1; i < 10; i++)
+            {
+                jjTileSet(4, startX + i, startY+(10-3), 12);
+            }
+
+            // ceiling
+            for (uint i = 1; i < 10; i++)
+            {
+                jjTileSet(4, startX + i, startY, 12);
+            }
+
+            // door
+            jjTileSet(4, startX + (endX), startY + (actualEndY - 4), 174); // bottom
+            jjTileSet(4, startX + (endX), startY + (actualEndY - 5), 164); // top
+
+        }
+    }
+};
+
+ROOMS::EMPTY@ EMPTY = ROOMS::EMPTY();
+
+class Room
+{
+    Vector2@ position;
+    Vector2@ end;
+
+    RoomType roomType;
+
+    Room(Vector2@ position, RoomType roomType) {
+        @this.position = position;
+        @this.end = Vector2(position.x, position.y);
+        this.roomType = roomType;
+
+        if(roomType == RoomType::EMPTY) {
+            this.end.x += EMPTY.endX;
+            this.end.y += EMPTY.endY;
+        }
+    }
+
+    void generate() {
+        EMPTY.generate(this.position.x, this.position.y);
+    }
+};
+
+Room@ testRoom = Room(Vector2(0, 0), RoomType::EMPTY);
+// Room@ testRoom2 = Room(Vector2(testRoom.end.x, testRoom.end.x), RoomType::TEST);
+// Room@ testRoom3 = Room(Vector2(testRoom2.end.x, testRoom2.end.x), RoomType::TEST2);
+// Room@ testRoom4 = Room(Vector2(testRoom3.end.x, testRoom3.end.x), RoomType::TEST3);
 
 void onLevelBegin() {
     jjConsole("Started!");
+
+    jjLayers[4].generateSettableTileArea();
+    
+    testRoom.generate();
 }
