@@ -11,12 +11,11 @@ enum RoomType {
 namespace ROOMS {
     class EMPTY {
         int endX = 10;
-        int actualEndY = 10;
-        int endY = 0;
+        int endY = 10;
 
         EMPTY() {}
 
-        void generate(int startX, int startY) {
+        void generate(int startX, int startY, bool isStart) {
             // walls
             for (uint i = 0; i < 10 - 2; i++)
             {
@@ -25,7 +24,7 @@ namespace ROOMS {
             
             for (uint i = 0; i < 10 - 2; i++)
             {
-                jjTileSet(4, startX + actualEndY, startY + i, 12);
+                jjTileSet(4, startX + endY, startY + i, 12);
             }
 
             // floor
@@ -41,9 +40,14 @@ namespace ROOMS {
             }
 
             // door
-            jjTileSet(4, startX + (endX), startY + (actualEndY - 4), 174); // bottom
-            jjTileSet(4, startX + (endX), startY + (actualEndY - 5), 164); // top
+            jjTileSet(4, startX + (endX), startY + (endY - 4), 174); // bottom
+            jjTileSet(4, startX + (endX), startY + (endY - 5), 164); // top
 
+            if(!isStart) {
+                // next door
+                jjTileSet(4, startX, startY + (endY - 4), 174); // bottom
+                jjTileSet(4, startX, startY + (endY - 5), 164); // top
+            }
         }
     }
 };
@@ -55,28 +59,36 @@ class Room
     Vector2@ position;
     Vector2@ end;
 
+    bool isStart;
+
     RoomType roomType;
 
-    Room(Vector2@ position, RoomType roomType) {
+    Room(Vector2@ position, RoomType roomTypet, bool isStart) {
         @this.position = position;
         @this.end = Vector2(position.x, position.y);
         this.roomType = roomType;
+        this.isStart = isStart;
 
         if(roomType == RoomType::EMPTY) {
             this.end.x += EMPTY.endX;
-            this.end.y += EMPTY.endY;
         }
     }
 
     void generate() {
-        EMPTY.generate(this.position.x, this.position.y);
+        EMPTY.generate(this.position.x, 0, this.isStart);
     }
 };
 
-Room@ testRoom = Room(Vector2(0, 0), RoomType::EMPTY);
-// Room@ testRoom2 = Room(Vector2(testRoom.end.x, testRoom.end.x), RoomType::TEST);
-// Room@ testRoom3 = Room(Vector2(testRoom2.end.x, testRoom2.end.x), RoomType::TEST2);
-// Room@ testRoom4 = Room(Vector2(testRoom3.end.x, testRoom3.end.x), RoomType::TEST3);
+Room@ testRoom = Room(Vector2(0, 0), RoomType::EMPTY, true);
+
+Room@ lastRoom;
+
+void generateRoom() {
+    Room@ room = Room(Vector2(lastRoom.end.x, lastRoom.end.x), RoomType::TEST, false);
+    room.generate();
+
+    @lastRoom = room;
+}
 
 void onLevelBegin() {
     jjConsole("Started!");
@@ -84,4 +96,12 @@ void onLevelBegin() {
     jjLayers[4].generateSettableTileArea();
     
     testRoom.generate();
+
+    @lastRoom = testRoom;
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    generateRoom();
+
+    return false;
 }
