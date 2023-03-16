@@ -10,3 +10,5 @@ sprites/cache/*.*
 
 generation_scripts/j2a/Anims-j2a
 generation_scripts/j2a/Anims-j2a - Copy
+
+__pycache__
