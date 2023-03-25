@@ -3,10 +3,8 @@
         "shd101wyy.markdown-preview-enhanced",
         "christian-kohler.path-intellisense",
         "esbenp.prettier-vscode",
-        "jeff-hykin.better-cpp-syntax",
-        "alefragnani.bookmarks",
-        "codezombiech.gitignore",
         "michelemelluso.gitignore",
-        "ms-python.vscode-pylance"
+        "ms-python.vscode-pylance",
+        "ms-vscode.cpptools"
     ]
 }
