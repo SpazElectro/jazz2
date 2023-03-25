@@ -3,7 +3,9 @@
 
 bool health_numberified = false;
 bool toggled_on = true;
-bool locatingItem = true;
+
+bool locatingItem = false;
+string itemBeingLocated = "";
 
 string settingsVersion = "0.1A";
 
@@ -32,8 +34,39 @@ void onLevelBegin() {
 }
 
 void onPlayer(jjPLAYER@ player) {
-    ammoX = jjMouseX;
-    ammoY = jjMouseY;
+    if(locatingItem) {
+        if(itemBeingLocated == "ammo") {
+            ammoX = jjMouseX;
+            ammoY = jjMouseY;
+        }
+        
+        if(itemBeingLocated == "health") {
+            healthX = jjMouseX;
+            healthY = jjMouseY;
+        }
+
+        if(isKeyDown(getKeyById("LeftMouse"))) {
+            locatingItem = false;
+        }
+    }
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!locateAmmo") {
+        locatingItem = true;
+        itemBeingLocated = "ammo";
+        
+        return true;
+    }
+
+    if(stringReceived == "!locateHealth") {
+        locatingItem = true;
+        itemBeingLocated = "health";
+        
+        return true;
+    }
+
+    return false;
 }
 
 // the magic starts here
@@ -49,6 +82,19 @@ int healthY = 0;
 // the magic ends here
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    // utils
+    if(locatingItem) {
+        int x = ammoX;
+        int y = ammoY;
+
+        if(itemBeingLocated == "health") { x = healthX; y = healthY; }
+
+        x += 10;
+        y -= 10;
+
+        canvas.drawString(x, y, "" + jjMouseX + " - " + jjMouseY, STRING::SMALL);
+    }
+
     if(toggled_on) {
         canvas.drawString(ammoX, ammoY, "" + player.ammo[player.currWeapon], ammoSize);
         return true;
