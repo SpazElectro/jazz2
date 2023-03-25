@@ -12,6 +12,14 @@ string settingsVersion = "0.1A";
 array<int> upgradedIds;
 array<int> unupgradedIds;
 
+int gridSize = 10;
+
+AnimatedSprite@ gun = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+
+int snap(int spot) {
+    return (spot + gridSize / 2) / gridSize * gridSize;
+}
+
 bool upgraded(jjPLAYER @player, int id)
 {
     return player.powerup[id];
@@ -38,8 +46,6 @@ int idToSprite(jjPLAYER@ player, int id)
         return unupgradedIds[id - 2];
     }
 }
-
-AnimatedSprite@ gun = AnimatedSprite(0, 0, 0, 0, 0.25, false);
 
 void saveSettings(jjSTREAM settingsStream) {
     settingsStream.push(settingsVersion);
@@ -87,14 +93,17 @@ void onLevelBegin() {
 
 void onPlayer(jjPLAYER@ player) {
     if(locatingItem) {
+        int x = snap(jjMouseX);
+        int y = snap(jjMouseY);
+        
         if(itemBeingLocated == "ammo") {
-            ammoX = jjMouseX;
-            ammoY = jjMouseY;
+            ammoX = x;
+            ammoY = y;
         }
         
         if(itemBeingLocated == "health") {
-            healthX = jjMouseX;
-            healthY = jjMouseY;
+            healthX = x;
+            healthY = y;
         }
 
         if(isKeyDown(getKeyById("LeftMouse"))) {
@@ -136,6 +145,7 @@ STRING::Size ammoSize = STRING::MEDIUM;
 
 int healthX = 0;
 int healthY = 0;
+int healthSize = 1;
 
 // the magic ends here
 
@@ -149,14 +159,16 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 
         x += 10;
 
-        canvas.drawString(x, y - 10, "" + jjMouseX + " - " + jjMouseY, STRING::SMALL);
-        canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - jjMouseX) + "x" + (jjResolutionHeight - jjMouseY), STRING::SMALL);
-        canvas.drawString(x, y - 30, "Center ratio: " + ((jjResolutionWidth / 2) - jjMouseX) + "x" + ((jjResolutionHeight / 2) - jjMouseY), STRING::SMALL);
-        canvas.drawString(x, y - 40, "Bottom center ratio: " + ((jjResolutionWidth / 2) - jjMouseX) + "x" + (jjResolutionHeight - jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 10, "" + snap(jjMouseX) + " - " + snap(jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 30, "Center ratio: " + ((jjResolutionWidth / 2) - snap(jjMouseX)) + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 40, "Bottom center ratio: " + ((jjResolutionWidth / 2) - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
     }
 
     if(toggled_on) {
-        canvas.drawString(ammoX, ammoY, "" + player.ammo[player.currWeapon], ammoSize);
+        string ammo = "" + player.ammo[player.currWeapon];
+        if(player.currWeapon == 1) ammo = "^";
+        canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
         
         gun.x = ammoX - 10;
         gun.y = ammoY;
@@ -167,7 +179,15 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(toggled_on) {
+        for(int i = 0; i < player.health; i++) {
+            canvas.drawResizedSprite(healthX + (i * (15 * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
+        }
 
         return true;
     } else { return false; }
 }
+
+// bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
+// bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
+// bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
+// bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
