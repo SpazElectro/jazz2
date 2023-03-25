@@ -9,6 +9,38 @@ string itemBeingLocated = "";
 
 string settingsVersion = "0.1A";
 
+array<int> upgradedIds;
+array<int> unupgradedIds;
+
+bool upgraded(jjPLAYER @player, int id)
+{
+    return player.powerup[id];
+}
+
+int idToSprite(jjPLAYER@ player, int id)
+{
+    if(id == 1) {
+        if(player.charCurr == CHAR::JAZZ) {
+            return 18; // jazz blaster
+        } else if(player.charCurr == CHAR::SPAZ) {
+            return 19; // spaz blaster
+        } else if(player.charCurr == CHAR::LORI) {
+            return 18; // temporary jazz blaster
+        }
+    }
+
+    if (upgraded(player, id))
+    {
+        return upgradedIds[id - 2];
+    }
+    else
+    {
+        return unupgradedIds[id - 2];
+    }
+}
+
+AnimatedSprite@ gun = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+
 void saveSettings(jjSTREAM settingsStream) {
     settingsStream.push(settingsVersion);
     settingsStream.push(health_numberified);
@@ -19,7 +51,7 @@ void saveSettings(jjSTREAM settingsStream) {
 void loadSettings(jjSTREAM settingsStream) {
     settingsStream.pop(settingsVersion);
     settingsStream.pop(health_numberified);
-    settingsStream.pop(toggled_on);
+    // settingsStream.pop(toggled_on);
 }
 
 void onLevelBegin() {
@@ -31,6 +63,26 @@ void onLevelBegin() {
     loadSettings(settingsStream);
 
     jjConsole("[CH] Loaded settings!");
+
+    unupgradedIds.insertLast(25); // bouncer
+    unupgradedIds.insertLast(29); // ice
+    unupgradedIds.insertLast(34); // seeker
+    unupgradedIds.insertLast(49); // rf
+    unupgradedIds.insertLast(57); // toaster
+    unupgradedIds.insertLast(59); // tnt
+    unupgradedIds.insertLast(62); // fireball
+    unupgradedIds.insertLast(68); // electroblaster
+
+    upgradedIds.insertLast(24); // bouncer
+    upgradedIds.insertLast(28); // ice
+    upgradedIds.insertLast(33); // seeker
+    upgradedIds.insertLast(48); // rf
+    upgradedIds.insertLast(56); // toaster
+    upgradedIds.insertLast(59); // tnt
+    upgradedIds.insertLast(61); // fireball
+    upgradedIds.insertLast(67); // electroblaster
+
+    jjConsole("[CH] Loaded ids!");
 }
 
 void onPlayer(jjPLAYER@ player) {
@@ -49,17 +101,23 @@ void onPlayer(jjPLAYER@ player) {
             locatingItem = false;
         }
     }
+
+    gun.setId(idToSprite(player, player.currWeapon));
+}
+
+void onMain() {
+    gun.update();
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(stringReceived == "!locateAmmo") {
+    if(stringReceived == "!locateammo") {
         locatingItem = true;
         itemBeingLocated = "ammo";
         
         return true;
     }
 
-    if(stringReceived == "!locateHealth") {
+    if(stringReceived == "!locatehealth") {
         locatingItem = true;
         itemBeingLocated = "health";
         
@@ -90,13 +148,19 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         if(itemBeingLocated == "health") { x = healthX; y = healthY; }
 
         x += 10;
-        y -= 10;
 
-        canvas.drawString(x, y, "" + jjMouseX + " - " + jjMouseY, STRING::SMALL);
+        canvas.drawString(x, y - 10, "" + jjMouseX + " - " + jjMouseY, STRING::SMALL);
+        canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - jjMouseX) + "x" + (jjResolutionHeight - jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 30, "Center ratio: " + ((jjResolutionWidth / 2) - jjMouseX) + "x" + ((jjResolutionHeight / 2) - jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 40, "Bottom center ratio: " + ((jjResolutionWidth / 2) - jjMouseX) + "x" + (jjResolutionHeight - jjMouseY), STRING::SMALL);
     }
 
     if(toggled_on) {
         canvas.drawString(ammoX, ammoY, "" + player.ammo[player.currWeapon], ammoSize);
+        
+        gun.x = ammoX - 10;
+        gun.y = ammoY;
+        gun.draw(canvas);
         return true;
     } else { return false; }
 }
