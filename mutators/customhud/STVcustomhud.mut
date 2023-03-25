@@ -1,6 +1,63 @@
 #pragma require "STVutil.asc"
 #include "STVutil.asc"
 
+bool health_numberified = false;
+bool toggled_on = true;
+bool locatingItem = true;
+
+string settingsVersion = "0.1A";
+
+void saveSettings(jjSTREAM settingsStream) {
+    settingsStream.push(settingsVersion);
+    settingsStream.push(health_numberified);
+    settingsStream.push(toggled_on);
+    settingsStream.save("STVcustomhud.asdat");
+}
+
+void loadSettings(jjSTREAM settingsStream) {
+    settingsStream.pop(settingsVersion);
+    settingsStream.pop(health_numberified);
+    settingsStream.pop(toggled_on);
+}
+
 void onLevelBegin() {
-    jjConsole("Started!");
+    jjConsole("[CH] Started!");
+    
+    jjSTREAM settingsStream("STVcustomhud.asdat");
+    
+    if(!settingsStream.isEmpty()) saveSettings(jjSTREAM());
+    loadSettings(settingsStream);
+
+    jjConsole("[CH] Loaded settings!");
+}
+
+void onPlayer(jjPLAYER@ player) {
+    ammoX = jjMouseX;
+    ammoY = jjMouseY;
+}
+
+// the magic starts here
+
+int ammoX = 0;
+int ammoY = 0;
+
+STRING::Size ammoSize = STRING::MEDIUM;
+
+int healthX = 0;
+int healthY = 0;
+
+// the magic ends here
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(toggled_on) {
+        canvas.drawString(ammoX, ammoY, "" + player.ammo[player.currWeapon], ammoSize);
+        return true;
+    } else { return false; }
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(toggled_on) {
+
+        return true;
+    } else { return false; }
 }
