@@ -15,6 +15,7 @@ array<int> unupgradedIds;
 int gridSize = 10;
 
 AnimatedSprite@ gun = AnimatedSprite(ANIM::AMMO, 0, 0, 0, 0.25, false);
+AnimatedSprite@ flag = AnimatedSprite(ANIM::FLAG, 0, 0, 0, 0.15, false);
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
@@ -28,14 +29,14 @@ bool upgraded(jjPLAYER @player, int id)
 int idToSprite(jjPLAYER@ player, int id)
 {
     if(id == 1) {
-        if(gun.id == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) gun.setId(ANIM::AMMO);
+        if(gun.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) gun.setAnimSet(ANIM::AMMO);
 
         if(player.charCurr == CHAR::JAZZ) {
             return 18; // jazz blaster
         } else if(player.charCurr == CHAR::SPAZ) {
             return 19; // spaz blaster
         } else if(player.charCurr == CHAR::LORI) {
-            gun.setId(ANIM::PLUS_AMMO);
+            gun.setAnimSet(ANIM::PLUS_AMMO);
             
             return 5;
         }
@@ -128,6 +129,7 @@ void loadSettings(jjSTREAM settingsStream) {
 
 void onLevelBegin() {
     jjConsole("[CH] Started!");
+    flag.animSet = ANIM::FLAG;
     
     jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
     
@@ -180,6 +182,7 @@ void onPlayer(jjPLAYER@ player) {
 
         if(isKeyDown(getKeyById("LeftMouse"))) {
             locatingItem = false;
+            saveSettings();
         }
     }
 
@@ -188,6 +191,7 @@ void onPlayer(jjPLAYER@ player) {
 
 void onMain() {
     gun.update();
+    flag.update();
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
@@ -272,6 +276,11 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
         if(jjGameMode == GAME::CTF) {
             //                                                                                                  5 is green or red - it's temporary
             canvas.drawResizedSprite(flagX, flagY, ANIM::FLAG, player.team == TEAM::RED ? 7 : (player.team == TEAM::BLUE ? 3 : 5), 0, flagSize, flagSize);
+            
+            flag.x = flagX;
+            flag.y = flagY;
+            flag.id = player.team == TEAM::RED ? 7 : (player.team == TEAM::BLUE ? 3 : 5);
+            flag.draw(canvas);
         }
 
         return true;
