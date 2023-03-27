@@ -1,7 +1,7 @@
 #pragma require "STVutil.asc"
 #include "STVutil.asc"
+#include "../../scripts/STVutil.asc"
 
-bool health_numberified = false;
 bool toggled_on = true;
 
 bool locatingItem = false;
@@ -14,7 +14,7 @@ array<int> unupgradedIds;
 
 int gridSize = 10;
 
-AnimatedSprite@ gun = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite@ gun = AnimatedSprite(ANIM::AMMO, 0, 0, 0, 0.25, false);
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
@@ -28,12 +28,16 @@ bool upgraded(jjPLAYER @player, int id)
 int idToSprite(jjPLAYER@ player, int id)
 {
     if(id == 1) {
+        if(gun.id == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) gun.setId(ANIM::AMMO);
+
         if(player.charCurr == CHAR::JAZZ) {
             return 18; // jazz blaster
         } else if(player.charCurr == CHAR::SPAZ) {
             return 19; // spaz blaster
         } else if(player.charCurr == CHAR::LORI) {
-            return 18; // temporary jazz blaster
+            gun.setId(ANIM::PLUS_AMMO);
+            
+            return 5;
         }
     }
 
@@ -43,29 +47,92 @@ int idToSprite(jjPLAYER@ player, int id)
     }
     else
     {
+        jjConsole("" + id + " - " + (id - 2));
         return unupgradedIds[id - 2];
     }
 }
 
-void saveSettings(jjSTREAM settingsStream) {
+jjSTREAM saveSettings() {
+    jjSTREAM settingsStream = jjSTREAM();
     settingsStream.push(settingsVersion);
-    settingsStream.push(health_numberified);
     settingsStream.push(toggled_on);
-    settingsStream.save("STVcustomhud.asdat");
+    
+    // the magic starts here
+    settingsStream.push(formatInt(ammoX));
+    settingsStream.push(formatInt(ammoY));
+    settingsStream.push(formatSize(ammoSize));
+    
+    settingsStream.push(formatInt(healthX));
+    settingsStream.push(formatInt(healthY));
+    settingsStream.push(formatInt(healthSize));
+    settingsStream.push(formatInt(healthPadding));
+    
+    settingsStream.push(formatInt(flagX));
+    settingsStream.push(formatInt(flagY));
+    settingsStream.push(formatInt(flagSize));
+    // the magic ends here
+
+    settingsStream.save("STVcustomhud-" + p.nameUnformatted + ".asdat");
+    
+    return settingsStream;
 }
 
 void loadSettings(jjSTREAM settingsStream) {
-    settingsStream.pop(settingsVersion);
-    settingsStream.pop(health_numberified);
-    // settingsStream.pop(toggled_on);
+    string version;
+    if (!settingsStream.pop(version)) {
+        jjConsole("[CH] Version not found!");
+        return;
+    }
+
+    if (version != settingsVersion) {
+        jjConsole("[CH] Version mismatch found!");
+        return;
+    }
+
+    if (!settingsStream.pop(toggled_on)) {
+        jjConsole("[CH] Settings not found!");
+        return;
+    }
+
+    string ammoXStr, ammoYStr, ammoSizeStr;
+    settingsStream.pop(ammoXStr);
+    settingsStream.pop(ammoYStr);
+    settingsStream.pop(ammoSizeStr);
+
+    ammoX = parseInt(ammoXStr);
+    ammoY = parseInt(ammoYStr);
+    ammoSize = parseSize(ammoSizeStr);
+
+    string healthXStr, healthYStr, healthSizeStr, healthPaddingStr;
+    
+    settingsStream.pop(healthXStr);
+    settingsStream.pop(healthYStr);
+    settingsStream.pop(healthSizeStr);
+    settingsStream.pop(healthPaddingStr);
+    
+    healthX = parseInt(healthXStr);
+    healthY = parseInt(healthYStr);
+    healthSize = parseInt(healthSizeStr);
+    healthPadding = parseInt(healthPaddingStr);
+
+    string flagXStr, flagYStr, flagSizeStr;
+    
+    settingsStream.pop(flagXStr);
+    settingsStream.pop(flagYStr);
+    settingsStream.pop(flagSizeStr);
+
+    flagX = parseInt(flagXStr);
+    flagY = parseInt(flagYStr);
+    flagSize = parseInt(flagSizeStr);
 }
 
 void onLevelBegin() {
     jjConsole("[CH] Started!");
     
-    jjSTREAM settingsStream("STVcustomhud.asdat");
+    jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
     
-    if(!settingsStream.isEmpty()) saveSettings(jjSTREAM());
+    jjConsole("" + settingsStream.isEmpty());
+    if(settingsStream.isEmpty()) settingsStream = saveSettings();
     loadSettings(settingsStream);
 
     jjConsole("[CH] Loaded settings!");
@@ -106,6 +173,11 @@ void onPlayer(jjPLAYER@ player) {
             healthY = y;
         }
 
+        if(itemBeingLocated == "flag") {
+            flagX = x;
+            flagY = y;
+        }
+
         if(isKeyDown(getKeyById("LeftMouse"))) {
             locatingItem = false;
         }
@@ -133,6 +205,13 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
+    if(stringReceived == "!locateflag") {
+        locatingItem = true;
+        itemBeingLocated = "flag";
+        
+        return true;
+    }
+
     return false;
 }
 
@@ -140,12 +219,16 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 
 int ammoX = 0;
 int ammoY = 0;
-
 STRING::Size ammoSize = STRING::MEDIUM;
 
-int healthX = 0;
-int healthY = 0;
-int healthSize = 1;
+int healthX       = 0;
+int healthY       = 0;
+int healthSize    = 1;
+int healthPadding = 15;
+
+int flagX      = 0;
+int flagY      = 0;
+int flagSize   = 1;
 
 // the magic ends here
 
@@ -156,6 +239,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         int y = ammoY;
 
         if(itemBeingLocated == "health") { x = healthX; y = healthY; }
+        if(itemBeingLocated == "flag") { x = flagX; y = flagY; }
 
         x += 10;
 
@@ -180,7 +264,14 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(toggled_on) {
         for(int i = 0; i < player.health; i++) {
-            canvas.drawResizedSprite(healthX + (i * (15 * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
+            canvas.drawResizedSprite(healthX + (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
+        }
+
+        // flag
+
+        if(jjGameMode == GAME::CTF) {
+            //                                                                                                  5 is green or red - it's temporary
+            canvas.drawResizedSprite(flagX, flagY, ANIM::FLAG, player.team == TEAM::RED ? 7 : (player.team == TEAM::BLUE ? 3 : 5), 0, flagSize, flagSize);
         }
 
         return true;
