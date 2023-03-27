@@ -252,6 +252,15 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     return false;
 }
 
+string determineTeamColor(TEAM::Color color) {
+    if(color == TEAM::RED) return "||";
+    if(color == TEAM::BLUE) return "|||";
+    if(color == TEAM::YELLOW) return "||||";
+    
+    // green
+    return "|";
+}
+
 // the magic starts here
 
 int ammoX = 0;
@@ -320,7 +329,7 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
             flag.id = player.team == TEAM::RED ? 7 : (player.team == TEAM::BLUE ? 3 : 5);
             flag.draw(canvas);
 
-            canvas.drawString(teamScoreX, teamScoreY, "" + jjTeamScore[player.team] + "/" + jjMaxScore, teamScoreSize);
+            canvas.drawString(teamScoreX, teamScoreY, "" + determineTeamColor(player.team) + jjTeamScore[player.team] + "/" + jjMaxScore, teamScoreSize);
         }
 
         return true;
