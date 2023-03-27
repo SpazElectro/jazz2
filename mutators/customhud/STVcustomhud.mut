@@ -48,7 +48,6 @@ int idToSprite(jjPLAYER@ player, int id)
     }
     else
     {
-        jjConsole("" + id + " - " + (id - 2));
         return unupgradedIds[id - 2];
     }
 }
@@ -133,7 +132,6 @@ void onLevelBegin() {
     
     jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
     
-    jjConsole("" + settingsStream.isEmpty());
     if(settingsStream.isEmpty()) settingsStream = saveSettings();
     loadSettings(settingsStream);
 
