@@ -22,8 +22,6 @@ int gridSize = 10;
 AnimatedSprite@ gun = AnimatedSprite(ANIM::AMMO, 0, 0, 0, 0.25, false);
 AnimatedSprite@ flag = AnimatedSprite(ANIM::FLAG, 0, 0, 0, 0.15, false);
 
-CustomMenu@ menu = CustomMenu();
-
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
 }
@@ -258,11 +256,6 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived == "!hudmenu") {
-        menu.toggle();
-        return true;
-    }
-
     return false;
 }
 
@@ -297,8 +290,6 @@ STRING::Size teamScoreSize = STRING::MEDIUM;
 // the magic ends here
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    menu.draw(canvas);
-
     // utils
     if(locatingItem) {
         int x = ammoX;
