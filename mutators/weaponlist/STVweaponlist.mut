@@ -45,7 +45,7 @@ class Button
 
     void input(jjPLAYER @player)
     {
-        if (jjKey[0x01] && this.debounce == false)
+        if (jjKey[0x1] && this.debounce == false)
         {
             if (checkCollision(
                     jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset,

@@ -130,7 +130,7 @@ class Button
     {
         if (jjMouseX >= x && jjMouseX <= x + width && jjMouseY >= y && jjMouseY <= y + 20)
         {
-            if (jjKey[0x01] && this.isDown == false)
+            if (jjKey[0x1] && this.isDown == false)
             {
                 this.isDown = true;
                 callback(this);
@@ -187,7 +187,7 @@ class ShopItem : Button
     {
         if (jjMouseX >= this.x && jjMouseX <= this.x + this.width && jjMouseY >= this.y && jjMouseY <= this.y + 20)
         {
-            if (jjKey[0x01] && this.isDown == false)
+            if (jjKey[0x1] && this.isDown == false)
             {
                 if (this.buy())
                 {
