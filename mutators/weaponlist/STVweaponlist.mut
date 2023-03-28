@@ -138,7 +138,7 @@ class MenuButton
             }
 
             if (this.showText)
-                canvas.drawString(jjResolutionWidth / 2 - 275 + this.xOffset, jjResolutionHeight / 2 - 150 + ((this.id + 1) * 50) + this.yOffset, this.text, string_size_to_size(this.size), STRING::NORMAL, 0);
+                canvas.drawString(jjResolutionWidth / 2 - 275 + this.xOffset, jjResolutionHeight / 2 - 150 + ((this.id + 1) * 50) + this.yOffset, this.text, parseSize(this.size), STRING::NORMAL, 0);
         }
     }
 
@@ -224,7 +224,7 @@ array<Button @> pageButtons = {Button(
                                        getButton(8).visible = true;
                                        getButton(9).visible = true;
                                        getButton(10).visible = true;
-                                       getButton(11).visible = true;
+                                    //    getButton(11).visible = true;
                                    })};
 
 array<Button @> bindModes = {Button(
@@ -326,107 +326,107 @@ array<MenuButton @> menu_buttons = {
                                                                                                                                                                                binding = true;
                                                                                                                                                                                showMenu = false;
                                                                                                                                                                            })),
-    MenuButton("Color On Upgrade", 3, colorUpgradedButtons),
-    // unfinished profiles
-    MenuButton("Profiles", 5, Button(
-                                  1, function(button) {
-                                      jjConsole("OOOOOOOOOOO");
+    MenuButton("Color On Upgrade", 3, colorUpgradedButtons)
+    // unfinished profiles // dont forget to remove the comma ^
+//     MenuButton("Profiles", 5, Button(
+// 1, function(button) {
+//     jjConsole("OOOOOOOOOOO");
 
-                                      button.setValue(false);
+//     button.setValue(false);
 
-                                      for (uint i = 0; i < menu_buttons.length(); i++)
-                                      {
-                                          getButton(i).visible = false;
-                                      }
+//     for (uint i = 0; i < menu_buttons.length(); i++)
+//     {
+//         getButton(i).visible = false;
+//     }
 
-                                      menu_buttons.insertLast(MenuButton("Back", -1, Button(
-                                                                                         1, function(button) {
-                                                                                             button.debounce = false;
+//     menu_buttons.insertLast(MenuButton("Back", -1, Button( 1, function(button) {
+//         button.debounce = false;
 
-                                                                                             getButton(0).visible = true;
-                                                                                             getButton(0).buttons[0].debounce = true;
+//         getButton(0).visible = true;
+//         getButton(0).buttons[0].debounce = true;
 
-                                                                                             TimerV(
-                                                                                                 35, function() {
-                                                                                                     getButton(0).buttons[0].debounce = false;
-                                                                                                 });
+//         TimerV(
+//             35, function() {
+//                 getButton(0).buttons[0].debounce = false;
+//             });
 
-                                                                                             menu_buttons[12].buttons[0].visible = false;
+//         menu_buttons[12].buttons[0].visible = false;
 
-                                                                                             for (uint i = 7; i < menu_buttons.length(); i++)
-                                                                                             {
-                                                                                                 getButton(i).visible = true;
-                                                                                             }
+//         for (uint i = 7; i < menu_buttons.length(); i++)
+//         {
+//             getButton(i).visible = true;
+//         }
 
-                                                                                             menu_buttons.resize(12);
+//         menu_buttons.resize(12);
 
-                                                                                             save();
+//         save();
 
-                                                                                             jjSTREAM file(profile + "_" + data_filename);
-                                                                                             file.pop(mode);
-                                                                                             file.pop(showIndex);
-                                                                                             file.pop(horizontal);
-                                                                                             file.pop(index_color);
-                                                                                             file.pop(ammo_color);
-                                                                                             file.pop(show_empty_ammo);
-                                                                                             file.pop(bind_open);
-                                                                                             file.pop(index_fontsize);
-                                                                                             file.pop(ammo_fontsize);
-                                                                                             file.pop(horizontal2);
-                                                                                             file.pop(color_upgraded_ammo);
-                                                                                             file.pop(color_upgraded_index);
+//         jjSTREAM file(profile + "_" + data_filename);
+//         file.pop(mode);
+//         file.pop(showIndex);
+//         file.pop(horizontal);
+//         file.pop(index_color);
+//         file.pop(ammo_color);
+//         file.pop(show_empty_ammo);
+//         file.pop(bind_open);
+//         file.pop(index_fontsize);
+//         file.pop(ammo_fontsize);
+//         file.pop(horizontal2);
+//         file.pop(color_upgraded_ammo);
+//         file.pop(color_upgraded_index);
 
-                                                                                             menu_buttons[0].buttons[0].setValue(false);
-                                                                                             menu_buttons[1].buttons[0].setValue(showIndex);
-                                                                                             menu_buttons[2].buttons[0].setValue(false);
-                                                                                             menu_buttons[3].buttons[0].setValue(index_color);
-                                                                                             menu_buttons[4].buttons[0].setValue(ammo_color);
-                                                                                             menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+//         menu_buttons[0].buttons[0].setValue(false);
+//         menu_buttons[1].buttons[0].setValue(showIndex);
+//         menu_buttons[2].buttons[0].setValue(false);
+//         menu_buttons[3].buttons[0].setValue(index_color);
+//         menu_buttons[4].buttons[0].setValue(ammo_color);
+//         menu_buttons[5].buttons[0].setValue(show_empty_ammo);
 
-                                                                                             if (index_fontsize == "small")
-                                                                                             {
-                                                                                                 menu_buttons[6].buttons[0].setValue(true);
-                                                                                                 menu_buttons[6].buttons[1].setValue(false);
-                                                                                             }
-                                                                                             else
-                                                                                             {
-                                                                                                 menu_buttons[6].buttons[0].setValue(false);
-                                                                                                 menu_buttons[6].buttons[1].setValue(true);
-                                                                                             }
+//         if (index_fontsize == "small")
+//         {
+//             menu_buttons[6].buttons[0].setValue(true);
+//             menu_buttons[6].buttons[1].setValue(false);
+//         }
+//         else
+//         {
+//             menu_buttons[6].buttons[0].setValue(false);
+//             menu_buttons[6].buttons[1].setValue(true);
+//         }
 
-                                                                                             if (ammo_fontsize == "small")
-                                                                                             {
-                                                                                                 menu_buttons[7].buttons[0].setValue(true);
-                                                                                                 menu_buttons[7].buttons[1].setValue(false);
-                                                                                             }
-                                                                                             else
-                                                                                             {
-                                                                                                 menu_buttons[7].buttons[0].setValue(false);
-                                                                                                 menu_buttons[7].buttons[1].setValue(true);
-                                                                                             }
+//         if (ammo_fontsize == "small")
+//         {
+//             menu_buttons[7].buttons[0].setValue(true);
+//             menu_buttons[7].buttons[1].setValue(false);
+//         }
+//         else
+//         {
+//             menu_buttons[7].buttons[0].setValue(false);
+//             menu_buttons[7].buttons[1].setValue(true);
+//         }
 
-                                                                                             if (mode == "toggle")
-                                                                                             {
-                                                                                                 menu_buttons[8].buttons[0].setValue(true);
-                                                                                                 menu_buttons[8].buttons[1].setValue(false);
-                                                                                             }
-                                                                                             else
-                                                                                             {
-                                                                                                 menu_buttons[8].buttons[0].setValue(false);
-                                                                                                 menu_buttons[8].buttons[1].setValue(true);
-                                                                                             }
-                                                                                         })));
+//         if (mode == "toggle")
+//         {
+//             menu_buttons[8].buttons[0].setValue(true);
+//             menu_buttons[8].buttons[1].setValue(false);
+//         }
+//         else
+//         {
+//             menu_buttons[8].buttons[0].setValue(false);
+//             menu_buttons[8].buttons[1].setValue(true);
+//         }
+//     })));
 
-                                      menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(99, function(button){})));
-                                      menu_buttons[12].size = "small";
-                                      menu_buttons[12].buttons[0].visible = true;
-                                      menu_buttons[12].xOffset = -10;
-                                      menu_buttons[12].yOffset = 20;
-                                      menu_buttons[12].buttons[0].xOffset = -10;
-                                      menu_buttons[12].buttons[0].yOffset = 20;
+//     menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(99, function(button){})));
+//     menu_buttons[12].size = "small";
+//     menu_buttons[12].buttons[0].visible = true;
+//     menu_buttons[12].xOffset = -10;
+//     menu_buttons[12].yOffset = 20;
+//     menu_buttons[12].buttons[0].xOffset = -10;
+//     menu_buttons[12].buttons[0].yOffset = 20;
 
-                                      createProfileButtons();
-                                  }))};
+//     createProfileButtons();
+// }))
+};
 
 string data_filename = "WLdata_data.asdat";
 string profiles_filename = "WLdata_profiles.asdat";
@@ -615,23 +615,6 @@ void createProfileButton(int i, int position = 0, string prfName = "3dkwkvmwlvne
         d);
 }
 
-STRING::Size string_size_to_size(string str)
-{
-    if (str == "small" or str == "tiny")
-    {
-        return STRING::SMALL;
-    }
-    else if (str == "medium")
-    {
-        return STRING::MEDIUM;
-    }
-    else if (str == "large" or str == "big")
-    {
-        return STRING::LARGE;
-    }
-    return STRING::MEDIUM;
-}
-
 void save()
 {
     jjSTREAM file();
@@ -650,7 +633,7 @@ void save()
     file.save(profile + "_" + data_filename);
 
     jjSTREAM profilesFile();
-    profilesFile.push(profile); // default profile
+    profilesFile.push(profile); // current profile
     profilesFile.push(profiles.length());
 
     for (uint i = 0; i < profiles.length(); i++)
@@ -684,7 +667,7 @@ void onLevelBegin()
     menu_buttons[8].visible = false;
     menu_buttons[9].visible = false;
     menu_buttons[10].visible = false;
-    menu_buttons[11].visible = false; // unfinished profiles
+    // menu_buttons[11].visible = false; // unfinished profiles
     menu_buttons[6].buttons[0].hoverText = "SMALL";
     menu_buttons[6].buttons[1].hoverText = "MEDIUM";
     menu_buttons[7].buttons[0].hoverText = "SMALL";
@@ -692,7 +675,7 @@ void onLevelBegin()
     menu_buttons[10].buttons[0].hoverText = "AMMO";
     menu_buttons[10].buttons[1].hoverText = "INDEX";
 
-    jjConsole("[WL] Type ! wl help for a list of commands.");
+    jjConsole("[WL] Type !wl help for a list of commands.");
     jjConsole("[WL] Press F1 to open the settings menu.");
 
     // hardcoded stuff
@@ -1416,11 +1399,11 @@ int getColorValue(string mode)
     }
 }
 
-int getColorValue(bool boolean)
+int getColorValue(bool whiteOrBlack)
 {
     if (jjColorDepth == 16)
     {
-        if (boolean)
+        if (whiteOrBlack)
         {
             return 255;
         }
@@ -1431,7 +1414,7 @@ int getColorValue(bool boolean)
     }
     else
     {
-        if (boolean)
+        if (whiteOrBlack)
         {
             return 255;
         }
@@ -1517,9 +1500,9 @@ bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
                 coloring2 = "||||";
 
             if (showIndex)
-                canvas.drawString(indexX, indexY, coloring + i, string_size_to_size(index_fontsize), STRING::NORMAL, 0);
+                canvas.drawString(indexX, indexY, coloring + i, parseSize(index_fontsize), STRING::NORMAL, 0);
 
-            canvas.drawString(x, y, coloring2 + "x" + player.ammo[i], string_size_to_size(ammo_fontsize), STRING::NORMAL, 0);
+            canvas.drawString(x, y, coloring2 + "x" + player.ammo[i], parseSize(ammo_fontsize), STRING::NORMAL, 0);
 
             if (color_upgraded_index && upgraded(player, i))
                 coloring = "";
@@ -1540,8 +1523,8 @@ bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
         }
 
         canvas.drawRectangle(jjResolutionWidth / 2 - 300, jjResolutionHeight / 2 - 200, 600, 400, BACKGROUND_COLOR, SPRITE::BLEND_NORMAL, 128);
-        canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 10, "Weapon List", string_size_to_size("medium"), STRING::NORMAL, 0);
-        canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 390, "Weapon List, Made by Spaz Electro, Version: v" + version, string_size_to_size("small"), STRING::NORMAL, 0);
+        canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 10, "Weapon List", STRING::MEDIUM, STRING::NORMAL, 0);
+        canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 390, "Weapon List, Made by Spaz Electro, Version: v" + version, STRING::SMALL, STRING::NORMAL, 0);
 
         for (uint i = 0; i < menu_buttons.length(); i++)
         {
