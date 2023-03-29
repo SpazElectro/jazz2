@@ -213,8 +213,6 @@ void onPlayer(jjPLAYER@ player) {
 void onMain() {
     gun.update();
     flag.update();
-
-    menu.update();
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
