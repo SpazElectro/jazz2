@@ -93,6 +93,11 @@ jjSTREAM saveSettings() {
     return settingsStream;
 }
 
+void backupData() {
+    jjSTREAM vstream("STVcustomhud-" + p.nameUnformatted + ".asdat");
+    vstream.save("STVcustomhud-restore-" + p.nameUnformatted + ".asdat");
+}
+
 void loadSettings(jjSTREAM settingsStream) {
     string version;
     if (!settingsStream.pop(version)) {
@@ -101,8 +106,10 @@ void loadSettings(jjSTREAM settingsStream) {
     }
 
     if (version != settingsVersion) {
-        jjConsole("[CH] Version mismatch found! Your settings have not been loaded, ");
-        jjConsole("      changing any of the options will lead into your old settings being overwritten!");
+        backupData();
+        jjConsole("[CH] Version mismatch found! Your old settings have been saved");
+        jjConsole("... into STVcustomhud-restore-" + p.nameUnformatted + ".asdat");
+        saveSettings();
         return;
     }
 
@@ -170,7 +177,7 @@ void onLevelBegin() {
     flag.animSet = ANIM::FLAG;
     
     jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
-    
+    jjConsole("" + settingsStream.isEmpty());
     if(settingsStream.isEmpty()) settingsStream = saveSettings();
     loadSettings(settingsStream);
 
@@ -274,6 +281,8 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         gridSize = snapping;
 
         jjConsole("[CH] Snapping has been set to " + snapping);
+
+        return true;
     }
 
     if(stringReceived == "!hudhelp") {
@@ -343,13 +352,16 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     }
 
     if(toggled_on) {
-        string ammo = "" + player.ammo[player.currWeapon];
-        if(player.currWeapon == 1) ammo = "^"; // infinity
-        canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
-        
-        gun.x = ammoX - 10;
-        gun.y = ammoY;
-        gun.draw(canvas);
+        if(ammoEnabled) {
+            string ammo = "" + player.ammo[player.currWeapon];
+            if(player.currWeapon == 1) ammo = "^"; // infinity
+            canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
+            
+            gun.x = ammoX - 10;
+            gun.y = ammoY;
+            gun.draw(canvas);
+        }
+
         return true;
     } else { return false; }
 }
