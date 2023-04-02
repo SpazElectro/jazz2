@@ -1,10 +1,9 @@
 // TODO: use correct blaster icon
 
+#pragma name "Custom HUD"
 #pragma require "STVutil.asc"
-#pragma require "STVmenu.asc"
 
 #include "STVutil.asc"
-#include "STVmenu.asc"
 
 // for intellisense
 #include "../../scripts/STVutil.asc"
@@ -14,7 +13,7 @@ bool toggled_on = true;
 bool locatingItem = false;
 string itemBeingLocated = "";
 
-string settingsVersion = "0.1A";
+string settingsVersion = "0.1B";
 
 array<int> upgradedIds;
 array<int> unupgradedIds;
