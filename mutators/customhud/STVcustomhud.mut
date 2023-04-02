@@ -37,12 +37,12 @@ bool healthEnabled = true;
 int flagX         = 400;
 int flagY         = 395;
 int flagSize      = 1;
-bool flagEnabled = true;
+bool flagEnabled = false;
 
 int teamScoreX    = 4;
 int teamScoreY    = 12;
 STRING::Size teamScoreSize = STRING::MEDIUM;
-bool teamScoreEnabled = true;
+bool teamScoreEnabled = false;
 
 // the magic ends here
 
@@ -303,6 +303,11 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     }
 
     if(stringReceived.findFirst("!gridsize") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[CH] Provide a number to set the grid size to!");
+            return true;
+        }
+
         int snapping = parseInt(stringReceived.split(" ")[1]);
 
         gridSize = snapping;
@@ -314,7 +319,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 
     if(stringReceived.findFirst("!toggleelement") == 0) {
         if(stringReceived.split(" ").length() == 1) {
-            jjConsole("[CH] Provide something to toggle, options: ammo, health, flag, teamscore");
+            jjConsole("[CH] Provide something to toggle, options: ammo, health, flag, teamscore!");
             return true;
         }
 
@@ -329,7 +334,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         } else if(element == "teamscore") {
             teamScoreEnabled = !teamScoreEnabled;
         } else {
-            jjConsole("[CH] " + element + " does not exist, options: ammo, health, flag, teamscore");
+            jjConsole("[CH] " + element + " does not exist, options: ammo, health, flag, teamscore!");
         }
 
         return true;
