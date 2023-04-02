@@ -1,3 +1,5 @@
+// TODO: use correct blaster icon
+
 #pragma require "STVutil.asc"
 #pragma require "STVmenu.asc"
 
@@ -18,6 +20,31 @@ array<int> upgradedIds;
 array<int> unupgradedIds;
 
 int gridSize = 10;
+
+// the magic starts here
+
+int ammoX = 700;
+int ammoY = 585;
+STRING::Size ammoSize = STRING::MEDIUM;
+bool ammoEnabled = true;
+
+int healthX       = 785;
+int healthY       = 10;
+int healthSize    = 1;
+int healthPadding = 15;
+bool healthEnabled = true;
+
+int flagX         = 400;
+int flagY         = 395;
+int flagSize      = 1;
+bool flagEnabled = true;
+
+int teamScoreX    = 4;
+int teamScoreY    = 12;
+STRING::Size teamScoreSize = STRING::MEDIUM;
+bool teamScoreEnabled = true;
+
+// the magic ends here
 
 AnimatedSprite@ gun = AnimatedSprite(ANIM::AMMO, 0, 0, 0, 0.25, false);
 AnimatedSprite@ flag = AnimatedSprite(ANIM::FLAG, 0, 0, 0, 0.15, false);
@@ -66,23 +93,23 @@ jjSTREAM saveSettings() {
     settingsStream.push(formatInt(ammoX));
     settingsStream.push(formatInt(ammoY));
     settingsStream.push(formatSize(ammoSize));
-    settingsStream.push(formatBool(ammoEnabled));
+    settingsStream.push(ammoEnabled);
     
     settingsStream.push(formatInt(healthX));
     settingsStream.push(formatInt(healthY));
     settingsStream.push(formatInt(healthSize));
     settingsStream.push(formatInt(healthPadding));
-    settingsStream.push(formatBool(healthEnabled));
+    settingsStream.push(healthEnabled);
     
     settingsStream.push(formatInt(flagX));
     settingsStream.push(formatInt(flagY));
     settingsStream.push(formatInt(flagSize));
-    settingsStream.push(formatBool(flagEnabled));
+    settingsStream.push(flagEnabled);
     
     settingsStream.push(formatInt(teamScoreX));
     settingsStream.push(formatInt(teamScoreY));
     settingsStream.push(formatSize(teamScoreSize));
-    settingsStream.push(formatBool(teamScoreEnabled));
+    settingsStream.push(teamScoreEnabled);
     
     settingsStream.push(formatInt(gridSize));
 
@@ -113,58 +140,51 @@ void loadSettings(jjSTREAM settingsStream) {
         return;
     }
 
-    if (!settingsStream.pop(toggled_on)) {
-        jjConsole("[CH] Settings not found!");
-        return;
-    }
+    settingsStream.pop(toggled_on);
 
-    string ammoXStr, ammoYStr, ammoSizeStr, ammoEnabledStr;
+    string ammoXStr, ammoYStr, ammoSizeStr;
     settingsStream.pop(ammoXStr);
     settingsStream.pop(ammoYStr);
     settingsStream.pop(ammoSizeStr);
-    settingsStream.pop(ammoEnabledStr);
+    settingsStream.pop(ammoEnabled);
 
     ammoX = parseInt(ammoXStr);
     ammoY = parseInt(ammoYStr);
     ammoSize = parseSize(ammoSizeStr);
-    ammoEnabled = parseBool(ammoEnabledStr);
 
-    string healthXStr, healthYStr, healthSizeStr, healthPaddingStr, healthEnabledStr;
+    string healthXStr, healthYStr, healthSizeStr, healthPaddingStr;
     
     settingsStream.pop(healthXStr);
     settingsStream.pop(healthYStr);
     settingsStream.pop(healthSizeStr);
     settingsStream.pop(healthPaddingStr);
-    settingsStream.pop(healthEnabledStr);
+    settingsStream.pop(healthEnabled);
     
     healthX = parseInt(healthXStr);
     healthY = parseInt(healthYStr);
     healthSize = parseInt(healthSizeStr);
     healthPadding = parseInt(healthPaddingStr);
-    healthEnabled = parseBool(healthEnabledStr);
 
-    string flagXStr, flagYStr, flagSizeStr, flagEnabledStr;
+    string flagXStr, flagYStr, flagSizeStr;
     
     settingsStream.pop(flagXStr);
     settingsStream.pop(flagYStr);
     settingsStream.pop(flagSizeStr);
-    settingsStream.pop(flagEnabledStr);
+    settingsStream.pop(flagEnabled);
 
     flagX = parseInt(flagXStr);
     flagY = parseInt(flagYStr);
     flagSize = parseInt(flagSizeStr);
-    flagEnabled = parseBool(flagEnabledStr);
 
-    string teamScoreXStr, teamScoreYStr, teamScoreSizeStr, teamScoreEnabledStr;
+    string teamScoreXStr, teamScoreYStr, teamScoreSizeStr;
     settingsStream.pop(teamScoreXStr);
     settingsStream.pop(teamScoreYStr);
     settingsStream.pop(teamScoreSizeStr);
-    settingsStream.pop(teamScoreEnabledStr);
+    settingsStream.pop(teamScoreEnabled);
 
     teamScoreX = parseInt(teamScoreXStr);
     teamScoreY = parseInt(teamScoreYStr);
     teamScoreSize = parseSize(teamScoreSizeStr);
-    teamScoreEnabled = parseBool(teamScoreEnabledStr);
 
     string snappingStr;
     settingsStream.pop(snappingStr);
@@ -173,15 +193,18 @@ void loadSettings(jjSTREAM settingsStream) {
 }
 
 void onLevelBegin() {
-    jjConsole("[CH] Started!");
+    // jjConsole("[CH] Started!");
     flag.animSet = ANIM::FLAG;
     
     jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
-    jjConsole("" + settingsStream.isEmpty());
-    if(settingsStream.isEmpty()) settingsStream = saveSettings();
-    loadSettings(settingsStream);
+    
+    if(settingsStream.isEmpty()) {
+        settingsStream = saveSettings();
+    }
 
-    jjConsole("[CH] Loaded settings!");
+    loadSettings(jjSTREAM("STVcustomhud-" + p.nameUnformatted + ".asdat"));
+
+    // jjConsole("[CH] Loaded settings!");
 
     unupgradedIds.insertLast(25); // bouncer
     unupgradedIds.insertLast(29); // ice
@@ -201,7 +224,7 @@ void onLevelBegin() {
     upgradedIds.insertLast(61); // fireball
     upgradedIds.insertLast(67); // electroblaster
 
-    jjConsole("[CH] Loaded ids!");
+    // jjConsole("[CH] Loaded ids!");
 }
 
 void onPlayer(jjPLAYER@ player) {
@@ -231,6 +254,7 @@ void onPlayer(jjPLAYER@ player) {
 
         if(isKeyDown(getKeyById("LeftMouse"))) {
             locatingItem = false;
+            itemBeingLocated = "";
             saveSettings();
         }
     }
@@ -247,52 +271,79 @@ void onMain() {
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(stringReceived == "!locateammo") {
+    if(stringReceived.findFirst("!locate") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[CH] Provide something to toggle, options: ammo, health, flag, teamscore");
+            return true;
+        }
+
+        string element = stringReceived.split(" ")[1];
+
+        if(element != "ammo" && element != "health" && element != "flag" && element != "teamscore") {
+            jjConsole("[CH] " + element + " does not exist, options: ammo, health, flag, teamscore");
+            return true;
+        }
+
+        itemBeingLocated = element;
         locatingItem = true;
-        itemBeingLocated = "ammo";
+
+        return true;
+    }
+
+    if(stringReceived == "!hudenable") {
+        toggled_on = true;
+
+        return true;
+    }
+
+    if(stringReceived == "!huddisable") {
+        toggled_on = false;
         
         return true;
     }
 
-    if(stringReceived == "!locatehealth") {
-        locatingItem = true;
-        itemBeingLocated = "health";
-        
-        return true;
-    }
-
-    if(stringReceived == "!locateflag") {
-        locatingItem = true;
-        itemBeingLocated = "flag";
-        
-        return true;
-    }
-
-    if(stringReceived == "!locateteamscore") {
-        locatingItem = true;
-        itemBeingLocated = "teamscore";
-        
-        return true;
-    }
-
-    if(stringReceived.findFirst("!setsnapping") == 0) {
+    if(stringReceived.findFirst("!gridsize") == 0) {
         int snapping = parseInt(stringReceived.split(" ")[1]);
 
         gridSize = snapping;
 
-        jjConsole("[CH] Snapping has been set to " + snapping);
+        jjConsole("[CH] Grid size has been set to " + snapping);
+
+        return true;
+    }
+
+    if(stringReceived.findFirst("!toggleelement") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[CH] Provide something to toggle, options: ammo, health, flag, teamscore");
+            return true;
+        }
+
+        string element = stringReceived.split(" ")[1];
+
+        if(element == "ammo") {
+            ammoEnabled = !ammoEnabled;
+        } else if(element == "health") {
+            healthEnabled = !healthEnabled;
+        } else if(element == "flag") {
+            flagEnabled = !flagEnabled;
+        } else if(element == "teamscore") {
+            teamScoreEnabled = !teamScoreEnabled;
+        } else {
+            jjConsole("[CH] " + element + " does not exist, options: ammo, health, flag, teamscore");
+        }
 
         return true;
     }
 
     if(stringReceived == "!hudhelp") {
         jjConsole("----------------");
-        jjConsole("!locateammo");
-        jjConsole("!locatehealth");
-        jjConsole("!locateflag");
-        jjConsole("!locateteamscore");
-        jjConsole("!setsnapping");
+        jjConsole("!locate - Locate a custom HUD element from the parameter");
+        jjConsole("!gridsize - Sets the locating grid size to the parameter");
+        jjConsole("!hudenable - Enables the custom HUD");
+        jjConsole("!huddisable - Disables the custom HUD");
+        jjConsole("!toggleelement - Toggle a custom HUD element");
         jjConsole("----------------");
+
         return true;
     }
 
@@ -308,31 +359,6 @@ string determineTeamColor(TEAM::Color color) {
     return "|";
 }
 
-// the magic starts here
-
-int ammoX = 0;
-int ammoY = 0;
-STRING::Size ammoSize = STRING::MEDIUM;
-bool ammoEnabled = true;
-
-int healthX       = 0;
-int healthY       = 0;
-int healthSize    = 1;
-int healthPadding = 15;
-bool healthEnabled = true;
-
-int flagX         = 0;
-int flagY         = 0;
-int flagSize      = 1;
-bool flagEnabled = true;
-
-int teamScoreX    = 0;
-int teamScoreY    = 0;
-STRING::Size teamScoreSize = STRING::MEDIUM;
-bool teamScoreEnabled = true;
-
-// the magic ends here
-
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     // utils
     if(locatingItem) {
@@ -344,6 +370,19 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         if(itemBeingLocated == "teamScore") { x = teamScoreX; y = teamScoreY; }
 
         x += 10;
+
+        if(x + jjGetStringWidth("Bottom center ratio: " + ((jjResolutionWidth / 2) - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
+            x -= 200;
+        }
+
+        if (y <= 50) {
+            y += 80;
+        }
+
+        if(itemBeingLocated == "flag") {
+            x += 60;
+            y -= 20;
+        }
 
         canvas.drawString(x, y - 10, "" + snap(jjMouseX) + " - " + snap(jjMouseY), STRING::SMALL);
         canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
@@ -359,6 +398,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             
             gun.x = ammoX - 10;
             gun.y = ammoY;
+            gun.spriteMode = SPRITE::PLAYER;
+            gun.spriteModeParam = player.clientID;
             gun.draw(canvas);
         }
 
@@ -376,16 +417,15 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
 
         // flag
 
-        if(jjGameMode == GAME::CTF) {
-            
+        if(jjGameMode == GAME::CTF || itemBeingLocated == "flag") {
             flag.x = flagX;
             flag.y = flagY;
-            //                                                                                                  5 is green or red - it's temporary
+            //                                                                        5 is green or red - it's temporary
             flag.id = player.team == TEAM::RED ? 7 : (player.team == TEAM::BLUE ? 3 : 5);
             flag.draw(canvas);
-
-            if(teamScoreEnabled) canvas.drawString(teamScoreX, teamScoreY, "" + determineTeamColor(player.team) + jjTeamScore[player.team] + "/" + jjMaxScore, teamScoreSize);
         }
+
+        if((jjGameMode == GAME::CTF && teamScoreEnabled) || itemBeingLocated == "teamscore" || itemBeingLocated == "flag") canvas.drawString(teamScoreX, teamScoreY, "" + determineTeamColor(player.team) + jjTeamScore[player.team] + "/" + jjMaxScore, teamScoreSize);
 
         return true;
     } else { return false; }
