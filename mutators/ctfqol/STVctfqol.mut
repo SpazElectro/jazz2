@@ -7,8 +7,6 @@
 #include "../../scripts/STVutil.asc"
 
 void onLevelBegin() {
-    jjConsole("Started!");
-
     if(jjIsServer) {
         jjChat("/mutators STVhealthview on");
         jjChat("/mutators STVcustomhud on");
