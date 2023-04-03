@@ -45,7 +45,7 @@ bool teamScoreEnabled = false;
 
 // the magic ends here
 
-AnimatedSprite@ gun = AnimatedSprite(ANIM::AMMO, 0, 0, 0, 0.25, false);
+AnimatedSprite@ gun = AnimatedSprite(ANIM::PICKUPS, 0, 0, 0, 0.25, false);
 AnimatedSprite@ flag = AnimatedSprite(ANIM::FLAG, 0, 0, 0, 0.15, false);
 
 int snap(int spot) {
@@ -60,16 +60,35 @@ bool upgraded(jjPLAYER @player, int id)
 int idToSprite(jjPLAYER@ player, int id)
 {
     if(id == 1) {
-        if(gun.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) gun.setAnimSet(ANIM::AMMO);
+        if(
+            gun.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI
+        ) gun.setAnimSet(ANIM::PICKUPS);
 
         if(player.charCurr == CHAR::JAZZ) {
-            return 18; // jazz blaster
+            if(upgraded(player, 1)) {
+                gun.setAnimSet(ANIM::AMMO);
+                return 18;
+            }
+
+            gun.setAnimSet(ANIM::PICKUPS);
+
+            return 29; // jazz blaster
         } else if(player.charCurr == CHAR::SPAZ) {
-            return 19; // spaz blaster
+            if(upgraded(player, 1)) {
+                gun.setAnimSet(ANIM::AMMO);
+                return 19;
+            }
+
+            gun.setAnimSet(ANIM::PICKUPS);
+            return 30; // spaz blaster
         } else if(player.charCurr == CHAR::LORI) {
             gun.setAnimSet(ANIM::PLUS_AMMO);
             
             return 5;
+        } else {
+            gun.setAnimSet(ANIM::PICKUPS);
+            
+            return 29;
         }
     }
 
