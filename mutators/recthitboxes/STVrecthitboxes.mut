@@ -1,8 +1,7 @@
 bool DEBUG = false;
 
 int playerHitboxX = 40;
-// the +10000 is for the troll
-int playerHitboxY = 45 + 10000;
+int playerHitboxY = 45;
 
 int objHitboxX = 20;
 int objHitboxY = 10;

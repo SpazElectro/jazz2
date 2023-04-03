@@ -1,0 +1,20 @@
+#pragma name "CTF Quality of Life Pack"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+
+    if(jjIsServer) {
+        jjChat("/mutators STVhealthview on");
+        jjChat("/mutators STVcustomhud on");
+        jjChat("/mutators STVstartposviewer on");
+        jjChat("/mutators STVweaponlist on");
+        jjChat("/mutators STVctfqof off");
+        jjChat("/r");
+    }
+}

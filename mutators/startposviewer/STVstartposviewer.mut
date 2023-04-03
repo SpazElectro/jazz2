@@ -12,13 +12,11 @@ class StartPos
     }
 };
 
-bool showStartPos = true;
+bool showStartPos = false;
 
 array<StartPos@> startPos;
 
 void onLevelLoad() {
-    jjConsole("[SPV]: Started!");
-
     for(uint x = 0; x < 255; x++) {
         for(uint y = 0; y < 64; y++) {
             int event = jjEventGet(x, y);
@@ -52,25 +50,27 @@ void onLevelLoad() {
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(jjIsServer) {
-        if(stringReceived == "!showstartpos") {
+    if(stringReceived == "!showstartpos") {
+        if(jjIsServer) {
             showStartPos = !showStartPos;
 
-            jjConsole("[SPV]: Showing start positions: " + showStartPos);
-
-            return true;
+            jjConsole("[SPV] Showing start positions: " + showStartPos);
+        } else {
+            jjConsole("[SPV] You don't have permission to do this!");
         }
+
+        return true;
     }
 
     return false;
 }
 
 void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
-    if(jjGameState == GAME::PREGAME or showStartPos) {
+    if(jjGameState == GAME::PREGAME || showStartPos || jjGameState == GAME::STOPPED) {
         for(uint i = 0; i < startPos.length(); i++) {
             StartPos@ pos = startPos[i];
-            canvas.drawRectangle(pos.x*32, pos.y*32, 32, 32, 255, SPRITE::BLEND_NORMAL, 64);
-            canvas.drawString(pos.x*32+16-(pos.type.length() * 6), pos.y*32+16, pos.type, STRING::SMALL, STRING::NORMAL, 0);
+            canvas.drawRectangle(pos.x * 32, pos.y * 32, 32, 32, 255, SPRITE::BLEND_NORMAL, 64);
+            canvas.drawString(pos.x * 32 + 16 - (pos.type.length() * 6), pos.y * 32 + 16, pos.type, STRING::SMALL, STRING::NORMAL, 0);
         }
     }
 }
