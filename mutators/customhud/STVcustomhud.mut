@@ -317,14 +317,14 @@ void onPlayer(jjPLAYER@ player) {
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived.findFirst("!locate") == 0) {
         if(stringReceived.split(" ").length() == 1) {
-            jjConsole("[CH] Provide something to toggle, options: ammo, health, flag, teamscore");
+            jjConsole("[CH] Provide something to toggle, options: ammo, health, flag, teamscore!");
             return true;
         }
 
         string element = stringReceived.split(" ")[1];
 
         if(element != "ammo" && element != "health" && element != "flag" && element != "teamscore") {
-            jjConsole("[CH] " + element + " does not exist, options: ammo, health, flag, teamscore");
+            jjConsole("[CH] " + element + " does not exist, options: ammo, health, flag, teamscore!");
             return true;
         }
 
@@ -337,11 +337,15 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived == "!hudenable") {
         toggled_on = true;
 
+        saveSettings();
+
         return true;
     }
 
     if(stringReceived == "!huddisable") {
         toggled_on = false;
+
+        saveSettings();
         
         return true;
     }
@@ -356,7 +360,9 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 
         gridSize = snapping;
 
-        jjConsole("[CH] Grid size has been set to " + snapping);
+        jjConsole("[CH] Grid size has been set to " + snapping + "!");
+        
+        saveSettings();
 
         return true;
     }

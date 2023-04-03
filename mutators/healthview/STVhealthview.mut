@@ -1,0 +1,124 @@
+#pragma name "Health View"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+string settingsVersion = "0.1A";
+
+bool toggled_on = true;
+int padding = 50;
+
+jjSTREAM saveSettings() {
+    jjSTREAM settingsStream = jjSTREAM();
+    settingsStream.push(settingsVersion);
+    settingsStream.push(toggled_on);
+    
+    settingsStream.push(formatInt(padding));
+
+    settingsStream.save("STVhealthview-" + p.nameUnformatted + ".asdat");
+    
+    return settingsStream;
+}
+
+void backupData() {
+    jjSTREAM vstream("STVhealthview-" + p.nameUnformatted + ".asdat");
+    vstream.save("STVhealthview-restore-" + p.nameUnformatted + ".asdat");
+}
+
+void loadSettings(jjSTREAM settingsStream) {
+    string version;
+    if (!settingsStream.pop(version)) {
+        jjConsole("[HV] Version not found!");
+        return;
+    }
+
+    if (version != settingsVersion) {
+        backupData();
+        jjConsole("[HV] Version mismatch found! Your old settings have been saved");
+        jjConsole("... into STVhealthview-restore-" + p.nameUnformatted + ".asdat");
+        saveSettings();
+        return;
+    }
+
+    settingsStream.pop(toggled_on);
+
+    string paddingStr;
+    settingsStream.pop(paddingStr);
+
+    padding = parseInt(paddingStr);
+}
+
+void onLevelBegin() {
+    jjSTREAM settingsStream("STVhealthview-" + p.nameUnformatted + ".asdat");
+    
+    if(settingsStream.isEmpty()) {
+        settingsStream = saveSettings();
+    }
+
+    loadSettings(jjSTREAM("STVhealthview-" + p.nameUnformatted + ".asdat"));
+}
+
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!hvenable") {
+        toggled_on = true;
+
+        saveSettings();
+
+        return true;
+    }
+
+    if(stringReceived == "!hvdisable") {
+        toggled_on = false;
+
+        saveSettings();
+        
+        return true;
+    }
+
+    if(stringReceived.findFirst("!setpadding") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[HV] Provide a number to set the padding to!");
+            return true;
+        }
+
+        int paddingI = parseInt(stringReceived.split(" ")[1]);
+
+        padding = paddingI;
+
+        jjConsole("[HV] The padding has been set to " + padding + "!");
+
+        saveSettings();
+
+        return true;
+    }
+    if(stringReceived == "!hvhelp") {
+        jjConsole("----------------");
+        jjConsole("!setpadding - Sets the padding to the parameter");
+        jjConsole("!hvdisable - Disables the health view");
+        jjConsole("!hvenable - Enables the health view");
+        jjConsole("----------------");
+
+        return true;
+    }
+
+    return false;
+}
+
+// we're doing ondrawlayer and not ondrawplayer to support minus
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(toggled_on) {
+        for (uint i = 0; i < 32; i++)
+        {
+            jjPLAYER@ player = jjPlayers[i];
+
+            for(int i = 0; i < player.health; i++) {
+                canvas.drawResizedSprite(player.xPos - (i * 15) + padding / 2, player.yPos - padding, ANIM::PICKUPS, 41, 0, 1, 1);
+            }
+        }
+    }
+    
+}
