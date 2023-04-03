@@ -12,6 +12,7 @@ bool toggled_on = true;
 
 int paddingX = 25;
 int paddingY = 50;
+int healthPadding = 15;
 
 jjSTREAM saveSettings() {
     jjSTREAM settingsStream = jjSTREAM();
@@ -20,6 +21,7 @@ jjSTREAM saveSettings() {
     
     settingsStream.push(formatInt(paddingX));
     settingsStream.push(formatInt(paddingY));
+    settingsStream.push(formatInt(healthPadding));
 
     settingsStream.save("STVhealthview-" + p.nameUnformatted + ".asdat");
     
@@ -48,12 +50,14 @@ void loadSettings(jjSTREAM settingsStream) {
 
     settingsStream.pop(toggled_on);
 
-    string paddingXStr, paddingYStr;
+    string paddingXStr, paddingYStr, healthPaddingStr;
     settingsStream.pop(paddingXStr);
     settingsStream.pop(paddingYStr);
+    settingsStream.pop(healthPaddingStr);
 
     paddingX = parseInt(paddingXStr);
     paddingY = parseInt(paddingYStr);
+    healthPadding = parseInt(healthPaddingStr);
 }
 
 void onLevelBegin() {
@@ -65,7 +69,6 @@ void onLevelBegin() {
 
     loadSettings(jjSTREAM("STVhealthview-" + p.nameUnformatted + ".asdat"));
 }
-
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived == "!hvenable") {
@@ -108,9 +111,27 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
+    if(stringReceived.findFirst("!setseperationpadding") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[HV] Provide a number to set the seperation padding to!");
+            return true;
+        }
+
+        int seperationPaddingI = parseInt(stringReceived.split(" ")[1]);
+
+        healthPadding = seperationPaddingI;
+
+        jjConsole("[HV] The seperation padding has been set!");
+
+        saveSettings();
+
+        return true;
+    }
+
     if(stringReceived == "!hvhelp") {
         jjConsole("----------------");
         jjConsole("!setpadding - Sets the padding to the 2 parameters");
+        jjConsole("!setseperationpadding - Sets the health seperation padding to the parameter");
         jjConsole("!hvdisable - Disables the health view");
         jjConsole("!hvenable - Enables the health view");
         jjConsole("----------------");
@@ -128,12 +149,14 @@ void onDrawLayer4(jjPLAYER@ _player, jjCANVAS@ canvas) {
         {
             jjPLAYER@ player = jjPlayers[pi];
 
-            for(int i = 0; i < player.health; i++) {
-                canvas.drawSprite(
-                    int(player.xPos - (i * 15) + paddingX),
-                    int(player.yPos - paddingY),
-                    ANIM::PICKUPS, 41, 0
-                );
+            if(player.team == _player.team) {
+                for(int i = 0; i < player.health; i++) {
+                    canvas.drawSprite(
+                        int(player.xPos - (i * healthPadding) + paddingX),
+                        int(player.yPos - paddingY),
+                        ANIM::PICKUPS, 41, 0
+                    );
+                }
             }
         }
     }
