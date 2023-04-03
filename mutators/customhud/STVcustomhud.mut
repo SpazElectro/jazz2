@@ -72,7 +72,7 @@ int idToSprite(jjPLAYER@ player, int id)
 
             gun.setAnimSet(ANIM::PICKUPS);
 
-            return 29; // jazz blaster
+            return 29;
         } else if(player.charCurr == CHAR::SPAZ) {
             if(upgraded(player, 1)) {
                 gun.setAnimSet(ANIM::AMMO);
@@ -80,11 +80,30 @@ int idToSprite(jjPLAYER@ player, int id)
             }
 
             gun.setAnimSet(ANIM::PICKUPS);
-            return 30; // spaz blaster
+            return 30;
         } else if(player.charCurr == CHAR::LORI) {
             gun.setAnimSet(ANIM::PLUS_AMMO);
             
             return 5;
+        } else if(player.charCurr == CHAR::BIRD2) {
+            if(player.charOrig == CHAR::LORI) {
+                gun.setAnimSet(ANIM::PLUS_AMMO);
+
+                if(upgraded(player, 1)) {
+                    return 6;
+                } else {
+                    return 5;
+                }
+            }
+
+            if(upgraded(player, 1)) {
+                gun.setAnimSet(ANIM::AMMO);
+                return player.charOrig == CHAR::JAZZ ? 18 : 19;
+            }
+
+            gun.setAnimSet(ANIM::PICKUPS);
+
+            return player.charOrig == CHAR::JAZZ ? 29 : 30;
         }
 
         gun.setVisible(false);
@@ -284,7 +303,8 @@ void onPlayer(jjPLAYER@ player) {
     if(!(
         player.charCurr == CHAR::JAZZ ||
         player.charCurr == CHAR::SPAZ ||
-        player.charCurr == CHAR::LORI
+        player.charCurr == CHAR::LORI ||
+        player.charCurr == CHAR::BIRD2
     )) {
         gun.visible = false;
     } else {
@@ -427,7 +447,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             if((
                 player.charCurr == CHAR::JAZZ ||
                 player.charCurr == CHAR::SPAZ ||
-                player.charCurr == CHAR::LORI
+                player.charCurr == CHAR::LORI ||
+                player.charCurr == CHAR::BIRD2
             )) {
                 canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
             }
