@@ -110,6 +110,8 @@ int idToSprite(jjPLAYER@ player, int id)
         return 0;
     }
 
+    gun.setAnimSet(ANIM::AMMO);
+
     if (upgraded(player, id))
     {
         return upgradedIds[id - 2];

@@ -111,17 +111,17 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         return true;
     }
 
-    if(stringReceived.findFirst("!setseperationpadding") == 0) {
+    if(stringReceived.findFirst("!setseparationpadding") == 0) {
         if(stringReceived.split(" ").length() == 1) {
-            jjConsole("[HV] Provide a number to set the seperation padding to!");
+            jjConsole("[HV] Provide a number to set the separation padding to!");
             return true;
         }
 
-        int seperationPaddingI = parseInt(stringReceived.split(" ")[1]);
+        int separationPaddingI = parseInt(stringReceived.split(" ")[1]);
 
-        healthPadding = seperationPaddingI;
+        healthPadding = separationPaddingI;
 
-        jjConsole("[HV] The seperation padding has been set!");
+        jjConsole("[HV] The separation padding has been set!");
 
         saveSettings();
 
@@ -131,7 +131,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(stringReceived == "!hvhelp") {
         jjConsole("----------------");
         jjConsole("!setpadding - Sets the padding to the 2 parameters");
-        jjConsole("!setseperationpadding - Sets the health seperation padding to the parameter");
+        jjConsole("!setseparationpadding - Sets the health separation padding to the parameter");
         jjConsole("!hvdisable - Disables the health view");
         jjConsole("!hvenable - Enables the health view");
         jjConsole("----------------");
