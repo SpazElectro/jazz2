@@ -85,11 +85,10 @@ int idToSprite(jjPLAYER@ player, int id)
             gun.setAnimSet(ANIM::PLUS_AMMO);
             
             return 5;
-        } else {
-            gun.setAnimSet(ANIM::PICKUPS);
-            
-            return 29;
         }
+
+        gun.setVisible(false);
+        return 0;
     }
 
     if (upgraded(player, id))
@@ -278,13 +277,20 @@ void onPlayer(jjPLAYER@ player) {
     }
 
     gun.setId(idToSprite(player, player.currWeapon));
-}
-
-void onMain() {
+    
     gun.update();
     flag.update();
 
-    gun.visible = ammoEnabled;
+    if(!(
+        player.charCurr == CHAR::JAZZ ||
+        player.charCurr == CHAR::SPAZ ||
+        player.charCurr == CHAR::LORI
+    )) {
+        gun.visible = false;
+    } else {
+        gun.visible = ammoEnabled;
+    }
+
     flag.visible = flagEnabled;
 }
 
@@ -417,7 +423,14 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         if(ammoEnabled) {
             string ammo = "" + player.ammo[player.currWeapon];
             if(player.currWeapon == 1) ammo = "^"; // infinity
-            canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
+
+            if((
+                player.charCurr == CHAR::JAZZ ||
+                player.charCurr == CHAR::SPAZ ||
+                player.charCurr == CHAR::LORI
+            )) {
+                canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
+            }
             
             gun.x = ammoX - 10;
             gun.y = ammoY;
