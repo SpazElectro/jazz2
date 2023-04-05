@@ -69,13 +69,15 @@ def parseCommands(section):
             if command == "log":
                 output += "jjConsole(\"" + parseArgs(args) + "\");\n"
             elif command == "if":
-                output += "if(" + args[0] + ") {\n"
+                output += "if(" + parseArgs(args) + ") {\n"
                 padding += 4
                 paddingStr = paddingToSpaces(padding)
             elif command == "endif":
                 padding -= 4
-                output += paddingToSpaces(padding)
-                output += "}\n\n"
+                paddingStr = paddingToSpaces(padding)
+                output += paddingStr + "}\n\n"
+            elif command == "eval":
+                output += parseArgs(args)
 
 if data["scripting"].get("onstart"):
     parseCommands(data["scripting"]["onstart"])

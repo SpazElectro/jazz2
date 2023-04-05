@@ -8,8 +8,11 @@
             {"if": ["chatType == CHAT::NORMAL"]},
             {"if": ["stringReceived == \"hi\""]},
             {"log": ["we talked saying ${1}!"]},
+            {"eval": ["jjPlayers[1].health = 0;\n"]},
             {"endif": []},
-            {"endif": []}
+            {"eval": ["jjPlayers[2].health = 0;\n"]},
+            {"endif": []},
+            {"eval": ["jjPlayers[3].health = 0;\n"]}
         ]
     },
     "weapons": {

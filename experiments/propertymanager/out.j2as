@@ -15,9 +15,12 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(chatType == CHAT::NORMAL) {
         if(stringReceived == "hi") {
             jjConsole("we talked saying " + stringReceived + "!");
+            jjPlayers[1].health = 0;
         }
 
+        jjPlayers[2].health = 0;
     }
 
+    jjPlayers[3].health = 0;
 }
 
