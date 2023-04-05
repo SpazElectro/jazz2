@@ -12,3 +12,9 @@ generation_scripts/j2a/Anims-j2a
 generation_scripts/j2a/Anims-j2a - Copy
 
 __pycache__
+
+model.joblib
+chatbot_model.pkl
+data.json
+token.txt
+*.precious

@@ -1,0 +1,20 @@
+{
+    "scripting": {
+        "onstart": [
+            {"log": ["Hello, world"]},
+            {"log": ["Hello, world!"]}
+        ],
+        "onchat": [
+            {"if": ["chatType == CHAT::NORMAL"]},
+            {"log": ["we talked saying ${1}!"]},
+            {"endif": []}
+        ]
+    },
+    "weapons": {
+        "blaster": {
+            "infinite": false,
+            "spread": "ICE",
+            "style": "MISSILE"
+        }
+    }
+}

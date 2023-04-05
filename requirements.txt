@@ -1,3 +1,4 @@
 rich
 pick
 pydirectinput
+pyyaml
