@@ -1,4 +1,5 @@
 {
+    "memory": 1000,
     "scripting": {
         "onstart": [
             {"log": ["Hello, world"]},
@@ -8,9 +9,12 @@
             {"if": ["chatType == CHAT::NORMAL"]},
             {"if": ["stringReceived == \"hi\""]},
             {"log": ["we talked saying ${1}!"]},
-            {"eval": ["jjPlayers[1].health = 0;\n"]},
+            {"set": [0, "hello"]},
+            {"nl": []},
+            {"eval": ["jjPlayers[1].name = \"*{1}\";\n"]},
             {"endif": []},
-            {"eval": ["jjPlayers[2].health = 0;\n"]},
+            {"set": [1, "and it will come"]},
+            {"eval": ["jjPlayers[2].name = \"*{2}\";\n"]},
             {"endif": []},
             {"eval": ["jjPlayers[3].health = 0;\n"]}
         ]
