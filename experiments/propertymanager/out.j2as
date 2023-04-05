@@ -13,7 +13,10 @@ void onLevelBegin() {
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(chatType == CHAT::NORMAL) {
-        jjConsole("we talked saying " + stringReceived + "!");
+        if(stringReceived == "hi") {
+            jjConsole("we talked saying " + stringReceived + "!");
+        }
+
     }
 
 }

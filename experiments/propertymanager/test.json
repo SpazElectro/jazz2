@@ -6,7 +6,9 @@
         ],
         "onchat": [
             {"if": ["chatType == CHAT::NORMAL"]},
+            {"if": ["stringReceived == \"hi\""]},
             {"log": ["we talked saying ${1}!"]},
+            {"endif": []},
             {"endif": []}
         ]
     },

@@ -73,7 +73,8 @@ def parseCommands(section):
                 padding += 4
                 paddingStr = paddingToSpaces(padding)
             elif command == "endif":
-                output += paddingToSpaces(padding - 4)
+                padding -= 4
+                output += paddingToSpaces(padding)
                 output += "}\n\n"
 
 if data["scripting"].get("onstart"):
