@@ -144,6 +144,31 @@ output = ""
 #     "style": ""
 # },
 
+def parseSpread(s: str):
+    s = int(s)
+    if s == 0:
+        return "NORMAL"
+    elif s == 1:
+        return "RFNORMAL"
+    elif s == 2:
+        return "RFPU"
+    elif s == 3:
+        return "RF"
+    elif s == 4:
+        return "ICEPU"
+    elif s == 5:
+        return "ICE"
+    elif s == 6:
+        return "PEPPERSPRAY"
+    elif s == 7:
+        return "GUN8"
+    return "TOASTER"
+
+def parseStyle(s: str):
+    s = int(s)
+    x = ["NORMAL", "MISSILE", "POPCORN", "CAPPED"]
+    return x[s]
+
 guns = []
 for line in console.splitlines():
     if line[20:].split(".")[0] in guns:
@@ -156,8 +181,14 @@ for gun in guns:
     for line in console.splitlines():
         if line[20:].split(".")[0] != gun:
             continue
+        
         property = line[20:].split(".")[1].split(" ")[0]
         value = line[20:].split(".")[1].split("= ")[1]
+        
+        if property == "spread":
+            value = f"\"{parseSpread(value)}\""
+        elif property == "style":
+            value = f"\"{parseStyle(value)}\""
         output += f'    "{property}": {value},\n'
     
     output = output[:-2] + "\n"

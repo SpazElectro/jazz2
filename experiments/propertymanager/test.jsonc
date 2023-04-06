@@ -32,8 +32,8 @@
             "replacedByBubbles": false,
             "replacedByShield": true,
             "replenishes": true,
-            "spread": 0,
-            "style": 0
+            "spread": "NORMAL",
+            "style": "NORMAL"
         },
         "bouncer": {
             "allowed": true,
@@ -48,8 +48,8 @@
             "replacedByBubbles": false,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 0,
-            "style": 0
+            "spread": "NORMAL",
+            "style": "NORMAL"
         },
         "ice": {
             "allowed": true,
@@ -64,8 +64,8 @@
             "replacedByBubbles": false,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 5,
-            "style": 0
+            "spread": "ICE",
+            "style": "NORMAL"
         },
         "seeker": {
             "allowed": true,
@@ -80,8 +80,8 @@
             "replacedByBubbles": false,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 0,
-            "style": 1
+            "spread": "NORMAL",
+            "style": "MISSILE"
         },
         "rf": {
             "allowed": true,
@@ -96,8 +96,8 @@
             "replacedByBubbles": false,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 3,
-            "style": 1
+            "spread": "RF",
+            "style": "MISSILE"
         },
         "toaster": {
             "allowed": true,
@@ -112,8 +112,8 @@
             "replacedByBubbles": true,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 8,
-            "style": 2
+            "spread": "TOASTER",
+            "style": "POPCORN"
         },
         "tnt": {
             "allowed": false,
@@ -128,8 +128,8 @@
             "replacedByBubbles": false,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 0,
-            "style": 1
+            "spread": "NORMAL",
+            "style": "MISSILE"
         },
         "gun8": {
             "allowed": true,
@@ -144,8 +144,8 @@
             "replacedByBubbles": false,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 7,
-            "style": 0
+            "spread": "GUN8",
+            "style": "NORMAL"
         },
         "gun9": {
             "allowed": true,
@@ -160,8 +160,8 @@
             "replacedByBubbles": false,
             "replacedByShield": false,
             "replenishes": false,
-            "spread": 0,
-            "style": 0
+            "spread": "NORMAL",
+            "style": "NORMAL"
         }
     }
 }
