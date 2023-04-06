@@ -1,4 +1,4 @@
 rich
 pick
 pydirectinput
-pyyaml
+jsonc-parser

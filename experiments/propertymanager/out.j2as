@@ -3,25 +3,30 @@
 void onLevelBegin() {
     // Weapon initalization
 
-    jjWEAPONS[WEAPON::BLASTER].infinite = false;
-    jjWEAPONS[WEAPON::BLASTER].style    = SPREAD::ICE;
-    jjWEAPONS[WEAPON::BLASTER].spread   = WEAPON::MISSILE;
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::NORMAL;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::ICEPU;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::ICE;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::RFNORMAL;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::RFPU;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::RF;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::TOASTER;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::PEPPERSPRAY;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+    jjWeapons[WEAPON::BLASTER].spread = SPREAD::GUN8;
+    jjConsole(jjWeapons[WEAPON::BLASTER].spread);
+
+
+    jjConsole(jjWeapons[WEAPON::BLASTER].style);
+    
 
     jjConsole("Hello, world");
     jjConsole("Hello, world!");
-}
-
-bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(chatType == CHAT::NORMAL) {
-        if(stringReceived == "hi") {
-            jjConsole("we talked saying " + stringReceived + "!");
-
-            jjPlayers[1].name = "hello";
-        }
-
-        jjPlayers[2].name = "and it will come";
-    }
-
-    jjPlayers[3].health = 0;
 }
 
