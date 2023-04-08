@@ -488,7 +488,7 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
 
         // flag
 
-        if(jjGameMode == GAME::CTF || itemBeingLocated == "flag") {
+        if(jjGameMode == GAME::CTF || itemBeingLocated == "flag" || itemBeingLocated == "teamscore") {
             flag.x = flagX;
             flag.y = flagY;
             //                                                                        5 is green or red - it's temporary

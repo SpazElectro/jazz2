@@ -21,8 +21,20 @@ echo Starting
 "F:\\Games\\Jazz2\\Jazz2+.exe" -server STV$N$
 @echo on"""
 
-example = """#pragma name \"$N$\"
+exampleMutator = """#pragma name \"$N$\"
 #pragma require \"STVutil.asc\"
+
+#include \"STVutil.asc\"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+}
+"""
+
+exampleLevel = """#pragma require \"STVutil.asc\"
 
 #include \"STVutil.asc\"
 
@@ -44,8 +56,8 @@ if ml[1] == 0:
         r.write(mutatorRun)
     
     with open(f"./mutators/{name}/STV{name}.mut", "w") as m:
-        example = example.replace("$N$", name)
-        m.write(example)
+        exampleMutator = exampleMutator.replace("$N$", name)
+        m.write(exampleMutator)
 else:
     print(f"Creating new level named {name}...")
     os.mkdir(f"./levels/{name}/")
@@ -57,7 +69,7 @@ else:
         r.write(levelRun)
     
     with open(f"./levels/{name}/STV{name}.j2as", "w") as m:
-        m.write(example)
+        m.write(exampleLevel)
 
     shutil.copy("./empty.j2l", f"./levels/{name}/STV{name}.j2l")
     

@@ -157,8 +157,15 @@ for weapon in weapons:
     for propx in jjWeaponProperties:
         prop = propx["name"]
         val = str(propx["type"](data["weapons"][weapon.lower()][prop])).lower()
-        output += f"    jjConsole(\"{weapon.lower()}.{prop} = \" + jjWeapons[WEAPON::{weapon}].{prop});\n"
-        # output += f"    jjWeapons[WEAPON::{weapon}].{prop} = {val};\n"
+        # output += f"    jjConsole(\"{weapon.lower()}.{prop} = \" + jjWeapons[WEAPON::{weapon}].{prop});\n"
+        if prop == "spread" or prop == "style":
+            val = val.upper()
+
+            if prop == "spread":
+                val = "SPREAD::" + val
+            else:
+                val = "WEAPON::" + val
+        output += f"    jjWeapons[WEAPON::{weapon}].{prop} = {val};\n"
 
 output += "\n"
 

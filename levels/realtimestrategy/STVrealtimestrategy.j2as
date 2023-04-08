@@ -1,0 +1,10 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+}

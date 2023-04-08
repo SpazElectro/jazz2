@@ -1,3 +1,5 @@
+#pragma name "Startpos Viewer"
+
 class StartPos
 {
     int x;
