@@ -5,6 +5,126 @@
 // for intellisense
 #include "../../scripts/STVutil.asc"
 
+enum ResourceType
+{
+    WOOD,
+    STONE,
+    COAL,
+    IRON,
+    GOLD,
+    DIAMOND
+};
+
+class Tower
+{
+    Vector2@ position;
+    int health;
+    int maxHealth;
+    bool alive; // read only
+
+    Tower(Vector2@ position, int health, int maxHealth = 100)
+    {
+        @this.position = position;
+        this.health = health;
+        this.maxHealth = maxHealth;
+    }
+
+    Vector2@ getPosition() {
+        return this.position;
+    }
+
+    int getHealth() {
+        return this.health;
+    }
+
+    int getMaxHealth() {
+        return this.maxHealth;
+    }
+
+    void setPosition(Vector2@ position) {
+        @this.position = position;
+    }
+
+    void setPosition(int x, int y) {
+        @this.position = Vector2(x, y);
+    }
+
+    void setHealth(int health) {
+        this.health = health;
+    }
+    
+    void decHealth(int amount) {
+        this.health -= amount;
+        this.healthCheck();
+    }
+
+    void incHealth(int amount) {
+        this.health += amount;
+        this.healthCheck();
+    }
+
+    void setMaxHealth(int maxHealth) {
+        this.maxHealth = maxHealth;
+    }
+
+    bool isAlive() {
+        return this.alive;
+    }
+
+    void healthCheck() {
+        this.alive = this.health > 0;
+        
+        if(this.health < 0) this.health = 0;
+        if(this.health > this.maxHealth) this.health = this.maxHealth;
+    }
+
+
+    void update() {}
+    void draw(jjCANVAS@ canvas) {}
+};
+
+class Town: Tower
+{
+    Town(Vector2@ position) {
+        super(position, 100, 100);
+    }
+
+    void update() {
+        
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        
+    }
+};
+
+class Resource
+{
+    int amount;
+};
+
+array<Tower@> towers;
+
 void onLevelBegin() {
+    towers.insertLast(Town(Vector2(0, 0)));
+
     jjConsole("Started!");
+}
+
+void onMain() {
+    for (uint towerIndex = 0; towerIndex < towers.length(); towerIndex++)
+    {
+        Tower@ tower = towers[towerIndex];
+        tower.update();
+    }
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+    for (uint towerIndex = 0; towerIndex < towers.length(); towerIndex++)
+    {
+        Tower@ tower = towers[towerIndex];
+        tower.draw(canvas);
+    }
+
+    return false;
 }
