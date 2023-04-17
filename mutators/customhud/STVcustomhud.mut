@@ -462,4 +462,4 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
 // bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
 // bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
 // bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
-// bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return teamScoreEnabled; }
