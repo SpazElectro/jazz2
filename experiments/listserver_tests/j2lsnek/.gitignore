@@ -1,0 +1,11 @@
+__pycache__
+.idea
+*.pyc
+servers.db
+*.log
+*.log.*
+ssl
+sslconfig.py
+tests
+localconfig.py
+*.sh

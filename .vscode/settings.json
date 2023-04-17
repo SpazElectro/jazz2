@@ -14,7 +14,8 @@
         "utility": "cpp",
         "xlocale": "cpp",
         "xstring": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "windows.h": "c"
     },
     "python.analysis.typeCheckingMode": "off"
 }

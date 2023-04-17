@@ -9,3 +9,14 @@
 void onLevelBegin() {
     jjConsole("Started!");
 }
+
+void onMain() {
+    for (int objId = 1; objId < jjObjectCount; objId++)
+    {
+        jjOBJ@ obj = jjObjects[objId];
+        if(obj.eventID == 72)
+        {
+            obj.phase = 2;
+        }
+    }
+}
