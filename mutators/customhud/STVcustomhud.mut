@@ -481,8 +481,18 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(toggled_on) {
         if(healthEnabled) {
-            for(int i = 0; i < player.health; i++) {
-                canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
+            if(!jjShowMaxHealth) {
+                for(int i = 0; i < player.health; i++) {
+                    canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
+                }
+            } else {
+                for(int i = 0; i < jjMaxHealth + 1; i++) {
+                    if(i > player.health) {
+                        canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize, SPRITE::TINTED, 127);
+                    } else {
+                        canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
+                    }
+                }
             }
         }
 
