@@ -290,7 +290,7 @@ void onPlayer(jjPLAYER@ player) {
             teamScoreY = y;
         }
 
-        if(isKeyDown(getKeyById("LeftMouse"))) {
+        if(jjKey[0x1]) {
             locatingItem = false;
             itemBeingLocated = "";
             saveSettings();
@@ -486,8 +486,8 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
                     canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
                 }
             } else {
-                for(int i = 0; i < jjMaxHealth + 1; i++) {
-                    if(i > player.health) {
+                for(int i = 0; i < jjMaxHealth; i++) {
+                    if(i >= player.health) {
                         canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize, SPRITE::TINTED, 127);
                     } else {
                         canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
