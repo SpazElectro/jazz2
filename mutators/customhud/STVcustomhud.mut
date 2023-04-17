@@ -46,10 +46,7 @@ int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
 }
 
-bool upgraded(jjPLAYER @player, int id)
-{
-    return player.powerup[id];
-}
+bool upgraded(jjPLAYER @player, int id) { return player.powerup[id]; }
 
 int idToSprite(jjPLAYER@ player, int id)
 {
@@ -106,14 +103,7 @@ int idToSprite(jjPLAYER@ player, int id)
 
     gun.setAnimSet(ANIM::AMMO);
 
-    if (upgraded(player, id))
-    {
-        return upgradedIds[id - 2];
-    }
-    else
-    {
-        return unupgradedIds[id - 2];
-    }
+    return upgraded(player, id) ? upgradedIds[id - 2] : unupgradedIds[id - 2];
 }
 
 jjSTREAM saveSettings() {
@@ -148,18 +138,17 @@ jjSTREAM saveSettings() {
 }
 
 void backupData() {
-    jjSTREAM vstream("STVcustomhud-" + p.nameUnformatted + ".asdat");
-    vstream.save("STVcustomhud-restore-" + p.nameUnformatted + ".asdat");
+    jjSTREAM("STVcustomhud-" + p.nameUnformatted + ".asdat").save("STVcustomhud-restore-" + p.nameUnformatted + ".asdat");
 }
 
 void loadSettings(jjSTREAM settingsStream) {
     string version;
-    if (!settingsStream.pop(version)) {
+    if(!settingsStream.pop(version)) {
         jjConsole("[CH] Version not found!");
         return;
     }
 
-    if (version != settingsVersion) {
+    if(version != settingsVersion) {
         backupData();
         jjConsole("[CH] Version mismatch found! Your old settings have been saved");
         jjConsole("... into STVcustomhud-restore-" + p.nameUnformatted + ".asdat");
@@ -389,29 +378,35 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         int x = ammoX;
         int y = ammoY;
 
-        if(itemBeingLocated == "health") { x = healthX; y = healthY; }
-        if(itemBeingLocated == "teamScore") { x = teamScoreX; y = teamScoreY; }
+        if(itemBeingLocated == "health") {
+            x = healthX;
+            y = healthY;
+        } else if(itemBeingLocated == "teamScore") {
+            x = teamScoreX;
+            y = teamScoreY;
+        }
 
         x += 10;
+        int xRatio = (jjResolutionWidth / 2) - snap(jjMouseX);
+        int yRatio = jjResolutionHeight - snap(jjMouseY);
 
-        if(x + jjGetStringWidth("Bottom center ratio: " + ((jjResolutionWidth / 2) - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
+        if(x + jjGetStringWidth("Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
             x -= 200;
         }
 
-        if (y <= 50) {
+        if(y <= 50) {
             y += 80;
         }
 
         canvas.drawString(x, y - 10, "" + snap(jjMouseX) + " - " + snap(jjMouseY), STRING::SMALL);
         canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
-        canvas.drawString(x, y - 30, "Center ratio: " + ((jjResolutionWidth / 2) - snap(jjMouseX)) + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
-        canvas.drawString(x, y - 40, "Bottom center ratio: " + ((jjResolutionWidth / 2) - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 30, "Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 40, "Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL);
     }
 
     if(toggled_on) {
         if(ammoEnabled) {
-            string ammo = "" + player.ammo[player.currWeapon];
-            if(player.currWeapon == 1) ammo = "^"; // infinity
+            string ammo = player.currWeapon == 1 ? "^" : "" + player.ammo[player.currWeapon];
 
             if((
                 player.charCurr == CHAR::JAZZ ||
@@ -425,13 +420,9 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             gun.x = ammoX - 10;
             gun.y = ammoY;
             
-            if(player.currWeapon == 1) {
-                gun.spriteMode = SPRITE::PLAYER;
-            } else {
-                gun.spriteMode = SPRITE::NORMAL;
-            }
-            
+            gun.spriteMode = (player.currWeapon == 1) ? SPRITE::PLAYER : SPRITE::NORMAL;
             gun.spriteModeParam = player.clientID;
+
             gun.draw(canvas);
         }
 
@@ -442,18 +433,23 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(toggled_on) {
         if(healthEnabled) {
-            if(!jjShowMaxHealth) {
-                for(int i = 0; i < player.health; i++) {
-                    canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
-                }
-            } else {
-                for(int i = 0; i < jjMaxHealth; i++) {
-                    if(i >= player.health) {
-                        canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize, SPRITE::TINTED, 127);
-                    } else {
-                        canvas.drawResizedSprite(healthX - (i * (healthPadding * healthSize)), healthY, ANIM::PICKUPS, 41, 0, healthSize, healthSize);
-                    }
-                }
+            int maxHealth = jjShowMaxHealth ? jjMaxHealth : player.health;
+
+            for(int i = 0; i < maxHealth; i++) {
+                bool isDamaged = i >= player.health;
+                int sprParam = isDamaged ? 127 : 0;
+
+                canvas.drawResizedSprite(
+                    healthX - (i * (healthPadding * healthSize)),
+                    healthY,
+                    ANIM::PICKUPS,
+                    41,
+                    0,
+                    healthSize,
+                    healthSize,
+                    isDamaged ? SPRITE::TINTED : SPRITE::NORMAL,
+                    sprParam
+                );
             }
         }
 
