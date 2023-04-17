@@ -381,7 +381,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         if(itemBeingLocated == "health") {
             x = healthX;
             y = healthY;
-        } else if(itemBeingLocated == "teamScore") {
+        } else if(itemBeingLocated == "teamscore") {
             x = teamScoreX;
             y = teamScoreY;
         }
