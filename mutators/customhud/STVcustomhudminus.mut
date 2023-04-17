@@ -2,12 +2,12 @@
 // 3/4 team CTF
 
 #pragma name "Custom HUD"
-#pragma require "STVutil.asc"
+#pragma require "STVutilminus.asc"
 
-#include "STVutil.asc"
+#include "STVutilminus.asc"
 
 // for intellisense
-#include "../../scripts/STVutil.asc"
+#include "../../scripts/STVutilminus.asc"
 
 bool toggled_on = true;
 
