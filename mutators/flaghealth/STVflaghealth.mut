@@ -164,10 +164,6 @@ ANIM::Set getCorrespondingAnimSet(jjPLAYER @player)
 
 void onLevelBegin()
 {
-    jjAnimSets[ANIM::FLARE].load();
-
-    jjConsole("[FH] Flag Health started.");
-
     unupgradedIds.insertLast(25); // bouncer
     unupgradedIds.insertLast(29); // ice
     unupgradedIds.insertLast(34); // seeker

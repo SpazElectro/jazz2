@@ -675,7 +675,6 @@ void onLevelBegin()
     menu_buttons[10].buttons[0].hoverText = "AMMO";
     menu_buttons[10].buttons[1].hoverText = "INDEX";
 
-    jjConsole("[WL] Type !wl help for a list of commands.");
     jjConsole("[WL] Press F1 to open the settings menu.");
 
     // hardcoded stuff
