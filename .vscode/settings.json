@@ -17,5 +17,6 @@
         "limits": "cpp",
         "windows.h": "c"
     },
-    "python.analysis.typeCheckingMode": "off"
+    "python.analysis.typeCheckingMode": "off",
+    "discord.enabled": true
 }

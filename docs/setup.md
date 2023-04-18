@@ -1,20 +1,15 @@
-# The easiest ways to run your JJ2+ scripts!
+# The easiest way(s) to run your JJ2+ scripts!
 
-First steps first, let's start by making your "database", Create a new folder, name it whatever you want, I use/prefer "jazz2", create 2 new folders, "levels" and "mutators", if you want to create levels and mutators easily, you could go by this approach:
+First steps first, let's start by making your "database", Create a new folder, name it whatever you want, I use/prefer `jazz2`, create 2 new folders, `levels` and `mutators`, now you can follow these simple steps on how to create scripted levels and mutators fast:
 
-**Tutorial for how to create levels and mutators easily with a simple command (optional if you dont want pain)**;
-lright, first off, you'll need [Python 3](https://www.python.org)
+* Alright, first off, you'll need [Python 3](https://www.python.org) (and a Windows machine to play test)
+* Clone [this repo](https://github.com/SpazElectro/jazz2), using the "advanced way" by doing `git clone https://github.com/SpazElectro/jazz2.git` or just downloading it normally by pressing `Code` and `Download ZIP`
+* Open the folder and copy: `create_new.py`,`empty.j2l` and now paste that into your "database"
+* Create a new file, called: "run.ini", and make it follow this format, and replace the properties with your own:
+```ini
+GAME_DIRECTORY=F:\Games\Jazz2\
+GAME_NAME=Jazz2+.exe
+```
+* Run `create_new.py` and make an example mutator, let's call it ~~`babysfirst`~~ `mansfirst`, don't make your (mutator/level)'s name have: spaces, special characters, unicode
 
-<!-- tabs:start -->
-
-#### **Python (the recommended way)**
-Python method that depends on bswck's library bswck please finish the library please i beg you bswck pleaplsepasepalseplapslepaslepaslepaslepaslepaslepalseplaseplaseplaseplaseplaseplaseplaseplaseplaseplaseplaseplaseplaspelapselapselapselapselapsel
-
-
-#### **Command prompt**
-This method only works on Windows, the game only supports Windows anyways, so...
-
-
-
-<!-- tabs:end -->
-
+Awesome, You've now created a mutator!

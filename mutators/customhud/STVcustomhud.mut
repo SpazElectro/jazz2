@@ -406,7 +406,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     }
 
     if(toggled_on) {
-        if(ammoEnabled || itemBeingLocated == "ammo") {
+        if(ammoEnabled || locatingItem) {
             string ammo = player.currWeapon == 1 ? "^" : "" + player.ammo[player.currWeapon];
 
             if((
@@ -433,7 +433,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     if(toggled_on) {
-        if(healthEnabled || itemBeingLocated == "health") {
+        if(healthEnabled || locatingItem) {
             int maxHealth = jjShowMaxHealth ? jjMaxHealth : player.health;
 
             for(int i = 0; i < maxHealth; i++) {
@@ -454,7 +454,10 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
             }
         }
 
-        if((jjGameMode == GAME::CTF && teamScoreEnabled) || itemBeingLocated == "teamscore") canvas.drawString(teamScoreX, teamScoreY, "" + determineTeamColor(player.team) + jjTeamScore[player.team] + "/" + jjMaxScore, teamScoreSize);
+        if((jjGameMode == GAME::CTF && teamScoreEnabled) || itemBeingLocated == "teamscore") {
+            canvas.drawString(teamScoreX, teamScoreY, "" + determineTeamColor(player.team) + jjTeamScore[player.team] + "/" + jjMaxScore, teamScoreSize);
+            
+        }
 
         return true;
     } else { return false; }
