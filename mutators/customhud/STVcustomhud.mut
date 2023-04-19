@@ -30,11 +30,13 @@ int ammoY = 585;
 STRING::Size ammoSize = STRING::MEDIUM;
 bool ammoEnabled = true;
 
-int ammoSpriteSize = 1;
+float ammoSpriteSize = 1;
+int ammoSpritePaddingX = 0;
+int ammoSpritePaddingY = 0;
 
 int healthX       = 785;
 int healthY       = 10;
-int healthSize    = 1;
+float healthSize    = 1;
 int healthPadding = 15;
 bool healthEnabled = true;
 
@@ -45,10 +47,36 @@ bool teamScoreEnabled = false;
 
 // the magic ends here
 
+jjTEXTAPPEARANCE largeAmmoTextAppearance = jjTEXTAPPEARANCE();
+
 AnimatedSprite@ gun = AnimatedSprite(ANIM::PICKUPS, 0, 0, 0, 0.25, false);
 CustomMenu@ menu = CustomMenu();
 
 array<MenuButton@> menuButtons;
+
+void resetToDefaults() {
+    gridSize = 10;
+    
+    ammoX = 700;
+    ammoY = 585;
+    ammoSize = STRING::MEDIUM;
+    ammoEnabled = true;
+
+    ammoSpriteSize = 1;
+    ammoSpritePaddingX = 0;
+    ammoSpritePaddingY = 0;
+
+    healthX       = 785;
+    healthY       = 10;
+    healthSize    = 1;
+    healthPadding = 15;
+    healthEnabled = true;
+
+    teamScoreX    = 4;
+    teamScoreY    = 12;
+    teamScoreSize = STRING::MEDIUM;
+    teamScoreEnabled = false;
+}
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
@@ -125,11 +153,11 @@ jjSTREAM saveSettings() {
     settingsStream.push(formatSize(ammoSize));
     settingsStream.push(ammoEnabled);
 
-    settingsStream.push(formatInt(ammoSpriteSize));
+    settingsStream.push(formatFloat(ammoSpriteSize));
     
     settingsStream.push(formatInt(healthX));
     settingsStream.push(formatInt(healthY));
-    settingsStream.push(formatInt(healthSize));
+    settingsStream.push(formatFloat(healthSize));
     settingsStream.push(formatInt(healthPadding));
     settingsStream.push(healthEnabled);
     
@@ -178,7 +206,7 @@ void loadSettings(jjSTREAM settingsStream) {
     ammoX = parseInt(ammoXStr);
     ammoY = parseInt(ammoYStr);
     ammoSize = parseSize(ammoSizeStr);
-    ammoSpriteSize = parseInt(ammoSpriteSizeStr);
+    ammoSpriteSize = parseFloat(ammoSpriteSizeStr);
 
     string healthXStr, healthYStr, healthSizeStr, healthPaddingStr;
     
@@ -190,7 +218,7 @@ void loadSettings(jjSTREAM settingsStream) {
     
     healthX = parseInt(healthXStr);
     healthY = parseInt(healthYStr);
-    healthSize = parseInt(healthSizeStr);
+    healthSize = parseFloat(healthSizeStr);
     healthPadding = parseInt(healthPaddingStr);
 
     string teamScoreXStr, teamScoreYStr, teamScoreSizeStr;
@@ -215,45 +243,128 @@ void keyPress(uint keyCode) {
     }
 }
 
+int menuPage = 1;
+
+void toPage(int newPage) {
+    menuPage = newPage;
+    
+    // starts at 1 to skip "Page"
+    for (uint i = 1; i < menuButtons.length(); i++)
+    {
+        menuButtons[i].visible = false;
+    }
+    
+    if(menuPage == 1) {
+        for (int i = 0; i < 6; i++)
+        {
+            menuButtons[i + 1].visible = true;
+        }
+    } else {
+        menuButtons[7].visible = true;
+    }
+}
+
 void onLevelBegin() {
-    // jjConsole("[CH] Started!");
+    jjConsole("[CH] Started!");
+
+    largeAmmoTextAppearance.spacing = 10;
+
     menu.header = "Custom HUD";
     menu.footer = "Custom HUD v" + settingsVersion;
 
-    menuButtons.insertLast(MenuButton("Health size", -1, {
+    menuButtons.insertLast(MenuButton("Page", -1, {
         Button(
             0, function(button) {
-                healthSize -= 1;
+                button.setValue(true);
+                button.mainButton.buttons[1].setValue(false);
+                toPage(1);
+            }, "1", true),
+        Button(
+            1, function(button) {
+                button.setValue(true);
+                button.mainButton.buttons[0].setValue(false);
+                toPage(2);
+            }, "2", true)
+    }));
+
+    menuButtons[0].buttons[0].value = true;
+
+    // page 1 //
+
+    menuButtons.insertLast(MenuButton("Health size", 0, {
+        Button(
+            0, function(button) {
+                healthSize -= 0.1;
             }, "-", true),
         Button(
             1, function(button) {
-                healthSize += 1;
+                healthSize += 0.1;
             }, "+", true)
     }));
 
-    menuButtons.insertLast(MenuButton("Ammo size", 0, {
+    menuButtons.insertLast(MenuButton("Ammo size", 1, {
         Button(
             0, function(button) {
-                ammoSpriteSize -= 1;
+                ammoSpriteSize -= 0.1;
             }, "-", true),
         Button(
             1, function(button) {
-                ammoSpriteSize += 1;
+                ammoSpriteSize += 0.1;
             }, "+", true)
     }));
 
-    menuButtons.insertLast(MenuButton("Ammo text size", 1, {
+    menuButtons.insertLast(MenuButton("Ammo text size", 2, {
         Button(
             0, function(button) {
-                if(ammoSize == STRING::MEDIUM) ammoSize = STRING::SMALL;
-                if(ammoSize == STRING::LARGE) ammoSize = STRING::MEDIUM;
+                if(ammoSize == STRING::MEDIUM) { ammoSize = STRING::SMALL; return; }
+                if(ammoSize == STRING::LARGE) { ammoSize = STRING::MEDIUM; return; }
             }, "-", true),
         Button(
             1, function(button) {
-                if(ammoSize == STRING::SMALL) ammoSize = STRING::MEDIUM;
-                if(ammoSize == STRING::MEDIUM) ammoSize = STRING::LARGE;
+                if(ammoSize == STRING::SMALL) { ammoSize = STRING::MEDIUM; return; }
+                if(ammoSize == STRING::MEDIUM) { ammoSize = STRING::LARGE; return; }
             }, "+", true)
     }));
+
+    menuButtons.insertLast(MenuButton("Ammo sprite padding X", 3, {
+        Button(
+            0, function(button) {
+                ammoSpritePaddingX -= 1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                ammoSpritePaddingX += 1;
+            }, "+", true)
+    }));
+
+    menuButtons.insertLast(MenuButton("Ammo sprite padding Y", 4, {
+        Button(
+            0, function(button) {
+                ammoSpritePaddingY -= 1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                ammoSpritePaddingY += 1;
+            }, "+", true)
+    }));
+
+    menuButtons.insertLast(MenuButton("Reset to defaults", 5, Button(0, function(button){resetToDefaults();})));
+
+    // page 1 //
+
+    // page 2 //
+    menuButtons.insertLast(MenuButton("test button for page 2", 0, {
+        Button(
+            0, function(button) {
+                
+            }, "-", true),
+        Button(
+            1, function(button) {
+                
+            }, "+", true)
+    }));
+
+    menuButtons[7].visible = false;
 
     keyPressCallbacks.insertLast(keyPress);
     
@@ -326,7 +437,6 @@ void onPlayer(jjPLAYER@ player) {
     } else {
         if(!ammoEnabled && itemBeingLocated == "ammo") { gun.visible = true; } else { gun.visible = ammoEnabled; }
     }
-
 
     for (uint i = 0; i < menuButtons.length(); i++)
     {
@@ -487,11 +597,15 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
                 player.charCurr == CHAR::LORI ||
                 player.charCurr == CHAR::BIRD2
             )) {
-                canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
+                if(ammoSize != STRING::LARGE || (ammoSize == STRING::LARGE && ammo == "^")) {
+                    canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
+                } else {
+                    canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize, largeAmmoTextAppearance);
+                }
             }
             
-            gun.x = ammoX - 10;
-            gun.y = ammoY;
+            gun.x = ammoX - 10 + ammoSpritePaddingX;
+            gun.y = ammoY + ammoSpritePaddingY;
             
             gun.spriteMode = (player.currWeapon == 1) ? SPRITE::PLAYER : SPRITE::NORMAL;
             gun.spriteModeParam = player.clientID;
