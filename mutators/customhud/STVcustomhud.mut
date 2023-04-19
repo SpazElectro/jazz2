@@ -242,6 +242,19 @@ void onLevelBegin() {
             }, "+", true)
     }));
 
+    menuButtons.insertLast(MenuButton("Ammo text size", 1, {
+        Button(
+            0, function(button) {
+                if(ammoSize == STRING::MEDIUM) ammoSize = STRING::SMALL;
+                if(ammoSize == STRING::LARGE) ammoSize = STRING::MEDIUM;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                if(ammoSize == STRING::SMALL) ammoSize = STRING::MEDIUM;
+                if(ammoSize == STRING::MEDIUM) ammoSize = STRING::LARGE;
+            }, "+", true)
+    }));
+
     keyPressCallbacks.insertLast(keyPress);
     
     jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
