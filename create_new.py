@@ -4,36 +4,40 @@ import os, shutil
 ml = pick(["Mutator", "Level"], "Do you want to create a mutator or a level?", ">")
 name = input("Name? ")
 
-mutatorRun = """@echo off
+run = """@echo off
 
 REM Read variables from run.ini
-for /f "tokens=1* delims==" %%a in ('type "..\..\\run.ini" ^| find "="') do (
+for /f "tokens=1* delims==" %%a in ('type "..\..\run.ini" ^| find "="') do (
   if /i "%%a"=="GAME_DIRECTORY" set "GAME_DIRECTORY=%%b"
   if /i "%%a"=="GAME_NAME" set "GAME_NAME=%%b"
 )
 
-echo Copying
+echo Copying files...
 copy "../../scripts/" "%GAME_DIRECTORY%" /y
-copy STV$N$.mut "%GAME_DIRECTORY%" /y
-echo Starting
-"%GAME_DIRECTORY%%GAME_NAME%" -server -mutators=STV$N$.mut castle1
-@echo on
-"""
-
-levelRun = """@echo off
-REM Read variables from run.ini
-for /f "tokens=1* delims==" %%a in ('type "..\..\\run.ini" ^| find "="') do (
-  if /i "%%a"=="GAME_DIRECTORY" set "GAME_DIRECTORY=%%b"
-  if /i "%%a"=="GAME_NAME" set "GAME_NAME=%%b"
+for %%i in (*.j2l *.j2as *.mut) do (
+  copy "%%i" "%GAME_DIRECTORY%" /y
 )
 
-echo Copying
-copy "../../scripts/" "%GAME_DIRECTORY%" /y
-copy STV$N$.j2l "%GAME_DIRECTORY%" /y
-copy STV$N$.j2as "%GAME_DIRECTORY%" /y
+set "J2L_LEVEL="
+set "MUTATOR="
+
 echo Starting
-"%GAME_DIRECTORY%%GAME_NAME%" -server STV$N$
+for %%i in (*.j2l) do (
+  set "J2L_LEVEL=%%i"
+  goto :check_mutator
+)
+
+:check_mutator
+for %%i in (*.mut) do (
+  set "MUTATOR=-mutators=%%i"
+  goto :start_game
+)
+
+:start_game
+if not defined J2L_LEVEL set "J2L_LEVEL=battle1"
+"%GAME_DIRECTORY%%GAME_NAME%" -server %MUTATOR% %J2L_LEVEL% -battle
 @echo on
+
 """
 
 exampleMutator = """#pragma name \"$N$\"
@@ -66,9 +70,7 @@ if ml[1] == 0:
     os.mkdir(f"./mutators/{name}/")
 
     with open(f"./mutators/{name}/run.bat", "w") as r:
-        mutatorRun = mutatorRun.replace("$N$", name)
-        mutatorRun = mutatorRun.replace("$N$", name)
-        r.write(mutatorRun)
+        r.write(run)
     
     with open(f"./mutators/{name}/STV{name}.mut", "w") as m:
         exampleMutator = exampleMutator.replace("$N$", name)
@@ -78,10 +80,7 @@ else:
     os.mkdir(f"./levels/{name}/")
 
     with open(f"./levels/{name}/run.bat", "w") as r:
-        levelRun = levelRun.replace("$N$", name)
-        levelRun = levelRun.replace("$N$", name)
-        levelRun = levelRun.replace("$N$", name)
-        r.write(levelRun)
+        r.write(run)
     
     with open(f"./levels/{name}/STV{name}.j2as", "w") as m:
         m.write(exampleLevel)
