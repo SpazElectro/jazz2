@@ -630,7 +630,7 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
                 int sprParam = isDamaged ? 127 : 0;
 
                 canvas.drawResizedSprite(
-                    healthX - (i * (healthPadding * healthSize)),
+                    int(healthX - (i * (healthPadding * healthSize))),
                     healthY,
                     ANIM::PICKUPS,
                     41,
