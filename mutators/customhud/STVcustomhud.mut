@@ -5,16 +5,18 @@
 #pragma require "STVutil.asc"
 
 #include "STVutil.asc"
+#include "STVmenu.asc"
 
 // for intellisense
 #include "../../scripts/STVutil.asc"
+#include "../../scripts/STVmenu.asc"
 
 bool toggled_on = true;
 
 bool locatingItem = false;
 string itemBeingLocated = "";
 
-string settingsVersion = "0.1P";
+string settingsVersion = "0.2A";
 
 array<int> upgradedIds;
 array<int> unupgradedIds;
@@ -27,6 +29,8 @@ int ammoX = 700;
 int ammoY = 585;
 STRING::Size ammoSize = STRING::MEDIUM;
 bool ammoEnabled = true;
+
+int ammoSpriteSize = 1;
 
 int healthX       = 785;
 int healthY       = 10;
@@ -42,6 +46,9 @@ bool teamScoreEnabled = false;
 // the magic ends here
 
 AnimatedSprite@ gun = AnimatedSprite(ANIM::PICKUPS, 0, 0, 0, 0.25, false);
+CustomMenu@ menu = CustomMenu();
+
+array<MenuButton@> menuButtons;
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
@@ -117,6 +124,8 @@ jjSTREAM saveSettings() {
     settingsStream.push(formatInt(ammoY));
     settingsStream.push(formatSize(ammoSize));
     settingsStream.push(ammoEnabled);
+
+    settingsStream.push(formatInt(ammoSpriteSize));
     
     settingsStream.push(formatInt(healthX));
     settingsStream.push(formatInt(healthY));
@@ -159,15 +168,17 @@ void loadSettings(jjSTREAM settingsStream) {
 
     settingsStream.pop(toggled_on);
 
-    string ammoXStr, ammoYStr, ammoSizeStr;
+    string ammoXStr, ammoYStr, ammoSizeStr, ammoSpriteSizeStr;
     settingsStream.pop(ammoXStr);
     settingsStream.pop(ammoYStr);
     settingsStream.pop(ammoSizeStr);
     settingsStream.pop(ammoEnabled);
+    settingsStream.pop(ammoSpriteSizeStr);
 
     ammoX = parseInt(ammoXStr);
     ammoY = parseInt(ammoYStr);
     ammoSize = parseSize(ammoSizeStr);
+    ammoSpriteSize = parseInt(ammoSpriteSizeStr);
 
     string healthXStr, healthYStr, healthSizeStr, healthPaddingStr;
     
@@ -198,8 +209,40 @@ void loadSettings(jjSTREAM settingsStream) {
     gridSize = parseInt(snappingStr);
 }
 
+void keyPress(uint keyCode) {
+    if(keyCode == KEYS[0].code) {
+        menu.toggle();
+    }
+}
+
 void onLevelBegin() {
     // jjConsole("[CH] Started!");
+    menu.header = "Custom HUD";
+    menu.footer = "Custom HUD v" + settingsVersion;
+
+    menuButtons.insertLast(MenuButton("Health size", -1, {
+        Button(
+            0, function(button) {
+                healthSize -= 1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                healthSize += 1;
+            }, "+", true)
+    }));
+
+    menuButtons.insertLast(MenuButton("Ammo size", 0, {
+        Button(
+            0, function(button) {
+                ammoSpriteSize -= 1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                ammoSpriteSize += 1;
+            }, "+", true)
+    }));
+
+    keyPressCallbacks.insertLast(keyPress);
     
     jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
     
@@ -233,6 +276,8 @@ void onLevelBegin() {
 }
 
 void onPlayer(jjPLAYER@ player) {
+    updateKeys();
+
     if(locatingItem) {
         int x = snap(jjMouseX);
         int y = snap(jjMouseY);
@@ -263,16 +308,20 @@ void onPlayer(jjPLAYER@ player) {
     
     gun.update();
 
-    if(!(
-        player.charCurr == CHAR::JAZZ ||
-        player.charCurr == CHAR::SPAZ ||
-        player.charCurr == CHAR::LORI ||
-        player.charCurr == CHAR::BIRD2
-    )) {
+    if(!(player.charCurr == CHAR::JAZZ || player.charCurr == CHAR::SPAZ || player.charCurr == CHAR::LORI || player.charCurr == CHAR::BIRD2)) {
         gun.visible = false;
     } else {
         if(!ammoEnabled && itemBeingLocated == "ammo") { gun.visible = true; } else { gun.visible = ammoEnabled; }
     }
+
+
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.input(player);
+    }
+
+    menu.update();
 }
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
@@ -374,6 +423,16 @@ string determineTeamColor(TEAM::Color color) {
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    menu.draw(canvas);
+
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.draw(canvas);
+    }
+
+    menu.finishDrawing(canvas);
+
     // utils
     if(locatingItem) {
         int x = ammoX;
@@ -424,6 +483,9 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             gun.spriteMode = (player.currWeapon == 1) ? SPRITE::PLAYER : SPRITE::NORMAL;
             gun.spriteModeParam = player.clientID;
 
+            gun.xScale = ammoSpriteSize;
+            gun.yScale = ammoSpriteSize;
+            
             gun.draw(canvas);
         }
 

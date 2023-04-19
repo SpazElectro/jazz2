@@ -1,6 +1,5 @@
 #pragma name "Weapon List"
 
-#pragma require "STVweaponlist_constants.asc"
 #pragma require "STVutil.asc"
 
 #include "STVutil.asc"
