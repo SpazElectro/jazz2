@@ -16,7 +16,7 @@ void onMain() {
         jjOBJ@ obj = jjObjects[objId];
         if(obj.eventID == 72)
         {
-            obj.phase = 2;
+            jjConsole("" + obj.var[0]);
         }
     }
 }
