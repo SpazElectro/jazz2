@@ -11,14 +11,32 @@ enum packet_type { GET_JUGGERNAUT,
 				   JUGGERNAUT_DEAD }
 
 bool gameStarted = false;
-jjPLAYER @jagganut;
-int jnHealth = 100;
-bool confirmed = false;
+
+AnimatedSprite@ juggernautPlayerSprite = AnimatedSprite(ANIM::JAZZ, 0, 0, 0, 0.25, false);
+jjPLAYER @juggernautPlayer;
+int juggernautHealth = 100;
+bool juggernautsDeathConfirmed = false;
+
+int timeLeft = 0;
+
+string convertSecondsToTimeString(int seconds)
+{
+    int minutes = seconds / 60;
+    int remainingSeconds = seconds % 60;
+
+    // convert minutes and remaining seconds to strings
+    string minuteString = formatInt(minutes, "02");
+    string secondString = formatInt(remainingSeconds, "02");
+
+    // return the formatted time string
+    return minuteString + ":" + secondString;
+}
 
 void onLevelBegin()
 {
 	if (jjIsServer)
 		selectJuggernaut();
+	
 	if (!jjIsServer)
 	{
 		jjSTREAM packet;
@@ -33,22 +51,22 @@ void onPlayer(jjPLAYER @player)
 {
 	if (gameStarted && jjIsServer)
 	{
-		if (jagganut.health != 7)
+		if (juggernautPlayer.health != 7)
 		{
-			jnHealth -= (7 - jagganut.health);
-			jagganut.health = 7;
+			juggernautHealth -= (7 - juggernautPlayer.health);
+			juggernautPlayer.health = 7;
 
 			jjSTREAM healthPacket;
 			healthPacket.push(int8(SEND_JUGGERNAUT_HEALTH));
-			healthPacket.push(jnHealth);
+			healthPacket.push(juggernautHealth);
 			jjSendPacket(healthPacket);
 		}
 
-		jagganut.fastfire = 10;
+		juggernautPlayer.fastfire = 10;
 
-		if (jnHealth <= 0 && !confirmed)
+		if (juggernautHealth <= 0 && !juggernautsDeathConfirmed)
 		{
-			confirmed = true;
+			juggernautsDeathConfirmed = true;
 			jjConsole("[JN] The Juggernaut is dead!", true);
 			selectJuggernaut();
 
@@ -67,25 +85,25 @@ void selectJuggernaut()
 		5 * 70, function() {
 			jjConsole("[JN] Selecting juggernaut.", true);
 
-			jnHealth = 100;
+			juggernautHealth = 100;
 
-			@jagganut = getRandomPlayer();
+			@juggernautPlayer = getRandomPlayer();
 
 			for (int i = 1; i < 9; i++)
 			{
-				jagganut.ammo[i] = 999;
+				juggernautPlayer.ammo[i] = 999;
 			}
 
-			jagganut.health = 7;
+			juggernautPlayer.health = 7;
 
 			gameStarted = true;
-			confirmed = false;
+			juggernautsDeathConfirmed = false;
 
-			jjConsole("[JN] The juggernaut is " + jagganut.nameUnformatted + ".", true);
+			jjConsole("[JN] The juggernaut is " + juggernautPlayer.nameUnformatted + ".", true);
 
 			jjSTREAM stream;
 			stream.push(int8(GET_JUGGERNAUT));
-			stream.push(jagganut.playerID);
+			stream.push(juggernautPlayer.playerID);
 			jjSendPacket(stream);
 		});
 }
@@ -102,10 +120,10 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 			int8 juggernautID;
 			packet.pop(juggernautID);
 
-			@jagganut = jjPlayers[juggernautID];
+			@juggernautPlayer = jjPlayers[juggernautID];
 			gameStarted = true;
 		} else if (type == SEND_JUGGERNAUT_HEALTH) {
-			packet.pop(jnHealth);
+			packet.pop(juggernautHealth);
 		} else if(type == JUGGERNAUT_DEAD) {
 			gameStarted = false;
 		}
@@ -120,7 +138,7 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 		{
 			jjSTREAM newPacket;
 			newPacket.push(int8(GET_JUGGERNAUT));
-			newPacket.push(jagganut.playerID);
+			newPacket.push(juggernautPlayer.playerID);
 
 			jjSendPacket(newPacket, fromClientID);
 		}
@@ -131,7 +149,7 @@ bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
 {
 	if (gameStarted)
 	{
-		canvas.drawString(jjResolutionWidth / 2 - 150, jjResolutionHeight / 2 - 200, jagganut.nameUnformatted + ": " + jnHealth, STRING::SMALL, STRING::NORMAL, 0);
+		canvas.drawString(jjResolutionWidth / 2 - 150, jjResolutionHeight / 2 - 200, juggernautPlayer.nameUnformatted + ": " + juggernautHealth, STRING::SMALL, STRING::NORMAL, 0);
 	}
 
 	return false;
@@ -139,5 +157,5 @@ bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
 
 //void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
 //{
-//	canvas.drawSprite(player.xPos - 18, player.yPos, ANIM::SNOW, 0, 0, 0, SPRITE::NORMAL, 0);
+//	canvas.drawSprite(player.xPos - 18, player.yPos, ANIM::CUSTOM[0], 0, 0, 0, SPRITE::NORMAL, 0);
 //}
