@@ -44,6 +44,8 @@ void onLevelBegin()
 		jjSendPacket(packet);
 	}
 
+	jjAnimSets[ANIM::CUSTOM[1]].load(0, "juggernaut.j2a");
+
 	jjConsole("|||Custom Mode: Juggernaut");
 }
 
@@ -155,7 +157,7 @@ bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
 	return false;
 }
 
-//void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
-//{
-//	canvas.drawSprite(player.xPos - 18, player.yPos, ANIM::CUSTOM[0], 0, 0, 0, SPRITE::NORMAL, 0);
-//}
+void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
+{
+	canvas.drawSprite(player.xPos - 18, player.yPos, ANIM::CUSTOM[1], 0, 0, 0, SPRITE::NORMAL, 0);
+}
