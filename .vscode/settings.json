@@ -15,7 +15,8 @@
         "xlocale": "cpp",
         "xstring": "cpp",
         "limits": "cpp",
-        "windows.h": "c"
+        "windows.h": "c",
+        "typeinfo": "cpp"
     },
     "python.analysis.typeCheckingMode": "off",
     "discord.enabled": true
