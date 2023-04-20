@@ -9,7 +9,8 @@
 enum packet_type { GET_JUGGERNAUT,
 				   SEND_JUGGERNAUT_HEALTH,
 				   JUGGERNAUT_DEAD,
-				   JUGGERNAUT_GIVEUP }
+				   JUGGERNAUT_GIVEUP,
+				   TIME_OUT }
 
 bool gameStarted = false;
 
@@ -106,16 +107,39 @@ void onPlayer(jjPLAYER @player)
 		juggernautPlayerSprite.x = jjResolutionWidth / 2 - 160 + (jjGetStringWidth(juggernautPlayer.nameUnformatted + ": " + juggernautHealth, STRING::SMALL, normalTextAppearance) / 2);
 		juggernautPlayerSprite.y = jjResolutionHeight / 2 - 200;
 
-		if(jjGameTicks % 70 == 0 && timeLeft > 0) {
+		if(jjGameTicks % 1 == 0 && timeLeft > 0) {
 			timeLeft -= 1;
 		}
 	}
 
 	if (gameStarted && jjIsServer)
 	{
-		if(timeLeft <= 0) {
+		if(!juggernautPlayer.isActive && !juggernautsDeathConfirmed) {
+			jjConsole("[JN] The juggernaut left the game!", true);
 
+			jjSTREAM packet;
+			packet.push(uint8(JUGGERNAUT_DEAD));
+
+			jjSendPacket(packet);
+			selectJuggernaut();
+
+			juggernautsDeathConfirmed = true;
+			gameStarted = false;
 		}
+
+		if(timeLeft <= 0 && !juggernautsDeathConfirmed) {
+			jjConsole("[JN] The time ran out!", true);
+
+			jjSTREAM packet;
+			packet.push(uint8(TIME_OUT));
+
+			jjSendPacket(packet);
+			selectJuggernaut();
+
+			juggernautsDeathConfirmed = true;
+			gameStarted = false;
+		}
+
 		if (juggernautPlayer.health != 7)
 		{
 			juggernautHealth -= (7 - juggernautPlayer.health);
@@ -200,6 +224,11 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 		int8 type;
 		packet.pop(type);
 
+		if(fromClientID != 0) {
+			jjConsole(jjPlayers[fromClientID].nameUnformatted + " tried to send you false info!");
+			return;
+		}
+
 		if (type == GET_JUGGERNAUT)
 		{
 			int8 juggernautID;
@@ -210,7 +239,8 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 			gameStarted = true;
 		} else if (type == SEND_JUGGERNAUT_HEALTH) {
 			packet.pop(juggernautHealth);
-		} else if(type == JUGGERNAUT_DEAD) {
+		} else if(type == JUGGERNAUT_DEAD || type == TIME_OUT) {
+			juggernautsDeathConfirmed = false;
 			gameStarted = false;
 		}
 	}
