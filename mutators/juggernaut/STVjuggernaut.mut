@@ -1,5 +1,6 @@
 #pragma name "Juggernaut"
 #pragma require "STVutil.asc"
+#pragma require "juggernaut.j2a"
 
 #include "STVutil.asc"
 
@@ -45,11 +46,19 @@ void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
 	if(stringReceived == "!k") {
 
 		if(gameStarted && juggernautPlayer.clientID == clientID) {
-			jjSTREAM packet;
-			packet.push(uint8(JUGGERNAUT_GIVEUP));
-			jjSendPacket(packet, 0);
-
-			juggernautHealth = 0;
+			if(jjIsServer) {
+				jjSTREAM packet;
+				packet.push(uint8(TIME_OUT));
+				jjSendPacket(packet);
+				
+				jjConsole("[JN] The juggernaut commited suicide!", true);
+				
+				endGame();
+			} else {
+				jjSTREAM packet;
+				packet.push(uint8(JUGGERNAUT_GIVEUP));
+				jjSendPacket(packet, 0);
+			}
 		}
 	}
 }
@@ -81,6 +90,9 @@ void onLevelBegin()
 		if(!jjNoBlink)
 			jjChat("/noblink on");
 		
+		jjChat("/selfswap off");
+		jjChat("/eventeams off");
+
 		selectJuggernaut();
 	}
 	
@@ -94,6 +106,23 @@ void onLevelBegin()
 	jjAnimSets[ANIM::CUSTOM[1]].load(0, "juggernaut.j2a");
 
 	jjConsole("|||Custom Mode: Juggernaut");
+}
+
+void endGame() {
+	if(jjIsServer) {
+		for (int i = 0; i < 32; i++)
+		{
+			if (jjPlayers[i].isActive) {
+				if(jjPlayers[i].team == TEAM::RED)
+					jjChat("/swap " + (jjPlayers[i].clientID + 1));
+			}
+		}
+
+		selectJuggernaut();
+	}
+
+	juggernautsDeathConfirmed = true;
+	gameStarted = false;
 }
 
 void onPlayer(jjPLAYER @player)
@@ -115,29 +144,23 @@ void onPlayer(jjPLAYER @player)
 	if (gameStarted && jjIsServer)
 	{
 		if(!juggernautPlayer.isActive && !juggernautsDeathConfirmed) {
-			jjConsole("[JN] The juggernaut left the game!", true);
-
 			jjSTREAM packet;
 			packet.push(uint8(JUGGERNAUT_DEAD));
-
 			jjSendPacket(packet);
-			selectJuggernaut();
 
-			juggernautsDeathConfirmed = true;
-			gameStarted = false;
+			jjConsole("[JN] The juggernaut left the game!", true);
+
+			endGame();
 		}
 
 		if(timeLeft <= 0 && !juggernautsDeathConfirmed) {
-			jjConsole("[JN] The time ran out!", true);
-
 			jjSTREAM packet;
 			packet.push(uint8(TIME_OUT));
-
 			jjSendPacket(packet);
-			selectJuggernaut();
 
-			juggernautsDeathConfirmed = true;
-			gameStarted = false;
+			jjConsole("[JN] The time ran out!", true);
+			
+			endGame();
 		}
 
 		if (juggernautPlayer.health != 7)
@@ -155,23 +178,13 @@ void onPlayer(jjPLAYER @player)
 
 		if (juggernautHealth <= 0 && !juggernautsDeathConfirmed)
 		{
-			juggernautsDeathConfirmed = true;
-			jjConsole("[JN] The Juggernaut is dead!", true);
-			selectJuggernaut();
-
-			for (int i = 0; i < 32; i++)
-			{
-				if (jjPlayers[i].isActive) {
-					if(jjPlayers[i].team == TEAM::RED)
-						jjChat("/swap " + (jjPlayers[i].clientID + 1));
-				}
-			}
-
-			gameStarted = false;
-
 			jjSTREAM deadPacket;
 			deadPacket.push(int8(JUGGERNAUT_DEAD));
 			jjSendPacket(deadPacket);
+
+			jjConsole("[JN] The Juggernaut is dead!", true);
+
+			endGame();
 		}
 
 		for (int i = 1; i < 10; i++)
@@ -240,8 +253,7 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 		} else if (type == SEND_JUGGERNAUT_HEALTH) {
 			packet.pop(juggernautHealth);
 		} else if(type == JUGGERNAUT_DEAD || type == TIME_OUT) {
-			juggernautsDeathConfirmed = false;
-			gameStarted = false;
+			endGame();
 		}
 	}
 
@@ -258,7 +270,13 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 
 			jjSendPacket(newPacket, fromClientID);
 		} else if (type == JUGGERNAUT_GIVEUP && gameStarted) {
-			juggernautHealth = 0;
+			jjSTREAM packet;
+			packet.push(uint8(JUGGERNAUT_DEAD));
+			jjSendPacket(packet);
+			
+			jjConsole("[JN] The juggernaut commited suicide!", true);
+			
+			endGame();
 		}
 	}
 }
