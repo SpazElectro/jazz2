@@ -23,12 +23,10 @@ bool juggernautsDeathConfirmed = false;
 
 int timeLeft = 0;
 
-string convertSecondsToTimeString(int seconds)
-{
+string convertSecondsToTimeString(int seconds) {
     int minutes = seconds / 60;
     int remainingSeconds = seconds % 60;
 
-    // convert minutes and remaining seconds to strings
     string minuteString = formatInt(minutes, "02");
     string secondString = formatInt(remainingSeconds, "02");
 
@@ -39,13 +37,11 @@ string convertSecondsToTimeString(int seconds)
 
 	finalString += secondString;
 
-    // return the formatted time string
     return finalString;
 }
 
 void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
 	if(stringReceived == "!k") {
-
 		if(gameStarted && juggernautPlayer.clientID == clientID) {
 			if(jjIsServer) {
 				jjSTREAM packet;
@@ -69,15 +65,16 @@ void onLevelBegin()
 	juggernautPlayerSprite.animSet = ANIM::JAZZ;
 	juggernautPlayerSprite.spriteMode = SPRITE::PLAYER;
 
-	jjPAL newPal;
-	newPal.load("Diam2.j2t");
-	newPal.apply();
+	jjPAL diamondusPal;
+	diamondusPal.load("Diam2.j2t");
+	diamondusPal.apply();
 
 	if (jjIsServer) {
 		if(jjGameMode != GAME::CTF) {
 			jjChat("/ctf");
 		}
 
+		// teams //-
 		if(jjEnabledTeams[TEAM::GREEN])
 			jjChat("/teams green off");
 		if(jjEnabledTeams[TEAM::YELLOW])
@@ -87,10 +84,12 @@ void onLevelBegin()
 			jjChat("/teams red on");
 		if(!jjEnabledTeams[TEAM::BLUE])
 			jjChat("/teams red on");
+		// teams //
 
 		if(!jjNoBlink)
 			jjChat("/noblink on");
 		
+		// no properties for these yikes
 		jjChat("/selfswap off");
 		jjChat("/eventeams off");
 
