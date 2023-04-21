@@ -23,7 +23,8 @@ bool juggernautsDeathConfirmed = false;
 
 int timeLeft = 0;
 
-string convertSecondsToTimeString(int seconds) {
+string convertSecondsToTimeString(int seconds)
+{
     int minutes = seconds / 60;
     int remainingSeconds = seconds % 60;
 
@@ -40,7 +41,8 @@ string convertSecondsToTimeString(int seconds) {
     return finalString;
 }
 
-void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
+void onChat(int clientID, string &in stringReceived, CHAT::Type chatType)
+{
 	if(stringReceived == "!k") {
 		if(gameStarted && juggernautPlayer.clientID == clientID) {
 			if(jjIsServer) {
@@ -115,7 +117,8 @@ void onLevelBegin()
 	jjConsole("|||Custom Mode: Juggernaut");
 }
 
-void endGame() {
+void endGame()
+{
 	if(jjIsServer) {
 		for (int i = 0; i < 32; i++)
 		{
