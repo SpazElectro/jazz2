@@ -11,7 +11,8 @@ enum packet_type { GET_JUGGERNAUT,
 				   SEND_JUGGERNAUT_HEALTH,
 				   JUGGERNAUT_DEAD,
 				   JUGGERNAUT_GIVEUP,
-				   TIME_OUT }
+				   TIME_OUT,
+				   TIME_GET }
 
 bool gameStarted = false;
 
@@ -100,7 +101,11 @@ void onLevelBegin()
 	{
 		jjSTREAM packet;
 		packet.push(uint8(GET_JUGGERNAUT));
-		jjSendPacket(packet);
+		jjSendPacket(packet, 0);
+
+		jjSTREAM packet2;
+		packet2.push(uint8(TIME_GET));
+		jjSendPacket(packet2, 0);
 	}
 
 	jjAnimSets[ANIM::CUSTOM[1]].load(0, "juggernaut.j2a");
@@ -254,6 +259,8 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 			packet.pop(juggernautHealth);
 		} else if(type == JUGGERNAUT_DEAD || type == TIME_OUT) {
 			endGame();
+		} else if(type == TIME_GET) {
+			packet.pop(timeLeft);
 		}
 	}
 
@@ -277,6 +284,12 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 			jjConsole("[JN] The juggernaut commited suicide!", true);
 			
 			endGame();
+		} else if (type == TIME_GET && gameStarted) {
+			jjSTREAM newPacket;
+			newPacket.push(uint8(TIME_GET));
+			newPacket.push(timeLeft);
+
+			jjSendPacket(newPacket, fromClientID);
 		}
 	}
 }
