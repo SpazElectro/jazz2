@@ -50,15 +50,15 @@ void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
 				jjSTREAM packet;
 				packet.push(uint8(TIME_OUT));
 				jjSendPacket(packet);
-				
-				jjConsole("[JN] The juggernaut commited suicide!", true);
-				
-				endGame();
 			} else {
 				jjSTREAM packet;
 				packet.push(uint8(JUGGERNAUT_GIVEUP));
 				jjSendPacket(packet, 0);
 			}
+
+			jjConsole("[JN] The juggernaut commited suicide!", true);
+			
+			endGame();
 		}
 	}
 }
@@ -136,7 +136,7 @@ void onPlayer(jjPLAYER @player)
 		juggernautPlayerSprite.x = jjResolutionWidth / 2 - 160 + (jjGetStringWidth(juggernautPlayer.nameUnformatted + ": " + juggernautHealth, STRING::SMALL, normalTextAppearance) / 2);
 		juggernautPlayerSprite.y = jjResolutionHeight / 2 - 200;
 
-		if(jjGameTicks % 1 == 0 && timeLeft > 0) {
+		if(jjGameTicks % 70 == 0 && timeLeft > 0) {
 			timeLeft -= 1;
 		}
 	}
@@ -210,13 +210,13 @@ void selectJuggernaut()
 				}
 			}
 
-			juggernautHealth = 100;
+			juggernautHealth = 100 + (jjMaxHealth + jjMaxHealth + 1);
 
 			@juggernautPlayer = getRandomPlayer();
 			jjChat("/swap " + (juggernautPlayer.clientID + 1));
 			
-			juggernautPlayer.health = 7;
-
+			juggernautPlayer.health = 0;
+			
 			gameStarted = true;
 			timeLeft = 8*60;
 			juggernautsDeathConfirmed = false;
@@ -270,9 +270,9 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 
 			jjSendPacket(newPacket, fromClientID);
 		} else if (type == JUGGERNAUT_GIVEUP && gameStarted) {
-			jjSTREAM packet;
-			packet.push(uint8(JUGGERNAUT_DEAD));
-			jjSendPacket(packet);
+			jjSTREAM newPacket;
+			newPacket.push(uint8(JUGGERNAUT_DEAD));
+			jjSendPacket(newPacket);
 			
 			jjConsole("[JN] The juggernaut commited suicide!", true);
 			
