@@ -89,6 +89,9 @@ void onLevelBegin()
 		if(!jjNoBlink)
 			jjChat("/noblink on");
 		
+		if(!jjMaxHealth == 5)
+			jjChat("/maxhealth 5");
+		
 		// no properties for these yikes
 		jjChat("/selfswap off");
 		jjChat("/eventeams off");
@@ -147,6 +150,14 @@ void onPlayer(jjPLAYER @player)
 
 	if (gameStarted && jjIsServer)
 	{
+		for (int i = 0; i < 32; i++)
+		{
+			if (jjPlayers[i].isActive) {
+				if(jjPlayers[i].team == TEAM::RED && jjPlayers[i].clientID != juggernautPlayer.clientID)
+					jjChat("/swap " + (jjPlayers[i].clientID + 1));
+			}
+		}
+		
 		if(!juggernautPlayer.isActive && !juggernautsDeathConfirmed) {
 			jjSTREAM packet;
 			packet.push(uint8(JUGGERNAUT_DEAD));
@@ -242,7 +253,7 @@ void onReceive(jjSTREAM &in packet, int fromClientID)
 		packet.pop(type);
 
 		if(fromClientID != 0) {
-			jjConsole(jjPlayers[fromClientID].nameUnformatted + " tried to send you false info!");
+			jjConsole(jjPlayersWithClientID(fromClientID)[0].nameUnformatted + " tried to send you false info!");
 			return;
 		}
 
