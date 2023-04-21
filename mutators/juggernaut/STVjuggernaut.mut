@@ -23,24 +23,6 @@ bool juggernautsDeathConfirmed = false;
 
 int timeLeft = 0;
 
-string convertSecondsToTimeString(int seconds)
-{
-    int minutes = seconds / 60;
-    int remainingSeconds = seconds % 60;
-
-    string minuteString = formatInt(minutes, "02");
-    string secondString = formatInt(remainingSeconds, "02");
-
-	string finalString = minuteString + ":";
-
-	if(remainingSeconds < 10)
-		finalString += "0";
-
-	finalString += secondString;
-
-    return finalString;
-}
-
 void onChat(int clientID, string &in stringReceived, CHAT::Type chatType)
 {
 	if(stringReceived == "!k") {
@@ -91,7 +73,7 @@ void onLevelBegin()
 		if(!jjNoBlink)
 			jjChat("/noblink on");
 		
-		if(!jjMaxHealth == 5)
+		if(jjMaxHealth != 5)
 			jjChat("/maxhealth 5");
 		
 		// no properties for these yikes
