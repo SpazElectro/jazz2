@@ -1,3 +1,0 @@
-Many debug functions are present in the build still, loc_43E24C (.text:0043E24C), loc_43E301 (.text:0043E301)
-
-FIXME: when funccall gets hooked into the game, the game crashes

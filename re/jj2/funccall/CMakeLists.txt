@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
-project(MyDLLProject)
+project(funccall)
 
-set(CMAKE_CXX_STANDARD 98)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
-set(CMAKE_CXX_FLAGS "-m32")
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-set(SOURCES main.cpp)
+add_library(funccall SHARED main.cpp)
 
-add_library(MyDLL SHARED ${SOURCES})
+set_target_properties(funccall PROPERTIES OUTPUT_NAME "funccall")
