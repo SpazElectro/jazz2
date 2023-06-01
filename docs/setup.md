@@ -1,11 +1,13 @@
-# The easiest way(s) to run your JJ2+ scripts!
+# The easiest way to run your JJ2+ scripts!
 
-First steps first, let's start by making your development folder, Create a new folder, name it whatever you want, I use/prefer `jazz2`, create 3 new folders, `levels`, `mutators` and `scripts` (this will be used later on for advanced stuff), now you can follow these simple steps on how to create scripted levels and mutators fast:
+First steps first, let's start by making your development folder, Create a new folder, name it whatever you want, I use/prefer `jazz2`, create 2 new folders, `levels`, `mutators`, now you can follow these simple steps on how to create scripted levels and mutators fast:
 
-* Alright, first off, you'll need [Python 3](https://www.python.org) (and a Windows machine to play test)
+* Alright, first off, you'll need [Python 3](https://www.python.org) (and a Windows machine to play test), go to the development folder then open the command prompt by clicking on the ***empty*** space at the title bar and typing in `cmd .` and press enter
+![](images/setup_1.png)
+* Then type in the command prompt: `pip install -r requirements.txt`, and press enter, close the command prompt right after it finishes
 * Clone [this repo](https://github.com/SpazElectro/jazz2), You can clone it by clicking on `Code` and then `Download ZIP`
 ![](images/setup.png)
-* Open the folder and copy: `create_new.py`,`empty.j2l` and now paste that into your development folder
+* Open the folder and copy: `create_new.py`,`empty.j2l` and the `scripts` folder and now paste everything into your development folder
 * Create a new file, called: `run.ini`, and make it follow this format, and replace the values with your own, so for my game installation at `F:\Games\Jazz2`, I would have this:
 ```ini
 GAME_DIRECTORY=F:\Games\Jazz2\
@@ -18,6 +20,8 @@ Congratulations, You've now created a mutator! but let's start it first to make 
 * Go to the `mutators` folder, you should see a folder inside with your mutator's name
 * Run the `run.bat` file inside of the mutator's folder, Congratulations once again, Your mutator is working!
 
+[Next topic](chatcommands.md)
+<br><br><br><br>
 # FAQ
 ## JJ2 doesn't run when I run the `run.bat` file!
 If JJ2 doesn't run when you run the `run.bat` file, go to the mutator's folder and click on the ***empty*** space at the title bar and type in `cmd .` and press enter

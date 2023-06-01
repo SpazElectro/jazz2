@@ -1,0 +1,19 @@
+#pragma name "testdocs"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!hello") {
+        jjConsole("Hello, World!");
+    }
+
+    return true;
+}

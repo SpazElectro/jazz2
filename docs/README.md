@@ -1,6 +1,2 @@
-# Setting up your workspace:
-> * [What is the JJ2+ AS guide?](/home.md)<br>
-> * [Setup](setup.md)
-
-# Common issues:
-> * [Networking / Packets](networkingissues.md)
+[Go to home page](home.md)
+<br><br>I have no idea what to do with this page, so i'll just leave it with this
