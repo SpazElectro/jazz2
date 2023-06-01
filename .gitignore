@@ -18,3 +18,9 @@ chatbot_model.pkl
 data.json
 token.txt
 *.precious
+
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
