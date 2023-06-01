@@ -10,6 +10,6 @@ First steps first, let's start by making your "database", Create a new folder, n
 GAME_DIRECTORY=F:\Games\Jazz2\
 GAME_NAME=Jazz2+.exe
 ```
-* Run `create_new.py` and make an example mutator, let's call it ~~`babysfirst`~~ `mansfirst`, don't make your (mutator/level)'s name have: spaces, special characters, unicode
+* Run `create_new.py` and make an example mutator, let's call it ~~`babysfirst`~~ `mansfirst`, don't make your (mutator/level)'s name have: spaces, special characters/unicode
 
 Awesome, You've now created a mutator!
