@@ -1,6 +1,6 @@
 # The easiest way(s) to run your JJ2+ scripts!
 
-First steps first, let's start by making your development folder, Create a new folder, name it whatever you want, I use/prefer `jazz2`, create 2 new folders, `levels`, `mutators` and `scripts` (this will be used later on for advanced stuff), now you can follow these simple steps on how to create scripted levels and mutators fast:
+First steps first, let's start by making your development folder, Create a new folder, name it whatever you want, I use/prefer `jazz2`, create 3 new folders, `levels`, `mutators` and `scripts` (this will be used later on for advanced stuff), now you can follow these simple steps on how to create scripted levels and mutators fast:
 
 * Alright, first off, you'll need [Python 3](https://www.python.org) (and a Windows machine to play test)
 * Clone [this repo](https://github.com/SpazElectro/jazz2), You can clone it by clicking on `Code` and then `Download ZIP`
