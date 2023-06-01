@@ -23,10 +23,9 @@ Congratulations, You've now created a mutator! but let's start it first to make 
 If JJ2 doesn't run when you run the `run.bat` file, go to the mutator's folder and click on the ***empty*** space at the title bar and type in `cmd .` and press enter
 ![](images/setup_e1.png)
 <br><br>
-The command prompt should open, now type in `run.bat` and press enter in the command prompt, The first line of the log should say one of these errors:
-
-### The system cannot find the file specified.
-This means that your config (`run.ini`) file is not at the development folder, Make sure your `run.ini` file is there and it has the file extension `.ini` and not `.txt`
+The command prompt should open, now type in `run.bat` and press enter in the command prompt, if you get "The system cannot find the file specified."
+<br><br>
+That means that your config (`run.ini`) file is not at the development folder, Make sure your `run.ini` file is there and it has the file extension `.ini` and not `.txt`
 
 ### I can't change the file extension of the config file to `.ini`
 Go to your development folder, and follow as below:
