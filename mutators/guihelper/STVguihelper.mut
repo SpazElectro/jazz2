@@ -114,8 +114,12 @@ class PropertyManager {
             }
 
             if(propertyManager_selectedItem.type == TEXT) {
-                if(getButtonVector(3).collidingWithMouse()) {
-                    jjConsole("pressed");
+                if(getButtonVector(3, 1).collidingWithMouse()) {
+                    jjConsole("pressed first button");
+                }
+                
+                if(getButtonVector(3, 2).collidingWithMouse()) {
+                    jjConsole("pressed second button");
                 }
             }
         } else if(jjKey[0x1] && selectingItem) {
@@ -148,24 +152,29 @@ class PropertyManager {
         canvas.drawString(pMenu.position.x + 25, pMenu.position.y + 20 + 6, "Property Manager", STRING::MEDIUM);
 
         if(!(@propertyManager_selectedItem == null)) {
-            drawButton(canvas, 1, false, "Relocate");
-            drawButton(canvas, 2, false, "Get position");
+            drawButton(canvas, 1, false);
+            drawButton(canvas, 2, false);
+
+            drawButtonText(canvas, 1, "Relocate");
+            drawButtonText(canvas, 2, "Get position");
 
             if(propertyManager_selectedItem.type == TEXT) {
-                drawButton(canvas, 3, false, "text");
+                drawButton(canvas, 3, false, 1);
+                drawButton(canvas, 3, false, 2);
+                drawButtonText(canvas, 3, "Text", 2);
             } else if(propertyManager_selectedItem.type == RECTANGLE) {
-                drawButton(canvas, 3, false, "rectangle");
+                drawButton(canvas, 3, false);
             }
         }
 
         pMenu.finishDrawing(canvas);
     }
 
-    Vector2@ getButtonVector(int index) {
-        return Vector2(pMenu.position.x + 50, pMenu.position.y + (index) * 50, 50, 50);
+    Vector2@ getButtonVector(int index, int hIndex = 1) {
+        return Vector2(pMenu.position.x + (hIndex * 50), pMenu.position.y + (index * 50), 25, 25);
     }
 
-    void drawButton(jjCANVAS@ canvas, int index, bool checked, string text) {
+    void drawButton(jjCANVAS@ canvas, int index, bool checked, int hIndex = 1) {
         // I'm gonna explain everything from here because if future me wants to review
         // this old code, it's easier to understand
 
@@ -173,13 +182,15 @@ class PropertyManager {
         // we hate them >:(
 
         // the 50 in pm_pos_x is for spacing, pm_pos_y is self-explanatory
-        canvas.drawRectangle(pMenu.position.x + 50, pMenu.position.y + (index * 50), 25, 25, 0);
+        canvas.drawRectangle(pMenu.position.x + (hIndex * 50), pMenu.position.y + (index * 50), 25, 25, 0);
         // the 6 is to make the dot in the center, same thing for this   \/, also we use size 12
         // because its the half of 25 (the half of 25 is 12.5, but it'll get rounded either way)
-        canvas.drawRectangle(pMenu.position.x + 6 + 50, pMenu.position.y + 6 + (index * 50), 12, 12, getCheckedColor(checked));
-        
+        canvas.drawRectangle(pMenu.position.x + 6 + (hIndex * 50), pMenu.position.y + 6 + (index * 50), 12, 12, getCheckedColor(checked));
+    }
+
+    void drawButtonText(jjCANVAS@ canvas, int index, string text, int lastHorizontalIndex = 1) {
         // 30 is for spacing, the 6 in pm_pos_y is to make it look like the text is in the center horizontally
-        canvas.drawString(pMenu.position.x + 50 + 30, pMenu.position.y + (index * 50) + 6, text, STRING::MEDIUM);
+        canvas.drawString(pMenu.position.x + (lastHorizontalIndex * 50) + 30, pMenu.position.y + (index * 50) + 6, text, STRING::MEDIUM);
     }
 }
 
