@@ -1,3 +1,4 @@
 * [What is the JJ2+ AS guide?](/home.md)
 * [Setup](setup.md)
 * [Chat Commands](chatcommands.md)
+* [Events](events.md)
