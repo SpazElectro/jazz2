@@ -88,18 +88,27 @@ class PropertyManager {
     
     void draw(jjCANVAS@ canvas) {
         if(!pMenu.enabled) return;
+        if(@propertyManager_selectedItem == null) return;
 
         pMenu.draw(canvas);
         
-        drawButton(canvas, 1, false, "yay");
+        canvas.drawString(pMenu.position.x + 25, pMenu.position.y + 20 + 6, "Property Manager", STRING::MEDIUM);
+
+        if(@propertyManager_selectedItem.type == TEXT) {
+            drawButton(canvas, 1, false, "text");
+        } else if(@propertyManager_selectedItem == RECTANGLE) {
+            drawButton(canvas, 1, false, "rectangle");
+        }
 
         pMenu.finishDrawing(canvas);
     }
 
     void drawButton(jjCANVAS@ canvas, int index, bool checked, string text) {
-
         // I'm gonna explain everything from here because if future me wants to review
         // this old code, it's easier to understand
+
+        // we arent using the MenuButton or Button class because they are VERY wack
+        // we hate them >:(
 
         // the 50 in pm_pos_x is for spacing, pm_pos_y is self-explanatory
         canvas.drawRectangle(pMenu.position.x + 50, pMenu.position.y + (index * 50), 25, 25, 0);
@@ -131,6 +140,7 @@ array<MenuButton@> menuButtons;
 // property manager
 PropertyManager@ propertyManager = PropertyManager();
 bool showPropertyManager = false;
+GUIElement@ propertyManager_selectedItem;
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
