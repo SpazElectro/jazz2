@@ -1,7 +1,9 @@
 #pragma name "guihelper"
 #pragma require "STVutil.asc"
+#pragma require "STVmenu.asc"
 
 #include "STVutil.asc"
+#include "STVmenu.asc"
 
 // for intellisense
 #include "../../scripts/STVutil.asc"
@@ -20,7 +22,7 @@ class GUIElement {
     GUIElementType type = NORMAL;
     string _id;
 
-    GUIElement(int x, int y) {
+    GUIElement(int x = 0, int y = 0) {
         this.x = x;
         this.y = y;
         this._id = generateUUID();
@@ -35,7 +37,7 @@ class TextElement: GUIElement {
     STRING::Size size;
     STRING::Mode mode;
 
-    TextElement(int x, int y, string text, STRING::Size size) {
+    TextElement(int x = 0, int y = 0, string text = "TextElement", STRING::Size size = STRING::MEDIUM) {
         super(x, y);
 
         this.text = text;
@@ -54,7 +56,7 @@ class RectangleElement: GUIElement {
     int width, height;
     uint8 color;
 
-    RectangleElement(int x, int y, int width, int height) {
+    RectangleElement(int x = 0, int y = 0, int width = 0, int height = 0) {
         super(x, y);
 
         this.width = width;
@@ -71,24 +73,138 @@ class RectangleElement: GUIElement {
 
 array<GUIElement@> guiElements;
 
-bool debugView = true;
+// debug
+bool debugView = false;
 
 // locating
-bool isLocating = false;
-GUIElement@ locating;
+bool locatingItem = false;
+bool locatingDebounce = false;
+GUIElement@ itemBeingLocated;
+
+int gridSize = 10;
+
+// menu
+CustomMenu@ menu = CustomMenu();
+array<MenuButton@> menuButtons;
+
+int snap(int spot) {
+    return (spot + gridSize / 2) / gridSize * gridSize;
+}
+
+void onKeyPress(uint key) {
+    if(key == KEYS[48].code) {
+        menu.toggle();
+    }
+}
 
 void onLevelBegin() {
     jjConsole("Started!");
+
+    menu.header = "GUI Helper";
+    menu.footer = "GUI Helper v0.1 by Spaz Electro";
+
+    menuButtons.insertLast(MenuButton("Create new TextElement", -1, {
+        Button(
+            0, function(button) {
+                locatingItem = true;
+                @itemBeingLocated = TextElement();
+                guiElements.insertLast(itemBeingLocated);
+
+                menu.disable();
+                
+                locatingDebounce = true;
+
+                TimerV(70, function() {
+                    locatingDebounce = false;
+                });
+            }, "C", true)
+    }));
+
+    menuButtons.insertLast(MenuButton("Create new RectangleElement", 0, {
+        Button(
+            0, function(button) {
+                locatingItem = true;
+                @itemBeingLocated = RectangleElement(0, 0, 100, 100);
+                guiElements.insertLast(itemBeingLocated);
+
+                menu.disable();
+                
+                locatingDebounce = true;
+
+                TimerV(70, function() {
+                    locatingDebounce = false;
+                });
+            }, "C", true)
+    }));
+
+    keyPressCallbacks.insertLast(onKeyPress);
+}
+
+void onPlayer(jjPLAYER@ player) {
+    if(locatingItem) {
+        itemBeingLocated.x = snap(jjMouseX);
+        itemBeingLocated.y = snap(jjMouseY);
+
+        if(jjKey[0x1] && !locatingDebounce) {
+            locatingItem = false;
+            @itemBeingLocated = null;
+        }
+    }
+
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.input(player);
+    }
+
+    menu.update();
+
+    updateKeys();
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    menu.draw(canvas);
+    
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.draw(canvas);
+    }
+    
+    menu.finishDrawing(canvas);
+
     for (uint i = 0; i < guiElements.length; i++) {
         if (guiElements[i].visible) {
             if(debugView)
-                canvas.drawString(guiElements[i].x, guiElements[i].y + 25, "ID: " + guiElements[i]._id);
+                canvas.drawString(guiElements[i].x - 5, guiElements[i].y + 70, "ID: " + guiElements[i]._id);
             
             guiElements[i].Draw(canvas);
         }
+    }
+
+    // utils
+    if(locatingItem) {
+        int x = itemBeingLocated.x;
+        int y = itemBeingLocated.y;
+
+        x -= 5;
+        y += 65;
+
+        int xRatio = (jjResolutionWidth / 2) - snap(jjMouseX);
+        int yRatio = jjResolutionHeight - snap(jjMouseY);
+
+        if(x + jjGetStringWidth("Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
+            x -= 200;
+        }
+
+        if(y <= 50) {
+            y += 80;
+        }
+
+        canvas.drawString(x, y - 10, "" + snap(jjMouseX) + " - " + snap(jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 30, "Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 40, "Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL);
     }
 
     return false;

@@ -1,4 +1,6 @@
 # Point system
+<!-- TODO: make getPlayerStats not use a jjPLAYER, but instead have it so i can do something like: `playerStats[clientID]` for easier use, so we can (i think) remove the for loop -->
+
 Let's first off start by removing our old `onLocalChat` code so we have a clean mutator, Let's start off by making a `PlayerStats` class, having 2 elements, one is the player, the second is the player's points
 
 ```cpp
@@ -101,6 +103,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 That should be all done, go test out your newly made point system and go nuts!
 <br><br>
 Full code:
+
 ```cpp
 #pragma name "testdocs"
 #pragma require "STVutil.asc"
