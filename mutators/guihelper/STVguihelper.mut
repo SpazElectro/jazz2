@@ -1,0 +1,55 @@
+#pragma name "guihelper"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+class GUIElement {
+    int x, y;
+    bool visible;
+
+    GUIElement(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.visible = false;
+    }
+
+    void Update() {}
+    void Draw(jjCANVAS@ canvas) {}
+};
+
+class TextElement: GUIElement {
+    string text;
+    STRING::Size size;
+
+    TextElement(int x, int y, string text, STRING::Size size) {
+        super(x, y);
+        this.text = text;
+        this.size = size;
+        this.visible = true;
+    }
+
+    void Update() {}
+    void Draw(jjCANVAS@ canvas) {
+        canvas.drawString(this.x, this.y, this.text, this.size);
+    }
+}
+
+array<GUIElement@> guiElements;
+
+void onLevelBegin() {
+    jjConsole("Started!");
+    guiElements.insertLast(TextElement(50, 50, "Hello World", STRING::MEDIUM));
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    for (uint i = 0; i < guiElements.length; i++) {
+        if (guiElements[i].visible) {
+            guiElements[i].Draw(canvas);
+        }
+    }
+
+    return false;
+}
