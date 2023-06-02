@@ -12,3 +12,10 @@ Examples of `onLocalChat` can be found at [this topic](/chatcommands.md)
 ## `void onLevelLoad()` or `void onLevelBegin()`
 `onLevelLoad` is only called once, when the level starts, but this is before a lot of initalization, while `onLevelBegin` is also called once when the level starts, but called before any jjOBJs have been created and before some jjPLAYER properties have been set
 
+## `void onGameStart()` or `void onGameStart(bool firstTime)` or `void onGameStop()` or `void onGameStop(bool firstTime)`
+`onGameStart` is called when a multiplayer game (CTF and other gamemodes) starts, opposite for `onGameStop`, `firstTime` should be true for the game being started or stopped at the beginning of the level, and false after that. However, it will also be true for clients who join the server mid-game.
+
+## `void onLevelReload()`
+`onLevelReload` is only ever called in single player, it is called when you run out of lives, so if you have anything you want to reset to it's original state, you should most definetly do that here
+
+
