@@ -19,12 +19,19 @@ class GUIElement {
     bool visible = false;
     SPRITE::Mode spriteMode;
     uint8 modeParam;
+
+    // DO NOT CHANGE //
+    int width, height;
     GUIElementType type = NORMAL;
     string _id;
+    // DO NOT CHANGE //
 
-    GUIElement(int x = 0, int y = 0) {
+    GUIElement(int x = 0, int y = 0, int width = 0, int height = 0) {
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
+
         this._id = generateUUID();
     }
 
@@ -43,7 +50,10 @@ class TextElement: GUIElement {
         this.text = text;
         this.size = size;
         this.visible = true;
+        
         this.type = TEXT;
+        this.width = jjGetStringWidth(this.text, this.size, normalTextAppearance);
+        this.height = getStringHeight(this.text);
     }
 
     void update() {}
@@ -53,7 +63,6 @@ class TextElement: GUIElement {
 }
 
 class RectangleElement: GUIElement {
-    int width, height;
     uint8 color;
 
     RectangleElement(int x = 0, int y = 0, int width = 0, int height = 0) {
@@ -62,6 +71,7 @@ class RectangleElement: GUIElement {
         this.width = width;
         this.height = height;
         this.visible = true;
+
         this.type = RECTANGLE;
     }
 
@@ -84,23 +94,75 @@ class PropertyManager {
         @pMenu.size = Vector2(300, jjResolutionHeight);
         pMenu.enabled = showPropertyManager;
         pMenu.update();
+
+        if(pMenu.enabled && (@propertyManager_selectedItem != null) && jjKey[0x1]) {
+            if(getButtonVector(1).collidingWithMouse()) {
+                locatingItem = true;
+                @itemBeingLocated = propertyManager_selectedItem;
+            }
+
+            if(getButtonVector(2).collidingWithMouse()) {
+                int xRatio = (jjResolutionWidth / 2) - snap(jjMouseX);
+                int yRatio = jjResolutionHeight - snap(jjMouseY);
+
+                jjConsole("---------");
+                jjConsole("" + snap(jjMouseX) + " - " + snap(jjMouseY));
+                jjConsole("Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)));
+                jjConsole("Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)));
+                jjConsole("Bottom center ratio: " + xRatio + "x" + yRatio);
+                jjConsole("---------");
+            }
+
+            if(propertyManager_selectedItem.type == TEXT) {
+                if(getButtonVector(3).collidingWithMouse()) {
+                    jjConsole("pressed");
+                }
+            }
+        } else if(jjKey[0x1] && selectingItem) {
+            // loop through each element, check if collides, if yes jjConsole("selected")
+            for(uint i = 0; i < guiElements.length; i++) {
+                GUIElement@ element = guiElements[i];
+                
+                if(Vector2(element.x, element.y, element.width, element.height).collidingWithMouse()) {
+                    @propertyManager_selectedItem = element;
+                    selectingItem = false;
+                    break;
+                }
+            }
+        }
     }
     
     void draw(jjCANVAS@ canvas) {
+        if(selectingItem) {
+            for(uint i = 0; i < guiElements.length; i++) {
+                GUIElement@ element = guiElements[i];
+                
+                canvas.drawRectangle(element.x, element.y, element.width, element.height, 18);
+            }
+        }
+
         if(!pMenu.enabled) return;
-        if(@propertyManager_selectedItem == null) return;
 
         pMenu.draw(canvas);
         
         canvas.drawString(pMenu.position.x + 25, pMenu.position.y + 20 + 6, "Property Manager", STRING::MEDIUM);
 
-        if(@propertyManager_selectedItem.type == TEXT) {
-            drawButton(canvas, 1, false, "text");
-        } else if(@propertyManager_selectedItem == RECTANGLE) {
-            drawButton(canvas, 1, false, "rectangle");
+        if(!(@propertyManager_selectedItem == null)) {
+            drawButton(canvas, 1, false, "Relocate");
+            drawButton(canvas, 2, false, "Get position");
+
+            if(propertyManager_selectedItem.type == TEXT) {
+                drawButton(canvas, 3, false, "text");
+            } else if(propertyManager_selectedItem.type == RECTANGLE) {
+                drawButton(canvas, 3, false, "rectangle");
+            }
         }
 
         pMenu.finishDrawing(canvas);
+    }
+
+    Vector2@ getButtonVector(int index) {
+        return Vector2(pMenu.position.x + 50, pMenu.position.y + (index) * 50, 50, 50);
     }
 
     void drawButton(jjCANVAS@ canvas, int index, bool checked, string text) {
@@ -123,9 +185,6 @@ class PropertyManager {
 
 array<GUIElement@> guiElements;
 
-// debug
-bool debugView = false;
-
 // locating
 bool locatingItem = false;
 bool locatingDebounce = false;
@@ -139,8 +198,9 @@ array<MenuButton@> menuButtons;
 
 // property manager
 PropertyManager@ propertyManager = PropertyManager();
-bool showPropertyManager = false;
 GUIElement@ propertyManager_selectedItem;
+bool showPropertyManager = false;
+bool selectingItem = false;
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
@@ -149,11 +209,13 @@ int snap(int spot) {
 void onKeyPress(uint key) {
     // 48 == numpad dot
     if(key == KEYS[48].code) {
+        showPropertyManager = false;
         mainMenu.toggle();
     }
 
     // 47 == numpad zero
     if(key == KEYS[47].code) {
+        mainMenu.disable();
         showPropertyManager = !showPropertyManager;
     }
 }
@@ -175,7 +237,7 @@ void onLevelBegin() {
                 
                 locatingDebounce = true;
 
-                TimerV(70, function() {
+                TimerV(35, function() {
                     locatingDebounce = false;
                 });
             }, "C", true)
@@ -192,9 +254,18 @@ void onLevelBegin() {
                 
                 locatingDebounce = true;
 
-                TimerV(70, function() {
+                TimerV(35, function() {
                     locatingDebounce = false;
                 });
+            }, "C", true)
+    }, mainMenu));
+
+    menuButtons.insertLast(MenuButton("Select element", 1, {
+        Button(
+            3, function(button) {
+                selectingItem = true;
+
+                mainMenu.disable();
             }, "C", true)
     }, mainMenu));
 
@@ -208,6 +279,7 @@ void onPlayer(jjPLAYER@ player) {
 
         if(jjKey[0x1] && !locatingDebounce) {
             locatingItem = false;
+            @propertyManager_selectedItem = itemBeingLocated;
             @itemBeingLocated = null;
         }
     }
@@ -237,9 +309,6 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
 
     for (uint i = 0; i < guiElements.length; i++) {
         if (guiElements[i].visible) {
-            if(debugView)
-                canvas.drawString(guiElements[i].x - 5, guiElements[i].y + 70, "ID: " + guiElements[i]._id);
-            
             guiElements[i].draw(canvas);
         }
     }
