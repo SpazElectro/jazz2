@@ -99,6 +99,12 @@ class PropertyManager {
             if(getButtonVector(1).collidingWithMouse()) {
                 locatingItem = true;
                 @itemBeingLocated = propertyManager_selectedItem;
+
+                locatingDebounce = true;
+
+                TimerV(35, function() {
+                    locatingDebounce = false;
+                });
             }
 
             if(getButtonVector(2).collidingWithMouse()) {
@@ -115,11 +121,15 @@ class PropertyManager {
 
             if(propertyManager_selectedItem.type == TEXT) {
                 if(getButtonVector(3, 1).collidingWithMouse()) {
-                    jjConsole("pressed first button");
+                    cast<TextElement>(propertyManager_selectedItem).size = STRING::SMALL;
                 }
                 
                 if(getButtonVector(3, 2).collidingWithMouse()) {
-                    jjConsole("pressed second button");
+                    cast<TextElement>(propertyManager_selectedItem).size = STRING::MEDIUM;
+                }
+
+                if(getButtonVector(3, 3).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).size = STRING::LARGE;
                 }
             }
         } else if(jjKey[0x1] && selectingItem) {
@@ -159,11 +169,14 @@ class PropertyManager {
             drawButtonText(canvas, 2, "Get position");
 
             if(propertyManager_selectedItem.type == TEXT) {
+                drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).size == STRING::SMALL), 1);
+                drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).size == STRING::MEDIUM), 2);
+                drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).size == STRING::LARGE), 3);
+                drawButtonText(canvas, 3, "Size", 3);
+            } else if(propertyManager_selectedItem.type == RECTANGLE) {
                 drawButton(canvas, 3, false, 1);
                 drawButton(canvas, 3, false, 2);
-                drawButtonText(canvas, 3, "Text", 2);
-            } else if(propertyManager_selectedItem.type == RECTANGLE) {
-                drawButton(canvas, 3, false);
+                drawButtonText(canvas, 3, "Rectangle", 2);
             }
         }
 
