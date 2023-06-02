@@ -18,4 +18,21 @@ Examples of `onLocalChat` can be found at [this topic](/chatcommands.md)
 ## `void onLevelReload()`
 `onLevelReload` is only ever called in single player, it is called when you run out of lives, so if you have anything you want to reset to it's original state, you should most definetly do that here
 
+## `void onMain()`
+`onMain` is one of the most important functions, it is called every tick (a second is 70 ticks), and you should update everything you want here
 
+## `void onPlayer(jjPLAYER@ player)`
+`onPlayer` gets called more than `onMain` sometimes, it is called once a tick per local player, so: If you're playing splitscreen with two players, it will be called twice a tick, one huge advantage `onPlayer` has, is that it returns the player, so it's basically `onMain` but with the player provided
+
+## `void onPlayerInput(jjPLAYER@ player)`
+`onPlayerInput` is called very slightly earlier than a normal tick, but it is only called when `player` produces input, same rule of `it is called once a tick per local player, so: If you're playing splitscreen with two players, it will be called twice a tick` applies here too
+
+## `void onPlayerTimerEnd(jjPLAYER@ player)`
+`onPlayerTimerEnd` is self-explanatory, it only gets called when a player timer ends
+
+## `void onRoast(jjPLAYER@ victim, jjPLAYER@ killer)`
+`onRoast` is called when a player kills another player, `victim` is the player who got killed, `killer` is the player who killed `victim`, also: not every death counts as a roast, for example: deaths from the /frustration command or from unspectating wouldn't call onRoast
+
+Wow, that was a lot, Now that you have an understanding of each function, how about we make a simple player point system when you kill another player using the `onRoast` function?
+
+[Next topic](pointsystem.md)
