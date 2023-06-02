@@ -1,6 +1,6 @@
 #pragma name "guihelper"
 #pragma require "STVutil.asc"
-#pragma require "STVmenu.asc"
+#pragma require "STVmainMenu.asc"
 
 #include "STVutil.asc"
 #include "STVmenu.asc"
@@ -28,8 +28,8 @@ class GUIElement {
         this._id = generateUUID();
     }
 
-    void Update() {}
-    void Draw(jjCANVAS@ canvas) {}
+    void update() {}
+    void draw(jjCANVAS@ canvas) {}
 };
 
 class TextElement: GUIElement {
@@ -46,8 +46,8 @@ class TextElement: GUIElement {
         this.type = TEXT;
     }
 
-    void Update() {}
-    void Draw(jjCANVAS@ canvas) {
+    void update() {}
+    void draw(jjCANVAS@ canvas) {
         canvas.drawString(this.x, this.y, this.text, this.size, this.mode, this.modeParam);
     }
 }
@@ -65,9 +65,50 @@ class RectangleElement: GUIElement {
         this.type = RECTANGLE;
     }
 
-    void Update() {}
-    void Draw(jjCANVAS@ canvas) {
+    void update() {}
+    void draw(jjCANVAS@ canvas) {
         canvas.drawRectangle(this.x, this.y, this.width, this.height, this.color, this.spriteMode, this.modeParam);
+    }
+}
+
+// the only reason i seperated PropertyManager to elsewhere is because
+// the code at the draw and update methods looks horrible
+// and i dont want to EVER touch it or see it again
+class PropertyManager {
+    CustomMenu@ pMenu = CustomMenu(Vector2(), false);
+    
+    PropertyManager() {}
+
+    void update(jjPLAYER@ player) {
+        @pMenu.position = Vector2(jjResolutionWidth - 300, 0);
+        @pMenu.size = Vector2(300, jjResolutionHeight);
+        pMenu.enabled = showPropertyManager;
+        pMenu.update();
+    }
+    
+    void draw(jjCANVAS@ canvas) {
+        if(!pMenu.enabled) return;
+
+        pMenu.draw(canvas);
+        
+        drawButton(canvas, 1, false, "yay");
+
+        pMenu.finishDrawing(canvas);
+    }
+
+    void drawButton(jjCANVAS@ canvas, int index, bool checked, string text) {
+
+        // I'm gonna explain everything from here because if future me wants to review
+        // this old code, it's easier to understand
+
+        // the 50 in pm_pos_x is for spacing, pm_pos_y is self-explanatory
+        canvas.drawRectangle(pMenu.position.x + 50, pMenu.position.y + (index * 50), 25, 25, 0);
+        // the 6 is to make the dot in the center, same thing for this   \/, also we use size 12
+        // because its the half of 25 (the half of 25 is 12.5, but it'll get rounded either way)
+        canvas.drawRectangle(pMenu.position.x + 6 + 50, pMenu.position.y + 6 + (index * 50), 12, 12, getCheckedColor(checked));
+        
+        // 30 is for spacing, the 6 in pm_pos_y is to make it look like the text is in the center horizontally
+        canvas.drawString(pMenu.position.x + 50 + 30, pMenu.position.y + (index * 50) + 6, text, STRING::MEDIUM);
     }
 }
 
@@ -84,33 +125,43 @@ GUIElement@ itemBeingLocated;
 int gridSize = 10;
 
 // menu
-CustomMenu@ menu = CustomMenu();
+CustomMenu@ mainMenu = CustomMenu();
 array<MenuButton@> menuButtons;
+
+// property manager
+PropertyManager@ propertyManager = PropertyManager();
+bool showPropertyManager = false;
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
 }
 
 void onKeyPress(uint key) {
+    // 48 == numpad dot
     if(key == KEYS[48].code) {
-        menu.toggle();
+        mainMenu.toggle();
+    }
+
+    // 47 == numpad zero
+    if(key == KEYS[47].code) {
+        showPropertyManager = !showPropertyManager;
     }
 }
 
 void onLevelBegin() {
     jjConsole("Started!");
 
-    menu.header = "GUI Helper";
-    menu.footer = "GUI Helper v0.1 by Spaz Electro";
+    mainMenu.header = "GUI Helper";
+    mainMenu.footer = "GUI Helper v0.1 by Spaz Electro";
 
     menuButtons.insertLast(MenuButton("Create new TextElement", -1, {
         Button(
-            0, function(button) {
+            3, function(button) {
                 locatingItem = true;
                 @itemBeingLocated = TextElement();
                 guiElements.insertLast(itemBeingLocated);
 
-                menu.disable();
+                mainMenu.disable();
                 
                 locatingDebounce = true;
 
@@ -118,16 +169,16 @@ void onLevelBegin() {
                     locatingDebounce = false;
                 });
             }, "C", true)
-    }));
+    }, mainMenu));
 
     menuButtons.insertLast(MenuButton("Create new RectangleElement", 0, {
         Button(
-            0, function(button) {
+            3, function(button) {
                 locatingItem = true;
                 @itemBeingLocated = RectangleElement(0, 0, 100, 100);
                 guiElements.insertLast(itemBeingLocated);
 
-                menu.disable();
+                mainMenu.disable();
                 
                 locatingDebounce = true;
 
@@ -135,7 +186,7 @@ void onLevelBegin() {
                     locatingDebounce = false;
                 });
             }, "C", true)
-    }));
+    }, mainMenu));
 
     keyPressCallbacks.insertLast(onKeyPress);
 }
@@ -157,13 +208,14 @@ void onPlayer(jjPLAYER@ player) {
         button.input(player);
     }
 
-    menu.update();
+    mainMenu.update();
+    propertyManager.update(player);
 
     updateKeys();
 }
 
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    menu.draw(canvas);
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+    mainMenu.draw(canvas);
     
     for (uint i = 0; i < menuButtons.length(); i++)
     {
@@ -171,14 +223,14 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         button.draw(canvas);
     }
     
-    menu.finishDrawing(canvas);
+    mainMenu.finishDrawing(canvas);
 
     for (uint i = 0; i < guiElements.length; i++) {
         if (guiElements[i].visible) {
             if(debugView)
                 canvas.drawString(guiElements[i].x - 5, guiElements[i].y + 70, "ID: " + guiElements[i]._id);
             
-            guiElements[i].Draw(canvas);
+            guiElements[i].draw(canvas);
         }
     }
 
@@ -206,6 +258,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         canvas.drawString(x, y - 30, "Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
         canvas.drawString(x, y - 40, "Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL);
     }
+
+    propertyManager.draw(canvas);
 
     return false;
 }
