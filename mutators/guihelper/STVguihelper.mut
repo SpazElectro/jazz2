@@ -6,14 +6,24 @@
 // for intellisense
 #include "../../scripts/STVutil.asc"
 
+enum GUIElementType {
+    NORMAL = 0,
+    TEXT = 1,
+    RECTANGLE = 2
+};
+
 class GUIElement {
     int x, y;
-    bool visible;
+    bool visible = false;
+    SPRITE::Mode spriteMode;
+    uint8 modeParam;
+    GUIElementType type = NORMAL;
+    string _id;
 
     GUIElement(int x, int y) {
         this.x = x;
         this.y = y;
-        this.visible = false;
+        this._id = generateUUID();
     }
 
     void Update() {}
@@ -23,30 +33,60 @@ class GUIElement {
 class TextElement: GUIElement {
     string text;
     STRING::Size size;
+    STRING::Mode mode;
 
     TextElement(int x, int y, string text, STRING::Size size) {
         super(x, y);
+
         this.text = text;
         this.size = size;
         this.visible = true;
+        this.type = TEXT;
     }
 
     void Update() {}
     void Draw(jjCANVAS@ canvas) {
-        canvas.drawString(this.x, this.y, this.text, this.size);
+        canvas.drawString(this.x, this.y, this.text, this.size, this.mode, this.modeParam);
+    }
+}
+
+class RectangleElement: GUIElement {
+    int width, height;
+    uint8 color;
+
+    RectangleElement(int x, int y, int width, int height) {
+        super(x, y);
+
+        this.width = width;
+        this.height = height;
+        this.visible = true;
+        this.type = RECTANGLE;
+    }
+
+    void Update() {}
+    void Draw(jjCANVAS@ canvas) {
+        canvas.drawRectangle(this.x, this.y, this.width, this.height, this.color, this.spriteMode, this.modeParam);
     }
 }
 
 array<GUIElement@> guiElements;
 
+bool debugView = true;
+
+// locating
+bool isLocating = false;
+GUIElement@ locating;
+
 void onLevelBegin() {
     jjConsole("Started!");
-    guiElements.insertLast(TextElement(50, 50, "Hello World", STRING::MEDIUM));
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     for (uint i = 0; i < guiElements.length; i++) {
         if (guiElements[i].visible) {
+            if(debugView)
+                canvas.drawString(guiElements[i].x, guiElements[i].y + 25, "ID: " + guiElements[i]._id);
+            
             guiElements[i].Draw(canvas);
         }
     }
