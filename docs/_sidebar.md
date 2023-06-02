@@ -2,3 +2,4 @@
 * [Setup](setup.md)
 * [Chat Commands](chatcommands.md)
 * [Events](events.md)
+* [Point system](pointsystem.md)

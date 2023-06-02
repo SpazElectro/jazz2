@@ -6,14 +6,59 @@
 // for intellisense
 #include "../../scripts/STVutil.asc"
 
+class PlayerStats {
+    jjPLAYER@ player;
+    int points;
+
+    PlayerStats() {}
+};
+
+array<PlayerStats@> playerStats;
+
+PlayerStats@ getPlayerStats(jjPLAYER@ player) {
+    PlayerStats@ stats;
+
+    for(uint i = 0; i < playerStats.length; i++) {
+        if(playerStats[i].player.clientID == player.clientID) {
+            @stats = playerStats[i];
+            break;
+        }
+    }
+
+    // if stats doesn't exist, we make a new one then
+    if(@stats == null) {
+        @stats = PlayerStats();
+        @stats.player = player;
+        stats.points = 0;
+
+        playerStats.insertLast(stats);
+    }
+
+    return stats;
+}
+
 void onLevelBegin() {
     jjConsole("Started!");
 }
 
+void onRoast(jjPLAYER@ victim, jjPLAYER@ killer) {
+    PlayerStats@ victimStats = getPlayerStats(victim);
+    PlayerStats@ killerStats = getPlayerStats(killer);
+    
+    if(killer.clientID == victim.clientID) {
+        victimStats.points--;
+    } else {
+        killerStats.points++;
+    }
+}
+
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    if(stringReceived == "!hello") {
-        jjConsole("Hello, World!");
+    if(chatType == CHAT::NORMAL) {
+        if(stringReceived == "!points") {
+            jjConsole("Points: " + getPlayerStats(p).points);
+            return true;
+        }
     }
 
-    return true;
+    return false;
 }
