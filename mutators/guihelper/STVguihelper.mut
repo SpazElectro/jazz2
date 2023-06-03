@@ -85,6 +85,29 @@ class RectangleElement: GUIElement {
     }
 }
 
+string exportGUI() {
+    string result = "bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {\n";
+
+    for (uint i = 0; i < guiElements.length; i++)
+    {
+        if(guiElements[i].visible) {
+            if(guiElements[i].type == NORMAL) {
+                result += "\n";
+            } else if(guiElements[i].type == TEXT) {
+                TextElement@ element = cast<TextElement>(guiElements[i]);
+                result += "canvas.drawString(" + element.x + ", " + element.y + ", \"" + element.text + "\", STRING::" + toHigherCase(formatSize(element.size)) + ", SPRITE::" + formatStringMode(element.mode) + ", " + element.modeParam + ");\n";
+            } else if(guiElements[i].type == RECTANGLE) {
+                RectangleElement@ element = cast<RectangleElement>(guiElements[i]);
+                result += "canvas.drawRectangle(" + element.x + ", " + element.y + ", " + element.width + ", " + element.height + ", " + element.color + ", SPRITE::" + formatSpriteMode(element.spriteMode) +  ", " + element.modeParam + ");\n";
+            }
+        }
+    }
+
+    result += "}";
+    
+    return result;
+}
+
 // the only reason i seperated PropertyManager to elsewhere is because
 // the code at the draw and update methods looks horrible
 // and i dont want to EVER touch it or see it again
@@ -495,6 +518,11 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(talkToSetText) {
         cast<TextElement>(propertyManager_selectedItem).text = stringReceived;
         talkToSetText = false;
+        return true;
+    }
+
+    if(stringReceived == "!export") {
+        jjConsole(exportGUI());
         return true;
     }
 
