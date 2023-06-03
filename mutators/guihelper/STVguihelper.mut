@@ -172,6 +172,22 @@ class PropertyManager {
                 if(getButtonVector(3, 1).collidingWithMouse()) {
                     showColorPicker = true;
                 }
+
+                if(getButtonVector(4, 1).collidingWithMouse() ){
+                    cast<RectangleElement>(propertyManager_selectedItem).width -= 1;
+                }
+
+                if(getButtonVector(4, 2).collidingWithMouse() ){
+                    cast<RectangleElement>(propertyManager_selectedItem).width += 1;
+                }
+
+                if(getButtonVector(5, 1).collidingWithMouse() ){
+                    cast<RectangleElement>(propertyManager_selectedItem).height -= 1;
+                }
+
+                if(getButtonVector(5, 2).collidingWithMouse() ){
+                    cast<RectangleElement>(propertyManager_selectedItem).height += 1;
+                }
             }
         } else if(jjKey[0x1] && selectingItem) {
             for(uint i = 0; i < guiElements.length; i++) {
@@ -238,6 +254,14 @@ class PropertyManager {
             } else if(propertyManager_selectedItem.type == RECTANGLE) {
                 drawButton(canvas, 3, false);
                 drawButtonText(canvas, 3, "Pick color");
+
+                drawButton(canvas, 4, false, 1);
+                drawButton(canvas, 4, false, 2);
+                drawButtonText(canvas, 4, "Width", 2);
+
+                drawButton(canvas, 5, false, 1);
+                drawButton(canvas, 5, false, 2);
+                drawButtonText(canvas, 5, "Height", 2);
             }
         }
 
@@ -392,9 +416,11 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     
     mainMenu.finishDrawing(canvas);
 
-    for (uint i = 0; i < guiElements.length; i++) {
-        if (guiElements[i].visible) {
-            guiElements[i].draw(canvas);
+    if(!propertyManager.showColorPicker) {
+        for (uint i = 0; i < guiElements.length; i++) {
+            if (guiElements[i].visible) {
+                guiElements[i].draw(canvas);
+            }
         }
     }
 
