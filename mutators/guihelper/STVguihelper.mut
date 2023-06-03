@@ -35,6 +35,10 @@ class GUIElement {
         this._id = generateUUID();
     }
 
+    bool opEquals(GUIElement@ otherElement) {
+        return this._id == otherElement._id;
+    }
+
     void update() {}
     void draw(jjCANVAS@ canvas) {}
 };
@@ -188,6 +192,17 @@ class PropertyManager {
                 jjConsole("---------");
             }
 
+            if(getButtonVector(9).collidingWithMouse()) {
+                guiElements.removeAt(guiElements.find(propertyManager_selectedItem));
+                
+                @propertyManager_selectedItem = null;
+                showPropertyManager = false;
+                showStringMode = false;
+                showColorPicker = false;
+                talkToSetText = false;
+                return;
+            }
+
             if(propertyManager_selectedItem.type == TEXT) {
                 if(getButtonVector(3, 1).collidingWithMouse()) {
                     cast<TextElement>(propertyManager_selectedItem).size = STRING::SMALL;
@@ -204,24 +219,29 @@ class PropertyManager {
                 if(getButtonVector(4).collidingWithMouse()) {
                     showStringMode = true;
                 }
+
+                if(getButtonVector(5).collidingWithMouse() && !talkToSetText) {
+                    talkToSetText = true;
+                    jjConsole("Talk in the chat to set the text.");
+                }
             } else if(propertyManager_selectedItem.type == RECTANGLE) {
                 if(getButtonVector(3, 1).collidingWithMouse()) {
                     showColorPicker = true;
                 }
 
-                if(getButtonVector(4, 1).collidingWithMouse() ){
+                if(getButtonVector(4, 1).collidingWithMouse()) {
                     cast<RectangleElement>(propertyManager_selectedItem).width -= 1;
                 }
 
-                if(getButtonVector(4, 2).collidingWithMouse() ){
+                if(getButtonVector(4, 2).collidingWithMouse()) {
                     cast<RectangleElement>(propertyManager_selectedItem).width += 1;
                 }
 
-                if(getButtonVector(5, 1).collidingWithMouse() ){
+                if(getButtonVector(5, 1).collidingWithMouse()) {
                     cast<RectangleElement>(propertyManager_selectedItem).height -= 1;
                 }
 
-                if(getButtonVector(5, 2).collidingWithMouse() ){
+                if(getButtonVector(5, 2).collidingWithMouse()) {
                     cast<RectangleElement>(propertyManager_selectedItem).height += 1;
                 }
             }
@@ -323,6 +343,9 @@ class PropertyManager {
                     drawButton(canvas, 5, false, 2);
                     drawButtonText(canvas, 5, "Height", 2);
                 }
+
+                drawButton(canvas, 9, false);
+                drawButtonText(canvas, 9, "Delete");
             }
         }
 
@@ -372,6 +395,7 @@ GUIElement@ propertyManager_selectedItem;
 bool showPropertyManager = false;
 bool selectingItem = false;
 bool showStringMode = false;
+bool talkToSetText = false;
 
 int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
@@ -465,6 +489,16 @@ void onPlayer(jjPLAYER@ player) {
     propertyManager.update(player);
 
     updateKeys();
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(talkToSetText) {
+        cast<TextElement>(propertyManager_selectedItem).text = stringReceived;
+        talkToSetText = false;
+        return true;
+    }
+
+    return false;
 }
 
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
