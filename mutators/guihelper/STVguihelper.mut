@@ -102,6 +102,34 @@ class PropertyManager {
                     showColorPicker = false;
                 }
 
+                int xPos = 0;
+                int yPos = 0;
+                int baseXPos = jjResolutionWidth / 4 - 32 + 64;
+                int baseYPos = jjResolutionHeight / 4 + 32;
+
+                Vector2@ vec = Vector2(baseXPos + 64, baseYPos + 32, 32, 32);
+
+                // im pretty sure we can optimize this more, but it's not laggy so
+                // it's fine i guess :)
+                for (uint i = 0; i < 96; i++)
+                {
+                    xPos += 32;
+
+                    if (i % 16 == 0) {
+                        yPos += 32;
+                        xPos = -32;
+                    }
+
+                    vec.x = baseXPos + xPos;
+                    vec.y = baseYPos + yPos;
+
+                    if(vec.collidingWithMouse()) {
+                        showColorPicker = false;
+                        cast<RectangleElement>(propertyManager_selectedItem).color = i;
+                        break;
+                    }
+                }
+
                 return;
             }
 
@@ -170,10 +198,6 @@ class PropertyManager {
         if(!pMenu.enabled) return;
 
         if(showColorPicker) {
-            // also draw cur color
-            canvas.drawRectangle(jjResolutionWidth / 4 - 32, jjResolutionHeight / 4 - 32, 32, 32, cast<RectangleElement>(propertyManager_selectedItem).color);
-            canvas.drawString(jjResolutionWidth / 4 - 32, jjResolutionHeight / 4 - 32 - 64, "Current color");
-
             int xPos = 0;
             int yPos = 0;
 
