@@ -86,7 +86,8 @@ class RectangleElement: GUIElement {
 // and i dont want to EVER touch it or see it again
 class PropertyManager {
     CustomMenu@ pMenu = CustomMenu(Vector2(), false);
-    
+    bool showColorPicker = false;
+
     PropertyManager() {}
 
     void update(jjPLAYER@ player) {
@@ -96,6 +97,14 @@ class PropertyManager {
         pMenu.update();
 
         if(pMenu.enabled && (@propertyManager_selectedItem != null) && jjKey[0x1]) {
+            if(showColorPicker) {
+                if(getButtonVector(1).collidingWithMouse()) {
+                    showColorPicker = false;
+                }
+
+                return;
+            }
+
             if(getButtonVector(1).collidingWithMouse()) {
                 locatingItem = true;
                 @itemBeingLocated = propertyManager_selectedItem;
@@ -131,9 +140,12 @@ class PropertyManager {
                 if(getButtonVector(3, 3).collidingWithMouse()) {
                     cast<TextElement>(propertyManager_selectedItem).size = STRING::LARGE;
                 }
+            } else if(propertyManager_selectedItem.type == RECTANGLE) {
+                if(getButtonVector(3, 1).collidingWithMouse()) {
+                    showColorPicker = true;
+                }
             }
         } else if(jjKey[0x1] && selectingItem) {
-            // loop through each element, check if collides, if yes jjConsole("selected")
             for(uint i = 0; i < guiElements.length; i++) {
                 GUIElement@ element = guiElements[i];
                 
@@ -157,6 +169,32 @@ class PropertyManager {
 
         if(!pMenu.enabled) return;
 
+        if(showColorPicker) {
+            // also draw cur color
+            canvas.drawRectangle(jjResolutionWidth / 4 - 32, jjResolutionHeight / 4 - 32, 32, 32, cast<RectangleElement>(propertyManager_selectedItem).color);
+            canvas.drawString(jjResolutionWidth / 4 - 32, jjResolutionHeight / 4 - 32 - 64, "Current color");
+
+            int xPos = 0;
+            int yPos = 0;
+
+            for (uint i = 0; i < 96; i++)
+            {
+                xPos += 32;
+
+                if(i % 16 == 0) {
+                    yPos += 32;
+                    xPos = -32;
+                }
+
+                canvas.drawRectangle(jjResolutionWidth / 4 + xPos + 32, jjResolutionHeight / 4 - 32 + yPos + 64, 32, 32, i);
+            }
+
+            drawButton(canvas, 1, false);
+            drawButtonText(canvas, 1, "Exit");
+
+            return;
+        }
+
         pMenu.draw(canvas);
         
         canvas.drawString(pMenu.position.x + 25, pMenu.position.y + 20 + 6, "Property Manager", STRING::MEDIUM);
@@ -174,9 +212,8 @@ class PropertyManager {
                 drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).size == STRING::LARGE), 3);
                 drawButtonText(canvas, 3, "Size", 3);
             } else if(propertyManager_selectedItem.type == RECTANGLE) {
-                drawButton(canvas, 3, false, 1);
-                drawButton(canvas, 3, false, 2);
-                drawButtonText(canvas, 3, "Rectangle", 2);
+                drawButton(canvas, 3, false);
+                drawButtonText(canvas, 3, "Pick color");
             }
         }
 
