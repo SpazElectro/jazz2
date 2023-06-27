@@ -18,6 +18,7 @@ float fDistance = 0.0f;
 float fCurvature = 0.0f;
 float fPlayerCurvature = 0.0f;
 float fPlayerPos = 0.0f;
+float fPlayerSpeed = 5.0f;
 
 array<Track@> vecTrack;
 
@@ -49,7 +50,7 @@ void onLevelBegin()
 
     // grass
     mainPalette.color[1] = jjPALCOLOR(0, 255, 0); // green
-    mainPalette.color[2] = jjPALCOLOR(0, 50, 32); // dark green
+    mainPalette.color[2] = jjPALCOLOR(50, 205, 50); // dark green
 
     // road
     mainPalette.color[3] = jjPALCOLOR(255, 0, 0); // red
@@ -96,7 +97,7 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
     for (int y = 0; y < halfScreenHeight; y++)
     {
         float perspective = y / halfScreenHeight;
-        float middlePoint = 0.5f + fCurvature * pow(1.0f - perspective, 3);
+        float middlePoint = 0.5f + fCurvature * pow(1.0f - perspective, 3) * fCurvature;
         float roadWidth = 0.1f + perspective * 0.8f;
         float clipWidth = roadWidth * 0.15f;
         roadWidth *= 0.5f;
@@ -153,19 +154,19 @@ void onMain()
         fCurvature += fTrackCurveDiff * interpolationRate;
 
         if (jjP.keyUp)
-            fDistance += 10.0f;
+            fDistance += fPlayerSpeed;
         else if (jjP.keyDown)
-            fDistance -= 10.0f;
+            fDistance -= fPlayerSpeed;
 
         if (jjP.keyRight)
             fPlayerCurvature += 0.05f;
         if (jjP.keyLeft)
             fPlayerCurvature -= 0.05f;
         
-        if(fPlayerCurvature > 0.5f)
-            fPlayerCurvature = 0.5f;
-        if(fPlayerCurvature < -0.5f)
-            fPlayerCurvature = -0.5f;
+        if(fPlayerCurvature > 0.3f)
+            fPlayerCurvature = 0.3f;
+        if(fPlayerCurvature < -0.6f)
+            fPlayerCurvature = -0.6f;
 
         updateFrame(true, false);    
     }
