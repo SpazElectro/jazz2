@@ -21,14 +21,17 @@ float fPlayerPos = 0.0f;
 
 array<Track@> vecTrack;
 
-int screenWidth = 800;
-int screenHeight = 600;
+int screenWidth = 320;
+int screenHeight = 200;
 jjPIXELMAP@ pixelMap = jjPIXELMAP(screenWidth, screenHeight);
 ANIM::Set playerAnimation = ANIM::SPAZ3D;
 AnimatedSprite@ playerSprite = AnimatedSprite(
     0, 0, 0,
     int(screenHeight * 0.8),
     0.25, false);
+
+const int updateFrequency = 2;
+jjPAL mainPalette = jjPAL();
 
 void onLevelBegin()
 {
@@ -44,9 +47,35 @@ void onLevelBegin()
     vecTrack.insertLast(Track(0.2f, 500.0f));
     vecTrack.insertLast(Track(0.0f, 200.0f));
 
+    // grass
+    mainPalette.color[1] = jjPALCOLOR(0, 255, 0); // green
+    mainPalette.color[2] = jjPALCOLOR(0, 50, 32); // dark green
+
+    // road
+    mainPalette.color[3] = jjPALCOLOR(255, 0, 0); // red
+    mainPalette.color[4] = jjPALCOLOR(255, 255, 255); // white
+
+    // sky
+    mainPalette.color[5] = jjPALCOLOR(176, 224, 230); // powder blue
+    mainPalette.color[6] = jjPALCOLOR(73, 216, 230); // light blue
+
+    // ground
+    mainPalette.color[7] = jjPALCOLOR(127, 127, 127); // gray
+
+    array<uint8> indexMapping;
+    indexMapping.insertLast(0);
+    indexMapping.insertLast(1);
+    indexMapping.insertLast(2);
+    indexMapping.insertLast(3);
+    indexMapping.insertLast(4);
+    indexMapping.insertLast(5);
+    indexMapping.insertLast(6);
+
+    jjSpriteModeSetMapping(1, indexMapping, mainPalette);
+
     playerSprite.animSet = playerAnimation;
-    playerSprite.xScale = 1;
-    playerSprite.yScale = 1;
+    playerSprite.xScale = 2;
+    playerSprite.yScale = 2;
 
     jjAnimSets[playerAnimation].load();
 
@@ -61,7 +90,7 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
     {
         for (int y = 0; y < halfScreenHeight; y++)
             for (int x = 0; x < screenWidth; x++)
-                pixelMap[x, y] = y > halfScreenHeight / 16 ? 34 : 33;
+                pixelMap[x, y] = y > halfScreenHeight / 16 ? 5 : 6;
     }
 
     for (int y = 0; y < halfScreenHeight; y++)
@@ -77,8 +106,8 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
         float rightClip = (middlePoint + roadWidth) * screenWidth;
         float rightGrass = (middlePoint + roadWidth + clipWidth) * screenWidth;
         int row = int(halfScreenHeight + y);
-        int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * 0.1f) > 0.0f ? 17 : 18;
-        int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance) > 0.0f ? 25 : 15;
+        int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * 0.1f) > 0.0f ? 1 : 2;
+        int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance) > 0.0f ? 3 : 4;
 
         for (int x = 0; x < screenWidth; x++)
         {
@@ -87,7 +116,7 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
             else if (x < leftClip && drawRoad)
                 pixelMap[x, row] = clipColor;
             else if (x < rightClip && drawRoad)
-                pixelMap[x, row] = 73;
+                pixelMap[x, row] = 7;
             else if (x < rightGrass && drawRoad)
                 pixelMap[x, row] = clipColor;
             else
@@ -95,8 +124,6 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
         }
     }
 }
-
-const int updateFrequency = 2;
 
 void onMain()
 {
@@ -113,11 +140,16 @@ void onMain()
             nTrackSection++;
         }
 
+        if(fDistance < 1) {
+            fDistance = 1;
+            return;
+        }
+
         float fTargetCurvature = vecTrack[nTrackSection - 1].fCurvature;
         float fTrackCurveDiff = (fTargetCurvature - fCurvature);
 
         // Apply interpolation for smoother transition
-        const float interpolationRate = 0.1f;
+        const float interpolationRate = 0.05f;
         fCurvature += fTrackCurveDiff * interpolationRate;
 
         if (jjP.keyUp)
@@ -135,7 +167,6 @@ void onMain()
         if(fPlayerCurvature < -0.5f)
             fPlayerCurvature = -0.5f;
 
-        // if(jjP.keyUp || jjP.keyDown)
         updateFrame(true, false);    
     }
 
@@ -146,12 +177,13 @@ void onMain()
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
 {
     pixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame + 1]);
-    screen.drawSprite(0, 0, ANIM::CUSTOM[0], 1, 0);
+    screen.drawResizedSprite(0, 0, ANIM::CUSTOM[0], 1, 0, 2.5, 3, SPRITE::MAPPING, 1);
 
     fPlayerPos = fPlayerCurvature;
 
-    const float nPlayerPos = screenWidth / 2 + (screenWidth * fPlayerPos) / 2;
+    const float nPlayerPos = (screenWidth / 2 + (screenWidth * fPlayerPos) / 2) * 3;
     playerSprite.x = int(nPlayerPos);
+    playerSprite.y = (screenHeight / 2) * 5;
     playerSprite.draw(screen);
 
     screen.drawString(0, 10, "fDistance: " + fDistance);
