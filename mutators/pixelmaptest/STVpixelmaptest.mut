@@ -17,8 +17,10 @@ class Track
 float fDistance = 0.0f;
 float fCurvature = 0.0f;
 float fPlayerCurvature = 0.0f;
+float fPlayer2Curvature = 0.0f;
 float fPlayerPos = 0.0f;
 float fPlayerSpeed = 5.0f;
+bool isPlayerRolling = false;
 
 array<Track@> vecTrack;
 
@@ -97,7 +99,7 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
     for (int y = 0; y < halfScreenHeight; y++)
     {
         float perspective = y / halfScreenHeight;
-        float middlePoint = 0.5f + fCurvature * pow(1.0f - perspective, 3) * fCurvature;
+        float middlePoint = 0.5f + fCurvature * pow(1.0f - perspective, 2);
         float roadWidth = 0.1f + perspective * 0.8f;
         float clipWidth = roadWidth * 0.15f;
         roadWidth *= 0.5f;
@@ -108,7 +110,7 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
         float rightGrass = (middlePoint + roadWidth + clipWidth) * screenWidth;
         int row = int(halfScreenHeight + y);
         int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * 0.1f) > 0.0f ? 1 : 2;
-        int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance) > 0.0f ? 3 : 4;
+        int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance * 0.4f) > 0.0f ? 3 : 4;
 
         for (int x = 0; x < screenWidth; x++)
         {
@@ -154,14 +156,18 @@ void onMain()
         fCurvature += fTrackCurveDiff * interpolationRate;
 
         if (jjP.keyUp)
-            fDistance += fPlayerSpeed;
+            fDistance += isPlayerRolling ? fPlayerSpeed * 2 : fPlayerSpeed;
         else if (jjP.keyDown)
-            fDistance -= fPlayerSpeed;
+            fDistance -= isPlayerRolling ? fPlayerSpeed * 2 : fPlayerSpeed;
 
         if (jjP.keyRight)
             fPlayerCurvature += 0.05f;
         if (jjP.keyLeft)
             fPlayerCurvature -= 0.05f;
+
+        if(jjP.keyJump) isPlayerRolling = true; else isPlayerRolling = false;
+
+        // if(jjKey[])
         
         if(fPlayerCurvature > 0.3f)
             fPlayerCurvature = 0.3f;
@@ -171,7 +177,8 @@ void onMain()
         updateFrame(true, false);    
     }
 
-    playerSprite.id = jjP.keyUp || jjP.keyDown ? 3 : 0;
+    playerSprite.id = jjP.keyJump ? 2 : (jjP.keyUp || jjP.keyDown ? 3 : 0);
+    // playerSprite.id = jjP.keyUp || jjP.keyDown ? 3 : (jjP.keyJump ? 2 : 0);
     playerSprite.update();
 }
 
