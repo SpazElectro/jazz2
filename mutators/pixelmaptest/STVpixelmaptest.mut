@@ -1,0 +1,136 @@
+#pragma name "pixelmaptest"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+float fDistance = 0.0f;
+float fPlayerCurvature = 0.0f;
+float fPlayerPos = 0.0f;
+
+const int screenWidth = 320;
+const int screenHeight = 200;
+
+jjPIXELMAP@ pixelMap = jjPIXELMAP(screenWidth, screenHeight);
+
+AnimatedSprite@ playerSprite = AnimatedSprite(
+    0, 0, 0,
+    int(screenHeight * 0.8),
+    0.25, false);
+
+const ANIM::Set playerAnimation = ANIM::SPAZ3D;
+
+void onLevelBegin()
+{
+    playerSprite.animSet = playerAnimation;
+    playerSprite.xScale = 1;
+    playerSprite.yScale = 1;
+
+    jjAnimSets[playerAnimation].load();
+
+    updateFrame();
+}
+
+void updateFrame(bool drawRoad = true, bool reBlit = true)
+{
+    if (reBlit)
+    {
+        const int halfScreenHeight = screenHeight / 2;
+        const int grassColor = 33;
+        const int roadColor = 34;
+
+        for (int y = 0; y < halfScreenHeight; y++)
+        {
+            for (int x = 0; x < screenWidth; x++)
+            {
+                pixelMap[x, y] = y > halfScreenHeight / 4 ? roadColor : grassColor;
+            }
+        }
+    }
+
+    const float halfScreenHeight = screenHeight / 1.0f;
+    const float clipWidthFactor = 0.15f;
+    // const float roadWidthFactor = 0.5f;
+    const float distanceFactor = 0.1f;
+
+    for (int y = 0; y < halfScreenHeight; y++)
+    {
+        const float perspective = y / halfScreenHeight;
+        const float roadWidth = 0.1f + perspective * 0.8f;
+        const float clipWidth = roadWidth * clipWidthFactor;
+        const float middlePoint = 0.5f;
+        const float leftGrass = (middlePoint - roadWidth - clipWidth) * screenWidth;
+        const float leftClip = (middlePoint - roadWidth) * screenWidth;
+        const float rightClip = (middlePoint + roadWidth) * screenWidth;
+        const float rightGrass = (middlePoint + roadWidth + clipWidth) * screenWidth;
+        const int row = int(halfScreenHeight + y);
+        const int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * distanceFactor) > 0.0f ? 17 : 18;
+        const int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance) > 0.0f ? 25 : 15;
+
+        for (int x = 0; x < screenWidth; x++)
+        {
+            if (x >= 0 && x < leftGrass)
+                pixelMap[x, row] = grassColor;
+            else if (x >= leftGrass && x < leftClip && drawRoad)
+                pixelMap[x, row] = clipColor;
+            else if (x >= leftClip && x < rightClip && drawRoad)
+                pixelMap[x, row] = 73;
+            else if (x >= rightClip && x < rightGrass && drawRoad)
+                pixelMap[x, row] = clipColor;
+            else if (x >= rightGrass && x < screenWidth)
+                pixelMap[x, row] = grassColor;
+        }
+    }
+}
+
+const int updateFrequency = 2;
+
+void onMain()
+{
+    if (jjP.keyUp && jjGameTicks % updateFrequency == 0)
+    {
+        fDistance += 10.0f;
+        updateFrame(true, false);
+        playerSprite.id = 3;
+    } else if (jjP.keyDown && jjGameTicks % updateFrequency == 0) {
+        fDistance -= 10.0f;
+        updateFrame(true, false);
+        playerSprite.id = 3;
+    } else if (!jjP.keyUp && !jjP.keyDown) {
+        playerSprite.id = 0;
+    }
+
+    if (jjP.keyRight && jjGameTicks % updateFrequency == 0)
+        fPlayerCurvature += 0.05f;
+    if (jjP.keyLeft && jjGameTicks % updateFrequency == 0)
+        fPlayerCurvature -= 0.05f;
+
+    playerSprite.update();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
+{
+    pixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame + 1]);
+    screen.drawSprite(0, 0, ANIM::CUSTOM[0], 1, 0);
+
+    fPlayerPos = fPlayerCurvature;
+
+    // const int fGemDistance = 40;
+    // float nGemPos = screenHeight / 2 + (fDistance - fGemDistance);
+
+    // if(nGemPos < screenHeight / 2) {
+    //     nGemPos += screenHeight/2;
+    // }
+
+    const float nPlayerPos = screenWidth / 2 + (screenWidth * fPlayerPos) / 2;
+    playerSprite.x = int(nPlayerPos);
+    playerSprite.draw(screen);
+
+    // screen.drawResizedSprite(screenWidth / 2, int(nGemPos - screenHeight * 0.8), 71, 34, 0, abs((nPlayerPos-nGemPos)/100), abs((nPlayerPos-nGemPos)/100));
+    screen.drawString(0, 10, "fDistance: " + fDistance);
+    screen.drawString(0, 30, "fPlayerCurvature: " + fPlayerCurvature);
+    screen.drawString(0, 50, "fPlayerPos: " + fPlayerPos);
+    screen.drawString(0, 70, "nGemPos: " + nGemPos);
+    screen.drawString(0, 90, "nPlayerPos: " + nPlayerPos);
+
+    return true;
+}
