@@ -3,24 +3,47 @@
 
 #include "STVutil.asc"
 
+class Track
+{
+    float fCurvature;
+    float fDistance;
+
+    Track(float fCurvature, float fDistance) {
+        this.fCurvature = fCurvature;
+        this.fDistance = fDistance;
+    }
+};
+
 float fDistance = 0.0f;
+float fCurvature = 0.0f;
 float fPlayerCurvature = 0.0f;
 float fPlayerPos = 0.0f;
 
-const int screenWidth = 320;
-const int screenHeight = 200;
+array<Track@> vecTrack;
 
+int screenWidth = 800;
+int screenHeight = 600;
 jjPIXELMAP@ pixelMap = jjPIXELMAP(screenWidth, screenHeight);
-
+ANIM::Set playerAnimation = ANIM::SPAZ3D;
 AnimatedSprite@ playerSprite = AnimatedSprite(
     0, 0, 0,
     int(screenHeight * 0.8),
     0.25, false);
 
-const ANIM::Set playerAnimation = ANIM::SPAZ3D;
-
 void onLevelBegin()
 {
+    vecTrack.insertLast(Track(0.0f, 10.0f));		// Short section for start/finish line
+    vecTrack.insertLast(Track(0.0f, 200.0f));
+    vecTrack.insertLast(Track(1.0f, 200.0f));
+    vecTrack.insertLast(Track(0.0f, 400.0f));
+    vecTrack.insertLast(Track(-1.0f, 100.0f));
+    vecTrack.insertLast(Track(0.0f, 200.0f));
+    vecTrack.insertLast(Track(-1.0f, 200.0f));
+    vecTrack.insertLast(Track(1.0f, 200.0f));
+    vecTrack.insertLast(Track(0.0f, 200.0f));
+    vecTrack.insertLast(Track(0.2f, 500.0f));
+    vecTrack.insertLast(Track(0.0f, 200.0f));
+
     playerSprite.animSet = playerAnimation;
     playerSprite.xScale = 1;
     playerSprite.yScale = 1;
@@ -30,53 +53,44 @@ void onLevelBegin()
     updateFrame();
 }
 
-void updateFrame(bool drawRoad = true, bool reBlit = true)
+void updateFrame(bool drawRoad = true, bool drawSky = true)
 {
-    if (reBlit)
+    const float halfScreenHeight = screenHeight/2;
+
+    if (drawSky)
     {
-        const int halfScreenHeight = screenHeight / 2;
-        const int grassColor = 33;
-        const int roadColor = 34;
-
         for (int y = 0; y < halfScreenHeight; y++)
-        {
             for (int x = 0; x < screenWidth; x++)
-            {
-                pixelMap[x, y] = y > halfScreenHeight / 4 ? roadColor : grassColor;
-            }
-        }
+                pixelMap[x, y] = y > halfScreenHeight / 16 ? 34 : 33;
     }
-
-    const float halfScreenHeight = screenHeight / 1.0f;
-    const float clipWidthFactor = 0.15f;
-    // const float roadWidthFactor = 0.5f;
-    const float distanceFactor = 0.1f;
 
     for (int y = 0; y < halfScreenHeight; y++)
     {
-        const float perspective = y / halfScreenHeight;
-        const float roadWidth = 0.1f + perspective * 0.8f;
-        const float clipWidth = roadWidth * clipWidthFactor;
-        const float middlePoint = 0.5f;
-        const float leftGrass = (middlePoint - roadWidth - clipWidth) * screenWidth;
-        const float leftClip = (middlePoint - roadWidth) * screenWidth;
-        const float rightClip = (middlePoint + roadWidth) * screenWidth;
-        const float rightGrass = (middlePoint + roadWidth + clipWidth) * screenWidth;
-        const int row = int(halfScreenHeight + y);
-        const int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * distanceFactor) > 0.0f ? 17 : 18;
-        const int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance) > 0.0f ? 25 : 15;
+        float perspective = y / halfScreenHeight;
+        float middlePoint = 0.5f + fCurvature * pow(1.0f - perspective, 3);
+        float roadWidth = 0.1f + perspective * 0.8f;
+        float clipWidth = roadWidth * 0.15f;
+        roadWidth *= 0.5f;
+
+        float leftGrass = (middlePoint - roadWidth - clipWidth) * screenWidth;
+        float leftClip = (middlePoint - roadWidth) * screenWidth;
+        float rightClip = (middlePoint + roadWidth) * screenWidth;
+        float rightGrass = (middlePoint + roadWidth + clipWidth) * screenWidth;
+        int row = int(halfScreenHeight + y);
+        int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * 0.1f) > 0.0f ? 17 : 18;
+        int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance) > 0.0f ? 25 : 15;
 
         for (int x = 0; x < screenWidth; x++)
         {
-            if (x >= 0 && x < leftGrass)
+            if (x < leftGrass)
                 pixelMap[x, row] = grassColor;
-            else if (x >= leftGrass && x < leftClip && drawRoad)
+            else if (x < leftClip && drawRoad)
                 pixelMap[x, row] = clipColor;
-            else if (x >= leftClip && x < rightClip && drawRoad)
+            else if (x < rightClip && drawRoad)
                 pixelMap[x, row] = 73;
-            else if (x >= rightClip && x < rightGrass && drawRoad)
+            else if (x < rightGrass && drawRoad)
                 pixelMap[x, row] = clipColor;
-            else if (x >= rightGrass && x < screenWidth)
+            else
                 pixelMap[x, row] = grassColor;
         }
     }
@@ -86,24 +100,46 @@ const int updateFrequency = 2;
 
 void onMain()
 {
-    if (jjP.keyUp && jjGameTicks % updateFrequency == 0)
+    if (jjGameTicks % updateFrequency == 0)
     {
-        fDistance += 10.0f;
-        updateFrame(true, false);
-        playerSprite.id = 3;
-    } else if (jjP.keyDown && jjGameTicks % updateFrequency == 0) {
-        fDistance -= 10.0f;
-        updateFrame(true, false);
-        playerSprite.id = 3;
-    } else if (!jjP.keyUp && !jjP.keyDown) {
-        playerSprite.id = 0;
+        float fOffset = 0;
+        uint nTrackSection = 0;
+
+        while(
+            nTrackSection < vecTrack.length() &&
+            fOffset <= fDistance
+        ) {
+            fOffset += vecTrack[nTrackSection].fDistance;
+            nTrackSection++;
+        }
+
+        float fTargetCurvature = vecTrack[nTrackSection - 1].fCurvature;
+        float fTrackCurveDiff = (fTargetCurvature - fCurvature);
+
+        // Apply interpolation for smoother transition
+        const float interpolationRate = 0.1f;
+        fCurvature += fTrackCurveDiff * interpolationRate;
+
+        if (jjP.keyUp)
+            fDistance += 10.0f;
+        else if (jjP.keyDown)
+            fDistance -= 10.0f;
+
+        if (jjP.keyRight)
+            fPlayerCurvature += 0.05f;
+        if (jjP.keyLeft)
+            fPlayerCurvature -= 0.05f;
+        
+        if(fPlayerCurvature > 0.5f)
+            fPlayerCurvature = 0.5f;
+        if(fPlayerCurvature < -0.5f)
+            fPlayerCurvature = -0.5f;
+
+        // if(jjP.keyUp || jjP.keyDown)
+        updateFrame(true, false);    
     }
 
-    if (jjP.keyRight && jjGameTicks % updateFrequency == 0)
-        fPlayerCurvature += 0.05f;
-    if (jjP.keyLeft && jjGameTicks % updateFrequency == 0)
-        fPlayerCurvature -= 0.05f;
-
+    playerSprite.id = jjP.keyUp || jjP.keyDown ? 3 : 0;
     playerSprite.update();
 }
 
@@ -114,23 +150,16 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
 
     fPlayerPos = fPlayerCurvature;
 
-    // const int fGemDistance = 40;
-    // float nGemPos = screenHeight / 2 + (fDistance - fGemDistance);
-
-    // if(nGemPos < screenHeight / 2) {
-    //     nGemPos += screenHeight/2;
-    // }
-
     const float nPlayerPos = screenWidth / 2 + (screenWidth * fPlayerPos) / 2;
     playerSprite.x = int(nPlayerPos);
     playerSprite.draw(screen);
 
-    // screen.drawResizedSprite(screenWidth / 2, int(nGemPos - screenHeight * 0.8), 71, 34, 0, abs((nPlayerPos-nGemPos)/100), abs((nPlayerPos-nGemPos)/100));
     screen.drawString(0, 10, "fDistance: " + fDistance);
-    screen.drawString(0, 30, "fPlayerCurvature: " + fPlayerCurvature);
-    screen.drawString(0, 50, "fPlayerPos: " + fPlayerPos);
-    screen.drawString(0, 70, "nGemPos: " + nGemPos);
+    screen.drawString(0, 30, "fCurvature: " + fCurvature);
+    screen.drawString(0, 50, "fPlayerCurvature: " + fPlayerCurvature);
+    screen.drawString(0, 70, "fPlayerPos: " + fPlayerPos);
     screen.drawString(0, 90, "nPlayerPos: " + nPlayerPos);
+    screen.drawString(0, 110, "FPS: " + jjFPS);
 
     return true;
 }
