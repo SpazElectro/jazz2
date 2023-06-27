@@ -5,10 +5,12 @@
 //                                    second arg is probably the filename
 typedef BOOL (*JJ2Log)(char *text, ...);
 typedef char __cdecl (*PlaySample)(int xPos, int yPos, int sample, int idk, int alsoIdk);
+typedef int __cdecl (*shrug)(int xPos, int yPos);
 
 void sendLog(char* text) {
     // log
     ((JJ2Log)0x48EDC0)(text, "jazz2.log");
+    ((shrug)0x401010)(500, 500);
 }
 
 void start() {
