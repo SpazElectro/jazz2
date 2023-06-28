@@ -26,7 +26,6 @@ namespace CustomWeapons {
         int multiplier = 1; // toaster uses 32
         bool replacedByBubbles = false;
         bool replacedByShield = false;
-        bool replenishes = false;
         SPREAD::Spread spread = SPREAD::NORMAL;
         WEAPON::Style style = WEAPON::NORMAL;
 
@@ -69,7 +68,7 @@ void setWeaponSet(int newWeaponSet, jjPLAYER@ player) {
     for(int i = 0; i < 8; i++) {
         customWeaponSets[currentWeaponSet].ammo[i] = player.ammo[i + 1];
 
-        if(int(player.currWeapon) == i+1 && player.ammo[i + 1] <= 0) {
+        if(int(player.currWeapon) == i+1 && customWeaponSets[0].ammo[i] == 0) {
             player.currWeapon = 1;
         }
     }
@@ -93,7 +92,6 @@ void setWeaponSet(int newWeaponSet, jjPLAYER@ player) {
         weapon.multiplier = props.multiplier;
         weapon.replacedByBubbles = props.replacedByBubbles;
         weapon.replacedByShield = props.replacedByShield;
-        weapon.replenishes = props.replenishes;
         weapon.spread = props.spread;
         weapon.style = props.style == 0 ? WEAPON::NORMAL : props.style == 1 ? WEAPON::MISSILE : props.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
 
@@ -122,7 +120,6 @@ void generateDefaultWeapons(CustomWeapons::CustomWeaponSet@ weaponSet) {
             props.multiplier = weapon.multiplier;
             props.replacedByBubbles = weapon.replacedByBubbles;
             props.replacedByShield = weapon.replacedByShield;
-            props.replenishes = weapon.replenishes;
             props.spread = weapon.spread;
             props.style = weapon.style == 0 ? WEAPON::NORMAL : weapon.style == 1 ? WEAPON::MISSILE : weapon.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
         }
@@ -148,6 +145,9 @@ void onLevelBegin() {
     generateDefaultWeapons(testSet);
 
     testSet.customWeapons[0].properties.infinite = false;
+    testSet.customWeapons[0].properties.spread = SPREAD::PEPPERSPRAY;
+    testSet.customWeapons[0].properties.multiplier = 32;
+    testSet.customWeapons[0].properties.style = WEAPON::POPCORN;
     testSet.ammo[0] = 99;
 
     registerWeaponSet(testSet);
