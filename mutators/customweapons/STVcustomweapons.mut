@@ -1,29 +1,11 @@
+#pragma name "customweapons"
 #pragma require "STVutil.asc"
+
 #include "STVutil.asc"
 
-namespace StevesCustomWeapons
-{
-    int weaponSets = 1;
-    int currentWeaponSet = 0;
-
-    class CustomWeapon
-    {
-        
-    }
-}
+// for intellisense
+#include "../../scripts/STVutil.asc"
 
 void onLevelBegin() {
-    jjConsole("[CW] Started");
-
-    keyPressCallbacks.insertLast(@onKeyPress);
-}
-
-void onKeyPress(uint keyCode) {
-    if(keyCode == KEYS[24].code) {
-        jjConsole("yay!");
-    }
-}
-
-void onMain() {
-    updateKeys();
+    jjConsole("Started!");
 }
