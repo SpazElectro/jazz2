@@ -13,6 +13,44 @@
 // but they have to make and register a weapon set, a weapon set will have an
 // array of the CustomWeapon class which you register in the constructor of the weapon set
 
+bool usingCustomWeapon = false;
+
+// thank you minmay
+class NormalPickup : jjBEHAVIORINTERFACE {
+    void onBehave(jjOBJ@ obj) {
+        obj.behave(BEHAVIOR::PICKUP);
+    }
+    
+    bool onObjectHit(jjOBJ@ obj, jjOBJ@ bullet, jjPLAYER@ player, int force) {
+        if (!usingCustomWeapon) {
+            obj.scriptedCollisions = false;
+            obj.objectHit(obj, HANDLING::PICKUP);
+
+            return false;
+        }
+
+        return true;
+    }
+}
+
+class NormalPowerup : jjBEHAVIORINTERFACE {
+    void onBehave(jjOBJ@ obj) {
+        obj.behave(BEHAVIOR::DEFAULT);
+    }
+    
+    bool onObjectHit(jjOBJ@ obj, jjOBJ@ bullet, jjPLAYER@ player, int force) {
+        // if (usingCustomWeapon) {
+        //     // obj.scriptedCollisions = false;
+        //     // obj.objectHit(obj, HANDLING::PICKUP);
+        //     setWeaponSet(currentWeaponSet, player);
+
+        //     return false;
+        // }
+
+        return true;
+    }
+}
+
 int currentWeaponSet = 0;
 
 namespace CustomWeapons {
@@ -50,10 +88,13 @@ namespace CustomWeapons {
     class CustomWeaponSet {
         array<CustomWeapon@> customWeapons();
         array<int> ammo();
+        array<bool> powerup();
 
         CustomWeaponSet() {
-            for(int i = 0; i < 9; i++)
+            for(int i = 0; i < 9; i++) {
                 ammo.insertLast(0);
+                powerup.insertLast(false);
+            }
         }
     }
 };
@@ -78,10 +119,11 @@ void setWeaponSet(int newWeaponSet, jjPLAYER@ player) {
     // loop thro every weapon and set the properties in jjWeapons[index] accordingly
     for(int i = 0; i < 8; i++) {
         jjWEAPON@ weapon = jjWeapons[i + 1];
-        CustomWeapons::CustomWeapon@ customWeapon = customWeaponSets[newWeaponSet].customWeapons[i];
+        CustomWeapons::CustomWeaponSet@ weaponSet = customWeaponSets[newWeaponSet];
+        CustomWeapons::CustomWeapon@ customWeapon = weaponSet.customWeapons[i];
         CustomWeapons::WeaponProperties@ properties = customWeapon.properties;
         CustomWeapons::WeaponProperties@ upgradedProperties = customWeapon.upgradedProperties;
-        CustomWeapons::WeaponProperties@ props = player.powerup[i] ? upgradedProperties : properties;
+        CustomWeapons::WeaponProperties@ props = weaponSet.powerup[i] ? upgradedProperties : properties;
 
         weapon.defaultSample = props.defaultSample;
         weapon.gemsLost = props.gemsLost;
@@ -96,8 +138,10 @@ void setWeaponSet(int newWeaponSet, jjPLAYER@ player) {
         weapon.style = props.style == 0 ? WEAPON::NORMAL : props.style == 1 ? WEAPON::MISSILE : props.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
 
         player.ammo[i + 1] =
-            customWeaponSets[newWeaponSet].ammo[i];
+            weaponSet.ammo[i];
     }
+
+    usingCustomWeapon = newWeaponSet != 0;
 }
 
 void generateDefaultWeapons(CustomWeapons::CustomWeaponSet@ weaponSet) {
@@ -130,8 +174,48 @@ void generateDefaultWeapons(CustomWeapons::CustomWeaponSet@ weaponSet) {
     }
 }
 
+array<OBJECT::Object> ammoObjects();
+array<OBJECT::Object> powerupObjects();
+
 void onLevelBegin() {
+    ammoObjects.insertLast(OBJECT::ICEAMMO3);
+    ammoObjects.insertLast(OBJECT::BOUNCERAMMO3);
+    ammoObjects.insertLast(OBJECT::SEEKERAMMO3);
+    ammoObjects.insertLast(OBJECT::RFAMMO3);
+    ammoObjects.insertLast(OBJECT::TOASTERAMMO3);
+    ammoObjects.insertLast(OBJECT::TNTAMMO3);
+    ammoObjects.insertLast(OBJECT::GUN8AMMO3);
+    ammoObjects.insertLast(OBJECT::GUN9AMMO3);
+    powerupObjects.insertLast(OBJECT::BLASTERPOWERUP);
+    powerupObjects.insertLast(OBJECT::BOUNCERPOWERUP);
+    powerupObjects.insertLast(OBJECT::ICEPOWERUP);
+    powerupObjects.insertLast(OBJECT::SEEKERPOWERUP);
+    powerupObjects.insertLast(OBJECT::RFPOWERUP);
+    powerupObjects.insertLast(OBJECT::TOASTERPOWERUP);
+    powerupObjects.insertLast(OBJECT::TNTPOWERUP);
+    powerupObjects.insertLast(OBJECT::GUN8POWERUP);
+    powerupObjects.insertLast(OBJECT::GUN9POWERUP);
+    
+    for (int i = 0; i < ammoObjects.length(); i++)
+    {
+        OBJECT::Object obj = ammoObjects[i];
+        jjObjectPresets[obj].scriptedCollisions = true;
+        jjObjectPresets[obj].behavior = NormalPickup();
+    }
+
+    for (int i = 0; i < powerupObjects.length(); i++)
+    {
+        OBJECT::Object obj = powerupObjects[i];
+        jjObjectPresets[obj].scriptedCollisions = true;
+        jjObjectPresets[obj].behavior = NormalPowerup();
+    }
+
     jjConsole("Started!");
+
+    for(int i = 1; i < 9; i++) {
+        jjWeapons[i].allowed = true;
+        jjWeapons[i].allowedPowerup = true;
+    }
 
     // register the default weapons into 1 weapon set
     CustomWeapons::CustomWeaponSet@ defaultWeaponSet = CustomWeapons::CustomWeaponSet();
@@ -148,6 +232,7 @@ void onLevelBegin() {
     testSet.customWeapons[0].properties.spread = SPREAD::PEPPERSPRAY;
     testSet.customWeapons[0].properties.multiplier = 32;
     testSet.customWeapons[0].properties.style = WEAPON::POPCORN;
+    testSet.customWeapons[0].upgradedProperties.infinite = true;
     testSet.ammo[0] = 99;
 
     registerWeaponSet(testSet);
@@ -174,6 +259,35 @@ void onLevelBegin() {
 }
 
 void onMain() {
+    for (int i = 0; i < ammoObjects.length(); i++)
+    {
+        OBJECT::Object obj = ammoObjects[i];
+        
+        for (int j = 1; j < jjObjectCount; j++) {
+            jjOBJ@ o = jjObjects[j];
+
+            if (o.isActive && o.eventID == obj && !o.scriptedCollisions) {
+                o.scriptedCollisions = true;
+                o.behavior = NormalPickup();
+            }
+        }
+    }
+
+    // warning: setting `blastermonitor::behavior` does NOT work
+    // for (int i = 0; i < powerupObjects.length(); i++)
+    // {
+    //     OBJECT::Object obj = powerupObjects[i];
+        
+    //     for (int i = 1; i < jjObjectCount; i++) {
+    //         jjOBJ@ o = jjObjects[i];
+
+    //         if (o.isActive && o.eventID == obj && !o.scriptedCollisions) {
+    //             o.scriptedCollisions = true;
+    //             o.behavior = NormalPowerup();
+    //         }
+    //     }
+    // }
+
     updateKeys();
 }
 
@@ -186,7 +300,13 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 
 bool onCheat(string &in cheat) {
     if(cheat == "jjgod") {
-
+        for (int customWeaponSetIndex = 0; customWeaponSetIndex < customWeaponSets.length(); customWeaponSetIndex++)
+        {
+            CustomWeapons::CustomWeaponSet@ weaponSet = customWeaponSets[customWeaponSetIndex];
+            for (int i = 0; i < 9; i++)
+                weaponSet.ammo[i] = 99;
+        }
+        
     }
 
     return false;
