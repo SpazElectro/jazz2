@@ -16,8 +16,7 @@
 int currentWeaponSet = 0;
 
 namespace CustomWeapons {
-    class CustomWeapon {
-        // normal jjWEAPON properties
+    class WeaponProperties {
         bool defaultSample = true;
         int gemsLost = 0;
         int gemsLostPowerup = 0;
@@ -31,10 +30,18 @@ namespace CustomWeapons {
         SPREAD::Spread spread = SPREAD::NORMAL;
         WEAPON::Style style = WEAPON::NORMAL;
 
-        // custom properties
+        WeaponProperties() {}
+    }
+
+    class CustomWeapon {
+        CustomWeapons::WeaponProperties@ properties;
+        CustomWeapons::WeaponProperties@ upgradedProperties;
         CustomWeapons::CustomWeaponSet@ parentSet;
 
-        CustomWeapon() {}
+        CustomWeapon() {
+            @properties = CustomWeapons::WeaponProperties();
+            @upgradedProperties = CustomWeapons::WeaponProperties();
+        }
 
         void onUsage(jjPLAYER@ player) {}
         void onHeld(jjPLAYER@ player) {}
@@ -43,8 +50,12 @@ namespace CustomWeapons {
 
     class CustomWeaponSet {
         array<CustomWeapon@> customWeapons();
+        array<int> ammo();
 
-        CustomWeaponSet() {}
+        CustomWeaponSet() {
+            for(int i = 0; i < 9; i++)
+                ammo.insertLast(0);
+        }
     }
 };
 
@@ -54,56 +65,110 @@ void registerWeaponSet(CustomWeapons::CustomWeaponSet@ set) {
     customWeaponSets.insertLast(set);
 }
 
+void setWeaponSet(int newWeaponSet, jjPLAYER@ player) {
+    for(int i = 0; i < 8; i++) {
+        customWeaponSets[currentWeaponSet].ammo[i] = player.ammo[i + 1];
+
+        if(int(player.currWeapon) == i+1 && player.ammo[i + 1] <= 0) {
+            player.currWeapon = 1;
+        }
+    }
+
+    currentWeaponSet = newWeaponSet;
+
+    // loop thro every weapon and set the properties in jjWeapons[index] accordingly
+    for(int i = 0; i < 8; i++) {
+        jjWEAPON@ weapon = jjWeapons[i + 1];
+        CustomWeapons::CustomWeapon@ customWeapon = customWeaponSets[newWeaponSet].customWeapons[i];
+        CustomWeapons::WeaponProperties@ properties = customWeapon.properties;
+        CustomWeapons::WeaponProperties@ upgradedProperties = customWeapon.upgradedProperties;
+        CustomWeapons::WeaponProperties@ props = player.powerup[i] ? upgradedProperties : properties;
+
+        weapon.defaultSample = props.defaultSample;
+        weapon.gemsLost = props.gemsLost;
+        weapon.gemsLostPowerup = props.gemsLostPowerup;
+        weapon.gradualAim = props.gradualAim;
+        weapon.infinite = props.infinite;
+        weapon.maximum = props.maximum;
+        weapon.multiplier = props.multiplier;
+        weapon.replacedByBubbles = props.replacedByBubbles;
+        weapon.replacedByShield = props.replacedByShield;
+        weapon.replenishes = props.replenishes;
+        weapon.spread = props.spread;
+        weapon.style = props.style == 0 ? WEAPON::NORMAL : props.style == 1 ? WEAPON::MISSILE : props.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
+
+        player.ammo[i + 1] =
+            customWeaponSets[newWeaponSet].ammo[i];
+    }
+}
+
+void generateDefaultWeapons(CustomWeapons::CustomWeaponSet@ weaponSet) {
+    for(int i = 1; i < 9; i++) {
+        jjWEAPON@ weapon = jjWeapons[i];
+
+        CustomWeapons::CustomWeapon@ customWeapon = CustomWeapons::CustomWeapon();
+        CustomWeapons::WeaponProperties@ properties = customWeapon.properties;
+        CustomWeapons::WeaponProperties@ upgradedProperties = customWeapon.upgradedProperties;
+        array<CustomWeapons::WeaponProperties@> propList = {properties, upgradedProperties};
+
+        for(int j = 0; j < 2; j++) {
+            CustomWeapons::WeaponProperties@ props = propList[j];
+            props.defaultSample = weapon.defaultSample;
+            props.gemsLost = weapon.gemsLost;
+            props.gemsLostPowerup = weapon.gemsLostPowerup;
+            props.gradualAim = weapon.gradualAim;
+            props.infinite = weapon.infinite;
+            props.maximum = weapon.maximum;
+            props.multiplier = weapon.multiplier;
+            props.replacedByBubbles = weapon.replacedByBubbles;
+            props.replacedByShield = weapon.replacedByShield;
+            props.replenishes = weapon.replenishes;
+            props.spread = weapon.spread;
+            props.style = weapon.style == 0 ? WEAPON::NORMAL : weapon.style == 1 ? WEAPON::MISSILE : weapon.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
+        }
+
+        @customWeapon.parentSet = weaponSet;
+
+        weaponSet.customWeapons.insertLast(customWeapon);
+    }
+}
+
 void onLevelBegin() {
     jjConsole("Started!");
 
     // register the default weapons into 1 weapon set
     CustomWeapons::CustomWeaponSet@ defaultWeaponSet = CustomWeapons::CustomWeaponSet();
 
-    for(int i = 1; i < 9; i++) {
-        jjWEAPON@ weapon = jjWeapons[i];
-
-        CustomWeapons::CustomWeapon@ customWeapon = CustomWeapons::CustomWeapon();
-        customWeapon.defaultSample = weapon.defaultSample;
-        customWeapon.gemsLost = weapon.gemsLost;
-        customWeapon.gemsLostPowerup = weapon.gemsLostPowerup;
-        customWeapon.gradualAim = weapon.gradualAim;
-        customWeapon.infinite = weapon.infinite;
-        customWeapon.maximum = weapon.maximum;
-        customWeapon.multiplier = weapon.multiplier;
-        customWeapon.replacedByBubbles = weapon.replacedByBubbles;
-        customWeapon.replacedByShield = weapon.replacedByShield;
-        customWeapon.replenishes = weapon.replenishes;
-        customWeapon.spread = weapon.spread;
-        customWeapon.style = weapon.style == 0 ? WEAPON::NORMAL : weapon.style == 1 ? WEAPON::MISSILE : weapon.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
-
-        @customWeapon.parentSet = defaultWeaponSet;
-
-        defaultWeaponSet.customWeapons.insertLast(customWeapon);
-    }
-
+    generateDefaultWeapons(defaultWeaponSet);
     registerWeaponSet(defaultWeaponSet);
-
-    CustomWeapons::CustomWeapon@ customWeapon = CustomWeapons::CustomWeapon();
-    customWeapon.infinite = false;
-
-    CustomWeapons::CustomWeaponSet@ testSet = CustomWeapons::CustomWeaponSet();
-    testSet.customWeapons.insertLast(customWeapon);
-    registerWeaponSet(testSet);
 
     jjConsole("Default weapon set has been registered!");
 
+    CustomWeapons::CustomWeaponSet@ testSet = CustomWeapons::CustomWeaponSet();
+    generateDefaultWeapons(testSet);
+
+    testSet.customWeapons[0].properties.infinite = false;
+    testSet.ammo[0] = 99;
+
+    registerWeaponSet(testSet);
+
     keyPressCallbacks.insertLast(function(uint key) {
+        int newWeaponSet = 0;
+
         if(key == getKeyById("P").code) {
-            currentWeaponSet += 1;
+            newWeaponSet += 1;
 
-            if(currentWeaponSet > customWeaponSets.length() - 1)
-                currentWeaponSet = customWeaponSets.length() - 1;
+            if(newWeaponSet > int(customWeaponSets.length() - 1))
+                newWeaponSet = customWeaponSets.length() - 1;
         } else if(key == getKeyById("O").code) {
-            currentWeaponSet -= 1;
+            newWeaponSet -= 1;
 
-            if(currentWeaponSet < 0)
-                currentWeaponSet = 0;
+            if(newWeaponSet < 0)
+                newWeaponSet = 0;
+        }
+
+        if(key == getKeyById("P").code || key == getKeyById("O").code) {
+            setWeaponSet(newWeaponSet, jjP);
         }
     });
 }
@@ -113,8 +178,16 @@ void onMain() {
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    canvas.drawString(jjResolutionWidth / 2, 20, "Current weapon set: " + currentWeaponSet);
-    canvas.drawString(jjResolutionWidth / 2, 40, "Weapon 0 infinite: " + customWeaponSets[currentWeaponSet].customWeapons[0].infinite);
+    canvas.drawString(jjResolutionWidth / 2 - 100, 20, "Current weapon set: " + currentWeaponSet);
+    canvas.drawString(jjResolutionWidth / 2 - 100, 40, "Weapon 0 infinite: " + customWeaponSets[currentWeaponSet].customWeapons[0].properties.infinite);
+
+    return false;
+}
+
+bool onCheat(string &in cheat) {
+    if(cheat == "jjgod") {
+
+    }
 
     return false;
 }
