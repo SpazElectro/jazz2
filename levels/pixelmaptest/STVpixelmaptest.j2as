@@ -27,22 +27,38 @@ bool isPlayerRolling = false;
 
 array<Track@> vecTrack;
 
+// menu stuff
+AnimatedSprite@ jazz3DSprite = AnimatedSprite(
+    5, 0,
+    0, 0,
+    0.25, true);
+AnimatedSprite@ spaz3DSprite = AnimatedSprite(
+    5, 0,
+    0, 0,
+    0.25, true);
+
+CHAR::Char characterSelected = CHAR::JAZZ; // lori, bird, frog, bird2 wont work
+                                           // only jazz and spaz have 3D sprites
+// menu stuff
+
+const int updateFrequency = 2;
 int screenWidth = 320;
 int screenHeight = 200;
 jjPIXELMAP@ pixelMap = jjPIXELMAP(screenWidth, screenHeight);
+jjPAL mainPalette = jjPAL();
 ANIM::Set playerAnimation = ANIM::JAZZ3D;
 AnimatedSprite@ playerSprite = AnimatedSprite(
-    0, 0, 0,
-    int(screenHeight * 0.8),
+    0, 0,
+    0, int(screenHeight * 0.8),
     0.25, false);
 
-const int updateFrequency = 2;
-jjPAL mainPalette = jjPAL();
 
-enum GameLocation {
+enum GameState {
     MENU = 0,
     GAME = 1
 };
+
+GameState gameState = MENU;
 
 void onLevelBegin()
 {
@@ -88,13 +104,39 @@ void onLevelBegin()
 
     jjSpriteModeSetMapping(1, indexMapping, mainPalette);
 
-    playerSprite.animSet = playerAnimation;
     playerSprite.xScale = 2;
     playerSprite.yScale = 2;
 
-    jjAnimSets[playerAnimation].load();
+    jazz3DSprite.animSet = ANIM::JAZZ3D;
+    jazz3DSprite.xScale = 2;
+    jazz3DSprite.yScale = 2;
+    spaz3DSprite.animSet = ANIM::SPAZ3D;
+    spaz3DSprite.xScale = 2;
+    spaz3DSprite.yScale = 2;
 
-    updateFrame();
+    jazz3DSprite.spriteModeParam = 127;
+    spaz3DSprite.spriteModeParam = 127;
+
+    jjAnimSets[ANIM::SPAZ3D].load();
+    jjAnimSets[ANIM::JAZZ3D].load();
+
+    keyPressCallbacks.insertLast(function(uint key) {
+        if(gameState != MENU) return;
+
+        if(
+            key == getKeyById("Left").code || key == getKeyById("Right").code ||
+            key == getKeyById("A").code    || key == getKeyById("D").code
+        ) {
+            // we only have 2 options, so this will work fine lol
+            characterSelected = characterSelected == CHAR::JAZZ ? CHAR::SPAZ : CHAR::JAZZ;
+        } else if(
+            key == getKeyById("Enter").code || key == getKeyById("Space").code
+        ) {
+            playerAnimation = characterSelected == CHAR::JAZZ ? ANIM::JAZZ3D : ANIM::SPAZ3D;
+            playerSprite.animSet = playerAnimation;
+            gameState = GAME;
+        }
+    });
 }
 
 void updateFrame(bool drawRoad = true)
@@ -117,10 +159,6 @@ void updateFrame(bool drawRoad = true)
         int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * 0.1f) > 0.0f ? 1 : 2;
         int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance * 0.4f) > 0.0f ? 3 : 4;
 
-        // very cool effect but doesn't make sense
-        // jjLayers[8].yOffset = fDistance * 0.8f;
-        jjLayers[8].yOffset = jjGameTicks;
-
         for (int x = 0; x < screenWidth; x++)
         {
             if (x < leftGrass)
@@ -139,15 +177,14 @@ void updateFrame(bool drawRoad = true)
 
 void onMain()
 {
+    updateKeys();
+
     if (jjGameTicks % updateFrequency == 0)
     {
         float fOffset = 0;
         uint nTrackSection = 0;
 
-        while(
-            nTrackSection < vecTrack.length() &&
-            fOffset <= fDistance
-        ) {
+        while(nTrackSection < vecTrack.length() && fOffset <= fDistance) {
             fOffset += vecTrack[nTrackSection].fDistance;
             nTrackSection++;
         }
@@ -175,42 +212,71 @@ void onMain()
             fPlayerCurvature -= 0.05f;
 
         if(jjP.keyJump) isPlayerRolling = true; else isPlayerRolling = false;
-
-        // if(jjKey[])
         
         if(fPlayerCurvature > 0.3f)
             fPlayerCurvature = 0.3f;
         if(fPlayerCurvature < -0.6f)
             fPlayerCurvature = -0.6f;
 
-        updateFrame(true);    
+        if(gameState == GAME)
+            updateFrame(true);    
     }
 
-    playerSprite.id = jjP.keyJump ? 2 : (jjP.keyUp || jjP.keyDown ? 3 : 0);
-    // playerSprite.id = jjP.keyUp || jjP.keyDown ? 3 : (jjP.keyJump ? 2 : 0);
-    playerSprite.update();
+    if(gameState == GAME) {
+        playerSprite.id = jjP.keyJump && (jjP.keyUp || jjP.keyDown) ? 2 : (jjP.keyUp || jjP.keyDown ? 3 : 0);
+        playerSprite.update();
+    } else if(gameState == MENU) {
+        jazz3DSprite.update();
+        spaz3DSprite.update();
+    }
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
 {
+    // very cool effect but doesn't make sense
+    // jjLayers[8].yOffset = fDistance * 0.8f;
+    jjLayers[8].yOffset = jjGameTicks;
+
+    player.invisibility = true;
+    player.noFire = true;
+    player.idle = 0;
     player.cameraFreeze(32, 32, false, true);
 
-    pixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame + 1]);
-    screen.drawResizedSprite(0, 0, ANIM::CUSTOM[0], 1, 0, 2.5, 3, SPRITE::MAPPING, 1);
+    if(gameState == GAME) {
+        pixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame + 1]);
+        screen.drawResizedSprite(0, 0, ANIM::CUSTOM[0], 1, 0, 2.5, 3, SPRITE::MAPPING, 1);
 
-    fPlayerPos = fPlayerCurvature;
+        fPlayerPos = fPlayerCurvature;
 
-    const float nPlayerPos = (screenWidth / 2 + (screenWidth * fPlayerPos) / 2) * 3;
-    playerSprite.x = int(nPlayerPos);
-    playerSprite.y = (screenHeight / 2) * 5;
-    playerSprite.draw(screen);
+        const float nPlayerPos = (screenWidth / 2 + (screenWidth * fPlayerPos) / 2) * 3;
+        playerSprite.x = int(nPlayerPos);
+        playerSprite.y = (screenHeight / 2) * 5;
+        playerSprite.draw(screen);
 
-    screen.drawString(0, 10, "fDistance: " + fDistance);
-    screen.drawString(0, 30, "fCurvature: " + fCurvature);
-    screen.drawString(0, 50, "fPlayerCurvature: " + fPlayerCurvature);
-    screen.drawString(0, 70, "fPlayerPos: " + fPlayerPos);
-    screen.drawString(0, 90, "nPlayerPos: " + nPlayerPos);
-    screen.drawString(0, 110, "FPS: " + jjFPS);
+        screen.drawString(0, 10, "fDistance: " + fDistance);
+        screen.drawString(0, 30, "fCurvature: " + fCurvature);
+        screen.drawString(0, 50, "fPlayerCurvature: " + fPlayerCurvature);
+        screen.drawString(0, 70, "fPlayerPos: " + fPlayerPos);
+        screen.drawString(0, 90, "nPlayerPos: " + nPlayerPos);
+        screen.drawString(0, 110, "FPS: " + jjFPS);
+    } else if(gameState == MENU) {
+        jazz3DSprite.y = int(jjResolutionHeight / 2);
+        spaz3DSprite.y = int(jjResolutionHeight / 2);
+
+        jazz3DSprite.x = int(jjResolutionWidth / 4);
+        spaz3DSprite.x = int(jjResolutionWidth / 2 * 1.5);
+
+        if(characterSelected == CHAR::SPAZ) {
+            jazz3DSprite.spriteMode = SPRITE::BLEND_DARKEN;
+            spaz3DSprite.spriteMode = SPRITE::NORMAL;
+        } else {
+            jazz3DSprite.spriteMode = SPRITE::NORMAL;
+            spaz3DSprite.spriteMode = SPRITE::BLEND_DARKEN;
+        }
+
+        jazz3DSprite.draw(screen);
+        spaz3DSprite.draw(screen);
+    }
 
     return true;
 }
