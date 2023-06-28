@@ -1,3 +1,6 @@
+const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
+#include "MLLE-Include-1.6.asc" ///@MLLE-Generated
+#pragma require "STVpixelmaptest.j2l" ///@MLLE-Generated
 #pragma name "pixelmaptest"
 #pragma require "STVutil.asc"
 
@@ -27,7 +30,7 @@ array<Track@> vecTrack;
 int screenWidth = 320;
 int screenHeight = 200;
 jjPIXELMAP@ pixelMap = jjPIXELMAP(screenWidth, screenHeight);
-ANIM::Set playerAnimation = ANIM::SPAZ3D;
+ANIM::Set playerAnimation = ANIM::JAZZ3D;
 AnimatedSprite@ playerSprite = AnimatedSprite(
     0, 0, 0,
     int(screenHeight * 0.8),
@@ -36,8 +39,17 @@ AnimatedSprite@ playerSprite = AnimatedSprite(
 const int updateFrequency = 2;
 jjPAL mainPalette = jjPAL();
 
+enum GameLocation {
+    MENU = 0,
+    GAME = 1
+};
+
 void onLevelBegin()
 {
+    // thank you minmay (I removed the sky, replaced it with a nicer sky from his demo level)
+    // and made the parallax effect
+    jjLayers[4].hasTiles = false;
+
     vecTrack.insertLast(Track(0.0f, 10.0f));		// Short section for start/finish line
     vecTrack.insertLast(Track(0.0f, 200.0f));
     vecTrack.insertLast(Track(1.0f, 200.0f));
@@ -85,16 +97,9 @@ void onLevelBegin()
     updateFrame();
 }
 
-void updateFrame(bool drawRoad = true, bool drawSky = true)
+void updateFrame(bool drawRoad = true)
 {
     const float halfScreenHeight = screenHeight/2;
-
-    if (drawSky)
-    {
-        for (int y = 0; y < halfScreenHeight; y++)
-            for (int x = 0; x < screenWidth; x++)
-                pixelMap[x, y] = y > halfScreenHeight / 16 ? 5 : 6;
-    }
 
     for (int y = 0; y < halfScreenHeight; y++)
     {
@@ -111,6 +116,10 @@ void updateFrame(bool drawRoad = true, bool drawSky = true)
         int row = int(halfScreenHeight + y);
         int grassColor = sin(20.0f * pow(1.0f - perspective, 3) + fDistance * 0.1f) > 0.0f ? 1 : 2;
         int clipColor = sin(80.0f * pow(1.0f - perspective, 2) + fDistance * 0.4f) > 0.0f ? 3 : 4;
+
+        // very cool effect but doesn't make sense
+        // jjLayers[8].yOffset = fDistance * 0.8f;
+        jjLayers[8].yOffset = jjGameTicks;
 
         for (int x = 0; x < screenWidth; x++)
         {
@@ -174,7 +183,7 @@ void onMain()
         if(fPlayerCurvature < -0.6f)
             fPlayerCurvature = -0.6f;
 
-        updateFrame(true, false);    
+        updateFrame(true);    
     }
 
     playerSprite.id = jjP.keyJump ? 2 : (jjP.keyUp || jjP.keyDown ? 3 : 0);
@@ -184,6 +193,8 @@ void onMain()
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
 {
+    player.cameraFreeze(32, 32, false, true);
+
     pixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame + 1]);
     screen.drawResizedSprite(0, 0, ANIM::CUSTOM[0], 1, 0, 2.5, 3, SPRITE::MAPPING, 1);
 
@@ -203,3 +214,9 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
 
     return true;
 }
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
