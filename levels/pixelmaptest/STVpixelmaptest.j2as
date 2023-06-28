@@ -20,7 +20,6 @@ class Track
 float fDistance = 0.0f;
 float fCurvature = 0.0f;
 float fPlayerCurvature = 0.0f;
-float fPlayer2Curvature = 0.0f;
 float fPlayerPos = 0.0f;
 float fPlayerSpeed = 5.0f;
 bool isPlayerRolling = false;
@@ -257,8 +256,10 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
         screen.drawString(0, 30, "fCurvature: " + fCurvature);
         screen.drawString(0, 50, "fPlayerCurvature: " + fPlayerCurvature);
         screen.drawString(0, 70, "fPlayerPos: " + fPlayerPos);
-        screen.drawString(0, 90, "nPlayerPos: " + nPlayerPos);
-        screen.drawString(0, 110, "FPS: " + jjFPS);
+        screen.drawString(0, 90, "fPlayerSpeed: " + fPlayerSpeed);
+        screen.drawString(0, 110, "isPlayerRolling: " + isPlayerRolling);
+        screen.drawString(0, 130, "nPlayerPos: " + nPlayerPos);
+        screen.drawString(0, 150, "FPS: " + jjFPS);
     } else if(gameState == MENU) {
         jazz3DSprite.y = int(jjResolutionHeight / 2);
         spaz3DSprite.y = int(jjResolutionHeight / 2);
