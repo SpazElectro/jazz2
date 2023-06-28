@@ -22,6 +22,7 @@ float fCurvature = 0.0f;
 float fPlayerCurvature = 0.0f;
 float fPlayerPos = 0.0f;
 float fPlayerSpeed = 5.0f;
+bool isPlayerMoving = false;
 bool isPlayerRolling = false;
 
 array<Track@> vecTrack;
@@ -200,10 +201,14 @@ void onMain()
         const float interpolationRate = 0.05f;
         fCurvature += fTrackCurveDiff * interpolationRate;
 
-        if (jjP.keyUp)
+        if (jjP.keyUp) {
             fDistance += isPlayerRolling ? fPlayerSpeed * 2 : fPlayerSpeed;
-        else if (jjP.keyDown)
+        } else if (jjP.keyDown) {
             fDistance -= isPlayerRolling ? fPlayerSpeed * 2 : fPlayerSpeed;
+        }
+
+        isPlayerMoving = (jjP.keyUp || jjP.keyDown);
+        layer8Offset += isPlayerMoving ? (isPlayerRolling ? 7.6 : 3.8f) : 1.0f;
 
         if (jjP.keyRight)
             fPlayerCurvature += 0.05f;
@@ -230,11 +235,13 @@ void onMain()
     }
 }
 
+float layer8Offset = 0;
+
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
 {
     // very cool effect but doesn't make sense
     // jjLayers[8].yOffset = fDistance * 0.8f;
-    jjLayers[8].yOffset = jjGameTicks;
+    jjLayers[8].yOffset = layer8Offset;
 
     player.invisibility = true;
     player.noFire = true;
@@ -257,9 +264,10 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen)
         screen.drawString(0, 50, "fPlayerCurvature: " + fPlayerCurvature);
         screen.drawString(0, 70, "fPlayerPos: " + fPlayerPos);
         screen.drawString(0, 90, "fPlayerSpeed: " + fPlayerSpeed);
-        screen.drawString(0, 110, "isPlayerRolling: " + isPlayerRolling);
-        screen.drawString(0, 130, "nPlayerPos: " + nPlayerPos);
-        screen.drawString(0, 150, "FPS: " + jjFPS);
+        screen.drawString(0, 110, "isPlayerMoving: " + isPlayerMoving);
+        screen.drawString(0, 130, "isPlayerRolling: " + isPlayerRolling);
+        screen.drawString(0, 150, "nPlayerPos: " + nPlayerPos);
+        screen.drawString(0, 170, "FPS: " + jjFPS);
     } else if(gameState == MENU) {
         jazz3DSprite.y = int(jjResolutionHeight / 2);
         spaz3DSprite.y = int(jjResolutionHeight / 2);
