@@ -21,8 +21,7 @@ void onLevelBegin() {
         });
 
         playerPropertyChangedCallbacks.insertLast(function(jjPLAYER@ player, string property) {
-            if(property == "currWeapon")
-                jjConsole("the " + player.nameUnformatted + " weapon changed!");
+            jjConsole(property + " changed!");
         });
     }
 }
