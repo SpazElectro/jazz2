@@ -19,6 +19,11 @@ void onLevelBegin() {
         playerLeaveCallbacks.insertLast(function(jjPLAYER@ player) {
             jjConsole("the " + player.nameUnformatted + " left :(");
         });
+
+        playerPropertyChangedCallbacks.insertLast(function(jjPLAYER@ player, string property) {
+            if(property == "currWeapon")
+                jjConsole("the " + player.nameUnformatted + " weapon changed!");
+        });
     }
 }
 
