@@ -12,12 +12,14 @@ class Star {
     float x, y, z;
     float xmult, ymult, zmult;
     bool isCluster;
+    bool isChildOfCluster;
 
-    Star(float xmult = 0, float ymult = 0, float zmult = 0) {
+    Star(float xmult = 0, float ymult = 0, float zmult = 0, bool isChildOfCluster = false) {
         this.xmult = xmult;
         this.ymult = ymult;
         this.zmult = zmult;
         this.isCluster = getRandomNumber(0, 100) <= 10;
+        this.isChildOfCluster = isChildOfCluster;
 
         this.generatePosition();
         
@@ -25,9 +27,10 @@ class Star {
             for (int i = 0; i < 5; i++)
             {
                 Star@ childStar = Star(jjResolutionWidth*2, jjResolutionHeight*2, jjResolutionWidth*2);
-                childStar.x = this.x + (getRandomNumber(0, 10) * 5);
-                childStar.y = this.y + (getRandomNumber(0, 10) * 5);
-                childStar.z = this.z + (getRandomNumber(0, 10) * 5);
+                childStar.x = this.x + (getRandomNumber(-5, 5) * 3);
+                childStar.y = this.y + (getRandomNumber(-5, 5) * 3);
+                childStar.z = this.z + (getRandomNumber(-5, 5) * 3);
+                childStar.isChildOfCluster = true;
 
                 stars.insertLast(childStar);
             }
@@ -98,14 +101,22 @@ void onMain() {
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
 
+    int clusterCount = 0;
+
     for(uint i = 0; i < stars.length; i++) {
+        if(stars[i].isCluster)
+            clusterCount += 1;
+        
         stars[i].update();
         stars[i].draw(canvas);
     }
 
+    clusterCount /= 5;
+
     canvas.drawString(0, 20, "Starfield simulation");
     canvas.drawString(0, 30, "Star speed: " + starSpeed);
     canvas.drawString(0, 40, "Star count: " + stars.length());
+    canvas.drawString(0, 50, "Cluster count: " + clusterCount);
 
     return false;
 }

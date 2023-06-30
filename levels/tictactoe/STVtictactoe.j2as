@@ -1,0 +1,166 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+array<array<string>> board();
+
+array<string> players = {};
+array<array<int>> available = {};
+int currentPlayer;
+string winner;
+
+int xwins = 0;
+int owins = 0;
+
+void nextTurn() {
+    if(winner != "") {
+        return;
+    }
+
+    int index = getRandomNumber(0, available.length()-1);
+    array<int> spot = available[index];
+    available.removeAt(index);
+
+    board[spot[0]][spot[1]] = currentPlayer == 0 ? "X" : (currentPlayer == 1 ? "O" : "u");
+    currentPlayer = (currentPlayer + 1) % players.length();
+}
+
+void onMain() {
+    stvutilRNG.seed(generateSeed());
+    updateKeys();
+
+    if(winner != "") {
+        board = {};
+        available = {};
+
+        for(int j = 0; j < 3; j++) {
+            for(int i = 0; i < 3; i++) {
+                array<int> t = {i, j};
+                available.insertLast(t);
+            }
+        }
+        
+        array<string> emptyBoardLine = {"", "", ""};
+        for(int i = 0; i < 3; i++)
+            board.insertLast(emptyBoardLine);
+        
+        winner = "";
+    }
+
+    nextTurn();
+}
+
+void onLevelBegin() {
+    stvutilRNG.seed(generateSeed());
+    
+    players.insertLast("X");
+    players.insertLast("O");
+
+    keyPressCallbacks.insertLast(function(key) {
+        if(jjKey[0x1]) {
+            
+        }
+    });
+
+    currentPlayer = 0;
+
+    for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 3; i++) {
+            array<int> t = {i, j};
+            available.insertLast(t);
+        }
+    }
+
+    jjAnimSets[ANIM::CUSTOM[0]].load(
+		jjPIXELMAP("stvtictactoe_o.png"),
+		frameWidth: 50,
+		frameHeight: 50
+	);
+    jjAnimSets[ANIM::CUSTOM[1]].load(
+		jjPIXELMAP("stvtictactoe_x.png"),
+		frameWidth: 50,
+		frameHeight: 50
+	);
+
+    jjConsole("Started!");
+
+    array<string> emptyBoardLine = {"", "", ""};
+    for(int i = 0; i < 3; i++)
+        board.insertLast(emptyBoardLine);
+
+    // for (int i = 0; i < board.length(); i++)
+    //     for(int j = 0; j < board[i].length(); j++)
+    //         board[i][j] = getRandomNumber(1, 2) == 1 ? players[0] : players[1];
+}
+
+void checkWinner() {
+    winner = "";
+
+    // horiz
+    for (int i = 0; i < 3; i++)
+    {
+        if(board[i][0] == board[i][1] && board[i][1] == board[i][2])
+            winner = board[i][0];
+    }
+
+    // vertic
+    for (int i = 0; i < 3; i++)
+    {
+        if((board[0][i] == board[1][i] && board[1][i] == board[2][i]))
+            winner = board[0][i];
+    }
+
+    // diag
+    if((board[0][0] == board[1][1] && board[1][1] == board[2][2])) 
+        winner = board[0][0];
+    if((board[2][0] == board[1][1] && board[1][1] == board[0][2]))
+        winner = board[2][0];
+
+    if(winner == "" && available.length == 0) {
+        winner = "It's a tie!";
+    } else if(winner != "") {
+        if(winner == "X")
+            xwins++;
+        if(winner == "O")
+            owins++;
+    }
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 15);
+
+    int w = (jjResolutionWidth * 2) / 4;
+    int h = (jjResolutionHeight * 2) / 4;
+
+    for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 3; i++) {
+            int x = (jjResolutionWidth * (i + 1) / 4) - 25;
+            int y = (jjResolutionHeight * (j + 1) / 4);
+            
+            string spot = board[i][j];
+
+            if(spot != "X" && spot != "O") {
+                canvas.drawString(x+20, y-20, spot);
+            } else {
+                canvas.drawSprite(x+20, y-20, ANIM::CUSTOM[spot == "X" ? 1 : 0], 0, 0);
+            }
+        }
+    }
+
+    canvas.drawRectangle(jjResolutionWidth/4+75, jjResolutionHeight/4-50, 10, jjResolutionHeight/4+200, 0);
+    canvas.drawRectangle(jjResolutionWidth/4+225, jjResolutionHeight/4-50, 10, jjResolutionHeight/4+200, 0);
+    canvas.drawRectangle(jjResolutionWidth/4-50, jjResolutionHeight/4+35, jjResolutionWidth/2+100, 10, 0);
+    canvas.drawRectangle(jjResolutionWidth/4-50, jjResolutionHeight/4+155, jjResolutionWidth/2+100, 10, 0);
+    canvas.drawString(0, 10, "Winner: " + winner);
+    canvas.drawString(0, 20, "X wins: " + xwins);
+    canvas.drawString(0, 30, "O wins: " + owins);
+    // canvas.drawString(0, 40, "X pos: " + jjMouseX);
+    // canvas.drawString(0, 50, "Y pos: " + jjMouseY);
+
+    checkWinner();
+
+    return false;
+}
