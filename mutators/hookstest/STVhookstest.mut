@@ -21,7 +21,10 @@ void onLevelBegin() {
         });
 
         playerPropertyChangedCallbacks.insertLast(function(jjPLAYER@ player, string property) {
-            jjConsole(property + " changed!");
+            if(property == "xAcc")
+                player.xAcc *= 0.125;
+            else if(property == "yAcc")
+                player.yAcc *= 0.125;
         });
     }
 }
