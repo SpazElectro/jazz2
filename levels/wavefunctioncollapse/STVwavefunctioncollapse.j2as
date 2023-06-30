@@ -1,0 +1,31 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+    // jjAnimSets[ANIM::CUSTOM[0]].load(ANIM::CUSTOM[0], "blank.png");
+    // jjAnimSets[ANIM::CUSTOM[1]].load(ANIM::CUSTOM[1], "down.png");
+    // jjAnimSets[ANIM::CUSTOM[2]].load(ANIM::CUSTOM[2], "left.png");
+    // jjAnimSets[ANIM::CUSTOM[3]].load(ANIM::CUSTOM[3], "right.png");
+    // jjAnimSets[ANIM::CUSTOM[4]].load(ANIM::CUSTOM[4], "up.png");
+    jjAnimSets[ANIM::CUSTOM[0]].load(jjPIXELMAP("blank.png"), frameWidth: 50, frameHeight: 50, frameSpacingX: 0, frameSpacingY: 0, startY: 0);
+    jjAnimSets[ANIM::CUSTOM[1]].load(jjPIXELMAP("down.png"), frameWidth: 50, frameHeight: 50, frameSpacingX: 0, frameSpacingY: 0, startY: 0);
+    jjAnimSets[ANIM::CUSTOM[2]].load(jjPIXELMAP("left.png"), frameWidth: 50, frameHeight: 50, frameSpacingX: 0, frameSpacingY: 0, startY: 0);
+    jjAnimSets[ANIM::CUSTOM[3]].load(jjPIXELMAP("right.png"), frameWidth: 50, frameHeight: 50, frameSpacingX: 0, frameSpacingY: 0, startY: 0);
+    jjAnimSets[ANIM::CUSTOM[4]].load(jjPIXELMAP("up.png"), frameWidth: 50, frameHeight: 50, frameSpacingX: 0, frameSpacingY: 0, startY: 0);
+    
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawSprite(50, 50, ANIM::CUSTOM[0], 0, 0);
+    canvas.drawSprite(100, 50, ANIM::CUSTOM[1], 0, 0);
+    canvas.drawSprite(150, 50, ANIM::CUSTOM[2], 0, 0);
+    canvas.drawSprite(200, 50, ANIM::CUSTOM[3], 0, 0);
+    canvas.drawSprite(250, 50, ANIM::CUSTOM[4], 0, 0);
+    
+    return false;
+}
