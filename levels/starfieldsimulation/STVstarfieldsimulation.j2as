@@ -1,0 +1,111 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+array<Star@> stars;
+float starSpeed = 10;
+
+class Star {
+    float x, y, z;
+    float xmult, ymult, zmult;
+    bool isCluster;
+
+    Star(float xmult = 0, float ymult = 0, float zmult = 0) {
+        this.xmult = xmult;
+        this.ymult = ymult;
+        this.zmult = zmult;
+        this.isCluster = getRandomNumber(0, 100) <= 10;
+
+        this.generatePosition();
+        
+        if(this.isCluster) {
+            for (int i = 0; i < 5; i++)
+            {
+                Star@ childStar = Star(jjResolutionWidth*2, jjResolutionHeight*2, jjResolutionWidth*2);
+                childStar.x = this.x + (getRandomNumber(0, 10) * 5);
+                childStar.y = this.y + (getRandomNumber(0, 10) * 5);
+                childStar.z = this.z + (getRandomNumber(0, 10) * 5);
+
+                stars.insertLast(childStar);
+            }
+        }
+    }
+
+    void generatePosition() {
+        this.x = getRandomNumber(-(jjResolutionWidth + xmult), (jjResolutionWidth + xmult));
+        this.y = getRandomNumber(-(jjResolutionHeight + ymult), (jjResolutionHeight + ymult));
+        this.z = getRandomNumber(1, (jjResolutionWidth + zmult));
+    }
+
+    void update() {
+        this.z -= starSpeed;
+
+        if(this.z < 1) {
+            generatePosition();
+        }
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        int sx = (jjResolutionWidth/2)+map(this.x / this.z, 0, 1, 0, jjResolutionWidth);
+        int sy = (jjResolutionHeight/2)+map(this.y / this.z, 0, 1, 0, jjResolutionHeight);
+        int r = map(this.z, 0, jjResolutionWidth, 16, 0);
+
+        if(r < 0)
+            r = 1;
+
+        canvas.drawRectangle(sx, sy, r, r, 15);
+    }
+};
+
+float map(float value, float start1, float stop1, float start2, float stop2) {
+    return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+}
+
+void onLevelBegin() {
+    jjConsole("Started!");
+
+    for(int i = 0; i < 500; i++) {
+        stars.insertLast(Star(jjResolutionWidth*2, jjResolutionHeight*2, jjResolutionWidth*2));
+    }
+}
+
+enum DIRECTION {
+    FORWARDS,
+    BACKWARDS
+};
+
+DIRECTION direction = FORWARDS;
+
+void onMain() {
+    if(starSpeed >= 12) {
+        direction = BACKWARDS;
+    } else if(starSpeed <= -12) {
+        direction = FORWARDS;
+    }
+
+    if(starSpeed <= 0) {
+        int mult = 2;
+
+        stars.insertLast(Star(jjResolutionWidth * mult, jjResolutionHeight * mult, jjResolutionWidth * mult));
+    }
+
+    starSpeed += direction == FORWARDS ? 0.05 : -0.1;
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
+
+    for(uint i = 0; i < stars.length; i++) {
+        stars[i].update();
+        stars[i].draw(canvas);
+    }
+
+    canvas.drawString(0, 20, "Starfield simulation");
+    canvas.drawString(0, 30, "Star speed: " + starSpeed);
+    canvas.drawString(0, 40, "Star count: " + stars.length());
+
+    return false;
+}

@@ -11,9 +11,6 @@ copy "../../scripts/" "%GAME_DIRECTORY%" /y
 for %%i in (*.j2l *.j2as *.mut) do (
   copy "%%i" "%GAME_DIRECTORY%" /y
 )
-for %%i in (./assets/*.*) do (
-  copy ".\assets\%%i" "%GAME_DIRECTORY%" /y
-)
 
 set "J2L_LEVEL="
 set "MUTATOR="

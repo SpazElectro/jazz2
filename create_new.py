@@ -98,7 +98,7 @@ directory = ("./mutators/" if ml[1] == 0 else "./levels/") + name
 print(f"Creating new {'mutator' if ml[1] == 0 else 'level'} named {name}...")
 os.mkdir(directory)
 
-if createAssets:
+if createAssets[1] == 1:
   os.mkdir(f"{directory}/assets/")
   run = assetsRun
 
