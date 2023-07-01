@@ -1,0 +1,73 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+enum ANIMCUSTOMAssets {
+    ASSETS_BACKGROUND_1 = 0,
+    ASSETS_BACKGROUND_2 = 1,
+    ASSETS_CHICKEN = 2, // spritesheet
+    ASSETS_CHICKENBONES = 3, // spritesheet
+    ASSETS_CHICKENEGG = 4, // spritesheet
+    ASSETS_SPACESHIP = 5, // spritesheet
+    ASSETS_SPACESHIPPARTICLES = 6 // spritesheet
+};
+
+void preloadAssets() {
+    jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_1]].load(
+		jjPIXELMAP("cibackground1.png"),
+		frameWidth: 512,
+		frameHeight: 512
+	);
+    jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_2]].load(
+		jjPIXELMAP("cibackground2.png"),
+		frameWidth: 512,
+		frameHeight: 512
+	);
+    jjAnimSets[ANIM::CUSTOM[ASSETS_CHICKEN]].load(
+		jjPIXELMAP("cichicken.png"),
+		frameWidth: 100,
+		frameHeight: 100,
+        frameSpacingX: 1,
+		frameSpacingY: 1,
+        startX: 0,
+		startY: 0,
+		firstAnimToOverwrite: ANIM::CUSTOM[ASSETS_CHICKEN]
+	);
+}
+
+AnimatedSprite@ chickenTest = AnimatedSprite(0, 0, 60, 50, 0.15, false);
+bool chickenSt = false;
+
+void onLevelBegin() {
+    jjConsole("Started!");
+
+    preloadAssets();
+    chickenTest.setAnimSet(ANIM::CUSTOM[ASSETS_CHICKEN]);
+}
+
+void onMain() {
+    if(chickenTest.frame+1 > chickenTest.frame_count) {
+        chickenTest.setId(chickenSt ? 1 : 0);
+        chickenSt = !chickenSt;
+    }
+
+    chickenTest.update();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    // jjResolutionWidth and jjResolutionHeight are both integers
+    // so they get rounded up and become 1 which is not correct
+    float resX = float(jjResolutionWidth)/512;
+    float resY = float(jjResolutionHeight)/512;
+    // I don't even know what the fuck this is but it works?
+    resX += jjResolutionWidth/395.56962;
+    resY += jjResolutionHeight/297.935594;
+
+    canvas.drawResizedSprite(0, 0, ANIM::CUSTOM[ASSETS_BACKGROUND_1], 0, 0, resX, resY);
+    chickenTest.draw(canvas);
+
+    return false;
+}
