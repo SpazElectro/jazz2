@@ -35,7 +35,7 @@ void resetGame() {
     winner = "";
 }
 
-void nextTurn() {
+void nextAIMove() {
     if(winner != "" || available.length() == 0) {
         return;
     }
@@ -44,13 +44,13 @@ void nextTurn() {
     array<int> spot = available[index];
     available.removeAt(index);
 
-    board[spot[0]][spot[1]] = currentPlayer == 0 ? "X" : (currentPlayer == 1 ? "O" : "u");
-    currentPlayer = (currentPlayer + 1) % players.length();
+    board[spot[0]][spot[1]] = players[1];
+    currentPlayer = 0;
 }
 
 void onMain() {
     gridSize = jjResolutionWidth == 320 ? 50 : 100;
-    spriteSize = jjResolutionWidth == 320 ? 0.5 :1;
+    spriteSize = jjResolutionWidth == 320 ? 0.5 : 1;
     stvutilRNG.seed(generateSeed());
     updateKeys();
     checkWinner();
@@ -85,7 +85,7 @@ void onLevelBegin() {
                         array<int> slot = {i, j};
                         available.removeAt(available.find(slot));
                         currentPlayer = 1;
-                        nextTurn();
+                        nextAIMove();
                     }
                 }
             }
@@ -150,6 +150,7 @@ void checkWinner() {
             xwins++;
         if(winner == "O")
             owins++;
+        winner = winner + " wins!";
     }
 
     if(winner != "" || available.length == 0) {
@@ -189,7 +190,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     canvas.drawRectangle(gridMarginX, gridMarginY + gridSize * 2, gridSize * 3, 10, 15);
     
     if(winner != "")
-        canvas.drawString(jjResolutionWidth/2-jjGetStringWidth("Winner: " + winner, STRING::LARGE, normalTextAppearance)/2, 10, "Winner: " + winner, STRING::LARGE);
+        canvas.drawString(jjResolutionWidth/2-jjGetStringWidth(winner, spriteSize == 0.5 ? STRING::MEDIUM : STRING::LARGE, normalTextAppearance)/2, 10, winner, spriteSize == 0.5 ? STRING::MEDIUM : STRING::LARGE);
 
     canvas.drawString(0, 10, "X wins: " + xwins);
     canvas.drawString(0, 20, "O wins: " + owins);
