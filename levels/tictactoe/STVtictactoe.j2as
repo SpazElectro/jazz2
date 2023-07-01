@@ -11,7 +11,8 @@ array<string> players = {};
 array<array<int>> available = {};
 int currentPlayer;
 string winner;
-const int gridSize = 100;
+int gridSize;
+float spriteSize;
 
 int xwins = 0;
 int owins = 0;
@@ -48,6 +49,8 @@ void nextTurn() {
 }
 
 void onMain() {
+    gridSize = jjResolutionWidth == 320 ? 50 : 100;
+    spriteSize = jjResolutionWidth == 320 ? 0.5 :1;
     stvutilRNG.seed(generateSeed());
     updateKeys();
     checkWinner();
@@ -170,9 +173,9 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             string spot = board[i][j];
 
             if(spot != "X" && spot != "O") {
-                canvas.drawString(x + gridSize/2, y + gridSize/2, spot);
+                canvas.drawString(x + gridSize/2, y + gridSize/2, spot, spriteSize == 0.5 ? STRING::SMALL : STRING::MEDIUM);
             } else {
-                canvas.drawSprite(x + gridSize/2, y + gridSize/2, ANIM::CUSTOM[spot == "X" ? 1 : 0], 0, 0);
+                canvas.drawResizedSprite(x + gridSize/2, y + gridSize/2, ANIM::CUSTOM[spot == "X" ? 1 : 0], 0, 0, spriteSize, spriteSize);
             }
 
             // hitbox
@@ -184,13 +187,12 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     canvas.drawRectangle(gridMarginX + gridSize * 2, gridMarginY, 10, gridSize * 3, 15);
     canvas.drawRectangle(gridMarginX, gridMarginY + gridSize, gridSize * 3, 10, 15);
     canvas.drawRectangle(gridMarginX, gridMarginY + gridSize * 2, gridSize * 3, 10, 15);
+    
+    if(winner != "")
+        canvas.drawString(jjResolutionWidth/2-jjGetStringWidth("Winner: " + winner, STRING::LARGE, normalTextAppearance)/2, 10, "Winner: " + winner, STRING::LARGE);
 
-    if(winner != "") {
-        int width = jjGetStringWidth("Winner: " + winner, STRING::LARGE, normalTextAppearance)/2;
-        canvas.drawString(jjResolutionWidth/2-width, 10, "Winner: " + winner, STRING::LARGE);
-    }
-    canvas.drawString(0, 20, "X wins: " + xwins);
-    canvas.drawString(0, 30, "O wins: " + owins);
+    canvas.drawString(0, 10, "X wins: " + xwins);
+    canvas.drawString(0, 20, "O wins: " + owins);
 
     return false;
 }
