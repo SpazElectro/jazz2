@@ -11,12 +11,31 @@ array<string> players = {};
 array<array<int>> available = {};
 int currentPlayer;
 string winner;
+const int gridSize = 100;
 
 int xwins = 0;
 int owins = 0;
 
+void resetGame() {
+    board = {};
+    available = {};
+
+    for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 3; i++) {
+            array<int> t = {i, j};
+            available.insertLast(t);
+        }
+    }
+    
+    array<string> emptyBoardLine = {"", "", ""};
+    for(int i = 0; i < 3; i++)
+        board.insertLast(emptyBoardLine);
+    
+    winner = "";
+}
+
 void nextTurn() {
-    if(winner != "") {
+    if(winner != "" || available.length() == 0) {
         return;
     }
 
@@ -31,26 +50,7 @@ void nextTurn() {
 void onMain() {
     stvutilRNG.seed(generateSeed());
     updateKeys();
-
-    if(winner != "") {
-        board = {};
-        available = {};
-
-        for(int j = 0; j < 3; j++) {
-            for(int i = 0; i < 3; i++) {
-                array<int> t = {i, j};
-                available.insertLast(t);
-            }
-        }
-        
-        array<string> emptyBoardLine = {"", "", ""};
-        for(int i = 0; i < 3; i++)
-            board.insertLast(emptyBoardLine);
-        
-        winner = "";
-    }
-
-    nextTurn();
+    checkWinner();
 }
 
 void onLevelBegin() {
@@ -61,7 +61,31 @@ void onLevelBegin() {
 
     keyPressCallbacks.insertLast(function(key) {
         if(jjKey[0x1]) {
-            
+            if(winner != "") return;
+
+            int gridMarginX = (jjResolutionWidth - gridSize * 3) / 2;
+            int gridMarginY = (jjResolutionHeight - gridSize * 3) / 2;
+
+            for(int j = 0; j < 3; j++) {
+                for(int i = 0; i < 3; i++) {
+                    int x = gridMarginX + i * gridSize;
+                    int y = gridMarginY + j * gridSize;
+
+                    string spot = board[i][j];
+
+                    if(
+                        jjMouseX >= x && jjMouseX <= x + gridSize &&
+                        jjMouseY >= y && jjMouseY <= y + gridSize &&
+                        spot == ""
+                    ) {
+                        board[i][j] = players[0];
+                        array<int> slot = {i, j};
+                        available.removeAt(available.find(slot));
+                        currentPlayer = 1;
+                        nextTurn();
+                    }
+                }
+            }
         }
     });
 
@@ -90,13 +114,10 @@ void onLevelBegin() {
     array<string> emptyBoardLine = {"", "", ""};
     for(int i = 0; i < 3; i++)
         board.insertLast(emptyBoardLine);
-
-    // for (int i = 0; i < board.length(); i++)
-    //     for(int j = 0; j < board[i].length(); j++)
-    //         board[i][j] = getRandomNumber(1, 2) == 1 ? players[0] : players[1];
 }
 
 void checkWinner() {
+    if(winner != "") return;
     winner = "";
 
     // horiz
@@ -127,40 +148,49 @@ void checkWinner() {
         if(winner == "O")
             owins++;
     }
+
+    if(winner != "" || available.length == 0) {
+        TimerV(70, function() {
+            resetGame();
+        });
+    }
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 15);
+    canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
 
-    int w = (jjResolutionWidth * 2) / 4;
-    int h = (jjResolutionHeight * 2) / 4;
+    int gridMarginX = (jjResolutionWidth - gridSize * 3) / 2;
+    int gridMarginY = (jjResolutionHeight - gridSize * 3) / 2;
 
     for(int j = 0; j < 3; j++) {
         for(int i = 0; i < 3; i++) {
-            int x = (jjResolutionWidth * (i + 1) / 4) - 25;
-            int y = (jjResolutionHeight * (j + 1) / 4);
-            
+            int x = gridMarginX + i * gridSize;
+            int y = gridMarginY + j * gridSize;
+
             string spot = board[i][j];
 
             if(spot != "X" && spot != "O") {
-                canvas.drawString(x+20, y-20, spot);
+                canvas.drawString(x + gridSize/2, y + gridSize/2, spot);
             } else {
-                canvas.drawSprite(x+20, y-20, ANIM::CUSTOM[spot == "X" ? 1 : 0], 0, 0);
+                canvas.drawSprite(x + gridSize/2, y + gridSize/2, ANIM::CUSTOM[spot == "X" ? 1 : 0], 0, 0);
             }
+
+            // hitbox
+            // canvas.drawRectangle(x, y, gridSize, gridSize, 3);
         }
     }
 
-    canvas.drawRectangle(jjResolutionWidth/4+75, jjResolutionHeight/4-50, 10, jjResolutionHeight/4+200, 0);
-    canvas.drawRectangle(jjResolutionWidth/4+225, jjResolutionHeight/4-50, 10, jjResolutionHeight/4+200, 0);
-    canvas.drawRectangle(jjResolutionWidth/4-50, jjResolutionHeight/4+35, jjResolutionWidth/2+100, 10, 0);
-    canvas.drawRectangle(jjResolutionWidth/4-50, jjResolutionHeight/4+155, jjResolutionWidth/2+100, 10, 0);
-    canvas.drawString(0, 10, "Winner: " + winner);
+    canvas.drawRectangle(gridMarginX + gridSize, gridMarginY, 10, gridSize * 3, 15);
+    canvas.drawRectangle(gridMarginX + gridSize * 2, gridMarginY, 10, gridSize * 3, 15);
+    canvas.drawRectangle(gridMarginX, gridMarginY + gridSize, gridSize * 3, 10, 15);
+    canvas.drawRectangle(gridMarginX, gridMarginY + gridSize * 2, gridSize * 3, 10, 15);
+
+    if(winner != "") {
+        int width = jjGetStringWidth("Winner: " + winner, STRING::LARGE, normalTextAppearance)/2;
+        canvas.drawString(jjResolutionWidth/2-width, 10, "Winner: " + winner, STRING::LARGE);
+    }
     canvas.drawString(0, 20, "X wins: " + xwins);
     canvas.drawString(0, 30, "O wins: " + owins);
-    // canvas.drawString(0, 40, "X pos: " + jjMouseX);
-    // canvas.drawString(0, 50, "Y pos: " + jjMouseY);
-
-    checkWinner();
 
     return false;
 }
