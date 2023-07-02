@@ -1,9 +1,12 @@
 #pragma require "STVutil.asc"
+#pragma require "STVhooks.asc"
 
 #include "STVutil.asc"
+#include "STVhooks.asc"
 
 // for intellisense
 #include "../../scripts/STVutil.asc"
+#include "../../scripts/STVhooks.asc"
 
 enum ANIMCUSTOMAssets {
     ASSETS_BACKGROUND_1 = 0,
@@ -38,15 +41,30 @@ void preloadAssets() {
 		startY: 0,
 		firstAnimToOverwrite: ANIM::CUSTOM[ASSETS_CHICKEN]
 	);
+
+    jjAnimSets[ANIM::CUSTOM[ASSETS_SPACESHIP]].load(
+        jjPIXELMAP("cispaceshipnew.png"),
+        frameWidth: 99,
+        frameHeight: 99,
+        frameSpacingX: 1,
+        frameSpacingY: 1,
+        startX: 0,
+        startY: 0,                 // size of ASSETS_CHICKEN's anim count
+        firstAnimToOverwrite: ANIM::CUSTOM[ASSETS_SPACESHIP + 3]
+    );
 }
 
 class Chicken
 {
-    AnimatedSprite@ sprite = AnimatedSprite(0, 0, 100, 100, 0.2, false);
+    AnimatedSprite@ sprite;
     int animationState = 0;
 
-    Chicken() {
+    Chicken(int x, int y) {
+        @this.sprite = AnimatedSprite(0, 0, x, y, 0.2, false);
         this.sprite.setAnimSet(ANIM::CUSTOM[ASSETS_CHICKEN]);
+        this.sprite.xScale = 0.5; this.sprite.yScale = 0.5;
+        this.sprite.id = 1;
+
         @this.sprite.animfinishcallback = function(dictionary@ args) {
             Chicken@ chick;
             args.get("chicken", @chick);
@@ -72,7 +90,7 @@ class Chicken
             chick.sprite.setId(chick.animationState);
         };
 
-        @sprite.animfinisharguments = {{"chicken", @this}};
+        @this.sprite.animfinisharguments = {{"chicken", @this}};
     }
 
     void update() {
@@ -80,34 +98,133 @@ class Chicken
     }
 
     void draw(jjCANVAS@ canvas) {
-        canvas.drawString(0, 30, "Id: " + int(sprite.id));
-        canvas.drawString(0, 40, "Frame: " + int(sprite.frame));
-
         sprite.draw(canvas);
     }
 };
 
-Chicken@ testChicken;
+class SpaceshipPlayer {
+    AnimatedSprite@ sprite;
+    jjPLAYER@ player;
+    bool animatingDirection = false;
+    int prevmx;
+    bool isAnimating = false;
+
+    SpaceshipPlayer(jjPLAYER@ player) {
+        @this.player = player;
+        @this.sprite = AnimatedSprite(0, 4, 150, 150, 0.2, false);
+        this.sprite.animate = false;
+        this.sprite.setAnimSet(ANIM::CUSTOM[ASSETS_SPACESHIP]);
+        this.sprite.xScale = 0.5;
+        this.sprite.yScale = 0.5;
+        @this.sprite.animfinishcallback = function(dictionary@ args) {
+            SpaceshipPlayer@ spaceship;
+            args.get("spaceship", @spaceship);
+
+            if (spaceship.animatingDirection) {
+                spaceship.sprite.reverse = true;
+            }
+
+            if (spaceship.sprite.reverse && spaceship.animatingDirection) {
+                spaceship.animatingDirection = false;
+                spaceship.sprite.reverse = false;
+                spaceship.isAnimating = false;
+            }
+        };
+
+        @this.sprite.animfinisharguments = {{"spaceship", @this}};
+    }
+
+    string predictMouseDirection(int prevX) {
+        int deltaX = jjMouseX - prevX;
+        int tolerance = 1; // Tolerance threshold for movement detection
+
+        if (deltaX > tolerance)
+            return "Right";
+        else if (deltaX < -tolerance)
+            return "Left";
+        else
+            return "None";
+    }
+
+    void update() {
+        string mouseDirection = predictMouseDirection(prevmx);
+        this.prevmx = jjMouseX;
+
+        if (!animatingDirection) {
+            // jjConsole(mouseDirection);
+            if (mouseDirection == "Left") {
+                this.sprite.frame = 0;
+                this.sprite.angle = 0;
+                this.sprite.setId(0);
+            } else if (mouseDirection == "Right") {
+                this.sprite.frame = 0;
+                this.sprite.angle = 180;
+                this.sprite.setId(0);
+                // this.sprite.setId(1);
+            } else {
+                this.sprite.frame = 4;
+                this.sprite.angle = 0;
+                this.sprite.setId(0);
+            }
+
+            if (isAnimating && mouseDirection != "Left" && mouseDirection != "Right") {
+                // Stop animation and keep the last frame
+                this.sprite.animate = false;
+                this.sprite.update();
+            } else if (!isAnimating && (mouseDirection == "Left" || mouseDirection == "Right")) {
+                // Start animation
+                this.sprite.animate = true;
+                this.sprite.reverse = false;
+                this.sprite.update();
+                isAnimating = true;
+            }
+        }
+
+        this.sprite.x = jjMouseX;
+        this.sprite.y = jjMouseY;
+        this.sprite.update();
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        this.sprite.draw(canvas);
+    }
+};
+
+array<Chicken@> chickens();
+array<SpaceshipPlayer@> players();
 
 void onLevelBegin() {
     jjConsole("Started!");
 
     preloadAssets();
 
-    @testChicken = Chicken();
+    // for (int j = 0; j < 5; j++)
+    // {
+    //     for (int i = 0; i < (8*2)+1; i++)
+    //     {
+    //         chickens.insertLast(Chicken(i*50, 100+j*50));
+    //     }
+    // }
+
+    chickens.insertLast(Chicken(250, 200));
+
+    playerJoinCallbacks.insertLast(function(jjPLAYER@ player) {
+        players.insertLast(SpaceshipPlayer(player));
+    });
 }
 
 void onMain() {
-    if(@testChicken != null)
-        testChicken.update();
-}
+    updateHooks();
 
-bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-    testChicken.sprite.anim_speed = 1;
-    testChicken.sprite.update();
-    testChicken.sprite.anim_speed = 0.000001;
+    for (uint chickenIndex = 0; chickenIndex < chickens.length(); chickenIndex++)
+    {
+        chickens[chickenIndex].update();
+    }
 
-    return false;
+    for (uint playerIndex = 0; playerIndex < players.length(); playerIndex++)
+    {
+        players[playerIndex].update();
+    }
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
@@ -120,8 +237,16 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     // resY += jjResolutionHeight/297.935594;
 
     // canvas.drawResizedSprite(0, 0, ANIM::CUSTOM[ASSETS_BACKGROUND_1], 0, 0, resX, resY);
-    if(@testChicken != null)
-        testChicken.draw(canvas);
+    
+    for (uint chickenIndex = 0; chickenIndex < chickens.length(); chickenIndex++)
+    {
+        chickens[chickenIndex].draw(canvas);
+    }
 
-    return false;
+    for (uint playerIndex = 0; playerIndex < players.length(); playerIndex++)
+    {
+        players[playerIndex].draw(canvas);
+    }
+
+    return true;
 }
