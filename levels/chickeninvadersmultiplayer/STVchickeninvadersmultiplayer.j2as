@@ -16,20 +16,22 @@ enum ANIMCUSTOMAssets {
 };
 
 void preloadAssets() {
-    jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_1]].load(
-		jjPIXELMAP("cibackground1.png"),
-		frameWidth: 512,
-		frameHeight: 512
-	);
-    jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_2]].load(
-		jjPIXELMAP("cibackground2.png"),
-		frameWidth: 512,
-		frameHeight: 512
-	);
+    // jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_1]].load(
+	// 	jjPIXELMAP("cibackground1.png"),
+	// 	frameWidth: 512,
+	// 	frameHeight: 512
+	// );
+
+    // jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_2]].load(
+	// 	jjPIXELMAP("cibackground2.png"),
+	// 	frameWidth: 512,
+	// 	frameHeight: 512
+	// );
+
     jjAnimSets[ANIM::CUSTOM[ASSETS_CHICKEN]].load(
 		jjPIXELMAP("cichicken.png"),
-		frameWidth: 100,
-		frameHeight: 100,
+		frameWidth: 99,
+		frameHeight: 99,
         frameSpacingX: 1,
 		frameSpacingY: 1,
         startX: 0,
@@ -38,36 +40,88 @@ void preloadAssets() {
 	);
 }
 
-AnimatedSprite@ chickenTest = AnimatedSprite(0, 0, 60, 50, 0.15, false);
-bool chickenSt = false;
+class Chicken
+{
+    AnimatedSprite@ sprite = AnimatedSprite(0, 0, 100, 100, 0.2, false);
+    int animationState = 0;
+
+    Chicken() {
+        this.sprite.setAnimSet(ANIM::CUSTOM[ASSETS_CHICKEN]);
+        @this.sprite.animfinishcallback = function(dictionary@ args) {
+            Chicken@ chick;
+            args.get("chicken", @chick);
+
+            if(chick.sprite.reverse) {
+                chick.animationState--;
+            } else {
+                chick.animationState++;
+            }
+
+            if(chick.animationState < 1) {
+                chick.sprite.reverse = false;
+                chick.animationState = 1;
+                chick.sprite.frame = 0;
+            }
+
+            if(chick.animationState > 3) {
+                chick.sprite.reverse = true;
+                chick.animationState = 3;
+                chick.sprite.frame = 4;
+            }
+
+            chick.sprite.setId(chick.animationState);
+        };
+
+        @sprite.animfinisharguments = {{"chicken", @this}};
+    }
+
+    void update() {
+        sprite.update();
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        canvas.drawString(0, 30, "Id: " + int(sprite.id));
+        canvas.drawString(0, 40, "Frame: " + int(sprite.frame));
+
+        sprite.draw(canvas);
+    }
+};
+
+Chicken@ testChicken;
 
 void onLevelBegin() {
     jjConsole("Started!");
 
     preloadAssets();
-    chickenTest.setAnimSet(ANIM::CUSTOM[ASSETS_CHICKEN]);
+
+    @testChicken = Chicken();
 }
 
 void onMain() {
-    if(chickenTest.frame+1 > chickenTest.frame_count) {
-        chickenTest.setId(chickenSt ? 1 : 0);
-        chickenSt = !chickenSt;
-    }
+    if(@testChicken != null)
+        testChicken.update();
+}
 
-    chickenTest.update();
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    testChicken.sprite.anim_speed = 1;
+    testChicken.sprite.update();
+    testChicken.sprite.anim_speed = 0.000001;
+
+    return false;
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    // jjResolutionWidth and jjResolutionHeight are both integers
-    // so they get rounded up and become 1 which is not correct
-    float resX = float(jjResolutionWidth)/512;
-    float resY = float(jjResolutionHeight)/512;
-    // I don't even know what the fuck this is but it works?
-    resX += jjResolutionWidth/395.56962;
-    resY += jjResolutionHeight/297.935594;
+    // // jjResolutionWidth and jjResolutionHeight are both integers
+    // // so they get rounded up and become 1 which is not correct
+    // float resX = float(jjResolutionWidth)/512;
+    // float resY = float(jjResolutionHeight)/512;
+    // // I don't even know what the fuck this is but it works?
+    // resX += jjResolutionWidth/395.56962;
+    // resY += jjResolutionHeight/297.935594;
 
-    canvas.drawResizedSprite(0, 0, ANIM::CUSTOM[ASSETS_BACKGROUND_1], 0, 0, resX, resY);
-    chickenTest.draw(canvas);
+    // canvas.drawResizedSprite(0, 0, ANIM::CUSTOM[ASSETS_BACKGROUND_1], 0, 0, resX, resY);
+    if(@testChicken != null)
+        testChicken.draw(canvas);
 
     return false;
 }
