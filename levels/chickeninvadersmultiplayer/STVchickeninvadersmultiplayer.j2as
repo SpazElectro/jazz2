@@ -113,10 +113,10 @@ int SpaceshipWeaponBehave(SpaceshipWeapon weapon, int x, int y, int energy) {
     {
     case BORONRAILGUN:
         if(energy == 1)
-            bullets.insertLast(Bullet(x, y, false));
+            bullets.insertLast(Bullet(x, y, 0, 4, false));
         else if(energy == 2) {
-            bullets.insertLast(Bullet(x - 5, y, false));
-            bullets.insertLast(Bullet(x + 5, y, false));
+            bullets.insertLast(Bullet(x - 5, y, 0, 4, false));
+            bullets.insertLast(Bullet(x + 5, y, 0, 4, false));
         }
 
         firerate = 0;
@@ -242,16 +242,20 @@ class SpaceshipPlayer {
 class Bullet
 {
     float x, y;
+    float xVelocity, yVelocity;
     bool isEgg;
 
-    Bullet(float x, float y, bool isEgg) {
+    Bullet(float x, float y, float xVelocity, float yVelocity, bool isEgg) {
         this.x = x;
         this.y = y;
+        this.xVelocity = xVelocity;
+        this.yVelocity = yVelocity;
         this.isEgg = isEgg;
     }
 
     void update() {
-        this.y -= 4;
+        this.x -= xVelocity;
+        this.y -= yVelocity;
     }
 
     void draw(jjCANVAS@ canvas) {
