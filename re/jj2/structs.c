@@ -124,3 +124,17 @@ struct Player {
     int freeze;
 };
 // player
+
+// level
+struct Level {
+    int waterlevel;
+    int gravity;
+    bool finish;
+    int difficulty;
+    int changecoins;
+    int extra;
+};
+// level
+
+// (most) vars that start with a lowercase s are states
+// ex; sSLEEP == stateSLEEP

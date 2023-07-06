@@ -1,0 +1,25 @@
+#pragma name "sugarrushdisplay"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+AnimatedSprite@ sprite = AnimatedSprite(77, 0, 25, 50, 0.125, false);
+
+void onLevelBegin() {
+    sprite.setAnimSet(71);
+    jjConsole("Started!");
+}
+
+void onMain() {
+    sprite.update();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawString(40, 55, "" + player.food + "/100");
+    sprite.draw(canvas);
+
+    return false;
+}
