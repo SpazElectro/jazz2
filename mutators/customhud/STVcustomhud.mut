@@ -238,7 +238,7 @@ void loadSettings(jjSTREAM settingsStream) {
 }
 
 void keyPress(uint keyCode) {
-    if(keyCode == KEYS[0].code) {
+    if(keyCode == getKeyById("F2").code) {
         menu.toggle();
     }
 }
@@ -272,7 +272,7 @@ void onLevelBegin() {
     menu.header = "Custom HUD";
     menu.footer = "Custom HUD v" + settingsVersion;
 
-    menuButtons.insertLast(MenuButton("Page", -1, {
+    array<Button@> pageDict = {
         Button(
             0, function(button) {
                 button.setValue(true);
@@ -285,13 +285,15 @@ void onLevelBegin() {
                 button.mainButton.buttons[0].setValue(false);
                 toPage(2);
             }, "2", true)
-    }));
+    };
+
+    menuButtons.insertLast(MenuButton("Page", -1, pageDict, menu));
 
     menuButtons[0].buttons[0].value = true;
 
     // page 1 //
 
-    menuButtons.insertLast(MenuButton("Health size", 0, {
+    array<Button@> healthDict = {
         Button(
             0, function(button) {
                 healthSize -= 0.1;
@@ -300,9 +302,11 @@ void onLevelBegin() {
             1, function(button) {
                 healthSize += 0.1;
             }, "+", true)
-    }));
+    };
 
-    menuButtons.insertLast(MenuButton("Ammo size", 1, {
+    menuButtons.insertLast(MenuButton("Health size", 0, healthDict, menu));
+
+    array<Button@> ammoSizeDict = {
         Button(
             0, function(button) {
                 ammoSpriteSize -= 0.1;
@@ -311,9 +315,11 @@ void onLevelBegin() {
             1, function(button) {
                 ammoSpriteSize += 0.1;
             }, "+", true)
-    }));
+    };
 
-    menuButtons.insertLast(MenuButton("Ammo text size", 2, {
+    menuButtons.insertLast(MenuButton("Ammo size", 1, ammoSizeDict, menu));
+    
+    array<Button@> ammoTextSizeDict = {
         Button(
             0, function(button) {
                 if(ammoSize == STRING::MEDIUM) { ammoSize = STRING::SMALL; return; }
@@ -324,9 +330,11 @@ void onLevelBegin() {
                 if(ammoSize == STRING::SMALL) { ammoSize = STRING::MEDIUM; return; }
                 if(ammoSize == STRING::MEDIUM) { ammoSize = STRING::LARGE; return; }
             }, "+", true)
-    }));
+    };
 
-    menuButtons.insertLast(MenuButton("Ammo sprite padding X", 3, {
+    menuButtons.insertLast(MenuButton("Ammo text size", 2, ammoTextSizeDict, menu));
+
+    array<Button@> ammoSpritePaddingXDict = {
         Button(
             0, function(button) {
                 ammoSpritePaddingX -= 1;
@@ -335,9 +343,11 @@ void onLevelBegin() {
             1, function(button) {
                 ammoSpritePaddingX += 1;
             }, "+", true)
-    }));
+    };
 
-    menuButtons.insertLast(MenuButton("Ammo sprite padding Y", 4, {
+    menuButtons.insertLast(MenuButton("Ammo sprite padding X", 3, ammoSpritePaddingXDict, menu));
+
+    array<Button@> ammoSpritePaddingYDict = {
         Button(
             0, function(button) {
                 ammoSpritePaddingY -= 1;
@@ -346,25 +356,29 @@ void onLevelBegin() {
             1, function(button) {
                 ammoSpritePaddingY += 1;
             }, "+", true)
-    }));
+    };
 
-    menuButtons.insertLast(MenuButton("Reset to defaults", 5, Button(0, function(button){resetToDefaults();})));
+    menuButtons.insertLast(MenuButton("Ammo sprite padding Y", 4, ammoSpritePaddingYDict, menu));
+
+    menuButtons.insertLast(
+        MenuButton("Reset to defaults", 5, Button(0, function(button){resetToDefaults();}), menu)
+    );
 
     // page 1 //
 
     // page 2 //
-    menuButtons.insertLast(MenuButton("test button for page 2", 0, {
-        Button(
-            0, function(button) {
+    // menuButtons.insertLast(MenuButton("test button for page 2", 0, {
+    //     Button(
+    //         0, function(button) {
                 
-            }, "-", true),
-        Button(
-            1, function(button) {
+    //         }, "-", true),
+    //     Button(
+    //         1, function(button) {
                 
-            }, "+", true)
-    }));
+    //         }, "+", true)
+    // }, menu));
 
-    menuButtons[7].visible = false;
+    // menuButtons[7].visible = false;
 
     keyPressCallbacks.insertLast(keyPress);
     
