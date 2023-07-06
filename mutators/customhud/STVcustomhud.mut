@@ -260,7 +260,7 @@ void toPage(int newPage) {
             menuButtons[i + 1].visible = true;
         }
     } else {
-        menuButtons[7].visible = true;
+        // menuButtons[7].visible = true;
     }
 }
 
@@ -278,13 +278,14 @@ void onLevelBegin() {
                 button.setValue(true);
                 button.mainButton.buttons[1].setValue(false);
                 toPage(1);
-            }, "1", true),
-        Button(
-            1, function(button) {
-                button.setValue(true);
-                button.mainButton.buttons[0].setValue(false);
-                toPage(2);
-            }, "2", true)
+            }, "1", true)
+        // dont forget the comma
+        // Button(
+        //     1, function(button) {
+        //         button.setValue(true);
+        //         button.mainButton.buttons[0].setValue(false);
+        //         toPage(2);
+        //     }, "2", true)
     };
 
     menuButtons.insertLast(MenuButton("Page", -1, pageDict, menu));
