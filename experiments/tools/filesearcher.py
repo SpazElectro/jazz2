@@ -91,7 +91,7 @@ def open_filter_window():
     tileset_entry = ttk.Entry(filter_window)
     tileset_entry.grid(row=2, column=1, padx=5, pady=5)
 
-    music_label = ttk.Label(filter_window, text="Music Name:")
+    music_label = ttk.Label(filter_window, text="Music Filename:")
     music_label.grid(row=3, column=0, padx=5, pady=5)
     music_entry = ttk.Entry(filter_window)
     music_entry.grid(row=3, column=1, padx=5, pady=5)
@@ -116,8 +116,9 @@ def open_filter_window():
 
 window = tk.Tk()
 window.geometry("800x600")
+window.wm_title("JJ2 Level finder")
 
-passwordprotectedfilter = tk.IntVar()
+passwordprotectedfilter = tk.IntVar(value=2)
 
 open_filter_window()
 
