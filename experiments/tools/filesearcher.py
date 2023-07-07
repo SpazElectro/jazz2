@@ -48,6 +48,7 @@ def filter_treeview():
     keyword_levelname = levelname_entry.get().lower()
     keyword_tileset = tileset_entry.get().lower()
     keyword_helpstring = helpstring_entry.get().lower()
+    keyword_music = music_entry.get().lower()
 
     levelList.delete(*levelList.get_children())
     for i, level in enumerate(levelsParsed):
@@ -55,10 +56,15 @@ def filter_treeview():
         if (keyword_filename in lvl["fileName"].lower()
                 and keyword_levelname in lvl.LevelName.lower()
                 and keyword_tileset in lvl.TileSetName.lower()
-                and any(keyword_helpstring in help_string.lower() for help_string in lvl.HelpStrings)):
+                and any(keyword_helpstring in help_string.lower() for help_string in lvl.HelpStrings)
+                and keyword_music in lvl.MusicFile.lower()):
+            if passwordprotectedfilter.get() == 1 and not lvl.PasswordProtected:
+                continue
+            if passwordprotectedfilter.get() == 3 and lvl.PasswordProtected:
+                continue
             levelList.insert('', 'end', text=i, values=(
-                i,
-                lvl["fileName"], lvl.LevelName, lvl.PasswordProtected, lvl.HideLevel, lvl.TileSetName,
+                i, # to do fix this
+                lvl["fileName"], lvl.LevelName, lvl.TileSetName, lvl.MusicFile, lvl.PasswordProtected, lvl.HideLevel,
                 lvl.HelpStrings[0], lvl.HelpStrings[1], lvl.HelpStrings[2], lvl.HelpStrings[3],
                 lvl.HelpStrings[4], lvl.HelpStrings[5], lvl.HelpStrings[6], lvl.HelpStrings[7],
                 lvl.HelpStrings[8], lvl.HelpStrings[9], lvl.HelpStrings[10], lvl.HelpStrings[11],
@@ -66,7 +72,7 @@ def filter_treeview():
             ))
 
 def open_filter_window():
-    global filename_entry, levelname_entry, tileset_entry, helpstring_entry
+    global filename_entry, levelname_entry, tileset_entry, helpstring_entry, passwordprotectedfilter, music_entry
     filter_window = tk.Toplevel(window)
     filter_window.title("Filter Options")
 
@@ -80,21 +86,40 @@ def open_filter_window():
     levelname_entry = ttk.Entry(filter_window)
     levelname_entry.grid(row=1, column=1, padx=5, pady=5)
 
-    tileset_label = ttk.Label(filter_window, text="Tileset Name:")
+    tileset_label = ttk.Label(filter_window, text="Tileset Filename:")
     tileset_label.grid(row=2, column=0, padx=5, pady=5)
     tileset_entry = ttk.Entry(filter_window)
     tileset_entry.grid(row=2, column=1, padx=5, pady=5)
 
+    music_label = ttk.Label(filter_window, text="Music Name:")
+    music_label.grid(row=3, column=0, padx=5, pady=5)
+    music_entry = ttk.Entry(filter_window)
+    music_entry.grid(row=3, column=1, padx=5, pady=5)
+
     helpstring_label = ttk.Label(filter_window, text="Help String:")
-    helpstring_label.grid(row=3, column=0, padx=5, pady=5)
+    helpstring_label.grid(row=4, column=0, padx=5, pady=5)
     helpstring_entry = ttk.Entry(filter_window)
-    helpstring_entry.grid(row=3, column=1, padx=5, pady=5)
+    helpstring_entry.grid(row=4, column=1, padx=5, pady=5)
+
+    passwordprotected_label = ttk.Label(filter_window, text="Password protected?")
+    passwordprotected_label.grid(row=5, column=0, padx=5, pady=5)
+
+    tk.Radiobutton(filter_window, text = "Yes", variable = passwordprotectedfilter,
+            value = 1).grid(row=5, column=1, columnspan=2, padx=5, pady=5)
+    tk.Radiobutton(filter_window, text = "Any", variable = passwordprotectedfilter,
+        value = 2).grid(row=5, column=2, padx=5, pady=5)
+    tk.Radiobutton(filter_window, text = "No", variable = passwordprotectedfilter,
+        value = 3).grid(row=5, column=3, columnspan=4, padx=5, pady=5)
 
     filter_button = ttk.Button(filter_window, text="Apply Filters", command=filter_treeview)
-    filter_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+    filter_button.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
 
 window = tk.Tk()
 window.geometry("800x600")
+
+passwordprotectedfilter = tk.IntVar()
+
+open_filter_window()
 
 # Create a Frame to hold the treeview and scrollbars
 frame = tk.Frame(window)
@@ -124,16 +149,16 @@ levelList.heading("# 2", text="Level filename")
 levelList.column("# 3", anchor=tk.CENTER)
 levelList.heading("# 3", text="Level name")
 levelList.column("# 4", anchor=tk.CENTER)
-levelList.heading("# 4", text="Is password protected")
+levelList.heading("# 4", text="Tileset filename")
 levelList.column("# 5", anchor=tk.CENTER)
-levelList.heading("# 5", text="Level hidden in singleplayer menu")
+levelList.heading("# 5", text="Music filename")
 levelList.column("# 6", anchor=tk.CENTER)
-levelList.heading("# 6", text="Tileset filename")
+levelList.heading("# 6", text="Password protected")
+levelList.column("# 7", anchor=tk.CENTER)
+levelList.heading("# 7", text="Hidden in Home-Cooked list")
 
 for i in range(7, 16 + 7):
     levelList.column(f"# {i}", anchor=tk.CENTER)
     levelList.heading(f"# {i}", text=f"Help string {i-7}")
-
-open_filter_window()
 
 window.mainloop()
