@@ -135,7 +135,7 @@ hsb = ttk.Scrollbar(frame, orient="horizontal")
 hsb.pack(side="bottom", fill="x")
 
 # Create the treeview and configure it to use the scrollbars
-columns = [f"c{i}" for i in range(6 + 16)]
+columns = [f"c{i}" for i in range(7 + 16)]
 levelList = ttk.Treeview(frame, column=columns, show="headings", height=300,
                          yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 levelList.pack(side="left", fill="both", expand=True)
@@ -158,8 +158,8 @@ levelList.heading("# 6", text="Password protected")
 levelList.column("# 7", anchor=tk.CENTER)
 levelList.heading("# 7", text="Hidden in Home-Cooked list")
 
-for i in range(7, 16 + 7):
+for i in range(8, 16 + 8):
     levelList.column(f"# {i}", anchor=tk.CENTER)
-    levelList.heading(f"# {i}", text=f"Help string {i-7}")
+    levelList.heading(f"# {i}", text=f"Help string {i-8}")
 
 window.mainloop()
