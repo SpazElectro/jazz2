@@ -1,0 +1,111 @@
+// plan: 3 teams, FROG team (yellow), RED team, BLUE team
+#pragma name "froghunt"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+array<int> frogs();
+
+void onLevelBegin() {
+    jjConsole("Started!");
+
+    if(jjIsServer) {
+        // team battle
+        if(jjGameCustom != GAME::TB) {
+            jjChat("/tb");    
+        }
+
+        if(!jjEnabledTeams[TEAM::RED])
+            jjChat("/teams red on");
+        if(!jjEnabledTeams[TEAM::BLUE])
+            jjChat("/teams blue on");
+        if(!jjEnabledTeams[TEAM::YELLOW])
+            jjChat("/teams yellow on");
+        if(jjEnabledTeams[TEAM::GREEN])
+            jjChat("/teams green off");
+
+        if(jjMaxScore != 11)
+            jjChat("/maxscore 11");
+
+        startGame();
+    }
+}
+
+void startGame() {
+    if(jjGameState != GAME::STARTED)
+        jjChat("/start");
+    frogs = {};
+    jjPLAYER@ frog = getRandomPlayer();
+    frogs.insertLast(frog.clientID);
+    while(frog.team != TEAM::YELLOW) jjChat("/swap " + (frog.clientID + 1));
+    frog.morphTo(CHAR::FROG, false);
+}
+
+bool scheduledReset = false;
+
+void onMain() {
+    if(jjIsServer) {
+        // only the server does RNG!
+        stvutilRNG.seed(generateSeed());
+        
+        for(int p = 0; p < 32; p++) {
+            jjPLAYER@ player = jjPlayers[p];
+
+            if(player.isActive && (player.team == TEAM::YELLOW || frogs.find(player.clientID) >= 0)) {
+                // not a real frog >:O
+                if(frogs.find(player.clientID) < 0) {
+                    jjChat("/swap " + (player.clientID + 1));
+                } else if(player.team != TEAM::YELLOW) {
+                    while(player.team != TEAM::YELLOW) jjChat("/swap " + (player.clientID + 1));
+                }
+
+                if(player.charCurr != CHAR::FROG)
+                    player.morphTo(CHAR::FROG, false);
+            }
+        }
+
+        if(
+            (jjTeamScore[TEAM::BLUE] >= jjMaxScore - 1 || jjTeamScore[TEAM::RED] >= jjMaxScore - 1)
+            && !scheduledReset) {
+            scheduledReset = true;
+
+            TimerV(70 * 10, function() {
+                jjChat("/redscore 0");
+                jjChat("/bluescore 0");
+                scheduledReset = false;
+                startGame();
+            });
+
+            jjChat("/stop");
+        }
+    }
+}
+
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawString(4, 11, "|||Blue frog roasts " + (jjTeamScore[TEAM::BLUE]) + "/" + (jjMaxScore - 1), STRING::MEDIUM);
+    canvas.drawString(4, 35, "||Red frog roasts " + (jjTeamScore[TEAM::RED]) + "/" + (jjMaxScore - 1), STRING::MEDIUM);
+    
+    if(scheduledReset) {
+        string txt = (jjTeamScore[TEAM::BLUE] >= jjMaxScore - 1 ? "|||BLUE|||" : "||RED||||") + " TEAM HAS WON!";
+
+        canvas.drawString(jjResolutionWidth / 2 - jjGetStringWidth(txt, STRING::MEDIUM, normalTextAppearance)/2, jjResolutionHeight / 2, txt, STRING::MEDIUM);
+    }
+
+    return true;
+}
+
+void onRoast(jjPLAYER@ victim, jjPLAYER@ killer) {
+    if(jjIsServer) {
+        if(victim.charCurr != CHAR::FROG) {
+            // killed non frog, wait for the game to process the kill so we can remove the score
+            TimerV(1, function(args) {
+                jjPLAYER@ killer;
+                args.get("player", @killer);
+                jjChat("/" + (killer.team == TEAM::BLUE ? "blue" : "red") + "score " + (jjTeamScore[killer.team] - 1));
+            }, {{"player", @killer}});
+        }
+    }
+}
