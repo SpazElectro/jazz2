@@ -16,13 +16,14 @@ function getDefaultOf(type) {
     return "undefined";
 }
 
-async function runPythonScript() {
+async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
         execFile("python", [
             "G:\\steve\\jazz2stuff\\jazz2\\experiments\\spazlint\\main.py",
             vscode.window.activeTextEditor.document.uri.fsPath,
             vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text,
-            vscode.window.activeTextEditor.selection.active.character.toString()
+            vscode.window.activeTextEditor.selection.active.character.toString(),
+            adv ? "true" : "false"
         ], (error, stdout, stderr) => {
             if (error) {
                 reject(error.message);
@@ -93,13 +94,15 @@ let completion = {
     },
 }
 
-async function refreshDiagnostics() {
+async function refreshDiagnostics(advanced=false) {
+    if((vscode.window.activeTextEditor == null || vscode.window.activeTextEditor.document.isUntitled || !(vscode.window.activeTextEditor.document.fileName.endsWith(".j2as") || vscode.window.activeTextEditor.document.fileName.endsWith(".mut") || vscode.window.activeTextEditor.document.fileName.endsWith(".asc"))))
+        return;
+
     try {
-        const output = await runPythonScript();
+        const output = await runPythonScript(advanced);
         const errors = JSON.parse(output.split("\n")[1]);
 
-        var diagnostics = errors.map((diagnostic) => new vscode.Diagnostic(new vscode.Range(diagnostic["line"], 0, diagnostic["line"] + 1, 0), diagnostic["text"]));
-        console.log("diagnostics count: " + diagnostics.length);
+        var diagnostics = errors.map((diagnostic) => new vscode.Diagnostic(new vscode.Range(diagnostic["line"], 0, diagnostic["line"] + 1, 0), diagnostic["text"], diagnostic["type"] == "ERR" ? vscode.DiagnosticSeverity.Error : (diagnostic["type"] == "INFO" ? vscode.DiagnosticSeverity.Information : vscode.DiagnosticSeverity.Warning)));
 
         extensionDiagnostics.set(vscode.window.activeTextEditor.document.uri, diagnostics)
     } catch (error) {
@@ -112,9 +115,9 @@ function activate(context) {
     extensionDiagnostics = vscode.languages.createDiagnosticCollection("jj2plus");
     context.subscriptions.push(extensionDiagnostics);
 
-    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => refreshDiagnostics()))
+    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => refreshDiagnostics()));
+    context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(e => refreshDiagnostics(true)));
 
-    vscode.languages.registerCompletionItemProvider("c++", completion);
     vscode.languages.registerCompletionItemProvider("cpp", completion);
 
     console.log("[SpazLint] Registered completion items!")
