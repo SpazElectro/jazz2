@@ -42,13 +42,15 @@ let completion = {
                         suggestion["items"].map(x => {
                             if (x.items != undefined && x.items.length != 0) {
                                 let newItems = [];
-
+                                
                                 x.items.forEach(itm => {
                                     newItems.push((x.type.split("::")[0] == "jjBEHAVIOR" ? "BEHAVIOR" : x.type.split("::")[0]) + "::" + itm);
                                 });
                                 
+                                ss.appendText(x.name + ": ");
                                 ss.appendChoice(newItems)
                             } else {
+                                ss.appendText(x.name + ": ");
                                 ss.appendPlaceholder(x.defaultValue || "0");
                             }
                             
