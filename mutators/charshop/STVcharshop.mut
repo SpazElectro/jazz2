@@ -44,17 +44,22 @@ class TimerV : jjBEHAVIORINTERFACE
         return false;
     }
     bool Paused = false;
-
+// @ignore-semicolons
 private
     jjVOIDFUNC @_callback = null;
+// @ignore-semicolons
 private
     TimerVDictionaryFunction @_callbackWithArguments;
+// @ignore-semicolons
 private
     dictionary @_arguments;
+// @ignore-semicolons
 private
     jjOBJ @_object;
+// @ignore-semicolons
 private
     int _startTime;
+// @ignore-semicolons
 private
     void _start(int time)
     {
@@ -74,6 +79,7 @@ private
             _pickCallback();
         }
     }
+// @ignore-semicolons
 private
     void onBehave(jjOBJ @obj)
     {
@@ -83,6 +89,7 @@ private
             _object.delete();
         }
     }
+// @ignore-semicolons
 private
     void _pickCallback()
     {
@@ -242,9 +249,7 @@ class ShopItem : Button
             return false;
         }
 
-        if (
-            tokens >= this.price &&
-            this.canBuy && ((this.maxAmountOwned != this.amountOwned) or (this.maxAmountOwned == -1)))
+        if (tokens >= this.price && this.canBuy && ((this.maxAmountOwned != this.amountOwned) or (this.maxAmountOwned == -1)))
         {
             tokens -= this.price;
             this.itemOwned = true;
@@ -298,8 +303,7 @@ class ShopItem : Button
     }
 }
 
-array<Button @>
-    buttons = {
+array<Button @> buttons = {
         Button(
             "Jazz's Shop", 200, 135, function(button) {
                 page = 1;

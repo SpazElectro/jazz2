@@ -1,0 +1,98 @@
+#pragma name "quickradio"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+int radioFreq = 0;
+bool radioOpen = false;
+
+array<array<string>> radioFreqs = {
+    array<string>() = {
+        "my health is ${health}",
+        "ready"
+    },
+    array<string>() = {
+        "WOAH! That's illegal!"
+    }
+};
+
+string applyFilters(string str) {
+    str = replaceAll(str, "${health}", formatInt(jjP.health));
+
+    return str;
+}
+
+void onLevelBegin() {
+    jjConsole("Started!");
+
+    keyPressCallbacks.insertLast(function(key) {
+        if(key == getKeyById("Z").code) {
+            radioOpen = radioFreq == 0 && radioOpen ? false : true;
+            radioFreq = 0;
+        } else if(key == getKeyById("X").code) {
+            radioOpen = radioFreq == 1 && radioOpen ? false : true;
+            radioFreq = 1;
+        }
+        
+        if(radioOpen) {
+            int keySelection = -1;
+
+            if(key == getKeyById("0").code)
+                keySelection = 0;
+            else if(key == getKeyById("1").code)
+                keySelection = 1;
+            else if(key == getKeyById("2").code)
+                keySelection = 2;
+            else if(key == getKeyById("3").code)
+                keySelection = 3;
+            else if(key == getKeyById("4").code)
+                keySelection = 4;
+            else if(key == getKeyById("5").code)
+                keySelection = 5;
+            else if(key == getKeyById("6").code)
+                keySelection = 6;
+            else if(key == getKeyById("7").code)
+                keySelection = 7;
+            else if(key == getKeyById("8").code)
+                keySelection = 8;
+            else if(key == getKeyById("9").code)
+                keySelection = 9;
+            
+            if(keySelection == -1) return;
+
+            if(keySelection == 0) {
+                radioOpen = false;
+                return;
+            }
+
+            if(!(radioFreqs[radioFreq].length() - 1 >= keySelection - 1)) {
+                return;
+            }
+
+            string finalString = applyFilters(radioFreqs[radioFreq][keySelection-1]);
+
+            jjChat(finalString, true);
+            radioOpen = false;
+        }
+    });
+}
+
+void onMain() {
+    updateKeys();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(radioOpen) {
+        canvas.drawString(20, jjResolutionHeight - (radioFreqs[radioFreq].length() * 20) - 40 + (20 * -1), "[0] Exit");
+
+        for(uint i = 0; i < radioFreqs[radioFreq].length(); i++) {
+            string text = radioFreqs[radioFreq][i];
+            canvas.drawString(20, jjResolutionHeight - (radioFreqs[radioFreq].length() * 20) - 40 + (20 * i), "[" + (i + 1) + "] " + applyFilters(text));
+        }
+    }
+
+    return false;
+}

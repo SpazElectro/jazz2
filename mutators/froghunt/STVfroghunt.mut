@@ -8,6 +8,7 @@
 #include "../../scripts/STVutil.asc"
 
 array<int> frogs();
+int frogsPerRound = 1;
 
 void onLevelBegin() {
     jjConsole("Started!");
@@ -34,14 +35,33 @@ void onLevelBegin() {
     }
 }
 
+void pickRandomAsFrog() {
+    jjPLAYER@ frog = getRandomPlayer();
+    if(frogs.find(frog.clientID) >= 0) { pickRandomAsFrog(); return; }
+    frogs.insertLast(frog.clientID);
+    while(frog.team != TEAM::YELLOW) jjChat("/swap " + (frog.clientID + 1));
+    frog.morphTo(CHAR::FROG, false);
+}
+
 void startGame() {
     if(jjGameState != GAME::STARTED)
         jjChat("/start");
     frogs = {};
-    jjPLAYER@ frog = getRandomPlayer();
-    frogs.insertLast(frog.clientID);
-    while(frog.team != TEAM::YELLOW) jjChat("/swap " + (frog.clientID + 1));
-    frog.morphTo(CHAR::FROG, false);
+
+    for(int i = 0; i < frogsPerRound; i++) {
+        pickRandomAsFrog();
+    }
+}
+
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(jjIsServer && stringReceived.findFirst("!frogsperround") == 0) {
+        frogsPerRound = parseInt(stringReceived.split(" ")[1]);
+        jjConsole("Now " + frogsPerRound + " frogs per round!");
+        return true;
+    }
+    
+    return false;
 }
 
 bool scheduledReset = false;
@@ -67,8 +87,7 @@ void onMain() {
             }
         }
 
-        if(
-            (jjTeamScore[TEAM::BLUE] >= jjMaxScore - 1 || jjTeamScore[TEAM::RED] >= jjMaxScore - 1)
+        if((jjTeamScore[TEAM::BLUE] >= jjMaxScore - 1 || jjTeamScore[TEAM::RED] >= jjMaxScore - 1)
             && !scheduledReset) {
             scheduledReset = true;
 

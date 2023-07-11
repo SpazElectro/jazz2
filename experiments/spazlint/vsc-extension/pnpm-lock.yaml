@@ -1,0 +1,12 @@
+lockfileVersion: '6.0'
+
+devDependencies:
+  '@types/vscode':
+    specifier: ^1.80.0
+    version: 1.80.0
+
+packages:
+
+  /@types/vscode@1.80.0:
+    resolution: {integrity: sha512-qK/CmOdS2o7ry3k6YqU4zD3R2AYlJfbwBoSbKpBoP+GpXNE+0NEgJOli4n0bm0diK5kfBnchgCEj4igQz/44Hg==}
+    dev: true

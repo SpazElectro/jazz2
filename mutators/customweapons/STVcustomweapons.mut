@@ -137,8 +137,7 @@ void setWeaponSet(int newWeaponSet, jjPLAYER@ player) {
         weapon.spread = props.spread;
         weapon.style = props.style == 0 ? WEAPON::NORMAL : props.style == 1 ? WEAPON::MISSILE : props.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
 
-        player.ammo[i + 1] =
-            weaponSet.ammo[i];
+        player.ammo[i + 1] = weaponSet.ammo[i];
     }
 
     usingCustomWeapon = newWeaponSet != 0;

@@ -81,8 +81,7 @@ class Button
                     jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset,
                     50, 50,
                     jjMouseX, jjMouseY,
-                    1, 1) &&
-                this.hoverText != "")
+                    1, 1) && this.hoverText != "")
             {
                 canvas.drawString(jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset, this.hoverText, STRING::SMALL, STRING::NORMAL, 0);
             }
@@ -325,6 +324,7 @@ array<MenuButton @> menu_buttons = {
                                                                                                                                                                                binding = true;
                                                                                                                                                                                showMenu = false;
                                                                                                                                                                            })),
+    // @ignore-semicolons
     MenuButton("Color On Upgrade", 3, colorUpgradedButtons)
     // unfinished profiles // dont forget to remove the comma ^
 //     MenuButton("Profiles", 5, Button(

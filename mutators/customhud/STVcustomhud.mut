@@ -87,9 +87,7 @@ bool upgraded(jjPLAYER @player, int id) { return player.powerup[id]; }
 int idToSprite(jjPLAYER@ player, int id)
 {
     if(id == 1) {
-        if(
-            gun.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI
-        ) gun.setAnimSet(ANIM::PICKUPS);
+        if(gun.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) gun.setAnimSet(ANIM::PICKUPS);
 
         if(player.charCurr == CHAR::JAZZ) {
             if(upgraded(player, 1)) {
@@ -278,6 +276,7 @@ void onLevelBegin() {
                 button.setValue(true);
                 button.mainButton.buttons[1].setValue(false);
                 toPage(1);
+            // @ignore-semicolons
             }, "1", true)
         // dont forget the comma
         // Button(
@@ -302,6 +301,7 @@ void onLevelBegin() {
         Button(
             1, function(button) {
                 healthSize += 0.1;
+            // @ignore-semicolons
             }, "+", true)
     };
 
@@ -314,7 +314,9 @@ void onLevelBegin() {
             }, "-", true),
         Button(
             1, function(button) {
+            // @ignore-semicolons
                 ammoSpriteSize += 0.1;
+            // @ignore-semicolons
             }, "+", true)
     };
 
@@ -330,6 +332,7 @@ void onLevelBegin() {
             1, function(button) {
                 if(ammoSize == STRING::SMALL) { ammoSize = STRING::MEDIUM; return; }
                 if(ammoSize == STRING::MEDIUM) { ammoSize = STRING::LARGE; return; }
+            // @ignore-semicolons
             }, "+", true)
     };
 
@@ -343,6 +346,7 @@ void onLevelBegin() {
         Button(
             1, function(button) {
                 ammoSpritePaddingX += 1;
+            // @ignore-semicolons
             }, "+", true)
     };
 
@@ -356,14 +360,12 @@ void onLevelBegin() {
         Button(
             1, function(button) {
                 ammoSpritePaddingY += 1;
+            // @ignore-semicolons
             }, "+", true)
     };
 
     menuButtons.insertLast(MenuButton("Ammo sprite padding Y", 4, ammoSpritePaddingYDict, menu));
-
-    menuButtons.insertLast(
-        MenuButton("Reset to defaults", 5, Button(0, function(button){resetToDefaults();}), menu)
-    );
+    menuButtons.insertLast(MenuButton("Reset to defaults", 5, Button(0, function(button){resetToDefaults();}), menu));
 
     // page 1 //
 
@@ -607,9 +609,13 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             string ammo = player.currWeapon == 1 ? "^" : "" + player.ammo[player.currWeapon];
 
             if((
+                // @ignore-semicolons
                 player.charCurr == CHAR::JAZZ ||
+                // @ignore-semicolons
                 player.charCurr == CHAR::SPAZ ||
+                // @ignore-semicolons
                 player.charCurr == CHAR::LORI ||
+                // @ignore-semicolons
                 player.charCurr == CHAR::BIRD2
             )) {
                 if(ammoSize != STRING::LARGE || (ammoSize == STRING::LARGE && ammo == "^")) {
