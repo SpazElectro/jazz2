@@ -1,4 +1,4 @@
-let exec = require("child_process").exec;
+let { exec, execFile} = require("child_process");
 let vscode = require("vscode");
 
 var extensionDiagnostics;
@@ -18,20 +18,28 @@ function getDefaultOf(type) {
 
 async function runPythonScript() {
     return new Promise((resolve, reject) => {
-        exec(
-            "python G:\\steve\\jazz2stuff\\jazz2\\experiments\\spazlint\\main.py", 
-            {
-                arguments: [vscode.window.activeTextEditor.document.uri.fsPath, vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text, vscode.window.activeTextEditor.selection.active.character]
-            },
-        (error, stdout, stderr) => {
-                if (error) {
-                    reject(error.message);
-                } else if (stderr) {
-                    reject(stderr);
-                } else {
-                    resolve(stdout);
-                }
-            });
+        
+        // Example usage
+        const filePath = vscode.window.activeTextEditor.document.uri.fsPath;
+        const userInput = vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text; // Replace with the user input
+
+        const command = 'python';
+        const args = [
+            "G:\\steve\\jazz2stuff\\jazz2\\experiments\\spazlint\\main.py",
+            filePath,
+            userInput,
+            vscode.window.activeTextEditor.selection.active.character.toString()
+        ];
+        
+        execFile(command, args, (error, stdout, stderr) => {
+            if (error) {
+                reject(error.message);
+            } else if (stderr) {
+                reject(stderr);
+            } else {
+                resolve(stdout);
+            }
+        });
     });
 }
 
