@@ -1,16 +1,29 @@
 let exec = require("child_process").exec;
 let vscode = require("vscode");
 
-var _context;
 var extensionDiagnostics;
+
+function getDefaultOf(type) {
+    if(["int", "uint", "int8", "uint8", "int16", "uint16", "int64", "uint64", "float", "double"].includes(type))
+        return "0";
+    if(type == "bool")
+        return "false";
+    if(type.startsWith("array<"))
+        return "array<" + type.split("array<")[1].split(">")[0] + ">() = {}";
+    if(type == "string")
+        return "\"\"";
+
+    return "undefined";
+}
 
 async function runPythonScript() {
     return new Promise((resolve, reject) => {
         exec(
-            "python G:\\steve\\jazz2stuff\\jazz2\\experiments\\spazlint\\main.py \""
-            + vscode.window.activeTextEditor.document.uri.fsPath + "\" \"" +
-            vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text + "\" \"" +
-            vscode.window.activeTextEditor.selection.active.character + "\"", (error, stdout, stderr) => {
+            "python G:\\steve\\jazz2stuff\\jazz2\\experiments\\spazlint\\main.py", 
+            {
+                arguments: [vscode.window.activeTextEditor.document.uri.fsPath, vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text, vscode.window.activeTextEditor.selection.active.character]
+            },
+        (error, stdout, stderr) => {
                 if (error) {
                     reject(error.message);
                 } else if (stderr) {
@@ -51,7 +64,7 @@ let completion = {
                                 ss.appendChoice(newItems)
                             } else {
                                 ss.appendText(x.name + ": ");
-                                ss.appendPlaceholder(x.defaultValue || "0");
+                                ss.appendPlaceholder(x.defaultValue || getDefaultOf(x.type));
                             }
                             
                             ss.appendText(i == suggestion["items"].length - 1 ? "" : ", ");
@@ -93,7 +106,6 @@ async function refreshDiagnostics() {
 function activate(context) {
     console.log("we running")
 
-    _context = context;
     extensionDiagnostics = vscode.languages.createDiagnosticCollection("jj2plus");
     context.subscriptions.push(extensionDiagnostics);
 

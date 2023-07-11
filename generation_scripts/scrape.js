@@ -73,7 +73,7 @@ for (let i = 0; i < abc.children.length; i++) {
             let defaultValue;
             let attributes = [];
 
-            if (arg.split(" ").length == 4 && arg.split(" ")[2]) {
+            if (arg.split(" ").length >= 4 && arg.split(" ")[2] == "=") {
                 defaultValue = arg.split(" ")[3];
                 argName = arg.split(" ")[1];
             }

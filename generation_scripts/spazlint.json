@@ -7,28 +7,33 @@
             {
                 "type": "uint8",
                 "name": "eventID",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "creatorID",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "CREATOR::Type",
                 "name": "creatorType",
                 "defaultValue": "CREATOR::OBJECT",
+                "attributes": [],
                 "items": [
                     "OBJECT",
                     "LEVEL",
@@ -39,6 +44,7 @@
                 "type": "jjBEHAVIOR",
                 "name": "behavior",
                 "defaultValue": "BEHAVIOR::DEFAULT",
+                "attributes": [],
                 "items": [
                     "BULLET",
                     "SEEKERBULLET",
@@ -91,6 +97,7 @@
             {
                 "type": "PARTICLE::Type",
                 "name": "type",
+                "attributes": [],
                 "items": [
                     "INACTIVE",
                     "FIRE",
@@ -117,26 +124,31 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "curFrame",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "direction",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "mode",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -149,21 +161,25 @@
             {
                 "type": "uint16",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "tile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "collapseSceneryStyle",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -176,19 +192,24 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "sendToAll",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "STRING::Size",
                 "name": "size",
                 "defaultValue": "STRING::SMALL",
+                "attributes": [],
                 "items": [
                     "SMALL",
                     "MEDIUM",
@@ -205,13 +226,17 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "teamchat",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -224,13 +249,17 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "sendToAll",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -243,6 +272,7 @@
             {
                 "type": "uint",
                 "name": "angle",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -255,13 +285,17 @@
             {
                 "type": "jjSTREAM",
                 "name": "input",
-                "defaultValue": "input",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "crc",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -274,13 +308,17 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "timestamp",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -293,6 +331,7 @@
             {
                 "type": "int",
                 "name": "objectID",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -305,22 +344,26 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "color",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -369,24 +412,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -399,32 +446,38 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "width",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "height",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "color",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -473,24 +526,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -503,42 +560,50 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "setID",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "animation",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "frame",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "xScale",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yScale",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -587,24 +652,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -617,32 +686,38 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "sprite",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "xScale",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yScale",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -691,24 +766,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -721,49 +800,58 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "setID",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "animation",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "frame",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "angle",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "xScale",
                 "defaultValue": "1",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yScale",
                 "defaultValue": "1",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -812,24 +900,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -842,39 +934,46 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "sprite",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "angle",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "xScale",
                 "defaultValue": "1",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yScale",
                 "defaultValue": "1",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -923,24 +1022,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -953,38 +1056,45 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "setID",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "animation",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "frame",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "direction",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -1033,24 +1143,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1063,28 +1177,33 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "sprite",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "direction",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -1133,24 +1252,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1163,51 +1286,62 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "STRING::SIZE",
                 "name": "size",
-                "defaultValue": "STRING::SMALL"
+                "defaultValue": "STRING::SMALL",
+                "attributes": []
             },
             {
                 "type": "STRING::Mode",
                 "name": "mode",
-                "defaultValue": "STRING::NORMAL"
+                "defaultValue": "STRING::NORMAL",
+                "attributes": []
             },
             {
                 "type": "uint8",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1220,52 +1354,65 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "jjANIMATION",
                 "name": "animation",
-                "defaultValue": "animation",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "STRING::Mode",
                 "name": "mode",
-                "defaultValue": "STRING::NORMAL"
+                "defaultValue": "STRING::NORMAL",
+                "attributes": []
             },
             {
                 "type": "uint8",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1278,32 +1425,38 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "sprite",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "length",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "curvature",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SPRITE::Mode",
                 "name": "mode",
                 "defaultValue": "SPRITE::NORMAL",
+                "attributes": [],
                 "items": [
                     "ALPHAMAP",
                     "BLEND_NORMAL",
@@ -1352,24 +1505,28 @@
                 "type": "int",
                 "name": "param",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1382,22 +1539,26 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "tile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "TILE::Quadrant",
                 "name": "tileQuadrant",
                 "defaultValue": "TILE::ALLQUADRANTS",
+                "attributes": [],
                 "items": [
                     "TOPLEFT",
                     "TOPRIGHT",
@@ -1410,18 +1571,21 @@
                 "type": "int8",
                 "name": "layerZ",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layerXY",
                 "defaultValue": "4",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "playerID",
                 "defaultValue": "-1",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1440,11 +1604,13 @@
             {
                 "type": "uint16",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1457,16 +1623,19 @@
             {
                 "type": "uint16",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "newEventID",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1479,26 +1648,31 @@
             {
                 "type": "uint8",
                 "name": "layer",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "width",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "height",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1541,7 +1715,10 @@
             {
                 "type": "string",
                 "name": "moduleName",
-                "defaultValue": "moduleName",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -1554,6 +1731,7 @@
             {
                 "type": "uint16",
                 "name": "tileID",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1566,12 +1744,16 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "STRING::Size",
                 "name": "size",
+                "attributes": [],
                 "items": [
                     "SMALL",
                     "MEDIUM",
@@ -1581,7 +1763,10 @@
             {
                 "type": "jjTEXTAPPEARANCE",
                 "name": "style",
-                "defaultValue": "style",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -1594,19 +1779,28 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "jjANIMATION",
                 "name": "animation",
-                "defaultValue": "animation",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "jjTEXTAPPEARANCE",
                 "name": "style",
-                "defaultValue": "style",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -1619,7 +1813,10 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -1632,6 +1829,7 @@
             {
                 "type": "int",
                 "name": "objectID",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1650,7 +1848,9 @@
             {
                 "type": "array<jjLAYER@>&",
                 "name": "in",
-                "defaultValue": "order",
+                "attributes": [
+                    "const"
+                ],
                 "items": []
             }
         ]
@@ -1663,19 +1863,26 @@
             {
                 "type": "string",
                 "name": "filename",
-                "defaultValue": "filename",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "array<uint>",
                 "name": "layerIDs",
-                "defaultValue": "layerIDs",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "tileIDAdjustmentFactor",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1688,16 +1895,19 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "lineLength",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1710,11 +1920,13 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1727,16 +1939,19 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "lineLength",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1749,16 +1964,19 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "lineLength",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1771,21 +1989,25 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "lineLength",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layer",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1798,16 +2020,19 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layer",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1820,21 +2045,25 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "lineLength",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layer",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1847,21 +2076,25 @@
             {
                 "type": "int",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "lineLength",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "layer",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1874,18 +2107,21 @@
             {
                 "type": "string",
                 "name": "filename",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "forceReload",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "temporary",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1923,12 +2159,14 @@
                 "type": "bool",
                 "name": "warp",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "fast",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1941,18 +2179,23 @@
             {
                 "type": "string&",
                 "name": "filename",
+                "attributes": [
+                    "const"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "warp",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "fast",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1965,21 +2208,25 @@
             {
                 "type": "uint16",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "offset",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "length",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -1992,26 +2239,31 @@
             {
                 "type": "uint16",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "offset",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int8",
                 "name": "length",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "newValue",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -2024,6 +2276,7 @@
             {
                 "type": "int",
                 "name": "clientID",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -2036,13 +2289,17 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "timestamp",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -2061,7 +2318,10 @@
             {
                 "type": "string",
                 "name": "expression",
-                "defaultValue": "expression",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -2074,19 +2334,26 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "string",
                 "name": "expression",
-                "defaultValue": "expression",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "ignoreCase",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -2099,25 +2366,35 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "string",
                 "name": "expression",
-                "defaultValue": "expression",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "string",
                 "name": "replacement",
-                "defaultValue": "replacement",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "ignoreCase",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -2130,19 +2407,26 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "string",
                 "name": "expression",
-                "defaultValue": "expression",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "ignoreCase",
                 "defaultValue": "false",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -2161,16 +2445,19 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SOUND::Sample",
                 "name": "sample",
+                "attributes": [],
                 "items": [
                     "AMMO_BLUB1",
                     "AMMO_BLUB2",
@@ -2691,12 +2978,14 @@
                 "type": "int",
                 "name": "volume",
                 "defaultValue": "63",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "frequency",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -2709,6 +2998,7 @@
             {
                 "type": "SOUND::Sample",
                 "name": "sample",
+                "attributes": [],
                 "items": [
                     "AMMO_BLUB1",
                     "AMMO_BLUB2",
@@ -3235,6 +3525,7 @@
             {
                 "type": "SOUND::Sample",
                 "name": "sample",
+                "attributes": [],
                 "items": [
                     "AMMO_BLUB1",
                     "AMMO_BLUB2",
@@ -3754,6 +4045,7 @@
             {
                 "type": "string",
                 "name": "&in",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -3766,16 +4058,19 @@
             {
                 "type": "float",
                 "name": "xPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "SOUND::Sample",
                 "name": "sample",
+                "attributes": [],
                 "items": [
                     "AMMO_BLUB1",
                     "AMMO_BLUB2",
@@ -4295,18 +4590,21 @@
             {
                 "type": "int",
                 "name": "channel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "volume",
                 "defaultValue": "63",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "frequency",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4319,6 +4617,7 @@
             {
                 "type": "SOUND::Sample",
                 "name": "sample",
+                "attributes": [],
                 "items": [
                     "AMMO_BLUB1",
                     "AMMO_BLUB2",
@@ -4845,18 +5144,21 @@
             {
                 "type": "jjSTREAM",
                 "name": "&in",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "toClientID",
                 "defaultValue": "0",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "toScriptModuleID",
                 "defaultValue": "jjScriptModuleID",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4869,6 +5171,8 @@
             {
                 "type": "jjPALCOLOR",
                 "name": "color",
+                "defaultValue": "jjPALCOLOR",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4881,16 +5185,19 @@
             {
                 "type": "uint8",
                 "name": "red",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "green",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "blue",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4903,16 +5210,19 @@
             {
                 "type": "uint8",
                 "name": "layerID",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "newspeed",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "newSpeedIsAnAutoSpeed",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4925,16 +5235,19 @@
             {
                 "type": "uint8",
                 "name": "layerID",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "newspeed",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "newSpeedIsAnAutoSpeed",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4947,16 +5260,19 @@
             {
                 "type": "int",
                 "name": "order",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "row",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "reset",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4969,6 +5285,7 @@
             {
                 "type": "uint8",
                 "name": "speed",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4981,6 +5298,7 @@
             {
                 "type": "uint8",
                 "name": "tempo",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -4993,31 +5311,37 @@
             {
                 "type": "uint8",
                 "name": "red1",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "green1",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "blue1",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "red2",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "green2",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint8",
                 "name": "blue2",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5030,11 +5354,13 @@
             {
                 "type": "float",
                 "name": "yPixel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "bool",
                 "name": "instant",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5047,6 +5373,7 @@
             {
                 "type": "uint",
                 "name": "angle",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5059,16 +5386,19 @@
             {
                 "type": "int",
                 "name": "channel",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "float",
                 "name": "volume",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "milliseconds",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5087,6 +5417,7 @@
             {
                 "type": "uint8",
                 "name": "index",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5099,6 +5430,7 @@
             {
                 "type": "uint8",
                 "name": "index",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5111,6 +5443,7 @@
             {
                 "type": "uint8",
                 "name": "index",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5123,18 +5456,25 @@
             {
                 "type": "uint8",
                 "name": "index",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "array<uint8>",
                 "name": "indexMapping",
-                "defaultValue": "indexMapping",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "jjPAL",
                 "name": "rgbMapping",
-                "defaultValue": "rgbMapping",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -5147,7 +5487,10 @@
             {
                 "type": "string",
                 "name": "text",
-                "defaultValue": "text",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -5160,6 +5503,7 @@
             {
                 "type": "uint8",
                 "name": "id",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5172,6 +5516,10 @@
             {
                 "type": "string",
                 "name": "filename",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             }
         ]
@@ -5184,16 +5532,19 @@
             {
                 "type": "uint8",
                 "name": "layer",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5206,21 +5557,25 @@
             {
                 "type": "uint8",
                 "name": "layer",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "xTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "int",
                 "name": "yTile",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint16",
                 "name": "newTile",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5233,22 +5588,30 @@
             {
                 "type": "string",
                 "name": "filename",
-                "defaultValue": "filename",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "firstTileID",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "tileCount",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "array<uint8>@",
                 "name": "paletteColorMapping",
+                "attributes": [
+                    "const"
+                ],
                 "items": []
             }
         ]
@@ -5261,6 +5624,7 @@
             {
                 "type": "uint8",
                 "name": "id",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5291,12 +5655,16 @@
             {
                 "type": "jjSTREAM",
                 "name": "input",
-                "defaultValue": "input",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "jjSTREAM",
                 "name": "&out",
+                "attributes": [],
                 "items": []
             }
         ]
@@ -5309,17 +5677,22 @@
             {
                 "type": "jjSTREAM",
                 "name": "input",
-                "defaultValue": "input",
+                "attributes": [
+                    "const",
+                    "&in"
+                ],
                 "items": []
             },
             {
                 "type": "jjSTREAM",
                 "name": "&out",
+                "attributes": [],
                 "items": []
             },
             {
                 "type": "uint",
                 "name": "size",
+                "attributes": [],
                 "items": []
             }
         ]
