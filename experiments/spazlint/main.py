@@ -84,9 +84,6 @@ class JJ2PlusLinter:
         
         return suggestions
 
-# print(json.dumps([{"type": "function", "name": "fakefunction", "full": "test(yay)"}]))
-# print(json.dumps([]))
-
 code = open(sys.argv[1]).read()
 line = sys.argv[2]
 char = int(sys.argv[3])
