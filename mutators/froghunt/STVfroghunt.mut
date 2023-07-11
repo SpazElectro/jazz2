@@ -13,8 +13,6 @@ int frogsPerRound = 1;
 void onLevelBegin() {
     jjConsole("Started!");
 
-    jjConsole("sdlkafs;lkhd")
-
     if(jjIsServer) {
         // team battle
         if(jjGameCustom != GAME::TB) {
