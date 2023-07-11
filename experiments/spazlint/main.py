@@ -60,7 +60,8 @@ class JJ2PlusLinter:
         if advanced:
             for e in errorchecker.getErrors(self.file):
                 linting_errors.append({
-                    "line": int(e.split("(")[1].split(", ")[0]) - 1,
+                    "line": int(e.split("(")[1].split(", ")[0].split(") : ")[0]) - 1,
+                    "char": int(e.split("(")[1].split(", ")[1].split(") : ")[0]) - 1,
                     "text": e.split("(")[1].split(") : ")[1].split(" : ")[1],
                     "type": e.split("(")[1].split(") : ")[1].split(" : ")[0]
                 })

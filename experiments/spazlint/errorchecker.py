@@ -3,9 +3,11 @@ from typing import List
 import uuid
 import shutil
 import pygetwindow
+from inireader import getFromRun
 
-game_directory = "F:\Games\Jazz2\\"
-game_exe = f"{game_directory}Jazz2.exe"
+# TODO: read from ini
+game_directory = getFromRun("GAME_DIRECTORY")
+game_exe = f"{game_directory}{getFromRun('GAME_NAME')}"
 
 def getErrors(mutatorLocation):
     mutatorName = f"spazlint_temp-{uuid.uuid4()}.mut"

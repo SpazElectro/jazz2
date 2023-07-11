@@ -19,7 +19,7 @@ function getDefaultOf(type) {
 async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
         execFile("python", [
-            "G:\\steve\\jazz2stuff\\jazz2\\experiments\\spazlint\\main.py",
+            process.env["SPAZLINT_DIR"] + "\\main.py",
             vscode.window.activeTextEditor.document.uri.fsPath,
             vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text,
             vscode.window.activeTextEditor.selection.active.character.toString(),
@@ -102,7 +102,7 @@ async function refreshDiagnostics(advanced=false) {
         const output = await runPythonScript(advanced);
         const errors = JSON.parse(output.split("\n")[1]);
 
-        var diagnostics = errors.map((diagnostic) => new vscode.Diagnostic(new vscode.Range(diagnostic["line"], 0, diagnostic["line"] + 1, 0), diagnostic["text"], diagnostic["type"] == "ERR" ? vscode.DiagnosticSeverity.Error : (diagnostic["type"] == "INFO" ? vscode.DiagnosticSeverity.Information : vscode.DiagnosticSeverity.Warning)));
+        var diagnostics = errors.map((diagnostic) => new vscode.Diagnostic(new vscode.Range(diagnostic["line"], diagnostic["char"], diagnostic["line"] + 1, 0), diagnostic["text"], diagnostic["type"] == "ERR" ? vscode.DiagnosticSeverity.Error : (diagnostic["type"] == "INFO" ? vscode.DiagnosticSeverity.Information : vscode.DiagnosticSeverity.Warning)));
 
         extensionDiagnostics.set(vscode.window.activeTextEditor.document.uri, diagnostics)
     } catch (error) {
