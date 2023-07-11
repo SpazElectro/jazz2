@@ -1,16 +1,16 @@
-let { exec, execFile} = require("child_process");
+let { exec, execFile } = require("child_process");
 let vscode = require("vscode");
 
 var extensionDiagnostics;
 
 function getDefaultOf(type) {
-    if(["int", "uint", "int8", "uint8", "int16", "uint16", "int64", "uint64", "float", "double"].includes(type))
+    if (["int", "uint", "int8", "uint8", "int16", "uint16", "int64", "uint64", "float", "double"].includes(type))
         return "0";
-    if(type == "bool")
+    if (type == "bool")
         return "false";
-    if(type.startsWith("array<"))
+    if (type.startsWith("array<"))
         return "array<" + type.split("array<")[1].split(">")[0] + ">() = {}";
-    if(type == "string")
+    if (type == "string")
         return "\"\"";
 
     return "undefined";
@@ -18,7 +18,7 @@ function getDefaultOf(type) {
 
 async function runPythonScript() {
     return new Promise((resolve, reject) => {
-        
+
         // Example usage
         const filePath = vscode.window.activeTextEditor.document.uri.fsPath;
         const userInput = vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text; // Replace with the user input
@@ -30,7 +30,7 @@ async function runPythonScript() {
             userInput,
             vscode.window.activeTextEditor.selection.active.character.toString()
         ];
-        
+
         execFile(command, args, (error, stdout, stderr) => {
             if (error) {
                 reject(error.message);
@@ -63,18 +63,23 @@ let completion = {
                         suggestion["items"].map(x => {
                             if (x.items != undefined && x.items.length != 0) {
                                 let newItems = [];
-                                
+
                                 x.items.forEach(itm => {
                                     newItems.push((x.type.split("::")[0] == "jjBEHAVIOR" ? "BEHAVIOR" : x.type.split("::")[0]) + "::" + itm);
                                 });
-                                
+
                                 ss.appendText(x.name + ": ");
-                                ss.appendChoice(newItems)
+                                ss.appendChoice(newItems);
                             } else {
                                 ss.appendText(x.name + ": ");
-                                ss.appendPlaceholder(x.defaultValue || getDefaultOf(x.type));
+                                if (!x.defaultValue && getDefaultOf(x.type) == "\"\"") {
+                                    ss.appendText("\"");
+                                    ss.appendPlaceholder("");
+                                    ss.appendText("\"");
+                                } else
+                                    ss.appendPlaceholder(x.defaultValue || getDefaultOf(x.type));
                             }
-                            
+
                             ss.appendText(i == suggestion["items"].length - 1 ? "" : ", ");
                             i += 1;
                         });

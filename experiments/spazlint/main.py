@@ -31,9 +31,9 @@ class JJ2PlusLinter:
 
         if "semicolons" in self.enabled_errors:
             for line_index, line in enumerate(lines):
-                if line.strip() and not line.strip().endswith(";"):
-                    line = line.strip()
-                    
+                line = line.strip()
+
+                if line and not line.endswith(";"):
                     if line == "" or line.endswith("{") or line.endswith("}") or \
                         line.startswith("#") or line.startswith("//") or \
                         line.startswith("if") or "//" in line or \
@@ -57,8 +57,7 @@ class JJ2PlusLinter:
         return linting_errors
 
     def autocomplete(self, line):
-        line = line.strip()
-        line = line.lower()
+        line = line.strip().lower()
         suggestions = []
 
         for prop in properties:
