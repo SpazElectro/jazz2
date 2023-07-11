@@ -18,20 +18,12 @@ function getDefaultOf(type) {
 
 async function runPythonScript() {
     return new Promise((resolve, reject) => {
-
-        // Example usage
-        const filePath = vscode.window.activeTextEditor.document.uri.fsPath;
-        const userInput = vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text; // Replace with the user input
-
-        const command = 'python';
-        const args = [
+        execFile("python", [
             "G:\\steve\\jazz2stuff\\jazz2\\experiments\\spazlint\\main.py",
-            filePath,
-            userInput,
+            vscode.window.activeTextEditor.document.uri.fsPath,
+            vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text,
             vscode.window.activeTextEditor.selection.active.character.toString()
-        ];
-
-        execFile(command, args, (error, stdout, stderr) => {
+        ], (error, stdout, stderr) => {
             if (error) {
                 reject(error.message);
             } else if (stderr) {
@@ -117,8 +109,6 @@ async function refreshDiagnostics() {
 }
 
 function activate(context) {
-    console.log("we running")
-
     extensionDiagnostics = vscode.languages.createDiagnosticCollection("jj2plus");
     context.subscriptions.push(extensionDiagnostics);
 
@@ -127,7 +117,7 @@ function activate(context) {
     vscode.languages.registerCompletionItemProvider("c++", completion);
     vscode.languages.registerCompletionItemProvider("cpp", completion);
 
-    console.log("registered lol")
+    console.log("[SpazLint] Registered completion items!")
 }
 
 function deactivate() { }
