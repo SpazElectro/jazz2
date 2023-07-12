@@ -24,7 +24,6 @@ function getFileLocation() {
         location = location.replace("\\", "_")
     location = location.replace(":", "_")
 
-
     return process.env["SPAZLINT_DIR"] + "\\temp\\" + location + ".tmp";
 }
 
@@ -32,7 +31,6 @@ async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
         execFile("python", [
             process.env["SPAZLINT_DIR"] + "\\main.py",
-            // vscode.window.activeTextEditor.document.uri.fsPath,
             getFileLocation(),
             vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text,
             vscode.window.activeTextEditor.selection.active.character.toString(),
