@@ -1,4 +1,4 @@
-abc = document.getElementById("abc")
+abc = document.getElementById("jjPLAYERList")
 var items = []
 var prevDescription = '';
 
@@ -60,6 +60,7 @@ for (let i = 0; i < abc.children.length; i++) {
 
         if (name == "") continue;
 
+        let itmType = full.includes("(") && full.includes(")") ? "function" : "property";
         let a = full.split(" ").slice(1).join(" ");
         a = a.split("(").slice(1).join(" ");
         a = a.split(")").slice(0, 1).join(" ");
@@ -112,12 +113,14 @@ for (let i = 0; i < abc.children.length; i++) {
         });
 
         items.push({
-            name: name,
+            name: name.slice(10), // only for the jjPLAYER class (its 10 characters)
             description: description,
             full: full,
+            type: itmType,
             arguments: niceArgs
         });
     }
 }
 
+throw Error; // this is to prevent me spamming console lol
 console.log(items)

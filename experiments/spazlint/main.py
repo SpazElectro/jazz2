@@ -3,22 +3,7 @@ import errorchecker
 
 properties: list = json.load(open(os.path.dirname(__file__) + "/spazlint.json"))
 classProperties = {
-    "jjPLAYER": [
-        {
-            "type": "property",
-            "properties": {
-                "name": "testA",
-                "description": "testADescription"
-            }
-        },
-        {
-            "type": "property",
-            "properties": {
-                "name": "testB",
-                "description": "testBDescription"
-            }
-        }
-    ]
+    "jjPLAYER": json.load(open(os.path.dirname(__file__) + "/spazlint-classes-jjPLAYER.json"))
 }
 
 # the most important thing is *syntax*, what I mean is instead of going like:
@@ -103,35 +88,33 @@ class JJ2PlusLinter:
         else:
             className = None
 
+        def handleProp(prop):
+            name = prop["name"]
+
+            # optimization
+            if name.lower().startswith(line):
+                if prop["type"] == "function":
+                    suggestions.append({
+                        "type": prop["type"],
+                        "name": name,
+                        "description": prop["description"],
+                        "full": prop["full"],
+                        "items": prop["arguments"]
+                    })
+                else:
+                    suggestions.append({
+                        "type": prop["type"],
+                        "name": name,
+                        "description": prop["description"]
+                    })
+
         if className != None:
             if classProperties.get(className):
-                for x in classProperties[className]:
-                    suggestions.append({
-                        "type": x["type"],
-                        "name": x["properties"]["name"],
-                        "description": x["properties"]["description"]
-                    })
+                for prop in classProperties[className]:
+                    handleProp(prop)
         else:
             for prop in properties:
-                name = prop["properties"]["name"]
-
-                # optimization
-                if name.lower().startswith(line):
-                    if prop["type"] == "function":
-                        suggestions.append({
-                            "type": prop["type"],
-                            "name": name,
-                            "description": prop["properties"]["description"],
-                            "arguments": prop["properties"]["full"].split(" ")[1:],
-                            "returns": prop["properties"]["full"].split(" ")[0],
-                            "items": prop["properties"]["arguments"]
-                        })
-                    else:
-                        suggestions.append({
-                            "type": prop["type"],
-                            "name": name,
-                            "description": prop["properties"]["description"]
-                        })
+                handleProp(prop)
         
         return suggestions
 

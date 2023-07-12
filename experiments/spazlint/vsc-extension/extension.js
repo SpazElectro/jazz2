@@ -59,7 +59,8 @@ let completion = {
                     suggestion["type"] == "function" ?
                         vscode.CompletionItemKind.Function : (suggestion["type"] == "property" ? vscode.CompletionItemKind.Property : vscode.CompletionItemKind.Variable)
                 );
-                x.documentation = suggestion["description"] + (suggestion["type"] == "function" ? ("\n\n" + suggestion["returns"] + " " + suggestion["arguments"]) : "");
+
+                x.documentation = suggestion["description"] + (suggestion["type"] == "function" ? ("\n\n" + suggestion["full"]) : "");
 
                 if (suggestion["type"] == "function") {
                     let str = suggestion["name"] + "(";
