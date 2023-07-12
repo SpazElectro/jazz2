@@ -15,8 +15,8 @@ class JJ2PlusLinter:
     def __init__(self, file):
         self.file = file
         self.code = open(file).read()
-        # self.enabled_errors = ["semicolons"]
-        self.enabled_errors = []
+        self.enabled_errors = ["semicolons"]
+        # self.enabled_errors = []
 
         disabledErrors = self.code.split("\n")[0]
         if disabledErrors.startswith("// !ignore-"):
@@ -54,7 +54,9 @@ class JJ2PlusLinter:
 
                     linting_errors.append({
                         "line": line_index,
-                        "text": f"Missing semicolon."
+                        "char": 0,
+                        "text": f"Missing semicolon.",
+                        "type": "ERR"
                     })
         
         if advanced:

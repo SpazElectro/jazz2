@@ -1,4 +1,5 @@
-let { exec, execFile } = require("child_process");
+let { execFile } = require("child_process");
+let { writeFileSync } = require("fs");
 let vscode = require("vscode");
 
 var extensionDiagnostics;
@@ -16,11 +17,23 @@ function getDefaultOf(type) {
     return "undefined";
 }
 
+function getFileLocation() {
+    var location = vscode.window.activeTextEditor.document.uri.fsPath
+
+    while(location.includes("\\"))
+        location = location.replace("\\", "_")
+    location = location.replace(":", "_")
+
+
+    return process.env["SPAZLINT_DIR"] + "\\temp\\" + location + ".tmp";
+}
+
 async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
         execFile("python", [
             process.env["SPAZLINT_DIR"] + "\\main.py",
-            vscode.window.activeTextEditor.document.uri.fsPath,
+            // vscode.window.activeTextEditor.document.uri.fsPath,
+            getFileLocation(),
             vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text,
             vscode.window.activeTextEditor.selection.active.character.toString(),
             adv ? "true" : "false"
@@ -97,6 +110,8 @@ let completion = {
 async function refreshDiagnostics(advanced=false) {
     if((vscode.window.activeTextEditor == null || vscode.window.activeTextEditor.document.isUntitled || !(vscode.window.activeTextEditor.document.fileName.endsWith(".j2as") || vscode.window.activeTextEditor.document.fileName.endsWith(".mut") || vscode.window.activeTextEditor.document.fileName.endsWith(".asc"))))
         return;
+        
+    writeFileSync(getFileLocation(), vscode.window.activeTextEditor.document.getText());
 
     try {
         const output = await runPythonScript(advanced);

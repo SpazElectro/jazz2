@@ -12,7 +12,7 @@ int frogsPerRound = 1;
 
 void onLevelBegin() {
     jjConsole("Started!");
-
+    
     if(jjIsServer) {
         // team battle
         if(jjGameCustom != GAME::TB) {
@@ -52,7 +52,6 @@ void startGame() {
         pickRandomAsFrog();
     }
 }
-
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(jjIsServer && stringReceived.findFirst("!frogsperround") == 0) {

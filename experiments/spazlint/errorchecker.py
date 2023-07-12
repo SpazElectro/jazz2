@@ -32,6 +32,7 @@ def getErrors(mutatorLocation):
         for w in windows:
             if "Jazz Jackrabbit 2" in w.title or "chatlogger" in w.title:
                 jj2Window = w
+                w.hide()
                 w.minimize()
                 break
         
