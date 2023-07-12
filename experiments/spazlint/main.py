@@ -1,7 +1,25 @@
-import json, sys
+import json, sys, os
 import errorchecker
 
-properties: list = json.load(open("G:\steve\jazz2stuff\jazz2\experiments\spazlint\spazlint.json"))
+properties: list = json.load(open(os.path.dirname(__file__) + "/spazlint.json"))
+classProperties = {
+    "jjPLAYER": [
+        {
+            "type": "property",
+            "properties": {
+                "name": "testA",
+                "description": "testADescription"
+            }
+        },
+        {
+            "type": "property",
+            "properties": {
+                "name": "testB",
+                "description": "testBDescription"
+            }
+        }
+    ]
+}
 
 # the most important thing is *syntax*, what I mean is instead of going like:
 # ```
@@ -70,43 +88,63 @@ class JJ2PlusLinter:
         
         return linting_errors
 
-    def autocomplete(self, line):
+    def autocomplete(self, lineN, rvrs):
+        line = self.code.splitlines()[lineN]
+        if not rvrs:
+            line = line[char:]
+        else: line = line[:char]
+        
         line = line.strip().lower()
         suggestions = []
 
-        for prop in properties:
-            name = prop["properties"]["name"]
+        className = self.code.splitlines()[lineN - 1].strip()
+        if len(className.split("// ")) >= 2:
+            className = className.split("// ")[1]
+        else:
+            className = None
 
-            # optimization
-            if name.lower().startswith(line):
-                if prop["type"] == "function":
+        if className != None:
+            if classProperties.get(className):
+                for x in classProperties[className]:
                     suggestions.append({
-                        "type": prop["type"],
-                        "name": name,
-                        "description": prop["properties"]["description"],
-                        "arguments": prop["properties"]["full"].split(" ")[1:],
-                        "returns": prop["properties"]["full"].split(" ")[0],
-                        "items": prop["properties"]["arguments"]
+                        "type": x["type"],
+                        "name": x["properties"]["name"],
+                        "description": x["properties"]["description"]
                     })
-                else:
-                    suggestions.append({
-                        "type": prop["type"],
-                        "name": name,
-                        "description": prop["properties"]["description"]
-                    })
+        else:
+            for prop in properties:
+                name = prop["properties"]["name"]
+
+                # optimization
+                if name.lower().startswith(line):
+                    if prop["type"] == "function":
+                        suggestions.append({
+                            "type": prop["type"],
+                            "name": name,
+                            "description": prop["properties"]["description"],
+                            "arguments": prop["properties"]["full"].split(" ")[1:],
+                            "returns": prop["properties"]["full"].split(" ")[0],
+                            "items": prop["properties"]["arguments"]
+                        })
+                    else:
+                        suggestions.append({
+                            "type": prop["type"],
+                            "name": name,
+                            "description": prop["properties"]["description"]
+                        })
         
         return suggestions
 
 file = sys.argv[1]
-line = sys.argv[2]
+line = int(sys.argv[2])
 char = int(sys.argv[3])
 advanced = True if sys.argv[4] == "true" else False
 
 linter = JJ2PlusLinter(file)
-x = linter.autocomplete(line[char:])
+x = linter.autocomplete(line, False)
 
 if len(x) == 0:
-    x = linter.autocomplete(line[:char])
+    x = linter.autocomplete(line, True)
 
 print(json.dumps(x))
 print(json.dumps(linter.lint(advanced)))

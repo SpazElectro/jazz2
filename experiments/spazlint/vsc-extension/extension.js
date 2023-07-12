@@ -32,7 +32,7 @@ async function runPythonScript(adv = false) {
         execFile("python", [
             process.env["SPAZLINT_DIR"] + "\\main.py",
             getFileLocation(),
-            vscode.window.activeTextEditor.document.lineAt(vscode.window.activeTextEditor.selection.active.line).text,
+            vscode.window.activeTextEditor.selection.active.line.toString(),
             vscode.window.activeTextEditor.selection.active.character.toString(),
             adv ? "true" : "false"
         ], (error, stdout, stderr) => {
@@ -54,7 +54,11 @@ let completion = {
             const suggestions = JSON.parse(output.split("\n")[0]);
 
             var completionItems = suggestions.map((suggestion) => {
-                let x = new vscode.CompletionItem(suggestion["name"], suggestion["type"] == "function" ? vscode.CompletionItemKind.Function : vscode.CompletionItemKind.Property);
+                let x = new vscode.CompletionItem(
+                    suggestion["name"],
+                    suggestion["type"] == "function" ?
+                        vscode.CompletionItemKind.Function : (suggestion["type"] == "property" ? vscode.CompletionItemKind.Property : vscode.CompletionItemKind.Variable)
+                );
                 x.documentation = suggestion["description"] + (suggestion["type"] == "function" ? ("\n\n" + suggestion["returns"] + " " + suggestion["arguments"]) : "");
 
                 if (suggestion["type"] == "function") {

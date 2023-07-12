@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.mut": "cpp",
+        "*.asc": "cpp",
+        "*.j2as": "cpp"
+    },
+    "discord.enabled": true
+}
