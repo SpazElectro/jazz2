@@ -15,10 +15,8 @@ void onLevelBegin() {
 
     if(jjIsServer) {
         // team battle
-        if(jjGameCustom != GAME::TB) {
-            jjChat("/tb");    
-        }
-
+        if(jjGameCustom != GAME::TB)
+            jjChat("/tb");
         if(!jjEnabledTeams[TEAM::RED])
             jjChat("/teams red on");
         if(!jjEnabledTeams[TEAM::BLUE])
@@ -27,7 +25,6 @@ void onLevelBegin() {
             jjChat("/teams yellow on");
         if(jjEnabledTeams[TEAM::GREEN])
             jjChat("/teams green off");
-
         if(jjMaxScore != 11)
             jjChat("/maxscore 11");
 

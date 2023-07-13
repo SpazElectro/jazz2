@@ -107,6 +107,8 @@ class JJ2PlusLinter:
             className = self.code.splitlines()[lineN - 1].strip()
             if len(className.split("// force-autocomplete ")) >= 2:
                 className = className.split("// force-autocomplete ")[1]
+            else:
+                className = None
         
         def handleProp(prop):
             name = prop["name"]
