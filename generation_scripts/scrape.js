@@ -1,39 +1,9 @@
-var rootTableElement = document.getElementById("jjMASKMAPList")
-var isClass = false;
-var items = []
-var prevDescription = "";
+var rootTables = ["eventsList", "globalpropertiesList", "globalfunctionsList", "jjPLAYERList", "jjOBJList", "jjPARTICLEList", "jjCONTROLPOINTList", "jjCHARACTERList", "jjWEAPONList", "jjSTREAMList", "jjRNGList", "jjPALList", "jjPALCOLORList", "jjCANVASList", "jjLAYERList", "jjTEXTAPPEARANCEList", "jjPLAYERDRAWList", "jjANIMSETList", "jjANIMATIONList", "jjANIMFRAMEList", "jjTILEList", "jjPIXELMAPList", "jjMASKMAPList"]
+var isClassTable = [false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
 
 // throw Error;
+var prevDescription = "";
 
-function findNextDD(element, startIndex) {
-    let resultx = "";
-    let counter = 0;
-
-    for (let i = startIndex; i < element.children.length; i++) {
-        if (element.children[i].tagName === "DD") {
-            resultx += element.children[i].textContent + "\n";
-        } else if (element.children[i].tagName === "DT") {
-            if (prevDescription === resultx) {
-                continue;
-            }
-
-            prevDescription = resultx;
-            break;
-        }
-
-        counter++;
-
-        if (counter === 10) {
-            break;
-        }
-    }
-
-    prevDescription = '';
-
-    return resultx;
-}
-
-var completion = []
 var ENUM_ARRAY = {
     "CREATOR::Type": ["OBJECT", "LEVEL", "PLAYER"],
     "PARTICLE::Type": ["INACTIVE", "FIRE", "FLOWER", "ICETRAIL", "LEAF", "PIXEL", "RAIN", "SMOKE", "SNOW", "SPARK", "STAR", "STRING", "TILE"],
@@ -68,99 +38,139 @@ var ENUM_ARRAY = {
     "WEAPON::Style": ["NORMAL", "MISSILE", "POPCORN", "CAPPED"],
     "STRING::Alignment": ["DEFAULT", "LEFT", "CENTER", "RIGHT"],
     "STRING::SignTreatment": ["HIDESIGN", "DISPLAYSIGN", "SPECIALSIGN"],
-    "TEAM::COLOR": ["NEUTRAL", "BLUE", "RED", "GREEN", "YELLOW"]
+    "TEAM::COLOR": ["NEUTRAL", "BLUE", "RED", "GREEN", "YELLOW"],
+    "AIR::Jump": ["NONE", "HELICOPTER", "DOUBLEJUMP"],
+    "GROUND::Jump": ["JAZZ", "SPAZ", "LORI", "CROUCH", "JUMP"]
 }
 
-for (let i = 0; i < rootTableElement.childNodes.length; i++) {
-    if (rootTableElement.childNodes[i].tagName === "DT") {
-        const name = rootTableElement.childNodes[i].getElementsByClassName("name")[0].innerText;
-        const description = findNextDD(rootTableElement, i + 1);
-        var full = "";
-        var args = []
+function findNextDD(element, startIndex) {
+    let resultx = "";
+    let counter = 0;
 
-        for (let it = 0; it < rootTableElement.childNodes[i].childNodes.length; it++) {
-            if (rootTableElement.childNodes[i].nodeType == 3) {
-                if(full == rootTableElement.childNodes[i].nodeValue)
-                    continue;
-                full += rootTableElement.childNodes[i].nodeValue
-            } else {
-                if(full == rootTableElement.childNodes[i].innerText)
-                    continue;
-                full += rootTableElement.childNodes[i].innerText
+    for (let i = startIndex; i < element.childNodes.length; i++) {
+        if (element.childNodes[i].tagName === "DD") {
+            resultx += element.childNodes[i].textContent + "\n";
+        } else if (element.childNodes[i].tagName === "DT") {
+            if (prevDescription === resultx) {
+                continue;
             }
 
-            if (full.includes(")")) break;
+            prevDescription = resultx;
+            break;
         }
 
-        
-        if (name == "") continue;
-        
-        let itmType = full.includes("(") && full.includes(")") ? "function" : "property";
-        let a = full.split(" ").slice(1).join(" ");
-        a = a.split("(").slice(1).join(" ");
-        a = a.split(")").slice(0, 1).join(" ");
-        all = a.split(", ")
-        
-        if(itmType == "property") {
-            if(full.split(" ")[0].includes("::") && !(full.split(" ")[0] == "jjBEHAVIOR" || ENUM_ARRAY[full.split(" ")[0]])) {
-                console.log(full.split(" ")[0]);
-            }
+        counter++;
+
+        if (counter === 10) {
+            break;
         }
-
-        let niceArgs = []
-
-        all.forEach(arg => {
-            let argType = arg.split(" ")[0];
-            let argName = arg.split(" ")[1];
-            let defaultValue;
-            let attributes = [];
-
-            if (arg.split(" ").length >= 4 && arg.split(" ")[2] == "=") {
-                defaultValue = arg.split(" ")[3];
-                argName = arg.split(" ")[1];
-            }
-
-            argType = argType.split("\n")[0]
-
-            // TODO: this is buggy, add support for &in, &inout &out, const, and make them
-            // in an array called `attributes`
-            if (argType == "const") {
-                argName = arg.split(" ")[2];
-                argType = arg.split(" ")[1];
-                
-                attributes.push("const");
-
-                if (argName == "&in") {
-                    argName = arg.split(" ")[3];
-                    attributes.push("&in");
-                }
-
-                if (argName == "&out") {
-                    argName = arg.split(" ")[4];
-                    attributes.push("&out");
-                }
-            }
-
-            if (argName == undefined) return;
-            argName = argName.split("\n")[0]
-
-            niceArgs.push({
-                "type": argType,
-                "name": argName,
-                "defaultValue": defaultValue,
-                "attributes": attributes,
-                "items": argType.includes("::") || argType == "jjBEHAVIOR" ? ENUM_ARRAY[argType] : []
-            })
-        });
-
-        items.push({
-            name: isClass ? name.slice(10) : name, // only for the jjPLAYER class (its 10 characters)
-            description: description,
-            full: full,
-            type: itmType,
-            arguments: niceArgs
-        });
     }
+
+    console.log(resultx);
+    prevDescription = "";
+
+    return resultx;
 }
 
-// console.log(JSON.stringify(items))
+function getItems(rootTableElement, isClass) {
+    var items = []
+
+    for (let i = 0; i < rootTableElement.childNodes.length; i++) {
+        if (rootTableElement.childNodes[i].tagName === "DT") {
+            const name = rootTableElement.childNodes[i].getElementsByClassName("name")[0].innerText;
+            const description = findNextDD(rootTableElement, i + 1);
+            var full = "";
+
+            for (let it = 0; it < rootTableElement.childNodes[i].childNodes.length; it++) {
+                if (rootTableElement.childNodes[i].nodeType == 3) {
+                    if(full == rootTableElement.childNodes[i].nodeValue)
+                        continue;
+                    full += rootTableElement.childNodes[i].nodeValue
+                } else {
+                    if(full == rootTableElement.childNodes[i].innerText)
+                        continue;
+                    full += rootTableElement.childNodes[i].innerText
+                }
+
+                if (full.includes(")")) break;
+            }
+
+            
+            if (name == "") continue;
+            
+            let itmType = full.includes("(") && full.includes(")") ? "function" : "property";
+            let a = full.split(" ").slice(1).join(" ");
+            a = a.split("(").slice(1).join(" ");
+            a = a.split(")").slice(0, 1).join(" ");
+            all = a.split(", ")
+            
+            if(itmType == "property") {
+                if(full.split(" ")[0].includes("::") && !(full.split(" ")[0] == "jjBEHAVIOR" || ENUM_ARRAY[full.split(" ")[0]])) {
+                    console.log(full.split(" ")[0]);
+                }
+            }
+
+            let niceArgs = []
+
+            all.forEach(arg => {
+                let argType = arg.split(" ")[0];
+                let argName = arg.split(" ")[1];
+                let defaultValue;
+                let attributes = [];
+
+                if (arg.split(" ").length >= 4 && arg.split(" ")[2] == "=") {
+                    defaultValue = arg.split(" ")[3];
+                    argName = arg.split(" ")[1];
+                }
+
+                argType = argType.split("\n")[0]
+
+                // TODO: this is buggy, add support for &in, &inout &out, const, and make them
+                // in an array called `attributes`
+                if (argType == "const") {
+                    argName = arg.split(" ")[2];
+                    argType = arg.split(" ")[1];
+                    
+                    attributes.push("const");
+
+                    if (argName == "&in") {
+                        argName = arg.split(" ")[3];
+                        attributes.push("&in");
+                    }
+
+                    if (argName == "&out") {
+                        argName = arg.split(" ")[4];
+                        attributes.push("&out");
+                    }
+                }
+
+                if (argName == undefined) return;
+                argName = argName.split("\n")[0]
+
+                niceArgs.push({
+                    "type": argType,
+                    "name": argName,
+                    "defaultValue": defaultValue,
+                    "attributes": attributes,
+                    "items": argType.includes("::") || argType == "jjBEHAVIOR" ? ENUM_ARRAY[argType] : []
+                })
+            });
+
+            items.push({
+                name: name,
+                description: description,
+                full: full,
+                type: itmType,
+                arguments: niceArgs
+            });
+        }
+    }
+
+    return items
+}
+
+let output = {}
+
+throw Error;
+rootTables.forEach(x => output[x] = getItems(document.getElementById(x), isClassTable[rootTables.indexOf(x)]))
+console.log(JSON.stringify(output))

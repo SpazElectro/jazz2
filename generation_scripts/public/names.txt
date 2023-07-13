@@ -1,6 +1,6 @@
 events - eventsList
-global properties - globalpropertiesList
-global functions - globalfunctionsList
+globalproperties - globalpropertiesList
+globalfunctions - globalfunctionsList
 jjPLAYER - jjPLAYERList
 jjOBJ - jjOBJList
 jjPARTICLE - jjPARTICLEList
@@ -8,7 +8,7 @@ jjCONTROLPOINT - jjCONTROLPOINTList
 jjCHARACTER - jjCHARACTERList
 jjWEAPON - jjWEAPONList
 jjSTREAM - jjSTREAMList
-jjBEHAVIOR - doesn't exist (operators)
+jjBEHAVIOR - doesntexistOperators
 jjRNG - jjRNGList
 jjPAL - jjPALList
 jjPALCOLOR - jjPALCOLORList
