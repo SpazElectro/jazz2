@@ -36,6 +36,7 @@ async function runPythonScript(adv = false) {
             vscode.window.activeTextEditor.selection.active.character.toString(),
             adv ? "true" : "false"
         ], (error, stdout, stderr) => {
+            // console.log(stdout.split("\n"));
             if (error) {
                 reject(error.message);
             } else if (stderr) {

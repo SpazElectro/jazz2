@@ -90,14 +90,15 @@ class JJ2PlusLinter:
 
         fnc = hierachy2.findFunction(self.code.splitlines(), lineN)
         
-        if fnc["err"] == "not-found":
-            className = None
-        else:
+        className = None
+
+        if fnc["err"] == "none":
             fnc["args"] = hierachy2.removeHandlesFromArgs(fnc["args"])
 
             for x in fnc["args"]:
-                if x["name"] == line.split(".")[0]:
-                    className = x["type"]
+                if len(self.code.splitlines()[lineN].strip().split(".")) >= 2:
+                    if x["name"] == self.code.splitlines()[lineN].strip().split(".")[0]:
+                        className = x["type"]
 
         def handleProp(prop):
             name = prop["name"]

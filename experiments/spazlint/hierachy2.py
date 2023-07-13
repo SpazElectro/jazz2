@@ -42,6 +42,8 @@ def findFunction(lines, cursorLine):
                     attributes = []
                     for x in args.split(", "):
                         x = x.strip()
+                        if x == "function":
+                            continue
                         argType = x.split(" ")[0]
                         argName = x.split(" ")[1]
                         argTypeIndex = 0
