@@ -4,13 +4,20 @@ import uuid
 import shutil
 import pygetwindow
 from inireader import getFromRun
+from pathlib import Path
+import time
+import win32gui
 
-# TODO: make this not show the window at all and focus on vscode if u focus on the jj2 window
+# TODO: make this not show the window at all somehow
 game_directory = getFromRun("GAME_DIRECTORY")
 game_exe = f"{game_directory}{getFromRun('GAME_NAME')}"
 
 def getErrors(mutatorLocation):
-    mutatorName = f"spazlint_temp-{uuid.uuid4()}.mut"
+    # this kind of acts like backups so, we won't delete
+    # maybe we can have an option to delete them, though.
+    mutatorName = f"spazlint/spazlint_temp-{uuid.uuid4()}.mut"
+
+    Path(game_directory + "/spazlint").mkdir(exist_ok=True)
 
     shutil.copyfile(mutatorLocation, f"{game_directory}{mutatorName}")
 
@@ -29,29 +36,35 @@ def getErrors(mutatorLocation):
     for line in iter(process.stdout.readline, b''):
         windows: List[pygetwindow.Win32Window] = pygetwindow.getAllWindows()
         jj2Window = None
+        vscWindow = None
         for w in windows:
-            if "Jazz Jackrabbit 2" in w.title or "chatlogger" in w.title:
+            if "Visual Studio Code" in w.title:
+                vscWindow = w
+            if "Jazz Jackrabbit 2" in w.title:
                 jj2Window = w
-                w.hide()
-                w.minimize()
-                break
-        
+                win32gui.ShowWindow(w._hWnd, 11)
+        if win32gui.GetForegroundWindow() == jj2Window._hWnd:
+            win32gui.SetForegroundWindow(vscWindow._hWnd)
+
         output += line.decode("utf-8")
 
+        if "ANGELSCRIPT: Please correct the errors in the script and try again." in output:
+            while jj2Window == None:
+                time.sleep(1)
+            jj2Window.close()
+            break
+
         if line.decode("utf-8").startswith("ANGELSCRIPT:"):
-            if "Please correct the errors in the script and try again" in line.decode("utf-8"):
-                if jj2Window:
-                    jj2Window.close()
-                break
             errors.append(line.decode("utf-8").strip().split(".mut ")[1])
 
-        if "loaded script module" in output or "Please correct the errors in the script and try again." in output:
-            if jj2Window:
-                jj2Window.close()
+        if "loaded script module" in output:
+            while jj2Window == None:
+                time.sleep(1)
+            jj2Window.close()
             break
 
     process.stdout.close()
-    return_code = process.wait()
+    process.wait()
     
     return errors
 
