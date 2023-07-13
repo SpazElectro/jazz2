@@ -178,8 +178,6 @@ def getGlobalScopeVariables(lines):
                     "name": getNameOf(dataTypes, removeHandle(line))
                 })
 
-    print(json.dumps(output, indent=4))
-
     return output 
 if __name__ == "__main__":
     script = open("../../scripts/STVutil.asc").read()

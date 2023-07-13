@@ -9,6 +9,7 @@
 
 array<int> frogs();
 int frogsPerRound = 1;
+jjPLAYER@ randomPlayer;
 
 void onLevelBegin() {
     jjConsole("Started!");
@@ -103,7 +104,6 @@ void onMain() {
 }
 
 bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) {
-    player.
     canvas.drawString(4, 11, "|||Blue frog roasts " + (jjTeamScore[TEAM::BLUE]) + "/" + (jjMaxScore - 1), STRING::MEDIUM);
     canvas.drawString(4, 35, "||Red frog roasts " + (jjTeamScore[TEAM::RED]) + "/" + (jjMaxScore - 1), STRING::MEDIUM);
     
