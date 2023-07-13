@@ -178,12 +178,43 @@ def getGlobalScopeVariables(lines):
                     "name": getNameOf(dataTypes, removeHandle(line))
                 })
 
+    return output
+
+def getLocalScopeVariables(lines, cursorLine):
+    fn = findFunction(lines, cursorLine)
+    if fn["err"] != "none":
+        return []
+    dataTypes = getDatatypes(lines)
+    output = []
+
+    for lineIndex, lineX in enumerate(lines):
+        line: str = lineX.strip()
+
+        if lineIndex < fn["line"]:
+            continue
+        if lineIndex > cursorLine:
+            break
+
+        if len(line.split(" ")) >= 2:
+            if isDataType(dataTypes, line.split(" ")[:-1]):
+                if lineX.endswith(") {") or lineX.endswith("){"):
+                    continue
+                if lines[lineIndex + 1].strip() == "{":
+                    continue
+                
+                output.append({
+                    "type": getDataTypeOf(removeHandle(line)),
+                    "name": getNameOf(dataTypes, removeHandle(line))
+                })
+
     return output 
+
 if __name__ == "__main__":
     script = open("../../scripts/STVutil.asc").read()
     lines = script.splitlines()
-    getGlobalScopeVariables(lines)
+    print(getLocalScopeVariables(lines, 736))
 
+    # print(getGlobalScopeVariables(lines))
     # fnc = findFunction(lines, 711)
     # line = "player."
     

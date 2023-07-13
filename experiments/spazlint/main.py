@@ -18,8 +18,8 @@ class JJ2PlusLinter:
     def __init__(self, file):
         self.file = file
         self.code = open(file).read()
-        self.enabled_errors = ["semicolons"]
-        # self.enabled_errors = []
+        # self.enabled_errors = ["semicolons"]
+        self.enabled_errors = []
 
         disabledErrors = self.code.split("\n")[0]
         if disabledErrors.startswith("// !ignore-"):
@@ -82,14 +82,9 @@ class JJ2PlusLinter:
         line = line.strip().lower()
         suggestions = []
 
-        # className = self.code.splitlines()[lineN - 1].strip()
-        # if len(className.split("// ")) >= 2:
-        #     className = className.split("// ")[1]
-        # else:
-        #     className = None
-
         fnc = hierachy2.findFunction(self.code.splitlines(), lineN)
         globalScopeVars = hierachy2.getGlobalScopeVariables(self.code.splitlines())
+        localScopeVars = hierachy2.getLocalScopeVariables(self.code.splitlines(), lineN)
         
         className = None
         
@@ -101,10 +96,18 @@ class JJ2PlusLinter:
                 for x in fnc["args"]:
                     if x["name"] == t[0]:
                         className = x["type"]
-            for p in globalScopeVars:
-                if p["name"] == t[0]:
-                    className = p["type"]
+            for x in globalScopeVars:
+                if x["name"] == t[0]:
+                    className = x["type"]
+            for x in localScopeVars:
+                if x["name"] == t[0]:
+                    className = x["type"]
 
+        if className == None:
+            className = self.code.splitlines()[lineN - 1].strip()
+            if len(className.split("// force-autocomplete ")) >= 2:
+                className = className.split("// force-autocomplete ")[1]
+        
         def handleProp(prop):
             name = prop["name"]
 

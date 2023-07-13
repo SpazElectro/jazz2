@@ -9,11 +9,10 @@
 
 array<int> frogs();
 int frogsPerRound = 1;
-jjPLAYER@ randomPlayer;
 
 void onLevelBegin() {
     jjConsole("Started!");
-    
+
     if(jjIsServer) {
         // team battle
         if(jjGameCustom != GAME::TB) {

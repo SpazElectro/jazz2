@@ -5,7 +5,7 @@ import shutil
 import pygetwindow
 from inireader import getFromRun
 
-# TODO: read from ini
+# TODO: make this not show the window at all and focus on vscode if u focus on the jj2 window
 game_directory = getFromRun("GAME_DIRECTORY")
 game_exe = f"{game_directory}{getFromRun('GAME_NAME')}"
 
