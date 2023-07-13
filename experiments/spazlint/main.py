@@ -2,7 +2,7 @@ import json, sys, os
 import errorchecker, hierachy2
 
 globalProperties: list = json.load(open(os.path.dirname(__file__) + "/global.json"))
-classProperties: list = json.load(open(os.path.dirname(__file__) + "/newspazlint.json"))
+classProperties: list = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 
 # merge globalProperties into one
 globalPropertiesTemp: list = []
