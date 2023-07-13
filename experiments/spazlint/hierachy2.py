@@ -103,18 +103,71 @@ def removeHandlesFromArgs(args):
     
     return newArgs
 
+def getDatatypes(lines):
+    datatypes = []
+    
+    for lineIndex, lineX in enumerate(lines):
+        line = lineX.strip()
+        split = line.split(" ")
+
+        if split[0] == "class":
+            datatypes.append(removeHandle(split[1]))
+        elif split[0] == "funcdef":
+            datatypes.append(removeHandle(split[2].split("(")[0]))
+    
+    datatypes.extend([
+        "void", "int8", "int16", "int", "int64", "uint8", "uint16", "uint", "uint64", "float", "double", "bool", "string",
+        "jjPLAYER", "jjOBJ", "jjPARTICLE", "jjCONTROLPOINT", "jjCHARACTER", "jjWEAPON", "jjSTREAM", "jjBEHAVIOR", "jjRNG", "jjPAL", "jjPALCOLOR", "jjCANVAS", "jjLAYER", "jjTEXTAPPEARANCE", "jjPLAYERDRAW", "jjANIMSET", "jjANIMATION", "jjANIMFRAME", "jjTILE", "jjPIXELMAP", "jjMASKMAP",
+        "dictionary"
+    ])
+
+    return tuple(datatypes)
+
+def isDataType(dt, x):
+    if x[0].split(" ")[0] in reserved:
+        x = ' '.join(x).split(" ")[1:]
+
+    if ' '.join(x).startswith("array<"):
+        return removeHandle(' '.join(x)[6:].split(">")[0]) in dt
+    
+    return removeHandle(x[0]) in dt
+
+def getGlobalScopeVariables(lines):
+    dataTypes = getDatatypes(lines)
+
+    for lineIndex, lineX in enumerate(lines):
+        line: str = lineX.strip()
+
+        # if lineIndex == 1401:
+        #     print(line)
+        #     print(isDataType(dataTypes, line.split(" ")[:-1]))
+        #     break
+            
+        if len(line.split(" ")) >= 2:
+            # print(lineIndex+1)
+            if isDataType(dataTypes, line.split(" ")[:-1]):
+                if lineX.startswith("\t") or lineX.startswith(" "):
+                    continue
+                if lineX.endswith(") {") or lineX.endswith("){"):
+                    continue
+                if lines[lineIndex + 1].strip() == "{":
+                    continue
+                print(lineX)
+                # print(f"var? {line}")
+
 if __name__ == "__main__":
     script = open("../../scripts/STVutil.asc").read()
     lines = script.splitlines()
-    fnc = findFunction(lines, 711)
-    line = "player."
+    getGlobalScopeVariables(lines)
+    # fnc = findFunction(lines, 711)
+    # line = "player."
     
-    if fnc["err"] == "not-found":
-        print("function not found")
-    else:
-        print("function found")
-        fnc["args"] = removeHandlesFromArgs(fnc["args"])
-        for x in fnc["args"]:
-            if x["name"] == line.split(".")[0]:
-                print(f"found {x['name']}")
+    # if fnc["err"] == "not-found":
+    #     print("function not found")
+    # else:
+    #     print("function found")
+    #     fnc["args"] = removeHandlesFromArgs(fnc["args"])
+    #     for x in fnc["args"]:
+    #         if x["name"] == line.split(".")[0]:
+    #             print(f"found {x['name']}")
 
