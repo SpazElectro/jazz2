@@ -1,4 +1,4 @@
-var rootTableElement = document.getElementById("jjOBJList")
+var rootTableElement = document.getElementById("jjMASKMAPList")
 var isClass = false;
 var items = []
 var prevDescription = "";
@@ -62,7 +62,13 @@ var ENUM_ARRAY = {
     "WATERINTERACTION::WaterInteraction": ["SWIM", "LOWGRAVITY", "POSITIONBASED"],
     "WATERLIGHT::wl": ["NONE", "GLOBAL", "LAGUNICUS"],
     "LIGHT::Type": ["NONE", "NORMAL", "POINT", "POINT2", "FLICKER", "BRIGHT", "LASERBEAM", "LASER", "RING", "RING2", "PLAYER"],
-
+    "HANDLING::Bullet": ["HURTBYBULLET", "IGNOREBULLET", "DESTROYBULLET", "DETECTBULLET"],
+    "STATE::State": ["START", "SLEEP", "WAKE", "KILL", "DEACTIVATE", "WALK", "JUMP", "FIRE", "FLY", "BOUNCE", "EXPLODE", "ROCKETFLY", "STILL", "FLOAT", "HIT", "SPRING", "ACTION", "DONE", "PUSH", "FALL", "FLOATFALL", "CIRCLE", "ATTACK", "FREEZE", "FADEIN", "FADEOUT", "HIDE", "TURN", "IDLE", "EXTRA", "STOP", "WAIT", "LAND", "DELAYEDSTART", "ROTATE", "DUCK"],
+    "SPREAD::Spread": ["NORMAL", "ICEPU", "ICE", "RFNORMAL", "RFPU", "RF", "TOASTER", "PEPPERSPRAY", "GUN8"],
+    "WEAPON::Style": ["NORMAL", "MISSILE", "POPCORN", "CAPPED"],
+    "STRING::Alignment": ["DEFAULT", "LEFT", "CENTER", "RIGHT"],
+    "STRING::SignTreatment": ["HIDESIGN", "DISPLAYSIGN", "SPECIALSIGN"],
+    "TEAM::COLOR": ["NEUTRAL", "BLUE", "RED", "GREEN", "YELLOW"]
 }
 
 for (let i = 0; i < rootTableElement.childNodes.length; i++) {
