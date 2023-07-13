@@ -1,3 +1,5 @@
+import json
+
 reserved = ["const", "&in", "&out", "&inout", "private"]
 
 def findFunction(lines, cursorLine):
@@ -88,10 +90,7 @@ def findFunction(lines, cursorLine):
         }
 
 def removeHandle(clType: str):
-    while "@" in clType:
-        clType = clType.replace("@", "")
-    
-    return clType
+    return clType.replace("@", "")
 
 def removeHandlesFromArgs(args):
     newArgs = []
@@ -123,28 +122,49 @@ def getDatatypes(lines):
 
     return tuple(datatypes)
 
-def isDataType(dt, x):
+def getDataTypeOf(x):
+    x = x.split(" ")
+
     if x[0].split(" ")[0] in reserved:
         x = ' '.join(x).split(" ")[1:]
-
-    if ' '.join(x).startswith("array<"):
-        return removeHandle(' '.join(x)[6:].split(">")[0]) in dt
     
-    return removeHandle(x[0]) in dt
+    if ' '.join(x).startswith("array<"):
+        # TODO: check if this is even needed
+        return "array<" + removeHandle(' '.join(x)[6:].split(">")[0]) + ">"
+
+    return removeHandle(x[0])
+
+def getNameOf(dt, line):
+    split = line.split(" ")
+    name = ""
+
+    for xIndex, x in enumerate(split):
+        if not x in reserved and xIndex != 0 and x != ">" and not x in dt:
+            if x.endswith(";"):
+                x = x[:-1]
+            elif len(x.split("(")) > 1:
+                x = x.split("(")[0]
+            name = x
+            break
+    
+    return name
+
+def isDataType(dt, x):
+    t = getDataTypeOf(' '.join(x))
+
+    if t.startswith("array<"):
+        t = t[6:].split(">")[0]
+
+    return t.strip() in dt
 
 def getGlobalScopeVariables(lines):
     dataTypes = getDatatypes(lines)
+    output = []
 
     for lineIndex, lineX in enumerate(lines):
         line: str = lineX.strip()
 
-        # if lineIndex == 1401:
-        #     print(line)
-        #     print(isDataType(dataTypes, line.split(" ")[:-1]))
-        #     break
-            
         if len(line.split(" ")) >= 2:
-            # print(lineIndex+1)
             if isDataType(dataTypes, line.split(" ")[:-1]):
                 if lineX.startswith("\t") or lineX.startswith(" "):
                     continue
@@ -152,13 +172,20 @@ def getGlobalScopeVariables(lines):
                     continue
                 if lines[lineIndex + 1].strip() == "{":
                     continue
-                print(lineX)
-                # print(f"var? {line}")
+                
+                output.append({
+                    "type": getDataTypeOf(removeHandle(line)),
+                    "name": getNameOf(dataTypes, removeHandle(line))
+                })
 
+    print(json.dumps(output, indent=4))
+
+    return output 
 if __name__ == "__main__":
     script = open("../../scripts/STVutil.asc").read()
     lines = script.splitlines()
     getGlobalScopeVariables(lines)
+
     # fnc = findFunction(lines, 711)
     # line = "player."
     
