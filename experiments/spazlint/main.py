@@ -1,5 +1,5 @@
 import json, sys, os
-import errorchecker
+import errorchecker, hierachy2
 
 properties: list = json.load(open(os.path.dirname(__file__) + "/spazlint.json"))
 classProperties = {
@@ -82,11 +82,22 @@ class JJ2PlusLinter:
         line = line.strip().lower()
         suggestions = []
 
-        className = self.code.splitlines()[lineN - 1].strip()
-        if len(className.split("// ")) >= 2:
-            className = className.split("// ")[1]
-        else:
+        # className = self.code.splitlines()[lineN - 1].strip()
+        # if len(className.split("// ")) >= 2:
+        #     className = className.split("// ")[1]
+        # else:
+        #     className = None
+
+        fnc = hierachy2.findFunction(self.code.splitlines(), lineN)
+        
+        if fnc["err"] == "not-found":
             className = None
+        else:
+            fnc["args"] = hierachy2.removeHandlesFromArgs(fnc["args"])
+
+            for x in fnc["args"]:
+                if x["name"] == line.split(".")[0]:
+                    className = x["type"]
 
         def handleProp(prop):
             name = prop["name"]
