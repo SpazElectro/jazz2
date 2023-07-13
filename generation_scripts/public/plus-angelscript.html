@@ -381,7 +381,7 @@ void onFunction5(jjPLAYER@ player, uint8 paramName) {}
 void onFunction5(jjPLAYER@ player, int8 paramName) {}</pre>
 		<p>The contents of your .j2as file must all be syntactically correct AngelScript. Any error in or outside of any function will prevent any and all AngelScript from running in the level. To get information about such errors, you will need to add a line <code>AngelscriptDebug=True</code> to the [General] group of plus.ini (AngelscriptDebug defaults to false), and information about errors and warnings will then be displayed in the chatlogger window. It is also possible to send your own debugging information using the global function <a class="name" href="#jjDebug">jjDebug</a>(string <span class="param">text</span>, bool <span class="param">timestamp</span> = false), though, as with any other AngelScript function, it will only work if everything is formatted correctly.</p>
 		<p class="updated">Besides this, there are a number of hook functions which, if defined in a .j2as file, will be called at various points. More may well be added in subsequent releases, but here are the basic ones available so far. (A few more are described in the <a href="#jjcanvas">jjCANVAS section</a> below; <span class="name">onObjectHit</span> is described in the description for <a href="#jjbehaviorinterface::onObjectHit">jjBEHAVIORINTERFACE::onObjectHit</a>; <span class="name">onReceive</span> in the description for <a class="name" href="#jjSendPacket">jjSendPacket</a>; <span class="name">onGetPublicInterface</span> in the description for <a href="#jjpublicinterface">jjPUBLICINTERFACE</a>; and <span class="name">onPlayerDraw</span> in the description for <a href="#jjplayerdraw">jjPLAYERDRAW</a>.)</p>
-		<dl>
+		<dl id="eventsList">
 			<dt>void <span class="name">onChat</span>(int <span class="param">clientID</span>, string &amp;in <span class="param">stringReceived</span>, CHAT::Type <span class="param">chatType</span>)</dt>
 			<dt>bool <span class="name">onLocalChat</span>(string &amp;in <span class="param">stringReceived</span>, CHAT::Type <span class="param">chatType</span>)</dt>
 			<dd><span class="name">onChat</span> is called whenever a chat message pops up in game. <span class="name">onLocalChat</span> is called only when chat is received from players on the same machine the script is executing on. A return value of true indicates that the chat message should be suppressed, whereas a return value of false will cause the message to be handled normally. <span class="param">clientID</span> is a unique ID of the game client that sent the chat message. <span class="param">stringReceived</span> is the text of the chat message that was received. <span class="param">chatType</span> can take one of the following values: NORMAL, TEAMCHAT, WHISPER amd ME.</dd>
@@ -737,7 +737,7 @@ void onFunction5(jjPLAYER@ player, int8 paramName) {}</pre>
 		<p>As ever, note that AngelScript's scope is all but exclusively the JJ2 copy on your computer, even if you're in an online server, and <span class="name">jjAddObject</span> and the various jjOBJ properties are no exception to this. If one player fires a slice of AngelScript that creates a morph monitor, the other players will not see any morph monitor until and unless they too fire the same slice of code. Likewise, changing the <a class="name" href="#jjobj::xPos">xPos</a> and <a class="name" href="#jjobj::yPos">yPos</a> of a pinball bumper will only be recognized by the local players, not by anyone else in the server. To allow the script to have this kind of impact on game state of other clients it's necessary to use the <a href="#jjstream">jjSTREAM class</a> and the <a class="name" href="#jjSendPacket">jjSendPacket</a> function. These details are of course of no concern for single player levels, but should be kept in mind for multiplayer design.</p>
 		<p>Certain of these properties�<a class="name" href="#jjobj::curFrame">curFrame</a> in particular�will constantly be set by the object itself, so trying to change them manually will have little effect unless you also redefine their <a class="name" href="#jjobj::behavior">behavior</a>. Others, such as <a class="name" href="#jjobj::state">state</a> or <a class="name" href="#jjobj::lightType">lightType</a>, will have immediate and possibly enduring effects. There are also a significant number of properties whose function (if any) varies from object (i.e. <span class="name">eventID</span>) to object; these should be better explained in future iterations of JJ2+, but you're welcome to experiment in the meantime.</p>
 		<p>Finally: there are also nearly 256 proto-objects stored in the global array <a class="name" href="#jjObjectPresets">jjObjectPresets[256]</a>. These do not correspond to objects currently active in the game, but are instead the value-collection prototypes from which all in-game objects are initially derived. Whenever <span class="name">jjAddObject</span> is called using, say, <span class="ns">OBJECT::GREENGEM</span>, the created object will get its initial values for <a class="name" href="#jjobj::points">points</a>, <a class="name" href="#jjobj::curAnim">curAnim</a>, <a class="name" href="#jjobj::var">var[0]</a>, and more from <code>jjObjectPresets[OBJECT::GREENGEM]</code>. The contents of <span class="name">jjObjectPresets</span> are reset every level, so it is totally safe for you to decide that, e.g., you'd really rather if all Skeleton enemies were lightning-fast and took nineteen hits to destroy instead of three (<code>jjObjectPresets[OBJECT::SKELETON].energy = 19; jjObjectPresets[OBJECT::SKELETON].xSpeed = 5;</code>).</p>
-		<dl class="class">
+		<dl class="class" id="jjOBJList">
 			<dt>int <span class="name" id="jjobj::age">age</span></dt>
 			<dd>A variable totally unused by JJ2. The name comes from its original intended purpose as indicating how long had elapsed since the object was created.</dd>
 			<dt>int <span class="name" id="jjobj::animSpeed">animSpeed</span></dt>
@@ -940,7 +940,7 @@ if (particle !is null) {
 	particle.snow.frame = jjRandom() &amp; 7;
 }</pre>
 		<p>Note the peculiar <code>particle.snow.frame</code> property. Each particle type has its own unique property or properties in addition to the common properties, which will be listed at the end of this section. Since all particles are affected by gravity, if nothing else, setting the <a class="name" href="#jjparticle::xSpeed">xSpeed</a>/<a class="name" href="#jjparticle::ySpeed">ySpeed</a> properties is only so important, but <a class="name" href="#jjparticle::xPos">xPos</a> and <a class="name" href="#jjparticle::yPos">yPos</a> are of course essential.</p>
-		<dl class="class">
+		<dl class="class" id="jjPARTICLEList">
 			<dt>bool <span class="name" id="jjparticle::isActive">isActive</span></dt>
 			<dd>The point of this property is somewhat unclear, since JJ2 prefers to check if a given particle is active by testing whether <a class="name" href="#jjparticle::type">type</a> equals PARTICLE::INACTIVE or not, but it does exist and does get set sometimes.</dd>
 			<dt><span class="ns">PARTICLE::Type</span> <span class="name" id="jjparticle::type">type</span></dt>
@@ -1020,7 +1020,7 @@ if (particle !is null) {
 
 		<h3 id="jjcontrolpoint"><span>class jjCONTROLPOINT</span></h3>
 		<p>This is a simple class representing a Domination game mode control point. It contains a set of read-only properties that let you obtain information about control points present in the level. Instances of the class can be accessed via the global <a class="name" href="#jjControlPoints">jjControlPoints[16]</a> property.</p>
-		<dl class="class">
+		<dl class="class" id="jjCONTROLPOINTList">
 			<dt>const TEAM::Color <span class="name" id="jjcontrolpoint::controlTeam">controlTeam</span></dt>
 			<dd>The team that this point is presently under control of. Possible values are TEAM::NEUTRAL, TEAM::BLUE, TEAM::RED, TEAM::GREEN, and TEAM::YELLOW.</dd>
 			<dt>const int <span class="name" id="jjcontrolpoint::direction">direction</span></dt>
@@ -1039,7 +1039,7 @@ if (particle !is null) {
 
 		<h3 id="jjcharacter"><span>class jjCHARACTER</span></h3>
 		<p>This class contains a character profile, that is, a number of character-specific properties that determine various aspects of behavior followed by players who use the characters. Character profiles can be accessed using the <a class="name" href="#jjCharacters">jjCharacters[]</a> array with CHAR::Char constants as its indexes.</p>
-		<dl class="class">
+		<dl class="class" id="jjCHARACTERList">
 			<dt>AIR::Jump <span class="name" id="jjcharacter::airJump">airJump</span></dt>
 			<dd>Determines the character's reaction to pressing jump in the air. Possible values are AIR::NONE, AIR::HELICOPTER and AIR::DOUBLEJUMP. No effect for birds or frogs.</dd>
 			<dt>bool <span class="name" id="jjcharacter::canHurt">canHurt</span></dt>
@@ -1064,7 +1064,7 @@ if (particle !is null) {
 
 		<h3 id="jjweapon"><span>class jjWEAPON</span></h3>
 		<p>This is a fairly simple class, containing several properties allowing for more control over weapons and their ammunition. The class exists solely in the <a class="name" href="#jjWeapons">jjWeapons[9]</a> array.</p>
-		<dl class="class">
+		<dl class="class" id="jjWEAPONList">
 			<dt>bool <span class="name" id="jjweapon::allowed">allowed</span></dt>
 			<dt>bool <span class="name" id="jjweapon::allowedPowerup">allowedPowerup</span></dt>
 			<dd>Whether the weapon and/or its powerup can be legally used in the level. This value is used by the server to detect attempts of cheating and kick offenders, and by all players to determine which weapons they get upon use of the /ready command.</dd>
@@ -1270,7 +1270,7 @@ void onReceive(jjSTREAM &amp;in packet, int clientID) {
 			<dt>jjSTREAM&amp; <span class="name" id="jjstream::opAssign">operator = </span>(const jjSTREAM &amp;in <span class="param">stream</span>)</dt>
 			<dd>Assigns contents of one stream to another and returns a reference to self.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjSTREAMList">
 			<dt>void <span class="name" id="jjstream::clear">clear</span>()</dt>
 			<dd>Clears content of the stream leaving it empty.</dd>
 			<dt>bool <span class="name" id="jjstream::discard">discard</span>(uint <span class="param">count</span>)</dt>
@@ -1349,7 +1349,7 @@ void onReceive(jjSTREAM &amp;in packet, int clientID) {
 			<dt>bool <span class="name" id="jjrng::opEquals">operator == </span>(const jjRNG &amp;in <span class="param">other</span>) const</dt>
 			<dd>Tests equality of two instances. Two instances compare equal if their internal states are identical.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjRNGList">
 			<dt>void <span class="name" id="jjrng::seed">seed</span>(uint64 <span class="param">value</span> = 5489)</dt>
 			<dd>Sets the current state of the generator based on <span class="param">value</span>.</dd>
 			<dt>void <span class="name" id="jjrng::discard">discard</span>(uint64 <span class="param">count</span> = 1)</dt>
@@ -1376,7 +1376,7 @@ void onReceive(jjSTREAM &amp;in packet, int clientID) {
 			<dt>bool <span class="name" id="jjpal::opEquals">operator == </span>(const jjPAL &amp;in <span class="param">palette</span>) const</dt>
 			<dd>Compares two palettes and returns true if all pairs of fields on corresponding indexes are identical or false otherwise.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjPALList">
 			<dt>jjPALCOLOR <span class="name" id="jjpal::color">color[256]</span></dt>
 			<dd>At its heart, a palette is a collection of 256 colors, and you can access them individually through the <span class="name">color</span> array. In fact, you could if you chose reproduce nearly every jjPAL method here by directly altering the colors, but the methods are here to save you time, so don't do that. The details of jjPALCOLOR objects are listed below this section, though most basically you just use their properties <a class="name" href="#jjpalcolor::red">red</a>, <a class="name" href="#jjpalcolor::green">green</a>, and <a class="name" href="#jjpalcolor::blue">blue</a>.</dd>
 			<dt>void <span class="name" id="jjpal::apply">apply</span>() const</dt>
@@ -1415,7 +1415,7 @@ void onReceive(jjSTREAM &amp;in packet, int clientID) {
 			<dt>bool <span class="name" id="jjpalcolor::opEquals">operator == </span>(const jjPALCOLOR &amp;in <span class="param">color</span>) const</dt>
 			<dd>Performs a component-wise comparison and returns true if all components of both instances have the same values or false otherwise.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjPALCOLORList">
 			<dt>uint8 <span class="name" id="jjpalcolor::red">red</span></dt>
 			<dd>How red this palette color is.</dd>
 			<dt>uint8 <span class="name" id="jjpalcolor::green">green</span></dt>
@@ -1455,7 +1455,7 @@ bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {}</pre>
 }</pre>
 		<p>The method as called above uses SPRITE::NORMAL (the default value), which draws each pixel of the sprite exactly as it appears in anims.j2a, but you have plenty of other options. <code>SPRITE::PALSHIFT, 16</code> will draw the sprite as pink instead of blue (16 colors farther down in the palette). <code>SPRITE::BRIGHTNESS, 64</code> will draw the sprite as dark blue (64 is half of 128, which for SPRITE::BRIGHTNESS is the normal brightness value) instead of bright blue. <code>SPRITE::BLEND_LUMINANCE, 255</code> (the BLEND_ sprite modes use 255 to signify complete opacity) will draw each pixel of the sprite using the colors (but not the brightness) of the pixel that was already there on the screen. JJ2's commonest sprite modes are NORMAL, TRANSLUCENT, FROZEN, PLAYER, and (for coloring text characters) PALSHIFT, but JJ2+ provides you with many more options, so try them all!.</p>
 		<p>Alphabetical order is defied slightly while listing the methods of jjCANVAS, in order to present the most fundamental method first and then its variants afterwards.</p>
-		<dl class="class">
+		<dl class="class" id="jjCANVASList">
 			<dt>void <span class="name" id="jjcanvas::drawSprite">drawSprite</span>(int <span class="param">xPixel</span>, int <span class="param">yPixel</span>, int <span class="param">setID</span>, uint8 <span class="param">animation</span>, uint8 <span class="param">frame</span>, int8 <span class="param">direction</span> = 0, <span class="ns">SPRITE::Mode</span> <span class="param">mode</span> = SPRITE::NORMAL, uint8 <span class="param">param</span> = 0)</dt>
 			<dd>Draws a single sprite frame at <span class="param">xPixel,yPixel</span>. The <span class="param">setID, animation</span>, and <span class="param">frame</span> parameters correspond to the "Set ID," "Animation," and "Frame #" sliders respectively in <a href="http://www.jazz2online.com/downloads/4041/jazz-sprite-dynamite/">Jazz Sprite Dynamite</a>, but are 0-indexed. You are allowed to use a simple integer to specify the <span class="param">setID</span>, but an ANIM::Set constant is strongly recommended, since the values for certain sets differ between 1.23 and 1.24; <a href="#anim">the full list of constants can be found in the appendix at the bottom of this file.</a> For an example, to draw a broken bird cage (9-5-1 in Jazz Sprite Dynamite), you would write <code>ANIM::BIRD, 4, 0</code>.</dd>
 			<dd>The <span class="param">direction</span> parameter determines which direction the sprite will be facing; values 0 to 63 will not flip the sprite, -64 to -1 will flip it horizontally, 64 to 127 will flip it vertically, and -128 to -65 will flip it both horizontally and vertically. Alternatively to integer values, you can use constants made for this very purpose that belong to the <span class="ns">SPRITE::Direction</span> enum: <span class="ns">SPRITE::FLIPNONE</span>, <span class="ns">SPRITE::FLIPH</span>, <span class="ns">SPRITE::FLIPV</span>, <span class="ns">SPRITE::FLIPHV</span>.</dd>
@@ -1507,7 +1507,7 @@ bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {}</pre>
 			<dd>Creates a new jjLAYER and sets <a class="name" href="#jjlayer::height">height</a> to <span class="param">layerHeight</span> and both <a class="name" href="#jjlayer::width">width</a> and <a class="name" href="#jjlayer::widthReal">widthReal</a> to <span class="param">layerWidth</span>. The tile map will be empty, which to say, entirely composed of word 0 (0,0,0,0), but <a class="name" href="#jjlayer::hasTileMap">hasTileMap</a> and <a class="name" href="#jjlayer::hasTiles">hasTiles</a> will be set to true anyway in preparation for your filling in part of the tile map with tiles. Unlike JCS, JJ2+ will not do the work of guaranteeing that layers can tile horizontally for you, so if you plan to set to true your constructed layer's <a class="name" href="#jjlayer::tileWidth">tileWidth</a> property, you should make sure to use a <span class="param">layerWidth</span> divisible by four.</dd>
 			<dd>If either <span class="param">layerWidth</span> or <span class="param">layerHeight</span> is an invalid value (i.e. less than 1 or greater than 1023), a default layer size of 8�8 will be used instead.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjLAYERList">
 			<dt class="new"><span class="name" id="jjlayer::cylinder">cylinder</span></dt>
 			<dd>Properties used by this layer when its <a class="name" href="#jjlayer::textureStyle">textureStyle</a> is TEXTURE::CYLINDER, which draws <a class="name" href="#jjlayer::texture">texture</a> as the inside of a horizontal cylinder receding a little ways into the distance.</dd>
 			<dd><code>bool cylinder.fade</code>, when true, increasingly affects colors closer to the horizon: when <a class="name" href="#jjColorDepth">jjColorDepth</a> is 16, a semitransparent glowing line appears across the horizon using the RGB color chosen by <code>cylinder.setFadeColor</code>, or if 8, texture colors in the 176�207 range are moved ever closer to 207 depending on their proximity to the horizon. The default value is true.</dd>
@@ -1665,7 +1665,7 @@ bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {}</pre>
 			<dt>jjTEXTAPPEARANCE&amp; <span class="name" id="jjtextappearance::opAssign">operator = </span>(STRING::Mode <span class="param">mode</span>)</dt>
 			<dd>Assigns text display traits specific to <span class="param">mode</span> to the instance. Returns a reference to self.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjTEXTAPPEARANCEList">
 			<dt>STRING::Alignment <span class="name" id="jjtextappearance::align">align</span></dt>
 			<dd>Horizontal alignment of text. This can take values of DEFAULT, LEFT, CENTER or RIGHT.</dd>
 			<dd>Whereas LEFT, CENTER and RIGHT should be self-explanatory, DEFAULT is the value JJ2 used for all strings originally, defined as follows: if <span class="param">xPixel</span> is less than 0x4000, the string will have its left side aligned to the left side of the screen or layer. If in the range of 0x4000 to 0xFFFF, the string will be center-aligned relative to 0x8000, so for instance 0x8020 would align the center of the string to 0x20 pixels right of the center of the screen. Finally, if <span class="param">xPixel</span> is greater than or equal to 0x10000, it will be drawn with its right side aligned to the right side of the screen instead, with higher values moving farther left. Note that these special cases currently apply only for drawing to the screen; the use of values of 0x4000 or higher for <code>onDrawLayer#</code> hooks is currently undefined.</dd>
@@ -1701,7 +1701,7 @@ bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {}</pre>
 		<p>When your script module receives the jjPLAYERDRAW instance, it will already have all its various properties filled out with however JJ2+ expects the player should be drawn. You may then make any adjustments you wish by changing the values of any or all of the properties on that instance. For example, suppose you really like the invincibility visual effect of the player being followed by blue circles, but you don't actually want the player to be invincible. Setting <a class="name" href="#jjplayerdraw::invincibility">jjPLAYERDRAW::invincibility</a> to true will cause the effect to be drawn anyway and you can associate it with whatever other stimulus you like.</p>
 		<p>If <a href="#mutators" <="" a="">multiple script modules</a> each define a <code>onPlayerDraw</code> hook, then the modifications made to the jjPLAYERDRAW object in the first module will persist in the second module, and so on. For example, normally <a class="name" href="#jjplayerdraw::curFrame">jjPLAYERDRAW::curFrame</a> will be some sprite of a rabbit (or frog or bird). But if one mutator uses <code>onPlayerDraw</code> to change it to a sprite of a sandwich, then a second mutator will be passed a jjPLAYERDRAW using that sandwich sprite number, not the original rabbit/frog/bird sprite number.</p>
 		<p>Several properties of jjPLAYERDRAW correspond exactly to those of <a class="name" href="#jjplayer">jjPLAYER</a>, e.g. <a class="name" href="#jjplayerdraw::spriteMode">spriteMode</a>. Either one may be used to draw the player as a ghost by using SPRITE::TRANSLUCENTPLAYER instead of SPRITE::PLAYER. The difference is that setting those properties on <span class="name">jjPLAYER</span> is permanent and the change is shared across the whole multiplayer server, but setting those properties on <span class="name">jjPLAYERDRAW</span> only impacts this single drawing operation on this local computer, and any changes you make will already have been forgotten by the next time the hook is called.</p>
-		<dl class="class">
+		<dl class="class" id="jjPLAYERDRAWList">
 			<dt>bool <span class="name" id="jjplayerdraw::airboardBouncingMotion">airboardBouncingMotion</span></dt>
 			<dd>When true, causes the player sprite (and some other effects) to rise and fall in a gradual sine wave motion. By default, only true for rabbits whose <a class="name" href="#jjplayer::fly">jjPLAYER::fly</a> is FLIGHT::AIRBOARD.</dd>
 			<dt>bool <span class="name" id="jjplayerdraw::airboardPuff">airboardPuff</span></dt>
@@ -1773,7 +1773,7 @@ jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim] = jjAnimations[jjAnimSets[ANIM
 			<dt><span class="name" id="jjanimset::opImplConv">operator uint </span>() const</dt>
 			<dd>Implicit conversion to uint; returns <a class="name" href="#jjanimset::firstAnim">firstAnim</a>.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjANIMSETList">
 			<dt>uint <span class="name" id="jjanimset::firstAnim">firstAnim</span></dt>
 			<dd>ID of the first animation in the set, to be used with the <a class="name" href="#jjAnimations">jjAnimations</a> array.</dd>
 			<dt>jjANIMSET@ <span class="name" id="jjanimset::allocate">allocate</span>(const array&lt;uint&gt; &amp;in <span class="param">frameCounts</span>)</dt>
@@ -1814,7 +1814,7 @@ jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim] = jjAnimations[jjAnimSets[ANIM
 			<dt><span class="name" id="jjanimation::opImplConv">operator uint </span>() const</dt>
 			<dd>Implicit conversion to uint; returns <a class="name" href="#jjanimation::firstFrame">firstFrame</a>.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjANIMATIONList">
 			<dt>uint <span class="name" id="jjanimation::firstFrame">firstFrame</span></dt>
 			<dd>ID of the first frame of the animation, to be used with the <a class="name" href="#jjAnimFrames">jjAnimFrames</a> array.</dd>
 			<dt>int16 <span class="name" id="jjanimation::fps">fps</span></dt>
@@ -1837,7 +1837,7 @@ jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim] = jjAnimations[jjAnimSets[ANIM
 			<dt>jjANIMFRAME&amp; <span class="name" id="jjanimframe::opAssign">operator = </span>(const jjANIMFRAME &amp;in <span class="param">animFrame</span>)</dt>
 			<dd>Copies all properties of another jjANIMFRAME including the picture it uses and returns a reference to self.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjANIMFRAMEList">
 			<dt>int16 <span class="name" id="jjanimframe::coldSpotX">coldSpotX</span></dt>
 			<dt>int16 <span class="name" id="jjanimframe::coldSpotY">coldSpotY</span></dt>
 			<dd>Horizontal and vertical position of the frame's cold spot, relative to its hot spot. It is considered to be the point at which the frame would touch the ground. It's mostly used by objects such as walking enemies and pickup crates, as well as players themselves. In particular, the jjOBJ method <a class="name" href="#jjobj::putOnGround">putOnGround</a>, if its argument is set to true, uses <span class="name">coldSpotY</span> to determine the outcome.</dd>
@@ -1860,7 +1860,7 @@ jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim] = jjAnimations[jjAnimSets[ANIM
 		<h3 id="jjtile"><span>class jjTILE</span></h3>
 		<p>The primary focus of this class is to provide an interface for interaction with animated tiles, such as obtaining or modifying their animation frames and speed. However, instances of jjTILE in fact exist for every valid <a href="#tileids">tile ID</a> - instances that correspond to static tiles are immutable, i.e. cannot be modified, while instances corresponding to animations are mutable. This distinction is reflected in the existence of two arrays that offer access to jjTILE instances: <a class="name" href="#jjTiles">jjTiles</a> and <a class="name" href="#jjAnimatedTiles">jjAnimatedTiles</a>, the former of which offers read-only access to both static and animated tiles, while the latter allows read-write access, but only to animated tiles.</p>
 		<p>Because there can be always only one instance of this class corresponding to a specific tile ID, jjTILE objects cannot be constructed inside a script and may be only accessed via handles, akin to jjOBJ, jjPLAYER, etc.</p>
-		<dl class="class">
+		<dl class="class" id="jjTILEList">
 			<dt>uint8 <span class="name" id="jjtile::fps">fps</span></dt>
 			<dd>Animation speed in frames per second. For static tiles this is always 0.</dd>
 			<dd>This property is safe to modify, but it is currently undefined which animation frame will be visible immediately after the change.</dd>
@@ -1912,7 +1912,7 @@ jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim] = jjAnimations[jjAnimSets[ANIM
 			<dt>const uint8&amp; <span class="name">operator [] </span>(uint <span class="param">x</span>, uint <span class="param">y</span>) const</dt>
 			<dd>Gets and (if non-const) sets any pixel anywhere in the pixel map, provided <span class="param">x</span> is less than <a class="name" href="#jjpixelmap::width">width</a> and <span class="param">y</span> is less than <a class="name" href="#jjpixelmap::height">height</a>. These are <code>uint8</code>s, so acceptable values are 0�255, with 0 being transparent. Caution: colors 1�9 and 246�254 may appear different in 8 bit vs. 16 bit color modes and so should be used rarely at best.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjPIXELMAPList">
 			<dt class="updated">const uint <span class="name" id="jjpixelmap::height">height</span></dt>
 			<dt>const uint <span class="name" id="jjpixelmap::width">width</span></dt>
 			<dd>Dimensions of the map in pixels, set by the map's constructor. These properties are read-only but may be modified using the <a class="name" href="#jjpixelmap::addBorders">addBorders</a>, <a class="name" href="#jjpixelmap::crop">crop</a>, <a class="name" href="#jjpixelmap::resize">resize</a>, or <a class="name" href="#jjpixelmap::trim">trim</a> methods, or swapped using the <a class="name" href="#jjpixelmap::rotate">rotate</a> method.</dd>
@@ -1958,7 +1958,7 @@ jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim] = jjAnimations[jjAnimSets[ANIM
 			<dt>const bool&amp; <span class="name">operator [] </span>(uint <span class="param">x</span>, uint <span class="param">y</span>) const</dt>
 			<dd>Gets and (if non-const) sets any pixel anywhere in the mask map, masked pixels equalling true and unmasked pixels false.</dd>
 		</dl>
-		<dl class="class">
+		<dl class="class" id="jjMASKMAPList">
 			<dt>bool <span class="name" id="jjmaskmap::save">save</span>(uint16 <span class="param">tileID</span>, bool <span class="param">hFlip</span> = false) const</dt>
 			<dd>Overwrites mask of tileset tile selected by <span class="param">tileID</span> with contents of the mask map. All notes mentioned for <a class="name" href="#jjpixelmap::save">jjPIXELMAP::save</a> apply in exactly the same way here, although you don't have to worry about dimensions, since mask maps are always 32�32.</dd>
 		</dl>

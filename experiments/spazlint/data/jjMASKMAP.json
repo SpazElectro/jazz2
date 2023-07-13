@@ -1,0 +1,1 @@
+[{"name":"save","description":"","full":"bool save(uint16 tileID, bool hFlip = false) const","type":"function","arguments":[{"type":"uint16","name":"tileID","attributes":[],"items":[]},{"type":"bool","name":"hFlip","defaultValue":"false","attributes":[],"items":[]}]}]
