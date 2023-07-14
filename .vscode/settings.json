@@ -18,7 +18,7 @@
         "windows.h": "c",
         "typeinfo": "cpp"
     },
-    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.typeCheckingMode": "basic",
     "discord.enabled": true,
     "cmake.sourceDirectory": "G:/steve/jazz2stuff/jazz2/re/jj2/funccall",
     "python.analysis.extraPaths": [
