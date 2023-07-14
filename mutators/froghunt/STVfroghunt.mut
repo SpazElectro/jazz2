@@ -11,7 +11,7 @@ array<int> frogs();
 int frogsPerRound = 1;
 
 void onLevelBegin() {
-    jjConsole("Started!");
+    jjConsole("Started!");    
 
     if(jjIsServer) {
         // team battle

@@ -6,6 +6,7 @@ def findFunction(lines, cursorLine):
     className = ""
     fnLineIndex = -1
     args = []
+    fnName = ""
 
     for lineIndex, lineX in enumerate(lines):
         line = lineX.strip()

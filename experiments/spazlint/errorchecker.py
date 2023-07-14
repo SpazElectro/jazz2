@@ -33,10 +33,10 @@ def getErrors(mutatorLocation):
     output = ""
     errors = []
 
-    for line in iter(process.stdout.readline, b''):
+    for line in iter(process.stdout.readline, b''): # type: ignore
         windows: List[pygetwindow.Win32Window] = pygetwindow.getAllWindows()
-        jj2Window = None
-        vscWindow = None
+        jj2Window: pygetwindow.Win32Window = None # type: ignore
+        vscWindow: pygetwindow.Win32Window = None # type: ignore
         for w in windows:
             if "Visual Studio Code" in w.title:
                 vscWindow = w
@@ -63,7 +63,7 @@ def getErrors(mutatorLocation):
             jj2Window.close()
             break
 
-    process.stdout.close()
+    process.stdout.close() # type: ignore
     process.wait()
     
     return errors

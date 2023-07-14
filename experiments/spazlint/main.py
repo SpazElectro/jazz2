@@ -1,15 +1,15 @@
 import json, sys, os
 import errorchecker, hierachy2
 
-globalProperties: list = json.load(open(os.path.dirname(__file__) + "/global.json"))
-classProperties: list = json.load(open(os.path.dirname(__file__) + "/classes.json"))
+globalProperties: dict = json.load(open(os.path.dirname(__file__) + "/global.json"))
+classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 
 # merge globalProperties into one
-globalPropertiesTemp: list = {}
+globalPropertiesTemp: dict = {}
 for i in globalProperties:
     globalPropertiesTemp[i[:-4]] = globalProperties[i]
 
-classPropertiesTemp: list = {}
+classPropertiesTemp: dict = {}
 for i in classProperties:
     # print(i[:-4].strip())
     classPropertiesTemp[i[:-4]] = classProperties[i]
@@ -161,14 +161,43 @@ class JJ2PlusLinter:
             else:
                 className = None
         
+        def handleProp(prop):
+            name = prop["name"]
+
+            if prop["type"] == "function":
+                suggestions.append({
+                    "type": prop["type"],
+                    "name": name,
+                    "description": prop["description"],
+                    "full": prop["full"],
+                    "items": prop["arguments"]
+                })
+            else:
+                suggestions.append({
+                    "type": prop["type"],
+                    "name": name,
+                    "description": prop["description"]
+                })
+        
         # enum identification
         enum: str = self.code.splitlines()[lineN][:char].strip().split(" ")[-1]
         enumsFound = False
 
         for enumStarterX in ENUM_ARRAY:
             enumStarter = enumStarterX.split("::")[0]
+
             if enum.startswith(enumStarter):
                 enumsFound = True
+
+                # if fnc["err"] == "none": # no error
+                #     for prop in classProperties[className]:
+                #         print(fnc["name"])
+                #         if prop["name"] == fnc["name"]:
+                #             for arg in prop["arguments"]:
+                #                 if arg["type"].strip() == enumStarterX.strip():
+                #                     handleProp(prop)
+                #     break # stop looking for other enums
+                
                 for enumName in ENUM_ARRAY[enumStarterX]:
                     suggestions.append({
                         "type": "property",
@@ -178,28 +207,6 @@ class JJ2PlusLinter:
 
         if enumsFound:
             return suggestions
-
-        def handleProp(prop):
-            if len(prop) == 0:
-                return
-            name = prop["name"]
-
-            # optimization
-            if name.lower().startswith(line):
-                if prop["type"] == "function":
-                    suggestions.append({
-                        "type": prop["type"],
-                        "name": name,
-                        "description": prop["description"],
-                        "full": prop["full"],
-                        "items": prop["arguments"]
-                    })
-                else:
-                    suggestions.append({
-                        "type": prop["type"],
-                        "name": name,
-                        "description": prop["description"]
-                    })
 
         if className != None:
             if classProperties.get(className):
