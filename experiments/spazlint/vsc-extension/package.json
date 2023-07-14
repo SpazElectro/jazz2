@@ -8,12 +8,12 @@
 		"vscode": "^1.70.0"
 	},
 	"activationEvents": [
-		"*"
+		"onLanguage:cpp"
 	],
 	"main": "./extension.js",
 	"contributes": {},
 	"scripts": {},
 	"devDependencies": {
-		"@types/vscode": "^1.80.0"
+		"@types/vscode": "^1.70.0"
 	}
 }

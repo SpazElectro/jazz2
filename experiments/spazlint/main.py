@@ -5,9 +5,9 @@ globalProperties: list = json.load(open(os.path.dirname(__file__) + "/global.jso
 classProperties: list = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 
 # merge globalProperties into one
-globalPropertiesTemp: list = []
+globalPropertiesTemp: list = {}
 for i in globalProperties:
-    globalPropertiesTemp.append(globalProperties[i])
+    globalPropertiesTemp[i[:-4]] = globalProperties[i]
 
 classPropertiesTemp: list = {}
 for i in classProperties:
@@ -206,8 +206,9 @@ class JJ2PlusLinter:
                 for prop in classProperties[className]:
                     handleProp(prop)
         else:
-            for prop in globalProperties:
-                handleProp(prop)
+            for p in globalProperties:
+                for prop in globalProperties[p]:
+                    handleProp(prop)
         
         return suggestions
 
