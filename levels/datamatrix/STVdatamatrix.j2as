@@ -8,6 +8,37 @@
 
 array<Window@> windows();
 
+dictionary files = {
+    {"/", dictionary = {
+        {"hacked.txt", dictionary = {
+            {"content", "get hacked noob"},
+            {"attributes", array<string>() = {"system"}}
+        }}
+    }}
+};
+
+string currentFilesPath = "/";
+
+dictionaryValue listFilesOfPath(string path)
+{
+    if (path != "/")
+    {
+        if (path.substr(0, 1) != "/")
+            path = "/" + path;
+        if (path.substr(path.length() - 1, 1) != "/")
+            path += "/";
+    }
+
+    dictionaryValue result;
+
+    if (files.exists(path))
+    {
+        result = files[path];
+    }
+
+    return result;
+}
+
 jjTEXTAPPEARANCE outputAppearance = jjTEXTAPPEARANCE(STRING::NORMAL);
 array<string> output();
 int outputTextSpacing = 15;
@@ -81,6 +112,10 @@ void insertOutput(string txt) {
     keyScrollCallback(getKeyById("NumpadPlus").code);
 }
 
+void clearOutput() {
+    output = array<string>() = {""};
+}
+
 void sendCommand(string fullCommand) {
     commandHistory.insertLast(fullCommand);
     historyIndex = commandHistory.length();
@@ -90,8 +125,27 @@ void sendCommand(string fullCommand) {
     args.removeAt(0);
 
     if(cmd == "help") {
-        insertOutput("Commands: ls, rm, rmdir, cat");
-    } else if(cmd == "window") {
+        insertOutput("--------------------");
+        insertOutput("ls - List all files in the current directory");
+        insertOutput("rm - Delete a file");
+        insertOutput("rmdir - Delete a folder");
+        insertOutput("cd - Seek into a path");
+        insertOutput("cat - Seek into a file");
+        insertOutput("cls - Clear the console");
+        insertOutput("--------------------");
+    } else if(cmd == "cls") {
+        clearOutput();
+    } else if(cmd == "ls") {
+        dictionary files = cast<dictionary>(listFilesOfPath(currentFilesPath));
+        
+        for (uint i = 0; i < files.getKeys().length(); i++)
+        {
+            string key = files.getKeys()[i];
+            obj@ file;
+            files.get(key, @file);
+            jjConsole("File: " + file["name"]);
+            // jjConsole("Item: " + cast<string>(file["name"]));
+        }
     } else {
         insertOutput("Unknown command");
     }
@@ -135,7 +189,7 @@ void onLevelBegin() {
     jjKeyChat = 0xFF;
     outputAppearance.at = STRING::SPECIALSIGN;
     outputAppearance.spacing = 0;
-    output.insertLast("");
+    clearOutput();
 
     maxOutputLines = jjResolutionHeight / outputTextSpacing - 1; // subtract 1 for the command line
 
