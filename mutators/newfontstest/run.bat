@@ -1,14 +1,15 @@
 @echo off
 
 REM Read variables from run.ini
-for /f "tokens=1* delims==" %%a in ('type "..\..un.ini" ^| find "="') do (
+for /f "tokens=1* delims==" %%a in ('type "..\..
+un.ini" ^| find "="') do (
   if /i "%%a"=="GAME_DIRECTORY" set "GAME_DIRECTORY=%%b"
   if /i "%%a"=="GAME_NAME" set "GAME_NAME=%%b"
 )
 
 echo Copying files...
-copy "../../scripts/" "%GAME_DIRECTORY%" /y
-for %%i in (*.j2l *.j2as *.mut) do (
+for %%i in (*.j2l *.j2as *.mut *.asc) do (RY%" /y
+for %%i in (*.j2l *.j2as *.mut *.asc) do (
   copy "%%i" "%GAME_DIRECTORY%" /y
 )
 

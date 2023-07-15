@@ -236,6 +236,7 @@ void onMain() {
 
         if(naWindowPositions.find(window.position) >= 0) {
             @window.position = Vector2(windows[i].position.x + 10, window.position.y);
+            
             if(int(window.position.x) >= jjResolutionWidth) {
                 window.position.x = 0;
                 window.position.y += 10;

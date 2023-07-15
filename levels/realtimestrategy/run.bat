@@ -8,7 +8,7 @@ for /f "tokens=1* delims==" %%a in ('type "..\..\run.ini" ^| find "="') do (
 
 echo Copying files...
 copy "../../scripts/" "%GAME_DIRECTORY%" /y
-for %%i in (*.j2l *.j2as *.mut) do (
+for %%i in (*.j2l *.j2as *.mut *.asc) do (
   copy "%%i" "%GAME_DIRECTORY%" /y
 )
 
