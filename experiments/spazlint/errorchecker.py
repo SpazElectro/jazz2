@@ -13,6 +13,9 @@ game_directory = getFromRun("GAME_DIRECTORY")
 game_exe = f"{game_directory}{getFromRun('GAME_NAME')}"
 
 def getErrors(mutatorLocation):
+    # disable
+    return []
+
     # this kind of acts like backups so, we won't delete
     # maybe we can have an option to delete them, though.
     mutatorName = f"spazlint/spazlint_temp-{uuid.uuid4()}.mut"

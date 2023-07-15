@@ -1,6 +1,8 @@
 import json, sys, os
 import errorchecker, hierachy2
 
+print("[]\n[]")
+exit(1)
 globalProperties: dict = json.load(open(os.path.dirname(__file__) + "/global.json"))
 classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 

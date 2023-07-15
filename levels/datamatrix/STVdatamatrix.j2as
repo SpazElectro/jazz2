@@ -1,0 +1,287 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+enum WINDOW_FLAG {
+    VISIBLE,
+    EXIT_BUTTON,
+    DRAGGABLE
+};
+
+class Window
+{
+    string title;
+    array<WINDOW_FLAG> flags;
+    Vector2@ position = Vector2(0, 0);
+    Vector2@ size = Vector2(200, 150);
+    Vector2@ prevMousePos = Vector2(0, 0);
+
+    bool isDragging = false;
+    Vector2@ mouseOffset = Vector2(0, 0);
+    
+    Window(string title, array<WINDOW_FLAG> flags, Vector2@ position) {
+        this.title = title;
+        this.flags = flags;
+        @this.position = position;
+
+        if(jjGetStringWidth(title, STRING::SMALL, normalTextAppearance) + 20 >= int(this.size.x)) {
+            @this.size = Vector2(this.size.x + ((jjGetStringWidth(title, STRING::SMALL, normalTextAppearance) + 20) - this.size.x), this.size.y);
+        }
+    }
+
+    void update()
+    {
+        if(flags.find(VISIBLE) < 0) return;
+
+        if(jjKey[0x1] && Vector2(this.position.x + this.size.x - outputTextSpacing, this.position.y, outputTextSpacing, outputTextSpacing + 4).collidingWithMouse(true)) {
+            flags.removeAt(flags.find(VISIBLE));
+            return;
+        }
+
+        if(flags.find(DRAGGABLE) >= 0)
+        {
+            int mouseX = jjMouseX;
+            int mouseY = jjMouseY;
+
+            bool isWithinTitleBar = (mouseX >= int(position.x) && mouseX <= int(position.x) + size.x &&
+                                    mouseY >= int(position.y) && mouseY <= int(position.y) + 20);
+
+            if(jjKey[0x1]) { if(isWithinTitleBar) { if(!isDragging) {
+                isDragging = true;
+                mouseOffset.x = mouseX - position.x;
+                mouseOffset.y = mouseY - position.y;
+            }}} else { isDragging = false; }
+
+            if(isDragging)
+            {
+                int deltaX = mouseX - (position.x + mouseOffset.x);
+                int deltaY = mouseY - (position.y + mouseOffset.y);
+
+                position.x += deltaX;
+                position.y += deltaY;
+
+                prevMousePos.x = mouseX;
+                prevMousePos.y = mouseY;
+            }
+        }
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        if(flags.find(VISIBLE) >= 0) {
+            canvas.drawRectangle(xPixel: this.position.x, yPixel: this.position.y, width: this.size.x, height: this.size.y, color: 15);
+            canvas.drawRectangle(xPixel: this.position.x, yPixel: this.position.y, width: this.size.x, height: 20, color: 66);
+            if(flags.find(EXIT_BUTTON) >= 0) canvas.drawRectangle(xPixel: this.position.x + this.size.x - outputTextSpacing, yPixel: this.position.y, width: outputTextSpacing, height: outputTextSpacing + 4, color: 24);
+            canvas.drawString(xPixel: this.position.x, yPixel: this.position.y + (outputTextSpacing/2) + 3, text: this.title, size: STRING::SMALL, mode: STRING::NORMAL, param: 0);
+            if(flags.find(EXIT_BUTTON) >= 0) canvas.drawString(xPixel: this.position.x + this.size.x - outputTextSpacing, yPixel: this.position.y + (outputTextSpacing/2) + 3, text: "X", size: STRING::SMALL, mode: STRING::NORMAL, param: 0);
+        }
+    }
+}
+
+array<Window@> windows();
+
+jjTEXTAPPEARANCE outputAppearance = jjTEXTAPPEARANCE(STRING::NORMAL);
+array<string> output();
+int outputTextSpacing = 15;
+int outputStartLine = 0;
+int maxOutputLines;
+array<string> commandHistory();
+
+string command = "";
+
+bool showCursor = true;
+int cursorBlinkInterval = 500;
+int lastBlinkTime = 0;
+
+int min(int a, int b) { return a < b ? a : b; }
+int max(int a, int b) { return a > b ? a : b; }
+
+void insertOutput(string txt) {
+    int lineWidth = jjResolutionWidth - 50;
+
+    array<string> textParts = txt.split("@");
+    int numParts = textParts.length();
+
+    if(numParts > 1) {
+        for (int i = 0; i < numParts; i++)
+        {
+            array<string> words = textParts[i].split(" ");
+            string currentLine = "";
+            int currentLineWidth = 0;
+
+            for (uint w = 0; w < words.length(); w++)
+            {
+                int wordWidth = jjGetStringWidth(text: words[w], size: STRING::SMALL, style: outputAppearance);
+
+                if(currentLineWidth + wordWidth >= lineWidth)
+                {
+                    output.insertLast(currentLine);
+                    currentLine = "";
+                    currentLineWidth = 0;
+                }
+
+                currentLine += words[w] + " ";
+                currentLineWidth += wordWidth + jjGetStringWidth(" ", size: STRING::SMALL, style: outputAppearance);
+            }
+
+            output.insertLast(currentLine);
+        }
+    } else {
+        string currentLine = "";
+        int currentLineWidth = 0;
+
+        array<string> words = txt.split(" ");
+
+        for (uint w = 0; w < words.length(); w++)
+        {
+            int wordWidth = jjGetStringWidth(text: words[w], size: STRING::SMALL, style: outputAppearance);
+
+            if(currentLineWidth + wordWidth >= lineWidth)
+            {
+                output.insertLast(currentLine);
+                currentLine = "";
+                currentLineWidth = 0;
+            }
+
+            currentLine += words[w] + " ";
+            currentLineWidth += wordWidth + jjGetStringWidth(" ", size: STRING::SMALL, style: outputAppearance);
+        }
+
+        output.insertLast(currentLine);
+    }
+
+    keyScrollCallback(getKeyById("NumpadPlus").code);
+}
+
+void sendCommand(string fullCommand) {
+    commandHistory.insertLast(fullCommand);
+
+    array<string> args = fullCommand.split(" ");
+    string cmd = args[0];
+    args.removeAt(0);
+
+    if(cmd == "help") {
+        insertOutput("Commands: ls, rm, rmdir, cat");
+    } else if(cmd == "window") {
+        windows.insertLast(Window(joinArray(args, " "), array<WINDOW_FLAG> = { VISIBLE, DRAGGABLE, EXIT_BUTTON }, Vector2(5, 5)));
+    } else {
+        insertOutput("Unknown command");
+    }
+}
+
+void keyScrollCallback(uint key) {
+    Key@ k = getKeyByCode(key);
+    if(@k == null)
+        return;
+
+    if(k.id == "NumpadMinus" && outputStartLine > 0) {
+        outputStartLine--;
+    } else if(k.id == "NumpadPlus" && outputStartLine < output.length() - maxOutputLines) {
+        outputStartLine++;
+    }
+}
+
+void keyHistoryCallback(uint key) {
+    Key@ k = getKeyByCode(key);
+    if(@k == null)
+        return;
+    
+    if(k.id == "Up" && commandHistory.length() > 0) {
+        command = commandHistory[commandHistory.length() - 1];
+    }
+}
+
+void onLevelBegin() {
+    jjKeyChat = 0xFF;
+    outputAppearance.at = STRING::SPECIALSIGN;
+    outputAppearance.spacing = 0;
+    output.insertLast("");
+
+    maxOutputLines = jjResolutionHeight / outputTextSpacing - 1; // subtract 1 for the command line
+
+    insertOutput("Welcome to DataMatrix, You have been chosen to join an elite group of hackers, Your mission: Prove that you are worthy to the group, You have been given a list of assets to work with, Do not fail them.");
+
+    keyPressCallbacks.insertLast(keyScrollCallback);
+    keyPressCallbacks.insertLast(keyHistoryCallback);
+    keyPressCallbacks.insertLast(function(uint key) {
+        if(key == getKeyById("Enter").code) {
+            if(command != "") {
+                insertOutput("> " + command);
+                sendCommand(command);
+                command = "";
+            }
+        } else {
+            Key@ k = getKeyByCode(key);
+            if(@k == null) return;
+
+            if(k.id == "Backspace") {
+                command = removeLastChar(command);
+            }
+
+            if(k.id.length() == 1 || k.id == "Space") {
+                command += k.id == "Space" ? " " : toLowerCase(k.id);
+            }
+        }
+    });
+}
+
+void onMain() {
+    array<Vector2@> naWindowPositions();
+
+    for(uint i = 0; i < windows.length(); i++) {
+        Window@ window = windows[i];
+        if(window.flags.find(VISIBLE) < 0) continue;
+
+        if(naWindowPositions.find(window.position) >= 0) {
+            @window.position = Vector2(windows[i].position.x + 10, window.position.y);
+            if(int(window.position.x) >= jjResolutionWidth) {
+                window.position.x = 0;
+                window.position.y += 10;
+            }
+            if(int(window.position.y) >= jjResolutionHeight) {
+                window.position.x += 10;
+                window.position.y = 0;
+            }
+        }
+
+        naWindowPositions.insertLast(window.position);
+        window.update();
+    }
+    
+    updateKeys();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    // fill bg with air
+    canvas.drawRectangle(xPixel: 0, yPixel: 0, width: jjResolutionWidth, height: jjResolutionHeight, color: 0, mode: SPRITE::NORMAL, param: 0);
+    
+    int startLine = outputStartLine;
+    int endLine = min(startLine + maxOutputLines, output.length());
+
+    for (int i = startLine; i < endLine; i++)
+    {
+        canvas.drawString(xPixel: 0, yPixel: (i - startLine) * outputTextSpacing, text: output[i], size: STRING::SMALL, param: 0);
+    }
+
+    int currentTime = jjUnixTimeMs();
+    if(currentTime - lastBlinkTime >= cursorBlinkInterval)
+    {
+        showCursor = !showCursor;
+        lastBlinkTime = currentTime;
+    }
+
+    string commandWithCursor = "> " + command;
+    if(showCursor)
+    {
+        commandWithCursor += "_";
+    }
+
+    int commandTextY = getStringHeight(joinArray(output, "@"), outputTextSpacing) - (outputStartLine * outputTextSpacing);
+    canvas.drawString(xPixel: 0, yPixel: commandTextY, text: commandWithCursor, size: STRING::SMALL, param: 0);
+
+    for(uint i = 0; i < windows.length(); i++) windows[i].draw(canvas);
+
+    return true;
+}

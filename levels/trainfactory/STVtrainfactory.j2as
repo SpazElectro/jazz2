@@ -1,0 +1,87 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+array<int> gridPositionToScreenPosition(int row, int col) { return array<int>(2) = { int(col / double(grid[0].length() / jjResolutionWidth)), int(row / double(grid.length() / jjResolutionHeight)) }; }
+
+class Building
+{
+    Vector2@ position;
+
+    Building(Vector2@ position)
+    {
+        @this.position = position;
+    }
+
+    void update() {}
+    void draw(jjCANVAS@ canvas) {}
+};
+
+class Track: Building
+{
+    Track(Vector2@ position)
+    {
+        super(position);
+    }
+
+    void update() {
+        // jjConsole(text: "track updated");
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        canvas.drawString(xPixel: this.position.x, yPixel: this.position.y, text: "train", size: STRING::MEDIUM, param: 0);
+    }
+};
+
+array<Building@> buildings;
+array<array<int>> grid;
+// grid (2048x2048)
+// int is the building id
+
+void onLevelBegin() {
+    jjConsole("Started!");
+    buildings.insertLast(Track(Vector2(200, 200)));
+    
+    uint64 start = jjUnixTimeMs();
+
+    array<int> emptyYGrid = array<int>();
+    
+    for(int y = 1; y < 2048; y++) {
+        emptyYGrid.insertLast(0);
+    }
+
+    for(int x = 1; x < 2048; x++) {
+        grid.insertLast(emptyYGrid);
+    }
+
+    jjConsole("Allocated 2048x2048 map in " + (jjUnixTimeMs() - start) + " milliseconds (~17.3mb)");
+}
+
+void onMain() {
+    int gridX = 10;
+    int gridY = 20;
+
+    array<int> gridPosition = gridPositionToScreenPosition(gridX, gridY);
+    int screenPosX = gridPosition[0];
+    int screenPosY = gridPosition[1];
+
+    jjConsole("Row: " + screenPosX + " Col: " + screenPosY);
+
+    for(uint i = 0; i < buildings.length(); i++) {
+        buildings[i].update();
+    }
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    // fill bg with air
+    canvas.drawRectangle(xPixel: 0, yPixel: 0, width: jjResolutionWidth, height: jjResolutionHeight, color: 0, mode: SPRITE::NORMAL, param: 0);
+    
+    for(uint i = 0; i < buildings.length(); i++) {
+        buildings[i].draw(canvas);
+    }
+
+    return true;
+}
