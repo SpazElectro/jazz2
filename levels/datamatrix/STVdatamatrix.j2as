@@ -140,10 +140,10 @@ void sendCommand(string fullCommand) {
         
         for (uint i = 0; i < files.getKeys().length(); i++)
         {
-            string key = files.getKeys()[i];
-            obj@ file;
-            files.get(key, @file);
-            jjConsole("File: " + file["name"]);
+            //string key = files.getKeys()[i];
+            //obj@ file;
+            //files.get(key, @file);
+            //jjConsole("File: " + file["name"]);
             // jjConsole("Item: " + cast<string>(file["name"]));
         }
     } else {
