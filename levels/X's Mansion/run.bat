@@ -29,5 +29,5 @@ for %%i in (*.mut) do (
 
 :start_game
 if not defined J2L_LEVEL set "J2L_LEVEL=battle1"
-"%GAME_DIRECTORY%%GAME_NAME%" -server %MUTATOR% %J2L_LEVEL% -battle
+"%GAME_DIRECTORY%%GAME_NAME%" -server %MUTATOR% %J2L_LEVEL% -sp
 @echo on

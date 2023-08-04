@@ -15,25 +15,30 @@ int partId = 0;
 
 void onLevelBegin()
 {
+    // I apologize in advance for using jjP, but it's a singleplayer level! :P
+
     mailAppearance.at = STRING::SPECIALSIGN;
 
     registerInteraction(Interaction(
-        255, function(jjPLAYER @player) {
-            player.xPos = 225 * 32;
-            player.yPos = 62 * 32;
+        255, function() {
+            jjP.xPos = 225 * 32;
+            jjP.yPos = 62 * 32;
         }));
 
     registerInteraction(Interaction(
-        254, function(jjPLAYER @player) {
-            player.xPos = 16 * 32;
-            player.yPos = 62 * 32;
+        254, function() {
+            jjP.xPos = 16 * 32;
+            jjP.yPos = 62 * 32;
         }));
     
     registerInteraction(Interaction(
-        253, function(jjPLAYER @player) {
+        253, function() {
             drawMail = true;
-        }, canCancel: true, cancelCallback: function(jjPLAYER @player) {
+        }, canCancel: true, cancelCallback: function() {
             drawMail = false;
+
+            jjP.noFire = false;
+            jjP.freeze(false);
         }));
 
     jjConsole("[MS] started");
@@ -45,6 +50,14 @@ void onPlayer(jjPLAYER @player)
     // {
 
     // }
+    if(drawMail) {
+        player.noFire = true;
+        player.xSpeed = 0;
+        player.ySpeed = 0;
+        player.xAcc = 0;
+        player.yAcc = 0;
+        player.freeze(true);
+    }
 
     updateInteractions(player);
 }
@@ -66,4 +79,10 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     }
 
     return false;
+}
+
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+    if(drawMail) {
+        pd.spriteMode = pd.player.spriteMode;
+    }
 }
