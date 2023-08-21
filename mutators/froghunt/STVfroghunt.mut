@@ -53,6 +53,7 @@ void startGame() {
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if(jjIsServer && stringReceived.findFirst("!frogsperround") == 0) {
         frogsPerRound = parseInt(stringReceived.split(" ")[1]);
+        
         jjConsole("Now " + frogsPerRound + " frogs per round!");
         return true;
     }

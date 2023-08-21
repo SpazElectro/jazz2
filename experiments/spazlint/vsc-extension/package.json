@@ -15,5 +15,8 @@
 	"scripts": {},
 	"devDependencies": {
 		"@types/vscode": "^1.70.0"
+	},
+	"dependencies": {
+		"net": "^1.0.2"
 	}
 }

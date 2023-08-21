@@ -1,6 +1,82 @@
 let { execFile } = require("child_process");
-let { writeFileSync } = require("fs");
+let { writeFile } = require("fs");
+let { promisify } = require("util");
 let vscode = require("vscode");
+let net = require("net");
+let writeFileAsync = promisify(writeFile);
+
+const serverAddress = "localhost";
+const serverPort = 17338;
+const client = new net.Socket();
+
+let connectedToServer = false;
+let dontReconnect = false;
+let pythonChildProcess = null;
+
+function reconnectToServer(attempt=0) {
+    client.connect(serverPort, serverAddress, () => {
+        connectedToServer = true;
+        vscodeButton.text = "$(megaphone) Stop";
+        vscodeButton.tooltip = "Stop the spazlint server";
+
+        vscode.window.showInformationMessage("Connected to spazlint!");
+    });
+    
+    client.on("close", () => {
+        if(attempt == 3) {
+            return vscode.window.showInformationMessage("Attempt #3 to connect to spazlint has failed!");
+        }
+
+        if(dontReconnect) {
+            dontReconnect = false;
+            return;
+        }
+
+        if(!connectedToServer) {
+            vscode.window.showInformationMessage("Attempting to reconnect to spazlint...");
+            
+            pythonChildProcess = execFile("python", [
+                process.env["SPAZLINT_DIR"] + "\\main.py"
+            ], (error, stdout, stderr) => {
+                if (error) {
+                    // this is when the process gets killed
+                    if(error.message.startsWith("Command failed: python ")) {
+                        vscode.window.showInformationMessage("Spazlint server has successfully stopped!");
+                        return;
+                    } else {
+                        vscode.window.showErrorMessage(error.message);
+                    }
+                    
+                    reject(error.message);
+                } else if (stderr) {
+                    vscode.window.showErrorMessage(stderr);
+                    reject(stderr);
+                } else {
+                    resolve(stdout);
+                }
+            });
+
+            setTimeout(() => {
+                reconnectToServer(attempt + 1);
+            }, 3_000);
+        } else {
+            vscode.window.showInformationMessage("Disconnected from spazlint!");
+        }
+
+        connectedToServer = false;
+    });
+}
+
+function stopServer() {
+    if(pythonChildProcess != null) {
+        dontReconnect = true;
+        pythonChildProcess.kill();
+        vscodeButton.text = "$(megaphone) Connect";
+        vscodeButton.tooltip = "Connect to spazlint!";
+    } else vscode.window.showErrorMessage("Attempted to stop server when python process has already been killed!")
+}
+
+reconnectToServer();
 
 var extensionDiagnostics;
 
@@ -23,26 +99,35 @@ function getFileLocation() {
     while(location.includes("\\"))
         location = location.replace("\\", "_")
     location = location.replace(":", "_")
-
+    
     return process.env["SPAZLINT_DIR"] + "\\temp\\" + location + ".tmp";
 }
 
 async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
-        execFile("python", [
-            process.env["SPAZLINT_DIR"] + "\\main.py",
-            getFileLocation(),
-            vscode.window.activeTextEditor.selection.active.line.toString(),
-            vscode.window.activeTextEditor.selection.active.character.toString(),
-            adv ? "true" : "false"
-        ], (error, stdout, stderr) => {
-            console.log(stdout.split("\n"));
-            if (error) {
-                reject(error.message);
-            } else if (stderr) {
-                reject(stderr);
-            } else {
-                resolve(stdout);
+        const requestData = {
+            type: adv === "true" ? "ADVANCED_AUTOCOMPLETE" : "AUTOCOMPLETE",
+            line: vscode.window.activeTextEditor.selection.active.line.toString(),
+            char: vscode.window.activeTextEditor.selection.active.character.toString(),
+            file: getFileLocation()
+        };
+
+        client.write(JSON.stringify(requestData));
+
+        let accumulatedData = "";
+
+        client.on("data", (data) => {
+            accumulatedData += data.toString();
+
+            try {
+                JSON.parse(accumulatedData.split("\n")[0]);
+                JSON.parse(accumulatedData.split("\n")[1]);
+
+                resolve(accumulatedData);
+
+                accumulatedData = "";
+            } catch (error) {
+                // JSON parsing failed, the data is incomplete or not yet fully received
             }
         });
     });
@@ -115,7 +200,7 @@ async function refreshDiagnostics(advanced=false) {
     if((vscode.window.activeTextEditor == null || vscode.window.activeTextEditor.document.isUntitled || !(vscode.window.activeTextEditor.document.fileName.endsWith(".j2as") || vscode.window.activeTextEditor.document.fileName.endsWith(".mut") || vscode.window.activeTextEditor.document.fileName.endsWith(".asc"))))
         return;
         
-    writeFileSync(getFileLocation(), vscode.window.activeTextEditor.document.getText());
+    await writeFileAsync(getFileLocation(), vscode.window.activeTextEditor.document.getText());
 
     try {
         const output = await runPythonScript(advanced);
@@ -130,12 +215,30 @@ async function refreshDiagnostics(advanced=false) {
     }
 }
 
+var vscodeButton;
+
 function activate(context) {
     extensionDiagnostics = vscode.languages.createDiagnosticCollection("jj2plus");
     context.subscriptions.push(extensionDiagnostics);
 
     context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => refreshDiagnostics()));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(e => refreshDiagnostics(true)));
+    
+    vscodeButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101);
+    vscodeButton.text = "$(megaphone) Connect";
+    vscodeButton.command = "spazlint.connect";
+    vscodeButton.tooltip = "Connect to spazlint!";
+    vscodeButton.show();
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("spazlint.connect", () => {
+            if(!connectedToServer) {
+                reconnectToServer();
+            } else {
+                stopServer();
+            }
+        })
+    );
 
     vscode.languages.registerCompletionItemProvider("cpp", completion);
 

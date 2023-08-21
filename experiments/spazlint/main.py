@@ -1,8 +1,9 @@
 import json, sys, os
+from typing import Tuple
 import errorchecker, hierachy2
 
-print("[]\n[]")
-exit(1)
+# print("[]\n[]")
+# exit(1)
 globalProperties: dict = json.load(open(os.path.dirname(__file__) + "/global.json"))
 classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 
@@ -126,7 +127,18 @@ class JJ2PlusLinter:
         
         return linting_errors
 
-    def autocomplete(self, lineN, rvrs):
+    def autocomplete(self, lineN, rvrs, char):
+        if isinstance(lineN, str):
+            lineN = int(lineN)
+            print("Resolved lineN")
+        if isinstance(char, str):
+            char = int(char)
+            print("Resolved char")
+
+        if self.code == "":
+            print("Empty code, file writing (possibly) has not finished!")
+            return []
+
         line = self.code.splitlines()[lineN]
         if not rvrs:
             line = line[:-char]
@@ -221,16 +233,62 @@ class JJ2PlusLinter:
         
         return suggestions
 
-file = sys.argv[1]
-line = int(sys.argv[2])
-char = int(sys.argv[3])
-advanced = True if sys.argv[4] == "true" else False
+import socket, threading
 
-linter = JJ2PlusLinter(file)
-x = linter.autocomplete(line, False)
+# file = sys.argv[1]
+# line = int(sys.argv[2])
+# char = int(sys.argv[3])
+# advanced = True if sys.argv[4] == "true" else False
 
-if len(x) == 0:
-    x = linter.autocomplete(line, True)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(("localhost", 17338))
+sock.listen()
 
-print(json.dumps(x))
-print(json.dumps(linter.lint(advanced)))
+def handle_client(conn: socket.socket, addr: Tuple[str, int]):
+    while True:
+        try:
+            data = conn.recv(4096)
+            if not data:
+                break
+        except ConnectionError or ConnectionAbortedError or ConnectionRefusedError or ConnectionResetError:
+            print("Client disconnected!")
+            break
+
+        try:
+            data = json.loads(data)
+        except json.decoder.JSONDecodeError as e:
+            if e.msg.startswith("Extra data:"):
+                print("extra data found!")
+                print("getting last item and autocompleting using it!")
+                data = json.loads(data.split(b"{")[-1])
+            else:
+                continue
+        
+        advanced = data["type"] == "ADVANCED_AUTOCOMPLETE"
+        line = data["line"]
+        char = data["char"]
+        file = data["file"]
+
+        linter = JJ2PlusLinter(file)
+        autocomplete_data = linter.autocomplete(line, False, char)
+
+        if len(autocomplete_data) == 0:
+            autocomplete_data = linter.autocomplete(line, True, char)
+        
+        autocomplete_bytes = json.dumps(autocomplete_data).encode("utf-8")
+        linter_bytes = json.dumps(linter.lint(advanced == 1)).encode("utf-8")
+        
+        conn.sendall(autocomplete_bytes + b"\n" + linter_bytes)
+
+while True:
+    conn, addr = sock.accept()
+    threading.Thread(target=handle_client, args=(conn, addr)).start()
+
+# linter = JJ2PlusLinter(file)
+# x = linter.autocomplete(line, False)
+
+# if len(x) == 0:
+#     x = linter.autocomplete(line, True)
+
+# print(json.dumps(x))
+# print(json.dumps(linter.lint(advanced)))

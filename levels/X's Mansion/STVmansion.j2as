@@ -33,7 +33,11 @@ void onLevelBegin()
     
     registerInteraction(Interaction(
         253, function() {
-            drawMail = true;
+            if(drawMail) {
+                jjConsole("Accepted!");
+            } else {
+                drawMail = true;
+            }
         }, canCancel: true, cancelCallback: function() {
             drawMail = false;
 
