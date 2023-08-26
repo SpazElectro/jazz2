@@ -20,6 +20,8 @@ class FileUpdateHandler(FileSystemEventHandler):
     def reload(self, event):
         if event.src_path.endswith("jazz2.log"):
             return
+        if ".git" in event.src_path:
+            return
         
         print(event.src_path)
         tcp_client.send(ChatMessage(1, "/r"))
@@ -50,12 +52,36 @@ tcp_client.send(ChatMessage(1, "/login botattack"))
 
 time.sleep(1)
 
+import threading
+
+END_CLIENT = False
+
+def udp_recv():
+    while True:
+        global END_CLIENT
+        msg, addr = udp_client.recvfrom(1024)
+        if addr != server_address:
+            continue
+        if END_CLIENT:
+            break
+
+        print("UDP")
+        hexdump.hexdump(msg)
+        print("UDP_PACKET_END")
+
+        pingPacket = bytes(bytearray([0x03, 0x1, 0x00, 0x00, 0x00, 0x00, 0x32, 0x34, 0x20, 0x20]))
+        udp_client.sendto(checksum(pingPacket) + pingPacket, server_address)
+        continue
+
+udp_thread = threading.Thread(target=udp_recv)
+udp_thread.start()
+
 try:
     while True:
         msg = tcp_client.recv(1024)
-        # if addr != server_address:
-        #     continue
-        print("PACKET_END" if not hexdump.hexdump(msg) else "UNDEFINED")
+        print("TCP")
+        hexdump.hexdump(msg)
+        print("TCP_PACKET_END")
         if len(msg) >= 2:
             if msg[0] == 0x00 and msg[1] == 0x07:
                 # disconnect
@@ -66,9 +92,9 @@ try:
                 raise KeyboardInterrupt()
         if msg == b"":
             raise KeyboardInterrupt()
-        # pingPacket = bytes(bytearray([0x03, 0x1, 0x00, 0x00, 0x00, 0x00, 0x32, 0x34, 0x20, 0x20]))
-        # udp_client.sendto(checksum(pingPacket) + pingPacket, server_address)
 except KeyboardInterrupt:
+    END_CLIENT = True
     observer.stop()
 
 observer.join()
+udp_thread.join()
