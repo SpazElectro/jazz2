@@ -1,4 +1,6 @@
 #pragma require "STVutil.asc"
+#pragma require "stvtictactoe_o.png"
+#pragma require "stvtictactoe_x.png"
 
 #include "STVutil.asc"
 
