@@ -26,3 +26,5 @@ token.txt
 *.til
 
 build
+/experiments/hotreload/udp/*
+/experiments/hotreload/tcp/*
