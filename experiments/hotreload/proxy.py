@@ -23,12 +23,22 @@ def udp_proxy():
 
     while True:
         global proxyfileindex, END_PROXY
-        data, client_addr = udp_sock.recvfrom(BUFFER_SIZE)
+        data: bytes = b""
 
+        try:
+            data, client_addr = udp_sock.recvfrom(BUFFER_SIZE)
+        except ConnectionResetError:
+            END_PROXY = True
         if END_PROXY: break
+
+        if data[2] == 0x03 or data[2] == 0x04:
+            print(data)
+        
         def forward_udp_to_jj2():
             jj2_sock.sendto(data, (jj2_host, jj2_port))
             response, _ = jj2_sock.recvfrom(BUFFER_SIZE)
+            if response[2] == 0x03 or response[2] == 0x04:
+                print(data)
             udp_sock.sendto(response, client_addr)
 
         if input(b"UDP " + bytearray(data)) == "y":

@@ -51,13 +51,24 @@ def send_packet_array(name: str, pat_type=2):
 from construct import Byte
 
 # https://github.com/bswck/jj2_old/blob/master/jj2/protocols/game.py#L477-L484
-def checksum(serialized):
-    arr = bytes((79, 79)) + serialized
-    lsb = msb = 1
-    for i in range(2, len(arr)):
-        lsb += arr[i]
-        msb += lsb
-    return Byte.build(lsb % 251) + Byte.build(msb % 251)
+# def checksum(serialized):
+#     arr = bytes((79, 79)) + serialized
+#     lsb = msb = 1
+#     for i in range(2, len(arr)):
+#         lsb += arr[i]
+#         msb += lsb
+#     return Byte.build(lsb % 251) + Byte.build(msb % 251)
+def checksum(data):
+    x = 1
+    y = 1
+    for byte in data:
+        x += byte
+        y += x
+    return bytes([x & 0xFF, y & 0xFF])  # Use bitwise AND to limit to 8 bits
+
+# [ 04 01 00 00 00 00 80 ]'s checksum should be [ 00 07 ]
+# print(checksum(bytes(bytearray([0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x80]))))
+# print(bytes(bytearray([0x00, 0x07])))
 
 disconnect_messages = {
     0x01: "Server full",
