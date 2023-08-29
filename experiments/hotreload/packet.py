@@ -39,14 +39,21 @@ def send_packet_array(name: str, pat_type=2):
     sorted_files = sorted(files, key=lambda x: int(x.split(".")[0][3:]))
 
     for item in sorted_files:
-        packet_type = determine_pat_type(item) if pat_type == 2 else pat_type
-        packet = open(f"./packetarrays/{name}/{item}", "rb").read()
+        send_packet_from_array(name, item, pat_type)
 
-        if packet_type == PAT_TCP:
-            global_tcp_socket.sendall(packet)  # type: ignore
-        elif packet_type == PAT_UDP:
-            global global_server_addr
-            global_udp_socket.sendto(packet, global_server_addr)  # type: ignore
+def send_packet_from_array(arrayName: str, packetName: str, pat_type = 2):
+    packet_type = determine_pat_type(packetName) if pat_type == 2 else pat_type
+    packet = open(f"./packetarrays/{arrayName}/{packetName}", "rb").read()
+
+    import hexdump
+    hexdump.hexdump(packet)
+
+    if packet_type == PAT_TCP:
+        print("sendall packet")
+        global_tcp_socket.sendall(packet)  # type: ignore
+    elif packet_type == PAT_UDP:
+        global global_server_addr
+        global_udp_socket.sendto(packet, global_server_addr)  # type: ignore
 
 from construct import Byte
 
