@@ -77,6 +77,7 @@ tcp_client.sendall(bytes(bytearray([
 # 		byte teamAndChar;	// See below
 # 		byte furColor[4];
 # 		char playerName;	// playerName is null terminated
+#       [0x20, 0x28, 0x11, 0x01, 0x0A, 0x0D, 0x00, 0x00] // no clue, probably a plus thing
 # 	}
 # }
 
