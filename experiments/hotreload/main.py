@@ -59,10 +59,14 @@ set_global_sockets(tcp_client, udp_client)
 # 	byte numberOfPlayersFromClient;
 # }
 
+udp_client.sendto(string_to_hex_bytes("06 0D 05 00"), server_address)
+
 # No idea how to generate "UDPbind", so, 0x0A and 0xD1
 tcp_client.sendall(bytes(bytearray([
     0x09, 0x0F, 0x0A, 0xD1, ord("2"), ord("4"), ord(" "), ord(" "), 0x1
 ])))
+
+udp_client.sendto(string_to_hex_bytes("0A 15 09 00"), server_address)
 
 tcp_client.sendall(bytes(bytearray([
     0x08, 0x3F, 0x20, 0x03, 0x0C, 0x00, 0x05, 0x00
@@ -100,104 +104,116 @@ hexdump.hexdump(packet)
 
 tcp_client.sendall(packet)
 
-time.sleep(5)
+time.sleep(0.1)
 
-# # spectate packet
-# tcp_client.send(b"\x03B!")
-# # tcp_client.send(ChatMessage(1, "/spectate on"))
-# tcp_client.send(ChatMessage(1, "/login botattack"))
+# spectate packet
+tcp_client.send(b"\x03B!")
+# tcp_client.send(ChatMessage(1, "/spectate on"))
+tcp_client.send(ChatMessage(1, "/login botattack"))
 
-# time.sleep(1)
+time.sleep(1)
 
-# import threading
+import threading
 
-# END_CLIENT = False
-# last_pong = 0x01
+END_CLIENT = False
+last_pong = 0x01
 
-# posPacket = bytearray([0x3D, 0xA7, 0x1, 0x0, 0x1, 0xB5, 0x0, 0x0, 0x0, 0x80, 0x0, 0x0, 0x1E, 0x0, 0x0, 0x0])
+posPacket = bytearray([0x3D, 0xA7, 0x1, 0x0, 0x1, 0xB5, 0x0, 0x0, 0x0, 0x80, 0x0, 0x0, 0x1E, 0x0, 0x0, 0x0])
 
-# def udp_recv():
-#     global END_CLIENT
-#     while not END_CLIENT:
-#         global last_pong
-#         msg, addr = udp_client.recvfrom(1024)
-#         if addr != server_address:
-#             continue
+def udp_recv():
+    global END_CLIENT
+    while not END_CLIENT:
+        global last_pong
+        msg, addr = udp_client.recvfrom(1024)
+        if addr != server_address:
+            continue
 
-#         # first 2 are checksum
-#         if msg[2] == 0x04:
-#             last_pong = msg[3]
+        # first 2 are checksum
+        if msg[2] == 0x04:
+            last_pong = msg[3]
 
-#         print("UDP")
-#         hexdump.hexdump(msg)
-#         print("UDP_PACKET_END")
+        print("UDP")
+        hexdump.hexdump(msg)
+        print("UDP_PACKET_END")
 
-#         pingPacket = bytes(bytearray([0x03, last_pong, 0x00, 0x00, 0x00, 0x00, 0x32, 0x34, 0x20, 0x20]))
-#         udp_client.sendto(b"\xA7\xD2" + pingPacket, server_address)
+        pingPacket = bytes(bytearray([0x03, last_pong, 0x00, 0x00, 0x00, 0x00, 0x32, 0x34, 0x20, 0x20]))
+        udp_client.sendto(b"\xA7\xD2" + pingPacket, server_address)
 
-# def ping_server():
-#     global END_CLIENT
-#     while not END_CLIENT:
-#         posPacket[-3] += 1
-#         if posPacket[-3] == 5:
-#             posPacket[-3] = 0
+def ping_server():
+    global END_CLIENT
+    while not END_CLIENT:
+        posPacket[-3] += 1
+        if posPacket[-3] == 5:
+            posPacket[-3] = 0
 
-#         if posPacket[5] == 0xB5:
-#             posPacket[5] = 0xB6
-#         else:
-#             posPacket[5] = 0xB5
+        if posPacket[5] == 0xB5:
+            posPacket[5] = 0xB6
+        else:
+            posPacket[5] = 0xB5
         
-#         udp_send(posPacket)
-#         time.sleep(1) 
+        udp_send(posPacket)
+        time.sleep(1) 
 
-# def udp_checksum(buffer):
-#     x = 1
-#     y = 1
-#     for i in range(2, len(buffer)):
-#         x += buffer[i]
-#         y += x
-#     buffer[0] = x % 251
-#     buffer[1] = y % 251
+def udp_checksum(buffer):
+    x = 1
+    y = 1
+    for i in range(2, len(buffer)):
+        x += buffer[i]
+        y += x
+    buffer[0] = x % 251
+    buffer[1] = y % 251
 
-# def udp_send(data):
-#     udp_checksum(data)
-#     udp_client.sendto(data, server_address)
+def udp_send(data):
+    udp_checksum(data)
+    udp_client.sendto(data, server_address)
 
-# udp_thread = threading.Thread(target=udp_recv)
-# udp_thread.start()
+udp_thread = threading.Thread(target=udp_recv)
+udp_thread.start()
 
-# ping_thread = threading.Thread(target=ping_server)
-# ping_thread.start()
+ping_thread = threading.Thread(target=ping_server)
+ping_thread.start()
 
-# try:
-#     while True:
-#         msg = tcp_client.recv(1024)
-#         print("TCP")
-#         hexdump.hexdump(msg)
-#         print("TCP_PACKET_END")
-#         # pingPacket = bytes(bytearray([0x03, last_pong, 0x00, 0x00, 0x00, 0x00, 0x32, 0x34, 0x20, 0x20]))
-#         # udp_client.sendto(b"\xA7\xD2" + pingPacket, server_address)
-#         # tcp_client.send(msg)
+try:
+    while True:
+        msg = tcp_client.recv(1024)
+        print("TCP")
+        hexdump.hexdump(msg)
+        print("TCP_PACKET_END")
+        # pingPacket = bytes(bytearray([0x03, last_pong, 0x00, 0x00, 0x00, 0x00, 0x32, 0x34, 0x20, 0x20]))
+        # udp_client.sendto(b"\xA7\xD2" + pingPacket, server_address)
+        # tcp_client.send(msg)
 
-#         if len(msg) >= 2:
-#             # 05 49 01 10 27
-#             # if msg[0] == 0x05 and msg[1] == 0x49:
-#             if msg[0] == 0x00 and msg[1] == 0x07:
-#                 # disconnect
+        if len(msg) >= 2:
+            # 05 49 01 10 27
+            # if msg[0] == 0x05 and msg[1] == 0x49:
+            
+            if msg[0] == 0x00 and msg[1] == 0x07:
+                # disconnect
                 
-#                 disconnectMessage = msg[4]
-#                 print(f"Disconnected for {parse_disconnect_message(disconnectMessage)}")
+                disconnectMessage = msg[4]
+                print(f"Disconnected for {parse_disconnect_message(disconnectMessage)}")
                 
-#                 raise KeyboardInterrupt()
-#             if msg[0] == 0x27 and msg[1] == 0x16:
-#                 send_packet_array("login")
+                raise KeyboardInterrupt()
+            if msg[1] == 0x10:
+                # cut the rest we dont need it anyways
+                msg = msg[:msg[0]]
+                someChecksum = msg[0x1A:]
+                # the other stuff we can cut but its useless anyways
+                print(someChecksum)
 
-#         if msg == b"":
-#             raise KeyboardInterrupt()
-# except KeyboardInterrupt:
-#     END_CLIENT = True
-#     observer.stop()
+                tcp_client.sendall(bytes(bytearray([0x06, 0x1A, someChecksum[0], someChecksum[1], someChecksum[2], someChecksum[3]])))
 
-# observer.join()
-# print("Waiting for UDP thread to stop...")
-# udp_thread.join()
+                # open("serverdetails", "wb").write(msg[:length])
+            if msg[0] == 0x27 and msg[1] == 0x16:
+                # level cycle
+                pass
+
+        if msg == b"":
+            raise KeyboardInterrupt()
+except KeyboardInterrupt:
+    END_CLIENT = True
+    observer.stop()
+
+observer.join()
+print("Waiting for UDP thread to stop...")
+udp_thread.join()

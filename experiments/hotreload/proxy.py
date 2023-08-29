@@ -1,5 +1,7 @@
 import socket
 import threading
+import uuid
+import os
 
 # Configuration
 proxy_host = "127.0.0.1"
@@ -12,9 +14,13 @@ jj2_port = 10052
 BUFFER_SIZE = 32768
 
 proxyfileindex = 0
-USE_COMBINED_FOLDER = True
+USE_COMBINED_FOLDER = False
 
 END_PROXY = False
+
+sessionuid = uuid.uuid4()
+os.mkdir(f"tcp/{sessionuid}")
+os.mkdir(f"udp/{sessionuid}")
 
 def udp_proxy():
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -42,7 +48,7 @@ def udp_proxy():
             udp_sock.sendto(response, client_addr)
 
         if input(b"UDP " + bytearray(data)) == "y":
-            open(f"udp/{proxyfileindex}" if not USE_COMBINED_FOLDER else f"combined/udp{proxyfileindex}", "wb").write(data)
+            open(f"udp/{sessionuid}/{proxyfileindex}" if not USE_COMBINED_FOLDER else f"combined/udp{proxyfileindex}", "wb").write(data)
         proxyfileindex += 1
 
         udp_thread = threading.Thread(target=forward_udp_to_jj2)
@@ -70,7 +76,7 @@ def tcp_proxy():
 
                     if sock1 is client_sock:
                         if input(b"TCP " + bytearray(data)) == "y":
-                            open(f"tcp/{proxyfileindex}" if not USE_COMBINED_FOLDER else f"combined/tcp{proxyfileindex}", "wb").write(data)
+                            open(f"tcp/{sessionuid}/{proxyfileindex}" if not USE_COMBINED_FOLDER else f"combined/tcp{proxyfileindex}", "wb").write(data)
                     proxyfileindex += 1
                     
                     if not data:
