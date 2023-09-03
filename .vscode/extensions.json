@@ -5,6 +5,7 @@
         "esbenp.prettier-vscode",
         "michelemelluso.gitignore",
         "ms-python.vscode-pylance",
-        "ms-vscode.cpptools"
+        "ms-vscode.cpptools",
+        "ms-dotnettools.csdevkit"
     ]
 }

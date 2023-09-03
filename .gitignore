@@ -29,3 +29,5 @@ build
 /experiments/hotreload/udp/*
 /experiments/hotreload/tcp/*
 /experiments/hotreload/combined/*
+/experiments/jj2livestream/bin
+/experiments/jj2livestream/obj

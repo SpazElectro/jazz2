@@ -1,0 +1,29 @@
+#pragma name "spacecounter"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+int counter = 0;
+
+void onLevelBegin() {
+    jjConsole("Started!");
+    keyPressCallbacks.insertLast(function(key) {
+        if(key == 0x20) {
+            counter++;
+        } else if(key == 0x60) {
+            counter = 0;
+        }
+    });
+}
+
+void onMain() {
+    updateKeys();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawString(10, 580, counter + " presses", STRING::MEDIUM);
+    return false;
+}

@@ -32,36 +32,36 @@ function reconnectToServer(attempt=0) {
             return;
         }
 
-        if(!connectedToServer) {
-            vscode.window.showInformationMessage("Attempting to reconnect to spazlint...");
+        // if(!connectedToServer) {
+        //     vscode.window.showInformationMessage("Attempting to reconnect to spazlint...");
             
-            pythonChildProcess = execFile("python", [
-                process.env["SPAZLINT_DIR"] + "\\main.py"
-            ], (error, stdout, stderr) => {
-                if (error) {
-                    // this is when the process gets killed
-                    if(error.message.startsWith("Command failed: python ")) {
-                        vscode.window.showInformationMessage("Spazlint server has successfully stopped!");
-                        return;
-                    } else {
-                        vscode.window.showErrorMessage(error.message);
-                    }
+        //     pythonChildProcess = execFile("python", [
+        //         process.env["SPAZLINT_DIR"] + "\\main.py"
+        //     ], (error, stdout, stderr) => {
+        //         if (error) {
+        //             // this is when the process gets killed
+        //             if(error.message.startsWith("Command failed: python ")) {
+        //                 vscode.window.showInformationMessage("Spazlint server has successfully stopped!");
+        //                 return;
+        //             } else {
+        //                 vscode.window.showErrorMessage(error.message);
+        //             }
                     
-                    reject(error.message);
-                } else if (stderr) {
-                    vscode.window.showErrorMessage(stderr);
-                    reject(stderr);
-                } else {
-                    resolve(stdout);
-                }
-            });
+        //             reject(error.message);
+        //         } else if (stderr) {
+        //             vscode.window.showErrorMessage(stderr);
+        //             reject(stderr);
+        //         } else {
+        //             resolve(stdout);
+        //         }
+        //     });
 
-            setTimeout(() => {
-                reconnectToServer(attempt + 1);
-            }, 3_000);
-        } else {
-            vscode.window.showInformationMessage("Disconnected from spazlint!");
-        }
+        //     setTimeout(() => {
+        //         reconnectToServer(attempt + 1);
+        //     }, 3_000);
+        // } else {
+        //     vscode.window.showInformationMessage("Disconnected from spazlint!");
+        // }
 
         connectedToServer = false;
     });

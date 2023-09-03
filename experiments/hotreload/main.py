@@ -139,32 +139,54 @@ def udp_recv():
         pingPacket = bytes(bytearray([0x03, last_pong, 0x00, 0x00, 0x00, 0x00, 0x32, 0x34, 0x20, 0x20]))
         udp_client.sendto(b"\xA7\xD2" + pingPacket, server_address)
 
+# animation packet (checksum excluded):
+# id cu s  cu s  s  cu cu cu cu cu cu cu s  s
+# 01 67 01 29 00 00 10 5D 80 AC 02 1E 02 00 00
+
 def ping_server():
     global END_CLIENT
     while not END_CLIENT:
-        posPacket[-3] += 1
-        if posPacket[-3] == 5:
-            posPacket[-3] = 0
-
-        if posPacket[5] == 0xB5:
-            posPacket[5] = 0xB6
-        else:
-            posPacket[5] = 0xB5
+        # posPacket[-3] += 1
+        # if posPacket[-3] == 5:
+        #     posPacket[-3] = 0
         
+        # if posPacket[5] == 0xB5:
+        #     posPacket[5] = 0xB6
+        # else:
+        #     posPacket[5] = 0xB5
+        
+        build_keep_alive()
         udp_send(posPacket)
-        time.sleep(1) 
+        print("Sending position packet...")
+        time.sleep(0.125) 
 
 def udp_checksum(buffer):
-    x = 1
-    y = 1
+    x = 79
+    y = 79
     for i in range(2, len(buffer)):
         x += buffer[i]
         y += x
     buffer[0] = x % 251
     buffer[1] = y % 251
 
+# dont ask why we have 2
+def compute_checksum(buffer):
+    L = R = 1
+    for n in range(2, len(buffer)):
+        L += buffer[n]
+        R += L
+    return bytes([L % 251]) + bytes([R % 251])
+
+from construct import Int16ul
+
+def build_keep_alive(data, udp_count):
+    prefix = bytes(1) + Int16ul.build(len(data))
+    udp_checksum = compute_checksum(data)
+    return prefix + udp_checksum + data
+
 def udp_send(data):
     udp_checksum(data)
+    # print(data)
     udp_client.sendto(data, server_address)
 
 udp_thread = threading.Thread(target=udp_recv)

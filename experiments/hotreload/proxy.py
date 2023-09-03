@@ -2,6 +2,7 @@ import socket
 import threading
 import uuid
 import os
+import hexdump
 
 # Configuration
 proxy_host = "127.0.0.1"
@@ -10,11 +11,15 @@ proxy_port = 1337
 jj2_host = "127.0.0.1"
 jj2_port = 10052
 
+proxyfileindex = 0
+
 # BUFFER_SIZE = 16384
 BUFFER_SIZE = 32768
-
-proxyfileindex = 0
 USE_COMBINED_FOLDER = False
+ASK_INPUT_TCP = False
+ASK_INPUT_UDP = False
+LOG_TCP_PACKETS = False
+LOG_UDP_PACKETS = False
 
 END_PROXY = False
 
@@ -28,7 +33,7 @@ def udp_proxy():
     jj2_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     while True:
-        global proxyfileindex, END_PROXY
+        global proxyfileindex, END_PROXY, LOG_UDP_PACKETS
         data: bytes = b""
 
         try:
@@ -47,12 +52,20 @@ def udp_proxy():
                 print(data)
             udp_sock.sendto(response, client_addr)
 
-        if input(b"UDP " + bytearray(data)) == "y":
-            open(f"udp/{sessionuid}/{proxyfileindex}" if not USE_COMBINED_FOLDER else f"combined/udp{proxyfileindex}", "wb").write(data)
+        if ASK_INPUT_UDP:
+            if input(b"UDP " + bytearray(data)) == "y":
+                open(f"udp/{sessionuid}/{proxyfileindex}" if not USE_COMBINED_FOLDER else f"combined/udp{proxyfileindex}", "wb").write(data)
+        else:
+            if LOG_UDP_PACKETS:
+                print(f"UDP {hexdump.hexdump(data, result='return')}")
+            if data[2] == 0x01:
+                open(f"animatepacketsamples/{proxyfileindex}", "wb").write(data)
+                proxyfileindex += 1
         proxyfileindex += 1
 
         udp_thread = threading.Thread(target=forward_udp_to_jj2)
         udp_thread.start()
+
 
 def tcp_proxy():
     tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -70,13 +83,21 @@ def tcp_proxy():
 
             def forward_data(sock1, sock2):                
                 while True:
-                    global proxyfileindex
+                    global proxyfileindex, LOG_TCP_PACKETS, LOG_UDP_PACKETS
                     data: bytes = sock1.recv(BUFFER_SIZE)
                     if END_PROXY: break
 
-                    if sock1 is client_sock:
+                    if sock1 is client_sock and ASK_INPUT_TCP:
                         if input(b"TCP " + bytearray(data)) == "y":
                             open(f"tcp/{sessionuid}/{proxyfileindex}" if not USE_COMBINED_FOLDER else f"combined/tcp{proxyfileindex}", "wb").write(data)
+                    else:
+                        if LOG_TCP_PACKETS and sock1 is client_sock:
+                            print(f"TCP {hexdump.hexdump(data, result='return')}")
+                    if sock1 is jj2_sock:
+                         if data[1] == 0x49:
+                             print("Spotted newping packet!")
+                             LOG_TCP_PACKETS = True
+                             LOG_UDP_PACKETS = True
                     proxyfileindex += 1
                     
                     if not data:

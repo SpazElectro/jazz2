@@ -1,0 +1,17 @@
+#pragma name "livestream"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+}
+
+void onReceive(jjSTREAM &in packet, int clientID) {
+    uint8 type;
+    packet.pop(type);
+    jjConsole(""+type);
+}
