@@ -1,0 +1,65 @@
+#pragma name "Toggle old slope physics"
+
+bool stickyByDefault = false;
+bool suppressSlopeCommand = true;
+
+enum packetType { setSticky, getSticky };
+
+void setSlopeSticky(bool sticky) {
+    jjPlayersStickToSlopes = sticky;
+
+    jjSTREAM packet;
+    packet.push(uint8(setSticky));
+    packet.push(sticky);
+
+    jjSendPacket(packet, 0);
+
+    if (jjIsServer)
+        jjConsole("> Slope sticking is now " + (sticky ? "on" : "off") + "!", true);
+}
+
+void onLevelLoad() {
+    if (jjIsServer)
+        jjPlayersStickToSlopes = stickyByDefault;
+    else {
+        jjSTREAM packet;
+        packet.push(uint8(getSticky));
+        jjSendPacket(packet, 0);
+    }
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if (stringReceived == "!slope on") {
+        setSlopeSticky(true);
+
+        return suppressSlopeCommand;
+    }
+
+    if (stringReceived == "!slope off") {
+        setSlopeSticky(false);
+
+        return suppressSlopeCommand;
+    }
+
+    return false;
+}
+
+void onReceive(jjSTREAM &in packet, int clientID) {
+    uint8 type;
+
+    if (packet.pop(type)) {
+        if (type == setSticky) {
+            bool stick;
+            if (packet.pop(stick))
+                setSlopeSticky(stick);
+        } else if (jjIsServer && type == getSticky) {
+            jjSTREAM newPacket;
+            newPacket.push(uint8(setSticky));
+            newPacket.push(jjPlayersStickToSlopes);
+
+            jjSendPacket(newPacket, clientID);
+        }
+    } else {
+        jjConsole("> Failed to pop packet from client #" + (clientID + 1) + " (one-indexed)");
+    }
+}

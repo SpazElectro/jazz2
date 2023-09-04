@@ -130,26 +130,14 @@ namespace jj2livestream
             //wait for user to press ESC key
             while (true)
             {
-                // if (Console.ReadKey().Key == ConsoleKey.Escape)
-                // {
-                //     //Disconnect and release resources
-                //     jj2.Leave();
-                //     jj2.Dispose();
-                //     break;
-                // }
+                if (Console.ReadKey().Key == ConsoleKey.Escape)
+                {
+                    byte[] pixels = ConvertToByteArray(CaptureScreen());
+                    Console.WriteLine("Pixels grabbed!");
+                    
+                    jj2.SendJJ2PlusNetworkStream(pixels, 1);
+                }
 
-                // get all pixels onto the screen and put into an array and send thro jj2.sendpluspacketstream
-                // byte[] pixels = ConvertToByteArray(CaptureScreen());
-                byte[] testBytes = new byte[5];
-                testBytes[0] = 1;
-                testBytes[1] = 2;
-                testBytes[2] = 3;
-                testBytes[3] = 4;
-                testBytes[4] = 5;
-                
-                jj2.SendJJ2PlusNetworkStream(testBytes, 0);
-
-                System.Threading.Thread.Sleep(10000);
             }
         }
 
