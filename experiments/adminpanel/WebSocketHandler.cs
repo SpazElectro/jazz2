@@ -105,7 +105,7 @@ public class WebSocketHandler
                                     {
                                         if (client.State == WebSocketState.Open)
                                         {
-                                            await client.SendAsync(StringToArraySegment("User: " + ByteArrayToString(buffer)),
+                                            await client.SendAsync(StringToArraySegment("message:User: " + content),
                                                             WebSocketMessageType.Text, true, CancellationToken.None);
                                         }
                                     }
