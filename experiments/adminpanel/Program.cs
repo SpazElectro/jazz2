@@ -45,7 +45,5 @@ Thread serverThread = new Thread(() =>
 });
 
 serverThread.Start();
-
-// GameClient.joinGame("127.0.0.1", 10052);
-
+GameClient.joinGame("127.0.0.1", 10052, ws);
 app.Run();

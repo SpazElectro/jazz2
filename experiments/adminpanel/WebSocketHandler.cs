@@ -67,8 +67,6 @@ public class WebSocketHandler
             if (client.State == WebSocketState.Open)
             {
                 await delg(client);
-                // await client.SendAsync(msg,
-                //                 WebSocketMessageType.Text, true, CancellationToken.None);
             }
         }
     }
@@ -112,8 +110,23 @@ public class WebSocketHandler
                                 Console.WriteLine($"Type: {type}");
                                 Console.WriteLine($"Content: {content}");
 
-                                if (type == "message")
-                                    await Broadcast(async (client) => await client.SendAsync(StringToArraySegment("message:User: " + content), WebSocketMessageType.Text, true, CancellationToken.None));
+                                if (type == "message") {
+                                    if(content.StartsWith("/server ")) {
+                                        if(content == "/server players") {
+                                            var players = GameClient.getPlayers();
+                                            var finalString = "!";
+
+                                            foreach(var player in players) {
+                                                finalString += $" {player.Name} !";
+                                            }
+
+                                            await Broadcast(async (client) => {
+                                                await client.SendAsync(StringToArraySegment("message:" + finalString), WebSocketMessageType.Text, true, CancellationToken.None);
+                                            });
+                                        }
+                                    } else GameClient.client.SendMessage(content);
+                                }
+                                    // await Broadcast(async (client) => await client.SendAsync(StringToArraySegment("message:User: " + content), WebSocketMessageType.Text, true, CancellationToken.None));
                             }
                         }
                     }
