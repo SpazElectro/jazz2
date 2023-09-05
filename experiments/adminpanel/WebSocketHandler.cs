@@ -17,6 +17,36 @@ public class WebSocketHandler
         _httpListener.Prefixes.Add(url); // Define the URL where the WebSocket server will listen
     }
 
+    public static ArraySegment<byte> StringToArraySegment(string input)
+    {
+        byte[] byteArray = Encoding.UTF8.GetBytes(input);
+        return new ArraySegment<byte>(byteArray, 0, byteArray.Length);
+    }
+
+    public static string ArraySegmentToString(ArraySegment<byte> arraySegment)
+    {
+        byte[]? byteArray = arraySegment.Array;
+        int offset = arraySegment.Offset;
+        int count = arraySegment.Count;
+        
+        if (byteArray != null)
+        {
+            return Encoding.UTF8.GetString(byteArray, offset, count);
+        }
+        
+        return string.Empty;
+    }
+
+    public static string ByteArrayToString(byte[] byteArray)
+    {
+        if (byteArray != null)
+        {
+            return Encoding.UTF8.GetString(byteArray);
+        }
+
+        return string.Empty;
+    }
+
     public async Task Start()
     {
         _httpListener.Start();
@@ -75,8 +105,8 @@ public class WebSocketHandler
                                     {
                                         if (client.State == WebSocketState.Open)
                                         {
-                                            await client.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count),
-                                                                    WebSocketMessageType.Text, true, CancellationToken.None);
+                                            await client.SendAsync(StringToArraySegment("User: " + ByteArrayToString(buffer)),
+                                                            WebSocketMessageType.Text, true, CancellationToken.None);
                                         }
                                     }
                                 }
