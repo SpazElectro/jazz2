@@ -59,6 +59,20 @@ public class WebSocketHandler
         }
     }
 
+    public delegate Task BroadcastDelegate(WebSocket client);
+    public async Task Broadcast(BroadcastDelegate delg)
+    {
+        foreach (var client in _clients.Values)
+        {
+            if (client.State == WebSocketState.Open)
+            {
+                await delg(client);
+                // await client.SendAsync(msg,
+                //                 WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+        }
+    }
+
     private async Task HandleWebSocketAsync(HttpListenerContext context)
     {
         if (context.Request.IsWebSocketRequest)
@@ -99,17 +113,7 @@ public class WebSocketHandler
                                 Console.WriteLine($"Content: {content}");
 
                                 if (type == "message")
-                                {
-                                    // Broadcast the message to all connected clients
-                                    foreach (var client in _clients.Values)
-                                    {
-                                        if (client.State == WebSocketState.Open)
-                                        {
-                                            await client.SendAsync(StringToArraySegment("message:User: " + content),
-                                                            WebSocketMessageType.Text, true, CancellationToken.None);
-                                        }
-                                    }
-                                }
+                                    await Broadcast(async (client) => await client.SendAsync(StringToArraySegment("message:User: " + content), WebSocketMessageType.Text, true, CancellationToken.None));
                             }
                         }
                     }
