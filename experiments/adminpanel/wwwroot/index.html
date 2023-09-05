@@ -21,10 +21,10 @@
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
     <script>
-      const socket = new WebSocket("ws://reply-regression.gl.at.ply.gg:41314/"); // WebSocket server URL
+      const socket = new WebSocket("ws://127.0.0.1:1337/"); // WebSocket server URL
 
       socket.onopen = () => {
-          document.getElementById("message").textContent = "WebSocket Connection Established!";
+          console.log("WebSocket connection established!");
       };
 
       socket.onmessage = (event) => {
@@ -45,7 +45,7 @@
       };
 
       socket.onclose = () => {
-          document.getElementById("message").textContent = "WebSocket Connection Closed!";
+          console.log("WebSocket connection closed!");
       };
 
       var form = document.getElementById("form");
