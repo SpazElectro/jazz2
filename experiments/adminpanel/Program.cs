@@ -31,19 +31,25 @@ static string ServeFile(HttpContext context, string filePath, string contentType
 }
 
 
-app.MapGet("/", (HttpContext context) =>
-{
-    string s = ServeFile(context, "wwwroot/index.html", "text/html");
+// too lazy to make a file server
+app.MapGet("/", (HttpContext context) => {
+    return ServeFile(context, "wwwroot/index.html", "text/html");
+});
 
-    return s;
+app.MapGet("/script.js", (HttpContext context) => {
+    return ServeFile(context, "wwwroot/script.js", "text/javascript");
 });
 
 WebSocketHandler ws = new("http://127.0.0.1:1337/");
+GameClient gameClient = new(ws);
+
+ws.SetGameClient(gameClient);
+
 Thread serverThread = new Thread(() =>
 {
     ws.Start().Wait();
 });
 
 serverThread.Start();
-GameClient.joinGame("127.0.0.1", 10052, ws);
+gameClient.JoinGame("127.0.0.1", 10052);
 app.Run();

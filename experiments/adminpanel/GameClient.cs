@@ -1,27 +1,28 @@
 using System.Net.WebSockets;
 using JJ2ClientLib.JJ2;
 
-public static class GameClient {
-    public static JJ2Client client = new JJ2Client();
-    public static WebSocketHandler wsHandler = new WebSocketHandler("http://127.0.0.1:1/");
+public class GameClient {
+    public JJ2Client client = new JJ2Client();
+    public WebSocketHandler wsHandler;
 
-    public static void joinGame(string addr, ushort port, WebSocketHandler wsHandler) {
-        client.Console_Message_Recveived_Event += onConsoleMessageReceive;
-        client.Message_Received_Event += onMessageReceive;
-        client.Player_Joined_Event += onPlayerJoin;
-        client.Player_Left_Event += onPlayerLeft;
-
-        client.Level_Initialized_Event += onLevelInitialize;
-        client.Connected_Event += onConnect;
-        client.Disconnected_Event += onDisconnect;
-        client.Failed_To_Connect_Event += onConnectFail;
-
-        client.JoinServer(addr, null, "Admin", port);
+    public GameClient(WebSocketHandler wsHandler) {
+        client.Console_Message_Recveived_Event += OnConsoleMessageReceive;
+        client.Message_Received_Event += OnMessageReceive;
+        client.Player_Joined_Event += OnPlayerJoin;
+        client.Player_Left_Event += OnPlayerLeft;
+        client.Level_Initialized_Event += OnLevelInitialize;
+        client.Connected_Event += OnConnect;
+        client.Disconnected_Event += OnDisconnect;
+        client.Failed_To_Connect_Event += OnConnectFail;
         
-        GameClient.wsHandler = wsHandler;
+        this.wsHandler = wsHandler;
     }
 
-    public static List<JJ2Player> getPlayers() {
+    public void JoinGame(string addr, ushort port) {
+        client.JoinServer(addr, null, "Admin", port);
+    }
+
+    public List<JJ2Player> GetPlayers() {
         List<JJ2Player> players = new List<JJ2Player>();
 
         byte numOfPlayers = 0;
@@ -57,13 +58,19 @@ public static class GameClient {
 
     // jj2 connection events
 
-    public static void onConsoleMessageReceive(string msg, byte msgType, object user)
+    public void OnConsoleMessageReceive(string msg, byte msgType, object user)
     {
-        addTimeToString(ref msg);
-        logMessage(msg);
+        AddTimeToString(ref msg);
+        LogMessage(msg);
     }
 
-    public static void onMessageReceive(string msg, string playerName, byte team, byte playerID, byte playerSocketIndex, object user)
+    public void OnMessageReceive(
+        string msg,
+        string playerName,
+        byte team,
+        byte playerID,
+        byte playerSocketIndex,
+        object user)
     {
         if (team > 0)
         {
@@ -71,52 +78,51 @@ public static class GameClient {
         }
 
         string line = string.Format("{0}: {1}", playerName, msg);
-        addTimeToString(ref line);
+        AddTimeToString(ref line);
 
-        logMessage(line);
+        LogMessage(line);
     }
 
-    public static void onPlayerJoin(string playerName, byte playerID, byte socketIndex, byte character, byte team, object user)
+    public void OnPlayerJoin(
+        string playerName,
+        byte playerID,
+        byte socketIndex,
+        byte character,
+        byte team,
+        object user)
     {
         string line = string.Format("{0} has joined the game", playerName);
-        addTimeToString(ref line);
+        AddTimeToString(ref line);
 
-        logMessage(line);
+        LogMessage(line);
     }
 
-    public static void onPlayerLeft(string playerName, JJ2_Disconnect_Message disconnectMessage, byte playerID, byte socketIndex, object user)
+    public void OnPlayerLeft(string playerName,
+        JJ2_Disconnect_Message disconnectMessage,
+        byte playerID,
+        byte socketIndex,
+        object user)
     {
         string line = string.Format("{0} has left the game", playerName);
-        addTimeToString(ref line);
+        AddTimeToString(ref line);
 
-        logMessage(line);
+        LogMessage(line);
     }
 
-    public static void onLevelInitialize(string levelName, string yourName, byte yourID, byte yourSocketIndex, object user) {
-        logMessage(string.Format("* * * Level begin [{0}] at [{1}]", levelName, DateTime.Now.ToString()));
-    }
-
-    public static void onConnect(string serverIPAddrees, string serverAddress, ushort serverPort, object user) {
-        logMessage(string.Format("* * * Connected to [{0}:{1}]", serverAddress, serverPort.ToString()));
-    }
-
-    public static void onDisconnect(JJ2_Disconnect_Message disconnectMessage, string serverIPAddrees, string serverAddress, ushort serverPort, object user) {
-        logMessage(string.Format("* * * Disconnected from [{0}:{1}] at [{2}] with reason [{3}]", serverAddress, serverPort.ToString(), DateTime.Now.ToString(), disconnectMessage.ToString()));
-    }
-
-    public static void onConnectFail(string serverAddress, ushort serverPort, object user) {
-        logMessage(string.Format("* * * Unable to connect to [{0}:{1}] ", serverAddress, serverPort.ToString()));
-    }
+    public void OnLevelInitialize(string levelName, string yourName, byte yourID, byte yourSocketIndex, object user) => LogMessage(string.Format("* * * Level begin [{0}] at [{1}]", levelName, DateTime.Now.ToString()));
+    public void OnConnect(string serverIPAddrees, string serverAddress, ushort serverPort, object user) => LogMessage(string.Format("* * * Connected to [{0}:{1}]", serverAddress, serverPort.ToString()));
+    public void OnDisconnect(JJ2_Disconnect_Message disconnectMessage, string serverIPAddrees, string serverAddress, ushort serverPort, object user) => LogMessage(string.Format("* * * Disconnected from [{0}:{1}] at [{2}] with reason [{3}]", serverAddress, serverPort.ToString(), DateTime.Now.ToString(), disconnectMessage.ToString()));
+    public void OnConnectFail(string serverAddress, ushort serverPort, object user) => LogMessage(string.Format("* * * Unable to connect to [{0}:{1}] ", serverAddress, serverPort.ToString()));
 
     // util
-    public static void logMessage(string msg) {
+    public void LogMessage(string msg) {
         Console.WriteLine(msg);
         wsHandler.Broadcast(async (client) => {
              await client.SendAsync(WebSocketHandler.StringToArraySegment("message: " + msg), WebSocketMessageType.Text, true, CancellationToken.None);
         }).Wait();
     }
 
-    public static void addTimeToString(ref string s)
+    public static void AddTimeToString(ref string s)
     {
         DateTime d = DateTime.Now;
         s = string.Format("[{0}:{1}:{2}] {3}", d.Hour.ToString("00"), d.Minute.ToString("00"), d.Second.ToString("00"), s);

@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 public class WebSocketHandler
 {
-    private readonly HttpListener _httpListener;
-    private readonly ConcurrentDictionary<string, WebSocket> _clients = new ConcurrentDictionary<string, WebSocket>();
+    public HttpListener _httpListener;
+    public ConcurrentDictionary<string, WebSocket> _clients = new ConcurrentDictionary<string, WebSocket>();
+    public GameClient? gameClient;
 
     public WebSocketHandler(string url)
     {
@@ -47,10 +48,19 @@ public class WebSocketHandler
         return string.Empty;
     }
 
+    public void SetGameClient(GameClient client) {
+        gameClient = client;
+    }
+
     public async Task Start()
     {
         _httpListener.Start();
         Console.WriteLine("WebSocket server is running...");
+
+        if(gameClient == null) {
+            Console.WriteLine("[ERROR] WebSocketHandler.gameClient is null! Make sure to use SetGameClient!");
+            return;
+        }
 
         while (true)
         {
@@ -73,6 +83,7 @@ public class WebSocketHandler
 
     private async Task HandleWebSocketAsync(HttpListenerContext context)
     {
+        if(gameClient == null) return;
         if (context.Request.IsWebSocketRequest)
         {
             HttpListenerWebSocketContext webSocketContext = await context.AcceptWebSocketAsync(null);
@@ -113,7 +124,7 @@ public class WebSocketHandler
                                 if (type == "message") {
                                     if(content.StartsWith("/server ")) {
                                         if(content == "/server players") {
-                                            var players = GameClient.getPlayers();
+                                            var players = gameClient.GetPlayers();
                                             var finalString = "!";
 
                                             foreach(var player in players) {
@@ -124,7 +135,7 @@ public class WebSocketHandler
                                                 await client.SendAsync(StringToArraySegment("message:" + finalString), WebSocketMessageType.Text, true, CancellationToken.None);
                                             });
                                         }
-                                    } else GameClient.client.SendMessage(content);
+                                    } else gameClient.client.SendMessage(content);
                                 }
                                     // await Broadcast(async (client) => await client.SendAsync(StringToArraySegment("message:User: " + content), WebSocketMessageType.Text, true, CancellationToken.None));
                             }

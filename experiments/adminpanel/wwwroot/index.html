@@ -13,6 +13,10 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages > li { padding: 0.5rem 1rem; }
       #messages > li:nth-child(odd) { background: #efefef; }
+
+      #player-list li img {
+        margin-bottom: -25px;
+      }
     </style>
   </head>
   <body>
@@ -20,57 +24,14 @@
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
-    <script>
-      const socket = new WebSocket("ws://127.0.0.1:1337/"); // WebSocket server URL
 
-      socket.onopen = () => {
-          console.log("WebSocket connection established!");
-      };
-
-      socket.onmessage = (event) => {
-        const message = event.data;
-
-        const type = message.slice(0, message.indexOf(':')).trim();
-        const content = message.slice(message.indexOf(':') + 1).trim();
-
-        console.log(`Type: ${type}`);
-        console.log(`Content: ${content}`);
+    <div style="position: fixed; top: 0; right: 0; padding: 1rem;">
+      <h2>Player List</h2>
+      <ul id="player-list">
         
-        if(type == "message") {
-            var item = document.createElement("li");
-            item.textContent = content;
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-      };
-
-      socket.onclose = () => {
-          console.log("WebSocket connection closed!");
-      };
-
-      var form = document.getElementById("form");
-      var input = document.getElementById("input");
-
-      function getCurrentFormattedTime() {
-          const d = new Date();
-          const formattedTime = `[${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}]`;
-          return formattedTime;
-      }
-
-      form.addEventListener("submit", function(e) {
-          e.preventDefault();
-
-          if (input.value) {
-              // prediction
-              var item = document.createElement("li");
-              item.textContent = `${getCurrentFormattedTime()} Admin: ${input.value}`;
-              messages.appendChild(item);
-              window.scrollTo(0, document.body.scrollHeight);
-
-              socket.send("message:" + input.value);
-              input.value = "";
-          }
-      });
-    </script>
+      </ul>
+    </div>
+    
+    <script src="script.js"></script>
   </body>
 </html>
