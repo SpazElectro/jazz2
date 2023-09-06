@@ -1,5 +1,7 @@
 using System.Net.WebSockets;
+using Newtonsoft.Json;
 using JJ2ClientLib.JJ2;
+using Newtonsoft.Json.Linq;
 
 public class GameClient {
     public JJ2Client client = new JJ2Client();
@@ -47,7 +49,11 @@ public class GameClient {
             JJ2Player player = new JJ2Player(sock, playersChar[sock], playersTeam[sock], new JJ2SocketInfo())
             {
                 Name = playersNames[sock],
-                ClientID = playersIDs[sock]
+                ClientID = playersIDs[sock],
+                Team = playersTeam[sock], // dunno if this works
+                Roasts = client.Players[sock].Roasts,
+                Deaths = client.Players[sock].Deaths,
+                Color =  client.Players[sock].Color
             };
 
             players.Add(player);
@@ -95,6 +101,7 @@ public class GameClient {
         AddTimeToString(ref line);
 
         LogMessage(line);
+        sendPlayers();
     }
 
     public void OnPlayerLeft(string playerName,
@@ -107,10 +114,16 @@ public class GameClient {
         AddTimeToString(ref line);
 
         LogMessage(line);
+        sendPlayers();
     }
 
     public void OnLevelInitialize(string levelName, string yourName, byte yourID, byte yourSocketIndex, object user) => LogMessage(string.Format("* * * Level begin [{0}] at [{1}]", levelName, DateTime.Now.ToString()));
-    public void OnConnect(string serverIPAddrees, string serverAddress, ushort serverPort, object user) => LogMessage(string.Format("* * * Connected to [{0}:{1}]", serverAddress, serverPort.ToString()));
+    public void OnConnect(string serverIPAddrees, string serverAddress, ushort serverPort, object user) {
+        LogMessage(string.Format("* * * Connected to [{0}:{1}]", serverAddress, serverPort.ToString()));
+
+        sendPlayers();
+    }
+
     public void OnDisconnect(JJ2_Disconnect_Message disconnectMessage, string serverIPAddrees, string serverAddress, ushort serverPort, object user) => LogMessage(string.Format("* * * Disconnected from [{0}:{1}] at [{2}] with reason [{3}]", serverAddress, serverPort.ToString(), DateTime.Now.ToString(), disconnectMessage.ToString()));
     public void OnConnectFail(string serverAddress, ushort serverPort, object user) => LogMessage(string.Format("* * * Unable to connect to [{0}:{1}] ", serverAddress, serverPort.ToString()));
 
@@ -127,4 +140,26 @@ public class GameClient {
         DateTime d = DateTime.Now;
         s = string.Format("[{0}:{1}:{2}] {3}", d.Hour.ToString("00"), d.Minute.ToString("00"), d.Second.ToString("00"), s);
     }
+
+    public void sendPlayers() {
+        List<JJ2Player> players = GetPlayers();
+        JArray playersArray = new JArray();
+
+        foreach (JJ2Player player in players) {
+            playersArray.Add(new JObject(
+                new JProperty("name", player.Name),
+                new JProperty("character", player.Character == JJ2_Character.JAZZ ? "jazz" : (player.Character == JJ2_Character.SPAZ ? "spaz" : (player.Character == JJ2_Character.LORI ? "lori" : ("UNKNOWN_" + player.Character.ToString())))),
+                new JProperty("fur", new JArray(player.Color)), // Wrap player.Color in a JArray
+                new JProperty("sockId", player.ClientID),
+                new JProperty("roasts", player.Roasts),
+                new JProperty("deaths", player.Deaths),
+                new JProperty("team", player.Team)
+            ));
+        }
+
+        wsHandler.Broadcast(async (x) => {
+            await x.SendAsync(WebSocketHandler.StringToArraySegment("players:" + playersArray.ToString(Formatting.None)), WebSocketMessageType.Text, true, CancellationToken.None);
+        }).Wait();
+    }
+
 }

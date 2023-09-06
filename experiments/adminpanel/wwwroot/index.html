@@ -14,23 +14,54 @@
       #messages > li { padding: 0.5rem 1rem; }
       #messages > li:nth-child(odd) { background: #efefef; }
 
-      #player-list li img {
-        margin-bottom: -25px;
+      #player-list li img { transform: scaleX(-1); margin-bottom: -25px; padding: 4px; }
+
+      #status-indicator {
+        position: fixed;
+        top: 5px;
+        right: 5px; /* Adjusted to top-right corner */
+        width: 20px;
+        height: 20px;
+        background-color: limegreen;
+        border-radius: 50%;
+        text-align: center; /* Center text horizontally */
+        line-height: 20px; /* Center text vertically */
+        font-weight: bold; /* Optional: Make the text bold */
+      }
+      
+      #player-list-container {
+        position: fixed;
+        top: 15px;
+        right: 5px; /* Adjusted to top-right corner */
+        padding: 0;
+      }
+
+      #player-list {
+        position: relative;
+        top: -20px;
+      }
+
+      #player-list li {
+        position: relative;
+        left: 20px;
+        padding: 1px;
+        list-style-type: none;
       }
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
-
-    <div style="position: fixed; top: 0; right: 0; padding: 1rem;">
-      <h2>Player List</h2>
+    <div id="player-list-container">
       <ul id="player-list">
         
       </ul>
     </div>
+
+    <div id="status-indicator" alt="Status"></div>
+
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
     
     <script src="script.js"></script>
   </body>

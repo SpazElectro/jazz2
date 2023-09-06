@@ -136,8 +136,11 @@ public class WebSocketHandler
                                             });
                                         }
                                     } else gameClient.client.SendMessage(content);
+                                } else if(type == "request") {
+                                    if(content == "players") {
+                                        gameClient.sendPlayers();
+                                    }
                                 }
-                                    // await Broadcast(async (client) => await client.SendAsync(StringToArraySegment("message:User: " + content), WebSocketMessageType.Text, true, CancellationToken.None));
                             }
                         }
                     }
