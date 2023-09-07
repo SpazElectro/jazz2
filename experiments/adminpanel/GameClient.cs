@@ -7,7 +7,15 @@ public class GameClient {
     public JJ2Client client = new JJ2Client();
     public WebSocketHandler wsHandler;
 
+    public string _addr = "";
+    public ushort _port = 0;
+
     public GameClient(WebSocketHandler wsHandler) {
+        RegisterJJ2Events();
+        this.wsHandler = wsHandler;
+    }
+
+    public void RegisterJJ2Events() {
         client.Console_Message_Recveived_Event += OnConsoleMessageReceive;
         client.Message_Received_Event += OnMessageReceive;
         client.Player_Joined_Event += OnPlayerJoin;
@@ -16,12 +24,19 @@ public class GameClient {
         client.Connected_Event += OnConnect;
         client.Disconnected_Event += OnDisconnect;
         client.Failed_To_Connect_Event += OnConnectFail;
-        
-        this.wsHandler = wsHandler;
     }
 
     public void JoinGame(string addr, ushort port) {
+        _addr = addr;
+        _port = port;
+
         client.JoinServer(addr, null, "Admin", port);
+    }
+
+    public void RejoinLastGame() {
+        if(_addr != "" && _port != 0)
+            client.JoinServer(_addr, null, "Admin", _port);
+        else Console.WriteLine("Tried to GameClient.RejoinLastGame while there wasn't any previous connection!");
     }
 
     public List<JJ2Player> GetPlayers() {
@@ -101,7 +116,7 @@ public class GameClient {
         AddTimeToString(ref line);
 
         LogMessage(line);
-        sendPlayers();
+        SendPlayers();
     }
 
     public void OnPlayerLeft(string playerName,
@@ -114,14 +129,14 @@ public class GameClient {
         AddTimeToString(ref line);
 
         LogMessage(line);
-        sendPlayers();
+        SendPlayers();
     }
 
     public void OnLevelInitialize(string levelName, string yourName, byte yourID, byte yourSocketIndex, object user) => LogMessage(string.Format("* * * Level begin [{0}] at [{1}]", levelName, DateTime.Now.ToString()));
     public void OnConnect(string serverIPAddrees, string serverAddress, ushort serverPort, object user) {
         LogMessage(string.Format("* * * Connected to [{0}:{1}]", serverAddress, serverPort.ToString()));
 
-        sendPlayers();
+        SendPlayers();
     }
 
     public void OnDisconnect(JJ2_Disconnect_Message disconnectMessage, string serverIPAddrees, string serverAddress, ushort serverPort, object user) => LogMessage(string.Format("* * * Disconnected from [{0}:{1}] at [{2}] with reason [{3}]", serverAddress, serverPort.ToString(), DateTime.Now.ToString(), disconnectMessage.ToString()));
@@ -141,7 +156,7 @@ public class GameClient {
         s = string.Format("[{0}:{1}:{2}] {3}", d.Hour.ToString("00"), d.Minute.ToString("00"), d.Second.ToString("00"), s);
     }
 
-    public void sendPlayers() {
+    public void SendPlayers() {
         List<JJ2Player> players = GetPlayers();
         JArray playersArray = new JArray();
 

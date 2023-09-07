@@ -40,6 +40,10 @@ app.MapGet("/script.js", (HttpContext context) => {
     return ServeFile(context, "wwwroot/script.js", "text/javascript");
 });
 
+app.MapGet("/font.ttf", (HttpContext context) => {
+    return ServeFile(context, "wwwroot/font.ttf", "font/ttf");
+});
+
 WebSocketHandler ws = new("http://127.0.0.1:1337/");
 GameClient gameClient = new(ws);
 

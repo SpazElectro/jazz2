@@ -14,10 +14,18 @@ function getCurrentFormattedTime() {
 function addNewPlayer(furA, furB, furC, furD, char, name) {
     let li = document.createElement("li");
     let img = document.createElement("img");
-    img.src = `https://jazzjackrabbit.net/fur/fur.php?a=${furA}&b=${furB}&c=${furC}&d=${furD}&char=${char}&frame=3`;
-    li.appendChild(document.createTextNode(name));
+    img.src = `https://jj2multiplayer.online/fur/?a=${furA}&b=${furB}&c=${furC}&d=${furD}&char=${char}&frame=3`;
+    
+    let span = document.createElement("span")
+    span.innerText = name
+
     li.appendChild(img);
+    li.appendChild(span);
     document.getElementById("player-list").appendChild(li);
+}
+
+function removeAllPlayers() {
+    document.getElementById("player-list").innerHTML = "";
 }
 
 function assemblePacket(type, content) {
@@ -33,7 +41,14 @@ function disassemblePacket(message) {
 
 function addMessage(content, includeFormattedTime) {
     var item = document.createElement("li");
-    item.textContent = `${includeFormattedTime ? (getCurrentFormattedTime() + " ") : ""}${content}`;
+    content = `${includeFormattedTime ? (getCurrentFormattedTime() + " ") : ""}${content}`;
+    let imgurl = "https://www.jazz2online.com/media/generate_small.php?s=" + content;
+    // item.textContent = content;
+    let img = document.createElement("img");
+    // img.style = "position: fixed;"
+    img.src = imgurl;
+
+    item.appendChild(img)
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
 }
@@ -53,9 +68,14 @@ socket.onmessage = (event) => {
     if (type == "message") {
         addMessage(content, false);
     } else if (type == "players") {
+        removeAllPlayers();
         console.log(content);
         players = JSON.parse(content);
         console.log(players);
+        players.forEach(player => {
+            let fur = atob(player.fur); // 4 bytes
+            addNewPlayer(fur.charCodeAt(0), fur.charCodeAt(1), fur.charCodeAt(2), fur.charCodeAt(3), player.character, player.name);
+        });
     } else {
         console.warn(`Unknown packet with type \`${type}\` and with content \`${content}\`, full packet: \`${message}\``);
     }
@@ -78,13 +98,13 @@ form.addEventListener("submit", function (e) {
     }
 });
 
-for (let index = 0; index < 5; index++) {
-    addNewPlayer(Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), "jazz", "test")
-}
-for (let index = 0; index < 5; index++) {
-    addNewPlayer(Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), "spaz", "test2")
-}
-for (let index = 0; index < 5; index++) {
-    addNewPlayer(Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), "lori", "test3")
-}
+// for (let index = 0; index < 5; index++) {
+//     addNewPlayer(Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), "jazz", "test")
+// }
+// for (let index = 0; index < 5; index++) {
+//     addNewPlayer(Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), "spaz", "test2")
+// }
+// for (let index = 0; index < 5; index++) {
+//     addNewPlayer(Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), Math.round(Math.random() * 127), "lori", "test3")
+// }
 

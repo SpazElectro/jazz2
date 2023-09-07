@@ -1,68 +1,122 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    <head>
+        <title>Socket.IO chat</title>
+        <style>
+            @font-face {
+                font-family: 'Jazz Jackrabbit 2';
+                src: url(/font.ttf) format('ttf');
+            }
 
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+            body {
+                margin: 0;
+                padding-bottom: 3rem;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Helvetica, Arial, sans-serif;
+            }
 
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
+            #form {
+                background: rgba(0, 0, 0, 0.15);
+                padding: 0.25rem;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                height: 3rem;
+                box-sizing: border-box;
+                backdrop-filter: blur(10px);
+            }
+            #input {
+                border: none;
+                padding: 0 1rem;
+                flex-grow: 1;
+                border-radius: 2rem;
+                margin: 0.25rem;
+            }
+            #input:focus {
+                outline: none;
+            }
+            #form > button {
+                background: #333;
+                border: none;
+                padding: 0 1rem;
+                margin: 0.25rem;
+                border-radius: 3px;
+                outline: none;
+                color: #fff;
+            }
 
-      #player-list li img { transform: scaleX(-1); margin-bottom: -25px; padding: 4px; }
+            #messages {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+            }
+            #messages > li {
+                padding: 0.5rem 1rem;
+                font-family: 'Jazz Jackrabbit 2';
+            }
+            #messages > li:nth-child(odd) {
+                background: #efefef;
+            }
 
-      #status-indicator {
-        position: fixed;
-        top: 5px;
-        right: 5px; /* Adjusted to top-right corner */
-        width: 20px;
-        height: 20px;
-        background-color: limegreen;
-        border-radius: 50%;
-        text-align: center; /* Center text horizontally */
-        line-height: 20px; /* Center text vertically */
-        font-weight: bold; /* Optional: Make the text bold */
-      }
-      
-      #player-list-container {
-        position: fixed;
-        top: 15px;
-        right: 5px; /* Adjusted to top-right corner */
-        padding: 0;
-      }
+            #player-list li img {
+                margin-bottom: -25px;
+                padding: 4px;
+                position: fixed;
+                right: 140px;
+            }
 
-      #player-list {
-        position: relative;
-        top: -20px;
-      }
+            #status-indicator {
+                position: fixed;
+                top: 5px;
+                right: 5px; /* Adjusted to top-right corner */
+                width: 20px;
+                height: 20px;
+                background-color: limegreen;
+                border-radius: 50%;
+                text-align: center; /* Center text horizontally */
+                line-height: 20px; /* Center text vertically */
+                font-weight: bold; /* Optional: Make the text bold */
+            }
 
-      #player-list li {
-        position: relative;
-        left: 20px;
-        padding: 1px;
-        list-style-type: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="player-list-container">
-      <ul id="player-list">
-        
-      </ul>
-    </div>
+            #player-list-container {
+                position: fixed;
+                top: 15px;
+                right: 5px; /* Adjusted to top-right corner */
+                padding: 0;
+            }
 
-    <div id="status-indicator" alt="Status"></div>
+            #player-list {
+                position: relative;
+                top: -20px;
+            }
 
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
-    
-    <script src="script.js"></script>
-  </body>
+            #player-list li {
+                position: relative;
+                padding: 15px;
+                list-style-type: none;
+            }
+
+            #player-list li span {
+                position: relative;
+                left: -15px;
+                top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="player-list-container">
+            <ul id="player-list"></ul>
+        </div>
+
+        <div id="status-indicator" alt="Status"></div>
+
+        <ul id="messages"></ul>
+        <form id="form" action="">
+            <input id="input" autocomplete="off" /><button>Send</button>
+        </form>
+
+        <script src="script.js"></script>
+    </body>
 </html>

@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using JJ2ClientLib.JJ2;
 
 public class WebSocketHandler
 {
@@ -108,7 +109,6 @@ public class WebSocketHandler
                         if (result.MessageType == WebSocketMessageType.Text)
                         {
                             string receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                            Console.WriteLine($"Received from client {clientId}: {receivedMessage}");
 
                             // Find the first occurrence of ":"
                             int firstIndex = receivedMessage.IndexOf(':');
@@ -118,27 +118,22 @@ public class WebSocketHandler
                                 string type = receivedMessage.Substring(0, firstIndex).Trim();
                                 string content = receivedMessage.Substring(firstIndex + 1).Trim();
 
-                                Console.WriteLine($"Type: {type}");
-                                Console.WriteLine($"Content: {content}");
-
                                 if (type == "message") {
-                                    if(content.StartsWith("/server ")) {
-                                        if(content == "/server players") {
-                                            var players = gameClient.GetPlayers();
-                                            var finalString = "!";
-
-                                            foreach(var player in players) {
-                                                finalString += $" {player.Name} !";
-                                            }
-
-                                            await Broadcast(async (client) => {
-                                                await client.SendAsync(StringToArraySegment("message:" + finalString), WebSocketMessageType.Text, true, CancellationToken.None);
-                                            });
+                                    if(content.StartsWith("/actions ")) {
+                                        if(content == "/actions rejoin") {
+                                            gameClient.client.Leave();
+                                            gameClient.client = new JJ2Client();
+                                            gameClient.RegisterJJ2Events();
+                                            gameClient.RejoinLastGame();
+                                        } else if(content == "/actions disconnect") {
+                                            gameClient.client.Leave();
+                                            gameClient.client = new JJ2Client();
+                                            gameClient.RegisterJJ2Events();
                                         }
                                     } else gameClient.client.SendMessage(content);
                                 } else if(type == "request") {
                                     if(content == "players") {
-                                        gameClient.sendPlayers();
+                                        gameClient.SendPlayers();
                                     }
                                 }
                             }
