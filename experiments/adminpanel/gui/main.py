@@ -4,7 +4,7 @@ import flet as ft
 import general
 import threading
 
-gpage = None
+gpage: ft.Page
 
 def onmessage(content):
     if gpage.route == "/chat":
@@ -19,11 +19,10 @@ if __name__ == "__main__":
     from views import players
     from views import index
 
-    threading.Thread(target=general.websocket_loop, args=(onmessage, onplayers)).start()
-
     def main(page: ft.Page):
         global gpage
         gpage = page
+        threading.Thread(target=general.websocket_loop, args=(onmessage, onplayers, page)).start()
 
         app_routes = [
             path(url="/", clear=False, view=index.IndexView),
