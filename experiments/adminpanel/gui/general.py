@@ -12,7 +12,7 @@ def disassemble_packet(message):
     else:
         return None
     
-connection = None
+connection: wsc.ClientConnection
 def websocket_loop(msgcallback, playercallback):
     global connection
     connection = wsc.connect("ws://localhost:1337")
@@ -20,7 +20,7 @@ def websocket_loop(msgcallback, playercallback):
 
     while True:
         data = connection.recv()
-        ctype, content = disassemble_packet(data)
+        ctype, content = disassemble_packet(data) # type: ignore
         
         print(f"Packet type: {ctype}")
         print(f"Packet content: {content}")

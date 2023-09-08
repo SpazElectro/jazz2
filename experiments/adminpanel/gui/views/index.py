@@ -2,6 +2,8 @@ import flet as ft
 from flet_route import Params, Basket
 
 def IndexView(page: ft.Page, params: Params, basket: Basket):
+    # TODO: disable when not connected yet
+    
     return ft.View(
         "/",
         controls=[

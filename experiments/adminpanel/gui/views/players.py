@@ -3,11 +3,11 @@ from flet_route import Params, Basket
 from general import websocket_send, assemble_packet
 import json, base64
 
-gpage = None
-playersList = None
+gpage: ft.Page
+playersList: ft.ListView
 
 class Player(ft.Row):
-    def __init__(self, name: str, char: str, fur: str, roasts: int, deaths: int, team: int):
+    def __init__(self, name: str, char: str, fur: bytes, roasts: int, deaths: int, team: int):
         super().__init__()
 
         self.name = name
@@ -19,11 +19,15 @@ class Player(ft.Row):
         furC = fur[2]
         furD = fur[3]
 
-        self.vertical_alignment = "start"
+        self.vertical_alignment = "start" # type: ignore
         self.controls = [
             ft.Row([
                 ft.Image(src=f"https://jj2multiplayer.online/fur/?a={furA}&b={furB}&c={furC}&d={furD}&char={char}&frame=3"),
-                ft.Text(name, selectable=True),
+                ft.Text(name),
+                ft.Text(value=f"{roasts} roasts", text_align=ft.TextAlign.RIGHT),
+                ft.Text(value=f"{deaths} deaths", text_align=ft.TextAlign.RIGHT),
+                # TODO: green and yellow
+                ft.Text(value=f"{'red' if team == 1 else 'blue'} team", text_align=ft.TextAlign.RIGHT),
             ], tight=True, spacing=5)
         ]
 
@@ -31,6 +35,7 @@ import hexdump
 def on_player(content):
     global playersList, gpage
     players = json.loads(content)
+    playersList.controls = []
 
     for data in players:
         print(json.dumps(data, indent=2))
@@ -46,7 +51,7 @@ def PlayersView(page: ft.Page, params: Params, basket: Basket):
     websocket_send(assemble_packet("request", "players"))
 
     return ft.View("/players", [
-        ft.AppBar(leading=ft.Icon(ft.icons.PALETTE),
+        ft.AppBar(leading=ft.Icon(ft.icons.LIST_ROUNDED),
             leading_width=40,
             title=ft.Text("Player list"),
             center_title=False,
