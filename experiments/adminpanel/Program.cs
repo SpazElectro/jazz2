@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Http;
+using System;
 using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +33,6 @@ static string ServeFile(HttpContext context, string filePath, string contentType
     }
 }
 
-
 // too lazy to make a file server
 app.MapGet("/", (HttpContext context) => {
     return ServeFile(context, "wwwroot/index.html", "text/html");
@@ -38,10 +40,6 @@ app.MapGet("/", (HttpContext context) => {
 
 app.MapGet("/script.js", (HttpContext context) => {
     return ServeFile(context, "wwwroot/script.js", "text/javascript");
-});
-
-app.MapGet("/font.ttf", (HttpContext context) => {
-    return ServeFile(context, "wwwroot/font.ttf", "font/ttf");
 });
 
 WebSocketHandler ws = new("http://127.0.0.1:1337/");

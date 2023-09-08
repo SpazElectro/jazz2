@@ -42,13 +42,10 @@ function disassemblePacket(message) {
 function addMessage(content, includeFormattedTime) {
     var item = document.createElement("li");
     content = `${includeFormattedTime ? (getCurrentFormattedTime() + " ") : ""}${content}`;
-    let imgurl = "https://www.jazz2online.com/media/generate_small.php?s=" + content;
-    // item.textContent = content;
-    let img = document.createElement("img");
-    // img.style = "position: fixed;"
-    img.src = imgurl;
+    item.textContent = content;
+    // let imgurl = "https://www.jazz2online.com/media/generate_small.php?s=" + content;
 
-    item.appendChild(img)
+    // item.appendChild(img)
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
 }
