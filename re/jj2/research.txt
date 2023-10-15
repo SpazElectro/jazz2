@@ -1,1 +1,5 @@
 minefield of info about language/text is at 005F4940
+
+(*(&dword_62C040 + (dword_62BDD0 - 44)) & 0xF) == RandFac(15);
+(*(&RandFacA + (RandFacB - 44)) & 0xF)         == RandFac(15);
+0xF == 15

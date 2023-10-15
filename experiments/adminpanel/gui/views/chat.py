@@ -68,6 +68,19 @@ def ChatView(page: ft.Page, params: Params, basket: Basket):
 
     # Add everything to the page
     return ft.View("/chat", [
+        ft.AppBar(leading=ft.Icon(ft.icons.LIST_ROUNDED),
+            leading_width=40,
+            title=ft.Text("Chat"),
+            center_title=False,
+            bgcolor=ft.colors.SURFACE_VARIANT,
+            actions=[
+                ft.IconButton(
+                    icon=ft.icons.EXIT_TO_APP_ROUNDED,
+                    tooltip="Exit",
+                    on_click=lambda _: page.go("/"),
+                ),
+            ],
+        ),
         ft.Container(
             content=chat,
             border=ft.border.all(1, ft.colors.OUTLINE),
@@ -77,11 +90,6 @@ def ChatView(page: ft.Page, params: Params, basket: Basket):
         ),
         ft.Row(
             [
-                ft.IconButton(
-                    icon=ft.icons.EXIT_TO_APP_ROUNDED,
-                    tooltip="Exit",
-                    on_click=lambda _: page.go("/"),
-                ),
                 new_message,
                 ft.IconButton(
                     icon=ft.icons.SEND_ROUNDED,
