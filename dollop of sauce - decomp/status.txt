@@ -1,0 +1,11 @@
+g_ai.c          - much not found
+g_aibird.c      - much not found
+g_aibullets.c   - TraceLine missing
+g_aisetup.c     - SetupEnemies, SetupEnemies2, InitObjects not finished
+g_boxes.c       - finished
+g_bullet.c      - LaserCollision missing
+g_collision.c   - BCheckHline, CheckHBlock not found, PutObjectOnGround not finished
+g_hit.c         - HitObject not finished
+g_objects.c     - KillObject not found
+g_playercoll.c  - A LOT NOT FOUND OR NOT FINISHED HELP
+
