@@ -9,3 +9,4 @@ g_hit.c         - HitObject not finished
 g_objects.c     - KillObject not found
 g_playercoll.c  - A LOT NOT FOUND OR NOT FINISHED HELP
 
+// todo: g_aisetup.c SetupBullets put the names please
