@@ -1,10 +1,9 @@
 #pragma name "spacecounter"
 #pragma require "STVutil.asc"
 
-#include "STVutil.asc"
-
+#include "scripts\STVutil.asc"
 // for intellisense
-#include "../../scripts/STVutil.asc"
+// #include "../../scripts/STVutil.asc"
 
 // this is such an epic thing // gaming
 int counter = 0;
@@ -19,6 +18,9 @@ void onLevelBegin() {
             counter = 0;
         }
     });
+    
+    
+    
 }
 
 void onMain() {

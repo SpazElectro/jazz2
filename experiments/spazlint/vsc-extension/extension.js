@@ -1,5 +1,5 @@
-let { execFile } = require("child_process");
-let { writeFile } = require("fs");
+// let { execFile } = require("child_process");
+let { writeFile, readFileSync, existsSync } = require("fs");
 let { promisify } = require("util");
 let vscode = require("vscode");
 let net = require("net");
@@ -11,7 +11,22 @@ var client = new net.Socket();
 
 let connectedToServer = false;
 let dontReconnect = false;
-let pythonChildProcess = null;
+
+// let pythonChildProcess = null;
+
+function stripText(inputString) {
+    let startIndex = 0;
+    while (startIndex < inputString.length && inputString[startIndex].trim() === "") {
+        startIndex++;
+    }
+
+    let endIndex = inputString.length - 1;
+    while (endIndex >= 0 && inputString[endIndex].trim() === "") {
+        endIndex--;
+    }
+
+    return inputString.substring(startIndex, endIndex + 1);
+}
 
 function reconnectToServer(attempt = 0) {
     client.connect(serverPort, serverAddress, () => {
@@ -43,7 +58,7 @@ function reconnectToServer(attempt = 0) {
 
             // pythonChildProcess = execFile(
             //     "python",
-            //     [process.env["SPAZLINT_DIR"] + "\\main.py"],
+            //     [vscode.workspace.getConfiguration("spazlint").get("linterdir") + "\\main.py"],
             //     (error, stdout, stderr) => {
             //         if (error) {
             //             // this is when the process gets killed
@@ -84,15 +99,15 @@ function reconnectToServer(attempt = 0) {
 function stopServer() {
     client.destroy();
 
-    if (pythonChildProcess != null) {
-        dontReconnect = true;
-        pythonChildProcess.kill();
-        vscodeButton.text = "$(megaphone) Connect";
-        vscodeButton.tooltip = "Connect to spazlint!";
-    } else
-        vscode.window.showErrorMessage(
-            "Attempted to stop server when python process has already been killed!"
-        );
+    // if (pythonChildProcess != null) {
+    dontReconnect = true;
+        // pythonChildProcess.kill();
+    vscodeButton.text = "$(megaphone) Connect";
+    vscodeButton.tooltip = "Connect to spazlint!";
+    // } else
+    //     vscode.window.showErrorMessage(
+    //         "Attempted to stop server when python process has already been killed!"
+    //     );
 }
 
 var extensionDiagnostics;
@@ -127,7 +142,7 @@ function getFileLocation() {
     while (location.includes("\\")) location = location.replace("\\", "_");
     location = location.replace(":", "_");
 
-    return process.env["SPAZLINT_DIR"] + "\\temp\\" + location + ".tmp";
+    return vscode.workspace.getConfiguration("spazlint").get("linterdir") + "\\temp\\" + location + ".tmp";
 }
 
 async function runPythonScript(adv = false) {
@@ -257,6 +272,29 @@ let completion = {
     },
 };
 
+function findIncludeFile(filename) {
+    /**
+     * @type {Array<string>}
+     */
+    let locations = vscode.workspace.getConfiguration("spazlint").get("includedir");
+    let lookedAt = [];
+
+    for (let index = 0; index < locations.length; index++) {
+        var x = locations[index];
+        if(vscode.workspace.workspaceFolders != [])
+            x = x.replace("${WORKSPACE_DIR}", vscode.workspace.workspaceFolders[0].uri.fsPath)
+        
+        let locPath = x+"\\"+filename;
+        lookedAt.push(locPath);
+
+        if(existsSync(locPath)) {
+            return [true, readFileSync(locPath)];
+        }
+    }
+
+    return [false, lookedAt];
+}
+
 async function refreshDiagnostics(advanced = false) {
     if (
         vscode.window.activeTextEditor == null ||
@@ -270,19 +308,48 @@ async function refreshDiagnostics(advanced = false) {
         )
     )
         return;
-    
+            
+    var diagnostics = [];
+
     // TODO high priority, make includes at the start of the file
     // TODO and set line to the correct line
+    let windowText = vscode.window.activeTextEditor.document.getText();
+    let filesToInclude = [];
+    windowText.split("\n").forEach(line => {
+        line = stripText(line);
+        if(line.startsWith("#include \"")) {
+            let including = line.split("\"")[1].split("\"")[0]
+            filesToInclude.push(including);
+        }
+    });
+
+    let includesText = "";
+    
+    // find the file
+    filesToInclude.forEach(fileName => {
+        let [success, fileContent] = findIncludeFile(fileName);
+        
+        if(success == false) {
+            diagnostics.push(new vscode.Diagnostic(
+                new vscode.Range(0, 0, 0, 0), `Include ${fileName} was not found! searched at: ${fileContent.join(" and ")}`, vscode.DiagnosticSeverity.Warning
+            ));
+        } else {
+            includesText += fileContent;
+        }
+    });
+
+    let text = includesText + "\n\n" + windowText;
+
     await writeFileAsync(
         getFileLocation(),
-        vscode.window.activeTextEditor.document.getText()
+        text
     );
 
     try {
         const output = await runPythonScript(advanced);
         const errors = JSON.parse(output.split("\n")[1]);
 
-        var diagnostics = errors.map(
+        errors.map(
             (diagnostic) =>
                 new vscode.Diagnostic(
                     new vscode.Range(
@@ -298,7 +365,7 @@ async function refreshDiagnostics(advanced = false) {
                             ? vscode.DiagnosticSeverity.Information
                             : vscode.DiagnosticSeverity.Warning
                 )
-        );
+        ).forEach(x => diagnostics.push(x));
 
         extensionDiagnostics.set(
             vscode.window.activeTextEditor.document.uri,
