@@ -1,4 +1,4 @@
-import json, sys, os
+import json, os
 from typing import Tuple
 import errorchecker, hierachy2
 
@@ -246,7 +246,6 @@ class JJ2PlusLinter:
 
 import socket, threading, time
 import signal
-import sys, os
 
 def sigint_handler(signum, frame):
     print("SIGINT received. Closing the server.")
