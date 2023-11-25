@@ -176,7 +176,8 @@ def getGlobalScopeVariables(lines):
                 
                 output.append({
                     "type": getDataTypeOf(removeHandle(line)),
-                    "name": getNameOf(dataTypes, removeHandle(line))
+                    "name": getNameOf(dataTypes, removeHandle(line)),
+                    "line": lineIndex
                 })
 
     return output
@@ -205,7 +206,8 @@ def getLocalScopeVariables(lines, cursorLine):
                 
                 output.append({
                     "type": getDataTypeOf(removeHandle(line)),
-                    "name": getNameOf(dataTypes, removeHandle(line))
+                    "name": getNameOf(dataTypes, removeHandle(line)),
+                    "line": lineIndex
                 })
 
     return output 

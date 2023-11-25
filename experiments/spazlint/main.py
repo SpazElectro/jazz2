@@ -10,6 +10,23 @@ classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.jso
 # merge globalProperties into one
 globalPropertiesTemp: dict = {}
 for i in globalProperties:
+    if i == "eventsList":
+        for x in globalProperties[i]:
+            x["type"] = "event"
+    
+    # example event
+    {
+        "name": "onChat",
+        "description": "onChat is called whenever a chat message pops up in game. onLocalChat is called only when chat is received from players on the same machine the script is executing on. A return value of true indicates that the chat message should be suppressed, whereas a return value of false will cause the message to be handled normally. clientID is a unique ID of the game client that sent the chat message. stringReceived is the text of the chat message that was received. chatType can take one of the following values: NORMAL, TEAMCHAT, WHISPER amd ME.\nAny message beginning with \"/\" is interpreted as a command, not as chat, and so will not be passed to either of these hooks. Messages beginning with \"!\" will, though, as will arguments of commands /whisper (and its aliases, /w and @) and /me.\n",
+        "full": "void onChat(int clientID, string &in stringReceived, CHAT::Type chatType)",
+        "type": "function",
+        "arguments":[
+            {"type": "int", "name": "clientID", "attributes": [],"items": []},
+            {"type": "string", "name": "&in", "attributes": [],"items": []},
+            {"type": "CHAT::Type", "name": "chatType", "attributes": [], "items": ["NORMAL", "TEAMCHAT", "WHISPER", "ME"]}
+        ]
+    }
+
     globalPropertiesTemp[i[:-4]] = globalProperties[i]
 
 classPropertiesTemp: dict = {}
@@ -94,6 +111,8 @@ class JJ2PlusLinter:
                 line = line.strip()
 
                 if line and not line.endswith(";"):
+                    if line_index != 0 and lines[line_index - 1].strip() == "// @ignore-semicolons":
+                        continue
                     if line == "" or line.endswith("{") or line.endswith("}") or \
                         line.startswith("#") or line.startswith("//") or \
                         line.startswith("if") or "//" in line or \
@@ -101,8 +120,6 @@ class JJ2PlusLinter:
                         line.startswith("else") or line.endswith("else") or \
                         line.startswith("for") or (line.startswith("case") and line.endswith(":")) or \
                         line.startswith("default:") or line.endswith("&&"):
-                        continue
-                    if line_index != 0 and lines[line_index - 1].strip() == "// @ignore-semicolons":
                         continue
                     if lines[line_index + 1].strip() == "{" or lines[line_index + 1].strip() == ");" or lines[line_index + 1].strip() == "};":
                         continue
@@ -176,12 +193,12 @@ class JJ2PlusLinter:
                 className = None
         
         def handleProp(prop):
-            name = prop["name"]
-
             if prop["type"] == "function":
+                if prop["name"].startswith("on"):
+                    print(prop)
                 suggestions.append({
                     "type": prop["type"],
-                    "name": name,
+                    "name": prop["name"],
                     "description": prop["description"],
                     "full": prop["full"],
                     "items": prop["arguments"]
@@ -189,7 +206,7 @@ class JJ2PlusLinter:
             else:
                 suggestions.append({
                     "type": prop["type"],
-                    "name": name,
+                    "name": prop["name"],
                     "description": prop["description"]
                 })
         
@@ -231,9 +248,49 @@ class JJ2PlusLinter:
                 for prop in globalProperties[p]:
                     handleProp(prop)
         
+            # if prop["type"] == "function":
+            #     suggestions.append({
+            #         "type": prop["type"],
+            #         "name": prop["name"],
+            #         "description": prop["description"],
+            #         "full": prop["full"],
+            #         "items": prop["arguments"]
+            #     })
+            # else:
+            #     suggestions.append({
+            #         "type": prop["type"],
+            #         "name": prop["name"],
+            #         "description": prop["description"]
+            #     })
+        for p in globalScopeVars:
+            description = self.code.splitlines()[p["line"] - 1].strip()
+            if description != "" and description.startswith("//"):
+                description = '//'.join(description.split("//")[1:]).strip()
+            generatedP = {
+                "type": p["type"],
+                "name": p["name"],
+                # TODO get description by looking at the line before and checking for a comment
+                "description": description
+            }
+
+            handleProp(generatedP)
+        # CTRL+C, CTRL+V
+        for p in localScopeVars:
+            description = self.code.splitlines()[p["line"] - 1].strip()
+            if description != "" and description.startswith("//"):
+                description = '//'.join(description.split("//")[1:]).strip()
+            generatedP = {
+                "type": p["type"],
+                "name": p["name"],
+                # TODO get description by looking at the line before and checking for a comment
+                "description": description
+            }
+
+            handleProp(generatedP)
+        
         return suggestions
 
-import socket, threading
+import socket, threading, time
 
 # file = sys.argv[1]
 # line = int(sys.argv[2])
@@ -269,6 +326,8 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
         char = data["char"]
         file = data["file"]
 
+        startTime = time.time()
+
         linter = JJ2PlusLinter(file)
         autocomplete_data = linter.autocomplete(line, False, char)
 
@@ -278,6 +337,10 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
         autocomplete_bytes = json.dumps(autocomplete_data).encode("utf-8")
         linter_bytes = json.dumps(linter.lint(advanced == 1)).encode("utf-8")
         
+        endTime = time.time()
+
+        print(f"Took {endTime - startTime} to analyze!")
+
         conn.sendall(autocomplete_bytes + b"\n" + linter_bytes)
 
 while True:

@@ -6,10 +6,12 @@
 // for intellisense
 #include "../../scripts/STVutil.asc"
 
+// this is such an epic thing // gaming
 int counter = 0;
 
 void onLevelBegin() {
     jjConsole("Started!");
+    
     keyPressCallbacks.insertLast(function(key) {
         if(key == 0x20) {
             counter++;

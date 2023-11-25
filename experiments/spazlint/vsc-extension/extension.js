@@ -32,6 +32,8 @@ function reconnectToServer(attempt=0) {
             return;
         }
 
+        console.log("Connection was closed!");
+
         // if(!connectedToServer) {
         //     vscode.window.showInformationMessage("Attempting to reconnect to spazlint...");
             
@@ -55,14 +57,14 @@ function reconnectToServer(attempt=0) {
         //             resolve(stdout);
         //         }
         //     });
-
+        
         //     setTimeout(() => {
-        //         reconnectToServer(attempt + 1);
-        //     }, 3_000);
-        // } else {
+    //         reconnectToServer(attempt + 1);
+    //     }, 3_000);
+    // } else {
         //     vscode.window.showInformationMessage("Disconnected from spazlint!");
         // }
-
+        
         connectedToServer = false;
     });
 }
@@ -75,8 +77,6 @@ function stopServer() {
         vscodeButton.tooltip = "Connect to spazlint!";
     } else vscode.window.showErrorMessage("Attempted to stop server when python process has already been killed!")
 }
-
-reconnectToServer();
 
 var extensionDiagnostics;
 
@@ -106,30 +106,34 @@ function getFileLocation() {
 async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
         const requestData = {
-            type: adv === "true" ? "ADVANCED_AUTOCOMPLETE" : "AUTOCOMPLETE",
+            type: adv === true ? "ADVANCED_AUTOCOMPLETE" : "AUTOCOMPLETE",
             line: vscode.window.activeTextEditor.selection.active.line.toString(),
             char: vscode.window.activeTextEditor.selection.active.character.toString(),
             file: getFileLocation()
         };
 
-        client.write(JSON.stringify(requestData));
+        console.log("Running script!");
 
         let accumulatedData = "";
 
-        client.on("data", (data) => {
+        const onDataReceived = (data) => {
+            console.log(`chunkRecv, data: ${typeof(data)}; dataStringLength: ${data.toString().length}, accum: ${accumulatedData.length}`);
             accumulatedData += data.toString();
 
             try {
                 JSON.parse(accumulatedData.split("\n")[0]);
                 JSON.parse(accumulatedData.split("\n")[1]);
-
+                console.log("Full recv!");
                 resolve(accumulatedData);
-
                 accumulatedData = "";
+                client.off("data", onDataReceived);
             } catch (error) {
-                // JSON parsing failed, the data is incomplete or not yet fully received
+                console.log(`ERR: ${error}`);
             }
-        });
+        };
+
+        client.on("data", onDataReceived);
+        client.write(JSON.stringify(requestData));
     });
 }
 
