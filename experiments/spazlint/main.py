@@ -8,30 +8,12 @@ globalProperties: dict = json.load(open(os.path.dirname(__file__) + "/global.jso
 classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 
 # merge globalProperties into one
-globalPropertiesTemp: dict = {}
+globalPropertiesTemp = {}
 for i in globalProperties:
-    if i == "eventsList":
-        for x in globalProperties[i]:
-            x["type"] = "event"
-    
-    # example event
-    {
-        "name": "onChat",
-        "description": "onChat is called whenever a chat message pops up in game. onLocalChat is called only when chat is received from players on the same machine the script is executing on. A return value of true indicates that the chat message should be suppressed, whereas a return value of false will cause the message to be handled normally. clientID is a unique ID of the game client that sent the chat message. stringReceived is the text of the chat message that was received. chatType can take one of the following values: NORMAL, TEAMCHAT, WHISPER amd ME.\nAny message beginning with \"/\" is interpreted as a command, not as chat, and so will not be passed to either of these hooks. Messages beginning with \"!\" will, though, as will arguments of commands /whisper (and its aliases, /w and @) and /me.\n",
-        "full": "void onChat(int clientID, string &in stringReceived, CHAT::Type chatType)",
-        "type": "function",
-        "arguments":[
-            {"type": "int", "name": "clientID", "attributes": [],"items": []},
-            {"type": "string", "name": "&in", "attributes": [],"items": []},
-            {"type": "CHAT::Type", "name": "chatType", "attributes": [], "items": ["NORMAL", "TEAMCHAT", "WHISPER", "ME"]}
-        ]
-    }
-
     globalPropertiesTemp[i[:-4]] = globalProperties[i]
 
-classPropertiesTemp: dict = {}
+classPropertiesTemp = {}
 for i in classProperties:
-    # print(i[:-4].strip())
     classPropertiesTemp[i[:-4]] = classProperties[i]
 
 globalProperties = globalPropertiesTemp

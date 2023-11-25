@@ -72,7 +72,7 @@ function findNextDD(element, startIndex) {
     return resultx;
 }
 
-function getItems(rootTableElement, isClass) {
+function getItems(rootTableElement) {
     var items = []
     var isEvents = rootTableElement.id == "eventsList";
 
@@ -91,6 +91,8 @@ function getItems(rootTableElement, isClass) {
             
             var full = "";
             var funcAttrbs = [];
+
+            rootTableElement.childNodes[i].classList.forEach(attrb => funcAttrbs.push({"type": attrb}));
 
             for (let it = 0; it < rootTableElement.childNodes[i].childNodes.length; it++) {
                 if (rootTableElement.childNodes[i].nodeType == 3) {
@@ -204,11 +206,14 @@ function getItems(rootTableElement, isClass) {
 }
 
 let output = {}
+let classes = {}
 
 throw Error;
-rootTables.forEach(x => output[x] = getItems(document.getElementById(x), isClassTable[rootTables.indexOf(x)]))
+rootTables.forEach(x => (isClassTable[rootTables.indexOf(x)] ? classes : output)[x] = getItems(document.getElementById(x)));
+
 console.log(
-    // JSON.stringify(
-        output
-    // )
+    JSON.stringify(
+        // output
+        classes
+    )
 )
