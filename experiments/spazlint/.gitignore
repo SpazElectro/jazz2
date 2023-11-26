@@ -1,1 +1,7 @@
 temp/**
+bundle/
+
+# pyinstaller
+dist
+*.spec
+dist.zip

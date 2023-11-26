@@ -37,10 +37,10 @@ function reconnectToServer() {
 
     client.on("close", () => {
         connectedToServer = false;
-
-        vscode.window.showInformationMessage("Disconnected from spazlint!");
         vscodeButton.text = "$(megaphone) Connect";
         vscodeButton.tooltip = "Connect to spazlint!";
+        
+        vscode.window.showInformationMessage("Disconnected from spazlint!");
     });
 }
 
@@ -93,8 +93,6 @@ async function runPythonScript(adv = false) {
             char: vscode.window.activeTextEditor.selection.active.character.toString(),
             file: getFileLocation(),
         };
-
-        console.log(`runPythonScript with includesLineCount as ${includesLineCount} and total as ${includesLineCount + vscode.window.activeTextEditor.selection.active.line}`);
 
         let accumulatedData = "";
 
@@ -249,7 +247,12 @@ async function refreshDiagnostics(advanced = false) {
         )
     )
         return;
-            
+    
+    if(vscode.workspace.getConfiguration("spazlint").get("linterdir") == "") {
+        vscode.window.showInformationMessage("Spazlint directory has not been set, set it in the settings! (spazlint.linterdir)");
+        return;
+    }
+    
     var diagnostics = [];
 
     let windowText = vscode.window.activeTextEditor.document.getText();
@@ -270,7 +273,7 @@ async function refreshDiagnostics(advanced = false) {
         
         if(success == false) {
             diagnostics.push(new vscode.Diagnostic(
-                new vscode.Range(0, 0, 0, 0), `Include ${fileName} was not found! searched at: ${fileContent.join(" and ")}`, vscode.DiagnosticSeverity.Warning
+                new vscode.Range(0, 0, 0, 0), `Include ${fileName} was not found! searched at: ${fileContent.join(" and ")}, You can set the include directories in the settings. (spazlint.includedir)`, vscode.DiagnosticSeverity.Warning
             ));
         } else {
             includesText += fileContent;

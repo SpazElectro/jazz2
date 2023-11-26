@@ -1,5 +1,16 @@
 import os
-run = open(os.path.dirname(__file__) + "/config.ini").read()
+
+configLocation = os.path.dirname(__file__) + "\\..\\config.ini"
+if not os.path.exists(configLocation):
+    gameDirectory = input("(ex: F:\Games\Jazz2) JJ2 game directory? ")
+    gameName = input("(ex: Jazz2+.exe) JJ2 executable name? ")
+    runFile = open(configLocation, "w")
+    runFile.write(f"GAME_DIRECTORY={gameDirectory}\nGAME_NAME={gameName}")
+    runFile.close()
+
+runFile = open(configLocation)
+run = runFile.read()
+runFile.close()
 parsed = run.split("\n")
 runElements = {}
 
