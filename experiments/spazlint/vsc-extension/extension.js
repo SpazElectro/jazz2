@@ -1,4 +1,3 @@
-// let { execFile } = require("child_process");
 let { writeFile, readFileSync, existsSync } = require("fs");
 let { promisify } = require("util");
 let vscode = require("vscode");
@@ -7,12 +6,10 @@ let writeFileAsync = promisify(writeFile);
 
 const serverAddress = "localhost";
 const serverPort = 17338;
-var client = new net.Socket();
+const client = new net.Socket();
 
 let connectedToServer = false;
-let dontReconnect = false;
-
-// let pythonChildProcess = null;
+let extensionDiagnostics;
 
 function stripText(inputString) {
     let startIndex = 0;
@@ -28,89 +25,30 @@ function stripText(inputString) {
     return inputString.substring(startIndex, endIndex + 1);
 }
 
-function reconnectToServer(attempt = 0) {
+function reconnectToServer() {
     client.connect(serverPort, serverAddress, () => {
         connectedToServer = true;
-        vscodeButton.text = "$(megaphone) Stop";
-        vscodeButton.tooltip = "Stop the spazlint server";
+        vscodeButton.text = "$(megaphone) Disconnect";
+        vscodeButton.tooltip = "Disconnect from the spazlint server";
 
         vscode.window.showInformationMessage("Connected to spazlint!");
     });
 
     client.on("close", () => {
-        if (attempt == 3) {
-            return vscode.window.showInformationMessage(
-                "Attempt #3 to connect to spazlint has failed!"
-            );
-        }
-
-        if (dontReconnect) {
-            dontReconnect = false;
-            return;
-        }
-
-        console.log("Connection was closed!");
-
-        if (!connectedToServer) {
-            vscode.window.showInformationMessage(
-                "Attempting to reconnect to spazlint..."
-            );
-
-            // pythonChildProcess = execFile(
-            //     "python",
-            //     [vscode.workspace.getConfiguration("spazlint").get("linterdir") + "\\main.py"],
-            //     (error, stdout, stderr) => {
-            //         if (error) {
-            //             // this is when the process gets killed
-            //             if (
-            //                 error.message.startsWith("Command failed: python ")
-            //             ) {
-            //                 vscode.window.showInformationMessage(
-            //                     "Spazlint server has successfully stopped!"
-            //                 );
-            //                 return;
-            //             } else {
-            //                 vscode.window.showErrorMessage(error.message);
-            //             }
-
-            //             reject(error.message);
-            //         } else if (stderr) {
-            //             vscode.window.showErrorMessage(stderr);
-            //             reject(stderr);
-            //         } else {
-            //             resolve(stdout);
-            //         }
-            //     }
-            // );
-
-            setTimeout(() => {
-                reconnectToServer(attempt + 1);
-            }, 3_000);
-        } else {
-            vscode.window.showInformationMessage("Disconnected from spazlint!");
-            vscodeButton.text = "$(megaphone) Connect";
-            vscodeButton.tooltip = "Connect to spazlint!";
-        }
-
         connectedToServer = false;
+
+        vscode.window.showInformationMessage("Disconnected from spazlint!");
+        vscodeButton.text = "$(megaphone) Connect";
+        vscodeButton.tooltip = "Connect to spazlint!";
     });
 }
 
-function stopServer() {
+function disconnectFromServer() {
     client.destroy();
 
-    // if (pythonChildProcess != null) {
-    dontReconnect = true;
-        // pythonChildProcess.kill();
     vscodeButton.text = "$(megaphone) Connect";
     vscodeButton.tooltip = "Connect to spazlint!";
-    // } else
-    //     vscode.window.showErrorMessage(
-    //         "Attempted to stop server when python process has already been killed!"
-    //     );
 }
-
-var extensionDiagnostics;
 
 function getDefaultOf(type) {
     if (
@@ -132,8 +70,9 @@ function getDefaultOf(type) {
     if (type.startsWith("array<"))
         return "array<" + type.split("array<")[1].split(">")[0] + ">() = {}";
     if (type == "string") return '""';
+    if (type == "jjPLAYER") return "jjPlayers[0]";
 
-    return "undefined";
+    return "";
 }
 
 function getFileLocation() {
@@ -300,9 +239,7 @@ async function refreshDiagnostics(advanced = false) {
         vscode.window.activeTextEditor == null ||
         vscode.window.activeTextEditor.document.isUntitled ||
         !(
-            vscode.window.activeTextEditor.document.fileName.endsWith(
-                ".j2as"
-            ) ||
+            vscode.window.activeTextEditor.document.fileName.endsWith(".j2as") ||
             vscode.window.activeTextEditor.document.fileName.endsWith(".mut") ||
             vscode.window.activeTextEditor.document.fileName.endsWith(".asc")
         )
@@ -405,7 +342,7 @@ function activate(context) {
             if (!connectedToServer) {
                 reconnectToServer();
             } else {
-                stopServer();
+                disconnectFromServer();
             }
         })
     );

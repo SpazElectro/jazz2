@@ -135,7 +135,6 @@ class JJ2PlusLinter:
         if self.code == "":
             print("Empty code, file writing has (possibly) not finished!")
             return []
-
         line = self.code.splitlines()[lineN]
         if not rvrs:
             line = line[:-char]
@@ -146,16 +145,25 @@ class JJ2PlusLinter:
 
         fnc = hierachy2.findFunction(self.code.splitlines(), lineN)
         globalScopeVars = hierachy2.getGlobalScopeVariables(self.code.splitlines())
+        globalScopeFuncs = hierachy2.getGlobalScopeFunctions(self.code.splitlines())
         localScopeVars = hierachy2.getLocalScopeVariables(self.code.splitlines(), lineN)
+        
+        for prop in fnc["arguments"]:
+            suggestions.append({
+                "type": prop["type"],
+                "name": prop["name"],
+                "description": ""
+            })
         
         className = None
         
-        t = self.code.splitlines()[lineN].strip().split(".")
+        # No clue why I need to do lineN+2 but it works!
+        t = self.code.splitlines()[lineN+2].strip().split(".")
 
         if len(t) >= 2:
-            if fnc["err"] == "none":
-                fnc["args"] = hierachy2.removeHandlesFromArgs(fnc["args"])
-                for x in fnc["args"]:
+            if fnc.get("err") == None:
+                fnc["arguments"] = hierachy2.removeHandlesFromArgs(fnc["arguments"])
+                for x in fnc["arguments"]:
                     if x["name"] == t[0]:
                         className = x["type"]
             for x in globalScopeVars:
@@ -242,13 +250,20 @@ class JJ2PlusLinter:
                 }
                 handleProp(generatedP)
         
+        for fn in globalScopeFuncs:
+            handleProp(fn)
+        
         return suggestions
 
 import socket, threading, time
 import signal
 
+clis = []
+
 def sigint_handler(signum, frame):
     print("SIGINT received. Closing the server.")
+    for cli in clis:
+        cli.close()
     exit()
     # sys.exit(0)
     
@@ -267,7 +282,7 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 print("Now listening for clients at port 17338!")
 
-def handle_client(conn: socket.socket, addr: Tuple[str, int]):
+def handle_client(conn: socket.socket, addr: Tuple[str, int]):    
     while True:
         try:
             data = conn.recv(4096)
@@ -312,7 +327,9 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
 while True:
     try:
         conn, addr = sock.accept()
+
         threading.Thread(target=handle_client, args=(conn, addr)).start()
+        clis.append(conn)
     except socket.timeout:
         pass
 

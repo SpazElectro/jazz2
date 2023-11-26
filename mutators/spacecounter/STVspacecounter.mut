@@ -1,7 +1,7 @@
 #pragma name "spacecounter"
 #pragma require "STVutil.asc"
 
-#include "scripts\STVutil.asc"
+// #include "scripts\STVutil.asc"
 // for intellisense
 // #include "../../scripts/STVutil.asc"
 
@@ -18,9 +18,6 @@ void onLevelBegin() {
             counter = 0;
         }
     });
-    
-    
-    
 }
 
 void onMain() {
@@ -28,6 +25,13 @@ void onMain() {
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    player.
     canvas.drawString(10, 580, counter + " presses", STRING::MEDIUM);
     return false;
+}
+
+void welcomeUser(jjPLAYER@ user) {
+    int xyz = 2;
+
+    
 }
