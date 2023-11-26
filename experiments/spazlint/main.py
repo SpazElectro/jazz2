@@ -154,13 +154,6 @@ class JJ2PlusLinter:
         globalScopeFuncs = hierachy2.getGlobalScopeFunctions(self.code.splitlines())
         localScopeVars = hierachy2.getLocalScopeVariables(self.code.splitlines(), lineN)
         
-        for prop in fnc["arguments"]:
-            suggestions.append({
-                "type": prop["type"],
-                "name": prop["name"],
-                "description": ""
-            })
-        
         className = None
         
         # No clue why I need to do lineN-1 but it works!
@@ -248,10 +241,16 @@ class JJ2PlusLinter:
                 for prop in classProperties[className]:
                     handleProp(prop)
         else:
-            for p in globalProperties:
-                for prop in globalProperties[p]:
-                    handleProp(prop)
+            for prop in fnc["arguments"]:
+                suggestions.append({
+                    "type": prop["type"],
+                    "name": prop["name"],
+                    "description": ""
+                })
         
+            for fn in globalScopeFuncs:
+                handleProp(fn)
+                
             for scope_vars in [globalScopeVars, localScopeVars]:
                 for p in scope_vars:
                     description = self.code.splitlines()[p["line"] - 1].strip()
@@ -264,9 +263,10 @@ class JJ2PlusLinter:
                         "description": description
                     }
                     handleProp(generatedP)
-            
-            for fn in globalScopeFuncs:
-                handleProp(fn)
+
+            for p in globalProperties:
+                for prop in globalProperties[p]:
+                    handleProp(prop)
         
         return suggestions
 
