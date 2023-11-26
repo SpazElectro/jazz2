@@ -2,10 +2,15 @@ import json, os
 from typing import Tuple
 import errorchecker, hierachy2
 
-# print("[]\n[]")
-# exit(1)
 globalProperties: dict = json.load(open(os.path.dirname(__file__) + "/global.json"))
 classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.json"))
+_eventsList = globalProperties["eventsList"]
+eventsList = []
+
+for x in _eventsList:
+    eventsList.append(x["name"])
+
+del _eventsList
 
 # merge globalProperties into one
 globalPropertiesTemp = {}
@@ -59,7 +64,7 @@ ENUM_ARRAY = {
     "GROUND::Jump": ["JAZZ", "SPAZ", "LORI", "CROUCH", "JUMP"]
 }
 
-# the most important thing is *syntax*, what I mean is instead of going like:
+# the most important thing is *good* syntax, what I mean is instead of going like:
 # ```
 # jjConsole(
 #   "hello world"
@@ -126,8 +131,8 @@ class JJ2PlusLinter:
         
         return linting_errors
 
-    def autocomplete(self, lineN, rvrs, char):
-        # print(f"JJ2PlusLinter.autocomplete(lineN={lineN}, rvrs={rvrs}, char={char})")
+    def autocomplete(self, lineN, char):
+        # print(f"JJ2PlusLinter.autocomplete(lineN={lineN}, char={char})")
         if isinstance(lineN, str):
             lineN = int(lineN)
         if isinstance(char, str):
@@ -135,13 +140,10 @@ class JJ2PlusLinter:
         if self.code == "":
             print("Empty code, file writing has (possibly) not finished!")
             return []
-        if len(self.code.splitlines()) < lineN:
-            print("Position is over code length?")
+        if lineN <= 0 or lineN > len(self.code.splitlines()):
+            print("Invalid line number")
             return []
-        line = self.code.splitlines()[lineN]
-        if not rvrs:
-            line = line[:-char]
-        else: line = line[:char]
+        line = self.code.splitlines()[lineN - 1]
 
         line = line.strip().lower()
         suggestions = []
@@ -156,32 +158,30 @@ class JJ2PlusLinter:
         
         className = None
         
-        # No clue why I need to do lineN-1 but it works!
+        # WTF! why do I have to add/subtract some random offset from lineN for each new feature
         # print(f"lineN+2 = {lineN+2}, len(codelines) = {len(self.code.splitlines())}")
-        # print(f"line: {line} prev line: {self.code.splitlines()[lineN-1]}")
-        if len(self.code.splitlines()) > lineN-1:
-            t = self.code.splitlines()[lineN-1].strip().split(".")
-            # print("t assigned")
-            # print(t)
+        # print(f"line: {line}# prev line: {self.code.splitlines()[lineN - 2]}#")
+        t = line.strip().split(".")
+        # print("t assigned")
+        # print(t)
 
-            if len(t) >= 2:
-                # print("len(t) >= 2")
-
+        if len(t) >= 2:
+            if line.strip().endswith("."):
                 if fnc.get("err") == None:
                     fnc["arguments"] = hierachy2.removeHandlesFromArgs(fnc["arguments"])
                     for x in fnc["arguments"]:
-                        if x["name"] == t[0]:
+                        if x["name"] == hierachy2.removeHandle(t[0]):
                             className = x["type"]
                 for x in globalScopeVars:
-                    if x["name"] == t[0]:
+                    if x["name"] == hierachy2.removeHandle(t[0]):
                         className = x["type"]
                 for x in localScopeVars:
                     # print(f"({x['name']} == {t[0]} == {x['name'] == t[0]})")
-                    if x["name"] == t[0]:
+                    if x["name"] == hierachy2.removeHandle(t[0]):
                         className = x["type"]
 
         if className == None:
-            className = self.code.splitlines()[lineN - 1].strip()
+            className = line.strip()
             if len(className.split("// @force-autocomplete-class ")) >= 2:
                 className = className.split("// @force-autocomplete-class ")[1]
             else:
@@ -205,36 +205,45 @@ class JJ2PlusLinter:
         
         # enum identification
         # TODO allow enum identification for this file
-        enum: str = self.code.splitlines()[lineN][:char].strip().split(" ")[-1]
+        enum = self.code.splitlines()[lineN - 1][:char].strip().split(" ")[-1].split("::")[0].lower()
         enumsFound = False
 
-        for enumStarterX in ENUM_ARRAY:
-            enumStarter = enumStarterX.split("::")[0]
+        # print(f"BFR enum: |{enum}| line[:char]: |{self.code.splitlines()[lineN - 1][:char]}|")
+        # st=self.code.splitlines()[lineN - 1][:char].strip().split(" ")
+        # print(f"line: |{self.code.splitlines()[lineN - 1]}|, char: |{char}| split: |{st}|")
+        # print(f"next line: |{self.code.splitlines()[lineN - 1]}|")
+        # for ie, ieline in enumerate(self.code.splitlines()):
+        #     print(f"{ie}: {ieline}")
+        
+        if className == None:
+            for enumStarterX in ENUM_ARRAY:
+                enumStarter = enumStarterX.split("::")[0].lower()
 
-            if len(self.code.splitlines()[lineN - 1].strip().split("// @force-autocomplete-enum ")) >= 2:
-                enum = self.code.splitlines()[lineN - 1].strip().split("// @force-autocomplete-enum ")[1] + "::"
-            
-            if enum.startswith(enumStarter):
-                enumsFound = True
+                if len(self.code.splitlines()[lineN - 1].strip().split("// @force-autocomplete-enum ")) >= 2:
+                    enum = self.code.splitlines()[lineN - 1].strip().split("// @force-autocomplete-enum ")[1] + "::"
+                    enum = enum.lower()
+                # print(f"enum: {enum} enumStarter: {enumStarter}")
+                if enum.startswith(enumStarter):
+                    enumsFound = True
 
-                # if fnc["err"] == "none": # no error
-                #     for prop in classProperties[className]:
-                #         print(fnc["name"])
-                #         if prop["name"] == fnc["name"]:
-                #             for arg in prop["arguments"]:
-                #                 if arg["type"].strip() == enumStarterX.strip():
-                #                     handleProp(prop)
-                #     break # stop looking for other enums
-                
-                for enumName in ENUM_ARRAY[enumStarterX]:
-                    suggestions.append({
-                        "type": "property",
-                        "name": enumName,
-                        "description": enumStarterX
-                    })
+                    # if fnc["err"] == "none": # no error
+                    #     for prop in classProperties[className]:
+                    #         print(fnc["name"])
+                    #         if prop["name"] == fnc["name"]:
+                    #             for arg in prop["arguments"]:
+                    #                 if arg["type"].strip() == enumStarterX.strip():
+                    #                     handleProp(prop)
+                    #     break # stop looking for other enums
+                    
+                    for enumName in ENUM_ARRAY[enumStarterX]:
+                        suggestions.append({
+                            "type": "property",
+                            "name": enumName,
+                            "description": enumStarterX
+                        })
 
-        if enumsFound:
-            return suggestions
+            if enumsFound:
+                return suggestions
 
         if className != None:
             if classProperties.get(className):
@@ -249,8 +258,10 @@ class JJ2PlusLinter:
                 })
         
             for fn in globalScopeFuncs:
+                if fn["name"] in eventsList:
+                    continue
                 handleProp(fn)
-                
+
             for scope_vars in [globalScopeVars, localScopeVars]:
                 for p in scope_vars:
                     description = self.code.splitlines()[p["line"] - 1].strip()
@@ -279,14 +290,7 @@ def sigint_handler(signum, frame):
     print("SIGINT received. Closing the server.")
     for cli in clis:
         cli.close()
-    exit()
-    # sys.exit(0)
-    
-
-# file = sys.argv[1]
-# line = int(sys.argv[2])
-# char = int(sys.argv[3])
-# advanced = True if sys.argv[4] == "true" else False
+    exit()    
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(("localhost", 17338))
@@ -325,11 +329,8 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
         startTime = time.time()
 
         linter = JJ2PlusLinter(file)
-        autocomplete_data = linter.autocomplete(line, False, char)
+        autocomplete_data = linter.autocomplete(line, char)
 
-        if len(autocomplete_data) == 0:
-            autocomplete_data = linter.autocomplete(line, True, char)
-        
         autocomplete_bytes = json.dumps(autocomplete_data).encode("utf-8")
         linter_bytes = json.dumps(linter.lint(advanced == 1)).encode("utf-8")
         
@@ -347,12 +348,3 @@ while True:
         clis.append(conn)
     except socket.timeout:
         pass
-
-# linter = JJ2PlusLinter(file)
-# x = linter.autocomplete(line, False)
-
-# if len(x) == 0:
-#     x = linter.autocomplete(line, True)
-
-# print(json.dumps(x))
-# print(json.dumps(linter.lint(advanced)))

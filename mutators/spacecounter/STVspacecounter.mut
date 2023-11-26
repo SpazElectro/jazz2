@@ -33,6 +33,9 @@ void welcomeUser(jjPLAYER@ user) {
     // This is a description of a variable named testvar
     int testvar = 2;
     
+    character.groundJump = GROUND::JAZZ;
+    character.groundJump = GROUND::JUMP;
+    character.canRun = false;
+    
     
 }
-
