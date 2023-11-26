@@ -10,6 +10,7 @@ const client = new net.Socket();
 
 let connectedToServer = false;
 let extensionDiagnostics;
+let includesLineCount = 0; // good enough
 
 function stripText(inputString) {
     let startIndex = 0;
@@ -70,7 +71,7 @@ function getDefaultOf(type) {
     if (type.startsWith("array<"))
         return "array<" + type.split("array<")[1].split(">")[0] + ">() = {}";
     if (type == "string") return '""';
-    if (type == "jjPLAYER") return "jjPlayers[0]";
+    if (type == "jjPLAYER@") return "jjPlayers[0]";
 
     return "";
 }
@@ -88,10 +89,12 @@ async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
         const requestData = {
             type: adv === true ? "ADVANCED_AUTOCOMPLETE" : "AUTOCOMPLETE",
-            line: vscode.window.activeTextEditor.selection.active.line.toString(),
+            line: (includesLineCount + vscode.window.activeTextEditor.selection.active.line).toString(),
             char: vscode.window.activeTextEditor.selection.active.character.toString(),
             file: getFileLocation(),
         };
+
+        console.log(`runPythonScript with includesLineCount as ${includesLineCount} and total as ${includesLineCount + vscode.window.activeTextEditor.selection.active.line}`);
 
         let accumulatedData = "";
 
@@ -102,6 +105,7 @@ async function runPythonScript(adv = false) {
                 JSON.parse(accumulatedData.split("\n")[0]);
                 JSON.parse(accumulatedData.split("\n")[1]);
                 resolve(accumulatedData);
+                console.log("Gathered full data!");
                 accumulatedData = "";
                 client.off("data", onDataReceived);
             } catch (error) {
@@ -248,8 +252,6 @@ async function refreshDiagnostics(advanced = false) {
             
     var diagnostics = [];
 
-    // TODO high priority, make includes at the start of the file
-    // TODO and set line to the correct line
     let windowText = vscode.window.activeTextEditor.document.getText();
     let filesToInclude = [];
     windowText.split("\n").forEach(line => {
@@ -274,6 +276,9 @@ async function refreshDiagnostics(advanced = false) {
             includesText += fileContent;
         }
     });
+    
+    includesLineCount = includesText.split("\n").length+2;
+    console.log(`set includesLineCount to ${includesLineCount}!`)
 
     let text = includesText + "\n\n" + windowText;
 

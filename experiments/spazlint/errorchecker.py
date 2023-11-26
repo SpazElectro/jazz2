@@ -9,6 +9,7 @@ import time
 import win32gui
 
 # TODO: make this not show the window at all somehow
+# TODO: dont run the script but check for errors only
 game_directory = getFromRun("GAME_DIRECTORY")
 game_exe = f"{game_directory}{getFromRun('GAME_NAME')}"
 

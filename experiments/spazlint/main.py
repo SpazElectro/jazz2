@@ -135,6 +135,9 @@ class JJ2PlusLinter:
         if self.code == "":
             print("Empty code, file writing has (possibly) not finished!")
             return []
+        if len(self.code.splitlines()) < lineN:
+            print("Position is over code length?")
+            return []
         line = self.code.splitlines()[lineN]
         if not rvrs:
             line = line[:-char]
@@ -144,6 +147,9 @@ class JJ2PlusLinter:
         suggestions = []
 
         fnc = hierachy2.findFunction(self.code.splitlines(), lineN)
+        if fnc.get("err"):
+            print("Could not find function when attemping autocomplete!")
+            return []
         globalScopeVars = hierachy2.getGlobalScopeVariables(self.code.splitlines())
         globalScopeFuncs = hierachy2.getGlobalScopeFunctions(self.code.splitlines())
         localScopeVars = hierachy2.getLocalScopeVariables(self.code.splitlines(), lineN)
@@ -157,21 +163,29 @@ class JJ2PlusLinter:
         
         className = None
         
-        # No clue why I need to do lineN+2 but it works!
-        t = self.code.splitlines()[lineN+2].strip().split(".")
+        # No clue why I need to do lineN-1 but it works!
+        # print(f"lineN+2 = {lineN+2}, len(codelines) = {len(self.code.splitlines())}")
+        # print(f"line: {line} prev line: {self.code.splitlines()[lineN-1]}")
+        if len(self.code.splitlines()) > lineN-1:
+            t = self.code.splitlines()[lineN-1].strip().split(".")
+            # print("t assigned")
+            # print(t)
 
-        if len(t) >= 2:
-            if fnc.get("err") == None:
-                fnc["arguments"] = hierachy2.removeHandlesFromArgs(fnc["arguments"])
-                for x in fnc["arguments"]:
+            if len(t) >= 2:
+                # print("len(t) >= 2")
+
+                if fnc.get("err") == None:
+                    fnc["arguments"] = hierachy2.removeHandlesFromArgs(fnc["arguments"])
+                    for x in fnc["arguments"]:
+                        if x["name"] == t[0]:
+                            className = x["type"]
+                for x in globalScopeVars:
                     if x["name"] == t[0]:
                         className = x["type"]
-            for x in globalScopeVars:
-                if x["name"] == t[0]:
-                    className = x["type"]
-            for x in localScopeVars:
-                if x["name"] == t[0]:
-                    className = x["type"]
+                for x in localScopeVars:
+                    # print(f"({x['name']} == {t[0]} == {x['name'] == t[0]})")
+                    if x["name"] == t[0]:
+                        className = x["type"]
 
         if className == None:
             className = self.code.splitlines()[lineN - 1].strip()
@@ -238,20 +252,21 @@ class JJ2PlusLinter:
                 for prop in globalProperties[p]:
                     handleProp(prop)
         
-        for scope_vars in [globalScopeVars, localScopeVars]:
-            for p in scope_vars:
-                description = self.code.splitlines()[p["line"] - 1].strip()
-                if description != "" and description.startswith("//"):
-                    description = '//'.join(description.split("//")[1:]).strip()
-                generatedP = {
-                    "type": p["type"],
-                    "name": p["name"],
-                    "description": description
-                }
-                handleProp(generatedP)
-        
-        for fn in globalScopeFuncs:
-            handleProp(fn)
+            for scope_vars in [globalScopeVars, localScopeVars]:
+                for p in scope_vars:
+                    description = self.code.splitlines()[p["line"] - 1].strip()
+                    if description != "" and description.startswith("//"):
+                        description = '//'.join(description.split("//")[1:]).strip()
+                    else: description = ""
+                    generatedP = {
+                        "type": p["type"],
+                        "name": p["name"],
+                        "description": description
+                    }
+                    handleProp(generatedP)
+            
+            for fn in globalScopeFuncs:
+                handleProp(fn)
         
         return suggestions
 
@@ -320,7 +335,7 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
         
         endTime = time.time()
 
-        print(f"Took {endTime - startTime} to analyze!")
+        print(f"Took {endTime - startTime} to analyze with {len(autocomplete_data)} elements!")
 
         conn.sendall(autocomplete_bytes + b"\n" + linter_bytes)
 

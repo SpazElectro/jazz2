@@ -1,9 +1,7 @@
 #pragma name "spacecounter"
 #pragma require "STVutil.asc"
 
-// #include "scripts\STVutil.asc"
-// for intellisense
-// #include "../../scripts/STVutil.asc"
+#include "scripts\STVutil.asc"
 
 // this is such an epic thing // gaming
 int counter = 0;
@@ -25,13 +23,16 @@ void onMain() {
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    player.
     canvas.drawString(10, 580, counter + " presses", STRING::MEDIUM);
     return false;
 }
 
+// This is a description of welcomeUser
 void welcomeUser(jjPLAYER@ user) {
-    int xyz = 2;
-
+    jjCHARACTER@ character = jjCharacters[CHAR::JAZZ]
+    // This is a description of a variable named testvar
+    int testvar = 2;
+    
     
 }
+

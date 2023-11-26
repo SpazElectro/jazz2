@@ -111,11 +111,17 @@ def findFunction(lines, cursorLine):
         #     "full": prop["full"],
         #     "items": prop["arguments"]
         # }
+        # -2 again, why?
+        description = lines[fnLineIndex - 2].strip()
+        if description != "" and description.startswith("//"):
+            description = '//'.join(description.split("//")[1:]).strip()
+        else:
+            description = ""
 
         return {
             "type": "function",
             "name": fnName,
-            "description": "",
+            "description": description,
             "full": fullLine,
             "arguments": args,
             "line": fnLineIndex,
