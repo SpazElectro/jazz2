@@ -30,6 +30,9 @@ def findFunction(lines, cursorLine):
 
             if split[-1] == "{" or lines[lineIndex + 1].strip() == "{":
                 constructor = ("(" in split[0])
+                # MLLE include script has weird syntax!
+                if "." in split[0 if constructor else 1].split("(")[0]:
+                    continue
                 fnName = split[0 if constructor else 1].split("(")[0]
                 
                 # is this even a real keyword in angelscript???
@@ -130,6 +133,8 @@ def findFunction(lines, cursorLine):
             # "err": "none"
         }
     else:
+        print("I was unable to find a function!")
+        print(cursorLine)
         return {
             "err": "not-found"
         }
@@ -248,7 +253,7 @@ def getGlobalScopeFunctions(lines):
                     continue
                 if "= {" in line or "={" in line:
                     continue
-                if split[0] == "enum" or split[0] == "class":
+                if split[0] == "enum" or split[0] == "class" or split[0] == "namespace":
                     continue
 
                 output.append(findFunction(lines, lineIndex))

@@ -5,14 +5,13 @@ const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
 
 #include "STVutil.asc"
 
-// for intellisense
-#include "../../scripts/STVutil.asc"
-
 void onLevelBegin() {
 	MLLE::SpawnOffgrids();
     jjConsole("Started!");
+	
 }
 
 void onLevelReload() {
 	MLLE::SpawnOffgridsLocal();
+
 }
