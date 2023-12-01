@@ -75,7 +75,12 @@ ENUM_ARRAY = {
 class JJ2PlusLinter:
     def __init__(self, file):
         self.file = file
-        self.code = open(file).read()
+        os.makedirs(os.path.dirname(file), exist_ok=True)
+        if os.path.exists(file):
+            self.code = open(file).read()
+        else:
+            print("File was not found, created parent directory!")
+            self.code = ""
         # self.enabled_errors = ["semicolons"]
         self.enabled_errors = []
 
@@ -141,7 +146,7 @@ class JJ2PlusLinter:
             print("Empty code, file writing has (possibly) not finished!")
             return []
         if lineN <= 0 or lineN > len(self.code.splitlines()):
-            print("Invalid line number")
+            print(f"Invalid line number (specified: {lineN} when only has: {len(self.code.splitlines())})")
             return []
         line = self.code.splitlines()[lineN - 1]
 
@@ -159,31 +164,56 @@ class JJ2PlusLinter:
         className = None
         
         # WTF! why do I have to add/subtract some random offset from lineN for each new feature
+        # for lineyas,asyline in enumerate(self.code.splitlines()):
+        #     print(f"{lineyas}: {asyline}")
         # print(f"lineN+2 = {lineN+2}, len(codelines) = {len(self.code.splitlines())}")
         # print(f"line: {line}# prev line: {self.code.splitlines()[lineN - 2]}#")
-        t = line.strip().split(".")
+        # t = line.strip().split(".")
+        t = line.split(".")
         # print("t assigned")
         # print(t)
+        print(f"len(t) == {len(t)}")
+        print(t)
 
         if len(t) >= 2:
+            print("len(t) >= 2")
+
             if line.strip().endswith("."):
+                print("line.endswith('.')")
                 if fnc.get("err") == None:
                     fnc["arguments"] = hierachy2.removeHandlesFromArgs(fnc["arguments"])
                     for x in fnc["arguments"]:
-                        if x["name"] == hierachy2.removeHandle(t[0]):
+                        if x["name"] == hierachy2.removeHandle(t[0].split("[")[0]):
                             className = x["type"]
+                            break
                 for x in globalScopeVars:
-                    if x["name"] == hierachy2.removeHandle(t[0]):
-                        className = x["type"]
-                for x in localScopeVars:
                     # print(f"({x['name']} == {t[0]} == {x['name'] == t[0]})")
-                    if x["name"] == hierachy2.removeHandle(t[0]):
+                    if x["name"] == hierachy2.removeHandle(t[0].split("[")[0]):
                         className = x["type"]
+                        break
+                for x in localScopeVars:
+                    if x["name"] == hierachy2.removeHandle(t[0].split("[")[0]):
+                        className = x["type"]
+                        break
+                
+                for p in globalProperties:
+                    for prop in globalProperties[p]:
+                        if prop["name"].lower() == hierachy2.removeHandle(t[0].split("[")[0]):
+                            # TODO fix this
+                            ret = prop["full"].split(" ")[0]
+                            if ret == "const":
+                                ret = prop["full"].split(" ")[1]
+                            className = hierachy2.removeHandle(ret)
+                            # print("HEYYY")
+                            # print(prop)
+                            break
 
         if className == None:
             className = line.strip()
-            if len(className.split("// @force-autocomplete-class ")) >= 2:
-                className = className.split("// @force-autocomplete-class ")[1]
+
+            # NO CLUE
+            if len(self.code.splitlines()[lineN - 2].strip().split("// @force-autocomplete-class ")) >= 2:
+                className = self.code.splitlines()[lineN - 2].strip().split("// @force-autocomplete-class ")[1]
             else:
                 className = None
         
@@ -246,6 +276,7 @@ class JJ2PlusLinter:
                 return suggestions
 
         if className != None:
+            print(className)
             if classProperties.get(className):
                 for prop in classProperties[className]:
                     handleProp(prop)

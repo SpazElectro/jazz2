@@ -1,7 +1,8 @@
-let { writeFile, readFileSync, existsSync } = require("fs");
+let { writeFile, readFileSync, existsSync, mkdirSync } = require("fs");
 let { promisify } = require("util");
 let vscode = require("vscode");
 let net = require("net");
+const { dirname } = require("path");
 let writeFileAsync = promisify(writeFile);
 
 const serverAddress = "localhost";
@@ -10,7 +11,6 @@ const client = new net.Socket();
 
 let connectedToServer = false;
 let extensionDiagnostics;
-let includesLineCount = 0; // good enough
 
 function stripText(inputString) {
     let startIndex = 0;
@@ -89,7 +89,7 @@ async function runPythonScript(adv = false) {
     return new Promise((resolve, reject) => {
         const requestData = {
             type: adv === true ? "ADVANCED_AUTOCOMPLETE" : "AUTOCOMPLETE",
-            line: (includesLineCount + vscode.window.activeTextEditor.selection.active.line).toString(),
+            line: (getIncludesText()[1] + vscode.window.activeTextEditor.selection.active.line).toString(),
             char: vscode.window.activeTextEditor.selection.active.character.toString(),
             file: getFileLocation(),
         };
@@ -119,6 +119,11 @@ async function runPythonScript(adv = false) {
 
 let completion = {
     async provideCompletionItems() {
+        if(!connectedToServer) {
+            vscode.window.showInformationMessage("You are not connected to Spazlint!");
+            return [];
+        }
+
         try {
             const output = await runPythonScript();
             const suggestions = JSON.parse(output.split("\n")[0]);
@@ -236,28 +241,11 @@ function findIncludeFile(filename) {
     return [false, lookedAt];
 }
 
-async function refreshDiagnostics(advanced = false) {
-    if (
-        vscode.window.activeTextEditor == null ||
-        vscode.window.activeTextEditor.document.isUntitled ||
-        !(
-            vscode.window.activeTextEditor.document.fileName.endsWith(".j2as") ||
-            vscode.window.activeTextEditor.document.fileName.endsWith(".mut") ||
-            vscode.window.activeTextEditor.document.fileName.endsWith(".asc")
-        )
-    )
-        return;
-    
-    if(vscode.workspace.getConfiguration("spazlint").get("linterdir") == "") {
-        vscode.window.showInformationMessage("Spazlint directory has not been set, set it in the settings! (spazlint.linterdir)");
-        return;
-    }
-    
-    var diagnostics = [];
+let diagnosticsQueue = [];
 
-    let windowText = vscode.window.activeTextEditor.document.getText();
+function getIncludesText() {
     let filesToInclude = [];
-    windowText.split("\n").forEach(line => {
+    vscode.window.activeTextEditor.document.getText().split("\n").forEach(line => {
         line = stripText(line);
         if(line.startsWith("#include \"")) {
             let including = line.split("\"")[1].split("\"")[0]
@@ -272,7 +260,7 @@ async function refreshDiagnostics(advanced = false) {
         let [success, fileContent] = findIncludeFile(fileName);
         
         if(success == false) {
-            diagnostics.push(new vscode.Diagnostic(
+            diagnosticsQueue.push(new vscode.Diagnostic(
                 new vscode.Range(0, 0, 0, 0), `Include ${fileName} was not found! searched at: ${fileContent.join(" and ")}, You can set the include directories in the settings. (spazlint.includedir)`, vscode.DiagnosticSeverity.Warning
             ));
         } else {
@@ -280,13 +268,41 @@ async function refreshDiagnostics(advanced = false) {
         }
     });
     
-    includesLineCount = includesText.split("\n").length+2;
-    console.log(`set includesLineCount to ${includesLineCount}!`)
+    return [includesText, includesText.split("\n").length+2]
+}
+
+async function refreshDiagnostics(advanced = false) {
+    if (vscode.window.activeTextEditor == null || vscode.window.activeTextEditor.document.isUntitled ||
+        !(
+            vscode.window.activeTextEditor.document.fileName.endsWith(".j2as") ||
+            vscode.window.activeTextEditor.document.fileName.endsWith(".mut") ||
+            vscode.window.activeTextEditor.document.fileName.endsWith(".asc")
+        )
+    ) return;
+    
+    if(vscode.workspace.getConfiguration("spazlint").get("linterdir") == "") {
+        return vscode.window.showInformationMessage("Spazlint directory has not been set, set it in the settings! (spazlint.linterdir)");
+    }
+
+    if(!connectedToServer) {
+        return vscode.window.showInformationMessage("You are not connected to Spazlint!");
+    }
+
+    var diagnostics = diagnosticsQueue;
+
+    let windowText = vscode.window.activeTextEditor.document.getText();
+
+    let includesText = getIncludesText()[0];
 
     let text = includesText + "\n\n" + windowText;
+    let fileLoc = getFileLocation();
+
+    if (!existsSync(dirname(fileLoc))){
+        mkdirSync(dirname(fileLoc));
+    }
 
     await writeFileAsync(
-        getFileLocation(),
+        fileLoc,
         text
     );
 
@@ -317,8 +333,8 @@ async function refreshDiagnostics(advanced = false) {
             diagnostics
         );
     } catch (error) {
-        console.error("Error running error linter:", error);
-        return [];
+        console.error("Error running linter:", error);
+        return;
     }
 }
 

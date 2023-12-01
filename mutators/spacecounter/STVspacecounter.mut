@@ -36,6 +36,14 @@ void welcomeUser(jjPLAYER@ user) {
     character.groundJump = GROUND::JAZZ;
     character.groundJump = GROUND::JUMP;
     character.canRun = false;
-    
-    
+
+    // @force-autocomplete-class jjPLAYER
+
+    // @force-autocomplete-enum AREA::Area
+
+    jjCharacters[CHAR::JAZZ].
+    jjPlayers[0].
 }
+
+
+
