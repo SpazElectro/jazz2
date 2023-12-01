@@ -172,14 +172,14 @@ class JJ2PlusLinter:
         t = line.split(".")
         # print("t assigned")
         # print(t)
-        print(f"len(t) == {len(t)}")
-        print(t)
+        # print(f"len(t) == {len(t)}")
+        # print(t)
 
         if len(t) >= 2:
-            print("len(t) >= 2")
+            # print("len(t) >= 2")
 
             if line.strip().endswith("."):
-                print("line.endswith('.')")
+                # print("line.endswith('.')")
                 if fnc.get("err") == None:
                     fnc["arguments"] = hierachy2.removeHandlesFromArgs(fnc["arguments"])
                     for x in fnc["arguments"]:
@@ -199,13 +199,8 @@ class JJ2PlusLinter:
                 for p in globalProperties:
                     for prop in globalProperties[p]:
                         if prop["name"].lower() == hierachy2.removeHandle(t[0].split("[")[0]):
-                            # TODO fix this
-                            ret = prop["full"].split(" ")[0]
-                            if ret == "const":
-                                ret = prop["full"].split(" ")[1]
+                            ret, attrs = hierachy2.removeReservedKeywords(prop["full"])
                             className = hierachy2.removeHandle(ret)
-                            # print("HEYYY")
-                            # print(prop)
                             break
 
         if className == None:

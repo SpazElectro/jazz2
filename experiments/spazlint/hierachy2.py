@@ -1,6 +1,21 @@
+# TODO getReturnType(full: str)
+
 import json
 
 reserved = ["const", "&in", "&out", "&inout", "private"]
+
+def removeReservedKeywords(full: str, startIndex=0):
+    attributes = []
+    tp = full.split(" ")[0]
+    tpIndex = startIndex
+
+    while tp in reserved:
+        tp = full.split(" ")[tpIndex]
+        if tp in reserved:
+            attributes.append(tp.strip())
+        tpIndex += 1
+    
+    return [tp, attributes]
 
 def findFunction(lines, cursorLine):
     className = ""
@@ -77,23 +92,17 @@ def findFunction(lines, cursorLine):
                         if x == "function":
                             continue
                         argType = x.split(" ")[0]
-                        argName = x.split(" ")[1]
-                        argTypeIndex = 0
-                        argNameIndex = 1
+                        if len(x.split(" ")) == 1:
+                            argName = ""
+                        else: argName = x.split(" ")[1]
                         if "@" in argName:
                             argName = removeHandle(argName)
                             argType = argType + "@"
                         
-                        while argType in reserved:
-                            argType = x.split(" ")[argTypeIndex]
-                            if argType in reserved:
-                                attributes.append(argType.strip())
-                            argTypeIndex += 1
-                        while argName in reserved:
-                            argName = x.split(" ")[argNameIndex]
-                            if argName in reserved:
-                                attributes.append(argName.strip())
-                            argNameIndex += 1
+                        argType, attrsA = removeReservedKeywords(x)
+                        argName, attrsB = removeReservedKeywords(x, 1)
+                        attributes.extend(attrsA)
+                        attributes.extend(attrsB)
                         
                         realArgs.append({
                             "type": argType.strip(),
