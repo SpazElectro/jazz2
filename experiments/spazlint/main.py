@@ -276,15 +276,16 @@ class JJ2PlusLinter:
                     handleProp(prop)
         else:
             canAutocompleteNamespace = False
+            namespaces = hierachy2.getNamespaces(self.code.splitlines())
 
-            for namespace in hierachy2.getNamespaces(self.code.splitlines()):
+            for namespace in namespaces:
                 if line.split("::")[0] == namespace["name"].lower():
                     for p in namespace["vars"]:
                         handleProp({**p, **{"description": ""}})
                     for p in namespace["funs"]:
                         handleProp({**p, **{"description": ""}})
                     canAutocompleteNamespace = True
-            for namespace in hierachy2.getNamespaces(self.code.splitlines()):
+            for namespace in namespaces:
                 if line.split("::")[0] != namespace["name"].lower():
                     if not canAutocompleteNamespace:
                         suggestions.append({

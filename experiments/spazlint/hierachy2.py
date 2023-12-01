@@ -4,17 +4,16 @@ import json
 
 reserved = ["const", "&in", "&out", "&inout", "private"]
 
-def removeReservedKeywords(full: str, startIndex=0):
+def removeReservedKeywords(full: str, start_index=0):
     attributes = []
-    tp = full.split(" ")[0]
-    tpIndex = startIndex
+    split_line = full.split(" ")
+    tp = split_line[start_index]
 
     while tp in reserved:
-        tp = full.split(" ")[tpIndex]
-        if tp in reserved:
-            attributes.append(tp.strip())
-        tpIndex += 1
-    
+        attributes.append(tp.strip())
+        start_index += 1
+        tp = split_line[start_index]
+
     return [tp, attributes]
 
 def findFunction(lines, cursorLine):
