@@ -94,6 +94,8 @@ def find_function(lines: List[str], cursorLine: int) -> ASFunc:
                         if "@" in argName:
                             argName = remove_handle(argName)
                             argType += "@"
+                        if argName.endswith(")"):
+                            argName = argName[:-1]
 
                         realArgs.append({
                             "type": argType,

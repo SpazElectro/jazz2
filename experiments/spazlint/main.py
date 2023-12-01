@@ -2,8 +2,6 @@ import json, os
 from typing import Tuple
 import errorchecker, hierachy2
 
-import cProfile
-
 globalProperties: dict = json.load(open(os.path.dirname(__file__) + "/global.json"))
 classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 _eventsList = globalProperties["eventsList"]
@@ -157,6 +155,7 @@ class JJ2PlusLinter:
         suggestions = []
 
         fnc = hierachy2.find_function(split_lines, line_number)
+        # TODO: remove this and correctly do stuff
         if fnc.get("err") == "not-found":
             print("Could not find function when attemping autocomplete!")
             return []
@@ -173,25 +172,27 @@ class JJ2PlusLinter:
         # print(f"line: {line}# prev line: {split_lines[line_number - 2]}#")
         # t = line.strip().split(".")
         t = line.split(".")
-        # print("t assigned")
         # print(t)
         # print(f"len(t) == {len(t)}")
-        # print(t)
 
         if len(t) >= 2 and line.strip().endswith("."):
-            if fnc.get("err") == "not-found":
+            if fnc.get("err") != "not-found":
                 fnc["arguments"] = hierachy2.remove_handles_from_args(fnc["arguments"])
-                for x in fnc["arguments"] + global_scope_vars + local_scope_vars:
-                    if x["name"] == hierachy2.remove_handle(t[0].split("[")[0]):
+                for x in fnc["arguments"]:
+                    if x["name"].lower() == hierachy2.remove_handle(t[0].split("[")[0]).lower():
                         class_name = x["type"]
                         break
-            else:
-                for p in globalProperties.values():
-                    for prop in p:
-                        if prop["name"].lower() == hierachy2.remove_handle(t[0].split("[")[0]):
-                            ret, attrs = hierachy2.remove_reserved_keywords(prop["full"])
-                            class_name = hierachy2.remove_handle(ret)
-                            break
+
+            for x in global_scope_vars + local_scope_vars:
+                if x["name"].lower() == hierachy2.remove_handle(t[0].split("[")[0]).lower():
+                    class_name = x["type"]
+                    break
+            for p in globalProperties.values():
+                for prop in p:
+                    if prop["name"].lower() == hierachy2.remove_handle(t[0].split("[")[0]):
+                        ret, attrs = hierachy2.remove_reserved_keywords(prop["full"])
+                        class_name = hierachy2.remove_handle(ret)
+                        break
 
         if class_name == None:
             class_name = line.strip()
@@ -346,18 +347,13 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
                 data = json.loads(data.split(b"{")[-1])
             else:
                 continue
-        
-        advanced = data["type"] == "ADVANCED_AUTOCOMPLETE"
-        line = data["line"]
-        char = data["char"]
-        file = data["file"]
 
         startTime = time.time()
 
-        linter = JJ2PlusLinter(file)
-        autocomplete_data = linter.autocomplete(line, char)
+        linter = JJ2PlusLinter(data["file"])
+        autocomplete_data = linter.autocomplete(data["line"], data["char"])
 
-        # result, profiling_data = profiler.runctx("linter.autocomplete(line, char)", globals(), locals()), None
+        # result, profiling_data = profiler.runctx("linter.autocomplete(data["line"], data["char"])", globals(), locals()), None
         # stats = pstats.Stats(profiler)
         # stats.strip_dirs()
         # stats.sort_stats('time')
@@ -369,7 +365,7 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
         print(f"Took {endTime - startTime} to analyze with {len(autocomplete_data)} elements!") # type: ignore
         
         autocomplete_bytes = json.dumps(autocomplete_data).encode("utf-8")
-        linter_bytes = json.dumps(linter.lint(advanced == 1)).encode("utf-8")
+        linter_bytes = json.dumps(linter.lint(data["type"] == "ADVANCED_AUTOCOMPLETE" == 1)).encode("utf-8")
 
         conn.sendall(autocomplete_bytes + b"\n" + linter_bytes)
 

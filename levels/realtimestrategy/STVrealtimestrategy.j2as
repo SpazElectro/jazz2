@@ -122,6 +122,17 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
         Tower@ tower = towers[towerIndex];
         tower.draw(canvas);
     }
+    
+    player.
+    // @force-autocomplete-class jjPLAYER
+
+    AREA::
+
+    // @force-autocomplete-enum AREA::Area
+
+
 
     return false;
 }
+
+
