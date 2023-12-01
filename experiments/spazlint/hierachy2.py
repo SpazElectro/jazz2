@@ -1,10 +1,25 @@
 # TODO insideComment(lines, cursorLine)
 
+from typing import List, TypedDict, Tuple, Union
 import json
+
+class ASArg(TypedDict):
+    type: str
+    name: str
+    attributes: List[str]
+
+class ASFunc(TypedDict):
+    type: str
+    name: str
+    description: str
+    full: str
+    arguments: List[ASArg]
+    line: int
+    err: Union[str, None]
 
 reserved = ["const", "&in", "&out", "&inout", "private"]
 
-def removeReservedKeywords(full: str, start_index=0):
+def remove_reserved_keywords(full: str, start_index=0) -> Tuple[str, List[str]]:
     attributes = []
     split_line = full.split(" ")
     tp = split_line[start_index]
@@ -14,9 +29,9 @@ def removeReservedKeywords(full: str, start_index=0):
         start_index += 1
         tp = split_line[start_index]
 
-    return [tp, attributes]
+    return tp, attributes
 
-def findFunction(lines, cursorLine):
+def find_function(lines: List[str], cursorLine: int) -> ASFunc:
     className = ""
     fnLineIndex = -1
     args = []
@@ -24,111 +39,77 @@ def findFunction(lines, cursorLine):
     returns = ""
     fullLine = ""
 
-    for lineIndex, lineX in enumerate(lines):
-        line = lineX.strip()
+    for lineIndex, line in enumerate(lines):
+        line = line.strip()
         split = line.split(" ")
 
         if split[0] == "class":
             className = split[1]
-        elif lineX.split(" ")[0] == "}" and className != "":
+        elif split[0] == "}" and className != "":
             className = ""
 
-        if (len(split) >= 3 and "(" in split[2]) or (len(split) >= 2 and "(" in split[1]) or (len(split) >= 1 and "(" in split[0]): 
-            if split[0] == "funcdef":
-                continue
-            # this wont work if the return type starts with any of these keywords
-            if line.startswith(("if", "for", "switch", "while")):
-                continue
-            if len(split) >= 2 and "function" in split[1].split("(")[0]:
-                continue
+        if any(keyword in split for keyword in ["funcdef", "if", "for", "switch", "while", "function"]):
+            continue
 
+        if any("(" in part for part in split[:3]):
             if split[-1] == "{" or lines[lineIndex + 1].strip() == "{":
-                constructor = ("(" in split[0])
-                # MLLE include script has weird syntax!
-                if "." in split[0 if constructor else 1].split("(")[0]:
-                    continue
+                constructor = "(" in split[0]
                 fnName = split[0 if constructor else 1].split("(")[0]
-                
-                # is this even a real keyword in angelscript???
+
                 if split[0] in ["private", "public"]:
                     fnName = split[1 if constructor else 2].split("(")[0]
-                
+
                 fnLineIndex = lineIndex + 1
                 returns = line.split(" ")[0]
-                retIndex = 0
-                retIterations = 0
-                fullLine = line
 
                 if constructor:
                     returns = fnName
                 else:
-                    while True:
-                        if retIterations >= 10:
-                            print(f"[WARN] Over 10 ret interactions have passed! fnName: {fnName}, line: {line}")
-                            break
-                        if len(line.split(" ")) > retIndex+1 and line.split(" ")[retIndex+1].split("(")[0] == fnName:
-                            break
-                        
+                    retIndex = 0
+                    retIterations = 0
+                    while retIterations < 10 and len(line.split(" ")) > retIndex + 1 and line.split(" ")[retIndex + 1].split("(")[0] != fnName:
                         returns += line.split(" ")[retIndex]
                         retIndex += 1
                         retIterations += 1
-                    
+
                     if "@" in fnName:
-                        fnName = removeHandle(fnName)
-                        returns = returns+"@"
+                        fnName = remove_handle(fnName)
+                        returns += "@"
 
                 args = ' '.join(split[(0 if constructor else 1):]).split("(")[1:]
-                if ' '.join(args).strip().startswith(")"):
+
+                if args and args[0].strip().startswith(")"):
                     args = []
                 else:
-                    args = ' '.join(args)
-                    args = args.split(")")[0]
-                    args = ''.join(args)
+                    args = [arg.strip() for arg in args[0].split(", ")]
                     realArgs = []
-                    attributes = []
-                    for x in args.split(", "):
-                        x = x.strip()
+
+                    for x in args:
                         if x == "function":
                             continue
-                        argType = x.split(" ")[0]
-                        if len(x.split(" ")) == 1:
-                            argName = ""
-                        else: argName = x.split(" ")[1]
+
+                        argType, attrsA = remove_reserved_keywords(x)
+                        argName, attrsB = remove_reserved_keywords(x, 1)
+
                         if "@" in argName:
-                            argName = removeHandle(argName)
-                            argType = argType + "@"
-                        
-                        argType, attrsA = removeReservedKeywords(x)
-                        argName, attrsB = removeReservedKeywords(x, 1)
-                        attributes.extend(attrsA)
-                        attributes.extend(attrsB)
-                        
+                            argName = remove_handle(argName)
+                            argType += "@"
+
                         realArgs.append({
-                            "type": argType.strip(),
-                            "name": argName.strip(),
-                            "attributes": attributes
+                            "type": argType,
+                            "name": argName,
+                            "attributes": attrsA + attrsB
                         })
-                    
+
                     args = realArgs
-                
+
         if lineIndex > cursorLine:
             break
 
     if fnLineIndex != -1:
-        # {
-        #     "type": prop["type"],
-        #     "name": prop["name"],
-        #     "description": prop["description"],
-        #     "full": prop["full"],
-        #     "items": prop["arguments"]
-        # }
-        # -2 again, why?
-        description = lines[fnLineIndex - 2].strip()
-        if description != "" and description.startswith("//"):
-            description = '//'.join(description.split("//")[1:]).strip()
-        else:
-            description = ""
-
+        description_line = lines[fnLineIndex - 2].strip()
+        description = ' '.join(description_line.split("//")[1:]).strip() if description_line.startswith("//") else ""
+        
         return {
             "type": "function",
             "name": fnName,
@@ -136,29 +117,33 @@ def findFunction(lines, cursorLine):
             "full": fullLine,
             "arguments": args,
             "line": fnLineIndex,
-            # "class": className,
-            # "returns": returns,
-            # "err": "none"
+            "err": None
         }
     else:
         return {
+            "type": "",
+            "name": "",
+            "description": "",
+            "full": "",
+            "arguments": [],
+            "line": -1,
             "err": "not-found"
         }
 
-def removeHandle(clType: str):
+def remove_handle(clType: str) -> str:
     return clType.replace("@", "")
 
-def removeHandlesFromArgs(args):
+def remove_handles_from_args(args: List[ASArg]) -> List[ASArg]:
     newArgs = []
 
     for x in args:
         newX = x
-        x["type"] = removeHandle(x["type"])
+        x["type"] = remove_handle(x["type"])
         newArgs.append(newX)
     
     return newArgs
 
-def getDatatypes(lines):
+def get_datatypes(lines: List[str]) -> Tuple[str, ...]:
     datatypes = []
     
     for lineIndex, lineX in enumerate(lines):
@@ -166,9 +151,9 @@ def getDatatypes(lines):
         split = line.split(" ")
 
         if split[0] == "class":
-            datatypes.append(removeHandle(split[1]))
+            datatypes.append(remove_handle(split[1]))
         elif split[0] == "funcdef":
-            datatypes.append(removeHandle(split[2].split("(")[0]))
+            datatypes.append(remove_handle(split[2].split("(")[0]))
     
     datatypes.extend([
         "void", "int8", "int16", "int", "int64", "uint8", "uint16", "uint", "uint64", "float", "double", "bool", "string",
@@ -178,24 +163,24 @@ def getDatatypes(lines):
 
     return tuple(datatypes)
 
-def getDataTypeOf(x):
-    x = x.split(" ")
+def get_datatype_of(x: str) -> str:
+    splitX: List[str] = x.split(" ")
 
-    if x[0].split(" ")[0] in reserved:
-        x = ' '.join(x).split(" ")[1:]
+    if splitX[0].split(" ")[0] in reserved:
+        splitX = ' '.join(splitX).split(" ")[1:]
     
-    if ' '.join(x).startswith("array<"):
+    if ' '.join(splitX).startswith("array<"):
         # TODO: check if this is even needed
-        return "array<" + removeHandle(' '.join(x)[6:].split(">")[0]) + ">"
+        return "array<" + remove_handle(' '.join(splitX)[6:].split(">")[0]) + ">"
 
-    return removeHandle(x[0])
+    return remove_handle(splitX[0])
 
-def getNameOf(dt, line):
+def get_name_of(dts: List[str], line: str) -> str:
     split = line.split(" ")
     name = ""
 
     for xIndex, x in enumerate(split):
-        if not x in reserved and xIndex != 0 and x != ">" and not x in dt:
+        if not x in reserved and xIndex != 0 and x != ">" and not x in dts:
             if x.endswith(";"):
                 x = x[:-1]
             elif len(x.split("(")) > 1:
@@ -205,75 +190,71 @@ def getNameOf(dt, line):
     
     return name
 
-def isDataType(dt, x):
-    t = getDataTypeOf(' '.join(x))
+def is_datatype(dt, x) -> bool:
+    t = get_datatype_of(' '.join(x))
 
     if t.startswith("array<"):
         t = t[6:].split(">")[0]
 
     return t.strip() in dt
-
-def getGlobalScopeVariables(lines, insideNamespace=False, startNamespaceLine=0):
-    dataTypes = getDatatypes(lines)
+def get_global_scope_variables(lines: List[str], insideNamespace=False, startNamespaceLine=0):
+    dataTypes = get_datatypes(lines)
     output = []
 
     for lineIndex, lineX in enumerate(lines):
         line: str = lineX.strip()
 
-        if len(line.split(" ")) >= 2:
-            if isDataType(dataTypes, line.split(" ")[:-1]):
-                fn = findFunction(lines, lineIndex)
-                if fn.get("err"):
-                    if not insideNamespace and (lineX.startswith("\t") or lineX.startswith(" ")):
-                        continue
-                    if line.endswith(") {") or line.endswith("){"):
-                        continue
-                    if len(lines) > lineIndex+1 and lines[lineIndex + 1].strip() == "{":
-                        continue
-                    
-                    output.append({
-                        "type": getDataTypeOf(removeHandle(line)),
-                        "name": getNameOf(dataTypes, removeHandle(line)),
-                        "line": startNamespaceLine + lineIndex
-                    })
-
-    return output
-
-def getGlobalScopeFunctions(lines, insideNamespace=False):
-    output = []
-
-    for lineIndex, lineX in enumerate(lines):
-        line: str = lineX.strip()
-        if line.startswith("//"):
+        split_line = line.split(" ")
+        if len(split_line) < 2:
             continue
-        split = line.split(" ")
-        if len(split) >= 2:
-            if line.endswith("{") or line.endswith(")"):
+
+        if is_datatype(dataTypes, split_line[:-1]):
+            fn = find_function(lines, lineIndex)
+            if fn.get("err") == "not-found":
                 if not insideNamespace and (lineX.startswith("\t") or lineX.startswith(" ")):
                     continue
-                # if line.split(" ")[0] in ["if", "switch", "while", "for"]
-                if line.startswith("if(") or line.startswith("if ("):
-                    continue
-                if line.startswith("switch(") or line.startswith("switch ("):
-                    continue
-                if line.startswith("while(") or line.startswith("while ("):
-                    continue
-                if line.startswith("for(") or line.startswith("for ("):
-                    continue
-                if "= {" in line or "={" in line:
-                    continue
-                if split[0] == "enum" or split[0] == "class" or split[0] == "namespace":
+                if line.endswith(") {") or line.endswith("){") or (len(lines) > lineIndex + 1 and lines[lineIndex + 1].strip() == "{"):
                     continue
 
-                output.append(findFunction(lines, lineIndex))
+                output.append({
+                    "type": get_datatype_of(remove_handle(line)),
+                    "name": get_name_of(list(dataTypes), remove_handle(line)),
+                    "line": startNamespaceLine + lineIndex
+                })
 
     return output
 
-def getNamespaces(lines):
+def get_global_scope_functions(lines, insideNamespace=False):
+    output = []
+
+    for lineIndex, lineX in enumerate(lines):
+        line: str = lineX.strip()
+
+        if line.startswith("//") or line.startswith("enum") or line.startswith("class") or line.startswith("namespace"):
+            continue
+
+        split_line = line.split(" ")
+        if len(split_line) < 2:
+            continue
+
+        if line.endswith("{") or line.endswith(")"):
+            if not insideNamespace and (lineX.startswith("\t") or lineX.startswith(" ")):
+                continue
+
+            if line.startswith("if(") or line.startswith("if (") or line.startswith("switch(") or line.startswith("switch (") or line.startswith("while(") or line.startswith("while (") or line.startswith("for(") or line.startswith("for ("):
+                continue
+
+            if "= {" in line or "={" in line:
+                continue
+
+            output.append(find_function(lines, lineIndex))
+
+    return output
+
+def get_namespaces(lines):
     output = []
     nsN = ""
     nsL = 0
-    nsEL = 0
 
     for lineIndex, lineX in enumerate(lines):
         line: str = lineX.strip()
@@ -289,18 +270,18 @@ def getNamespaces(lines):
         if nsN != "" and (line == "}" or line == "};"):
             output.append({
                 "name": nsN, "line": nsL, "endLine": lineIndex,
-                "vars": getGlobalScopeVariables(lines[nsL:lineIndex], True, nsL),
-                "funs": getGlobalScopeFunctions(lines[nsL:lineIndex], True)
+                "vars": get_global_scope_variables(lines[nsL:lineIndex], True, nsL),
+                "funs": get_global_scope_functions(lines[nsL:lineIndex], True)
             })
             nsN = ""
 
     return output
 
-def getLocalScopeVariables(lines, cursorLine):
-    fn = findFunction(lines, cursorLine)
-    if fn.get("err"):
+def get_local_scope_variables(lines, cursorLine):
+    fn = find_function(lines, cursorLine)
+    if fn.get("err") == "not-found":
         return []
-    dataTypes = getDatatypes(lines)
+    dataTypes = get_datatypes(lines)
     output = []
     
     for lineIndex, lineX in enumerate(lines):
@@ -312,15 +293,15 @@ def getLocalScopeVariables(lines, cursorLine):
             break
 
         if len(line.split(" ")) >= 2:
-            if isDataType(dataTypes, line.split(" ")[:-1]):
+            if is_datatype(dataTypes, line.split(" ")[:-1]):
                 if lineX.endswith(") {") or lineX.endswith("){"):
                     continue
                 if lines[lineIndex + 1].strip() == "{":
                     continue
                 
                 output.append({
-                    "type": getDataTypeOf(removeHandle(line)),
-                    "name": getNameOf(dataTypes, removeHandle(line)),
+                    "type": get_datatype_of(remove_handle(line)),
+                    "name": get_name_of(list(dataTypes), remove_handle(line)),
                     "line": lineIndex
                 })
 
@@ -351,7 +332,7 @@ if __name__ == "__main__":
                 "description": prop["description"]
             })
     line = "Test::"
-    for namespace in getNamespaces(lines):
+    for namespace in get_namespaces(lines):
         if line.split("::")[0] == namespace["name"]:
             for p in namespace["vars"]:
                 handleProp({**p, **{"description": ""}})

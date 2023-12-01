@@ -2,7 +2,6 @@
 
 #include "STVutil.asc"
 
-
 enum ResourceType
 {
     WOOD,

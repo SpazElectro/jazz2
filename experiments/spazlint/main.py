@@ -2,6 +2,8 @@ import json, os
 from typing import Tuple
 import errorchecker, hierachy2
 
+import cProfile
+
 globalProperties: dict = json.load(open(os.path.dirname(__file__) + "/global.json"))
 classProperties: dict = json.load(open(os.path.dirname(__file__) + "/classes.json"))
 _eventsList = globalProperties["eventsList"]
@@ -84,14 +86,16 @@ class JJ2PlusLinter:
         # self.enabled_errors = ["semicolons"]
         self.enabled_errors = []
 
-        disabledErrors = self.code.split("\n")[0]
-        if disabledErrors.startswith("// @ignore-"):
-            err = disabledErrors.split("// @ignore-")[1]
+        disabled_errors = self.code.splitlines()[0]
+        if disabled_errors.startswith("// @ignore-"):
+            err = disabled_errors.split("// @ignore-")[1]
 
             if err in self.enabled_errors:
                 self.enabled_errors.remove(err)
 
     def lint(self, advanced=False):
+        return []
+
         linting_errors = []
 
         # obviously this isnt gonna work that great but hey it gets the job done I guess
@@ -136,38 +140,37 @@ class JJ2PlusLinter:
         
         return linting_errors
 
-    def autocomplete(self, lineN, char):
-        # print(f"JJ2PlusLinter.autocomplete(lineN={lineN}, char={char})")
-        if isinstance(lineN, str):
-            lineN = int(lineN)
+    def autocomplete(self, line_number, char):
+        # print(f"JJ2PlusLinter.autocomplete(line_number={line_number}, char={char})")
+        if isinstance(line_number, str):
+            line_number = int(line_number)
         if isinstance(char, str):
             char = int(char)
         if self.code == "":
             print("Empty code, file writing has (possibly) not finished!")
             return []
-        if lineN <= 0 or lineN > len(self.code.splitlines()):
-            print(f"Invalid line number (specified: {lineN} when only has: {len(self.code.splitlines())})")
+        split_lines = self.code.splitlines()
+        if line_number <= 0 or line_number > len(split_lines):
+            print(f"Invalid line number (specified: {line_number} when only has: {len(split_lines)})")
             return []
-        line = self.code.splitlines()[lineN - 1]
-
-        line = line.strip().lower()
+        line = split_lines[line_number - 1].strip().lower()
         suggestions = []
 
-        fnc = hierachy2.findFunction(self.code.splitlines(), lineN)
-        if fnc.get("err"):
+        fnc = hierachy2.find_function(split_lines, line_number)
+        if fnc.get("err") == "not-found":
             print("Could not find function when attemping autocomplete!")
             return []
-        globalScopeVars = hierachy2.getGlobalScopeVariables(self.code.splitlines())
-        globalScopeFuncs = hierachy2.getGlobalScopeFunctions(self.code.splitlines())
-        localScopeVars = hierachy2.getLocalScopeVariables(self.code.splitlines(), lineN)
+        global_scope_vars = hierachy2.get_global_scope_variables(split_lines)
+        global_scope_funcs = hierachy2.get_global_scope_functions(split_lines)
+        local_scope_vars = hierachy2.get_local_scope_variables(split_lines, line_number)
         
-        className = None
+        class_name = None
         
-        # WTF! why do I have to add/subtract some random offset from lineN for each new feature
-        # for lineyas,asyline in enumerate(self.code.splitlines()):
+        # WTF! why do I have to add/subtract some random offset from line_number for each new feature
+        # for lineyas,asyline in enumerate(split_lines):
         #     print(f"{lineyas}: {asyline}")
-        # print(f"lineN+2 = {lineN+2}, len(codelines) = {len(self.code.splitlines())}")
-        # print(f"line: {line}# prev line: {self.code.splitlines()[lineN - 2]}#")
+        # print(f"line_number+2 = {line_number+2}, len(codelines) = {len(split_lines)}")
+        # print(f"line: {line}# prev line: {split_lines[line_number - 2]}#")
         # t = line.strip().split(".")
         t = line.split(".")
         # print("t assigned")
@@ -175,44 +178,32 @@ class JJ2PlusLinter:
         # print(f"len(t) == {len(t)}")
         # print(t)
 
-        if len(t) >= 2:
-            # print("len(t) >= 2")
-
-            if line.strip().endswith("."):
-                # print("line.endswith('.')")
-                if fnc.get("err") == None:
-                    fnc["arguments"] = hierachy2.removeHandlesFromArgs(fnc["arguments"])
-                    for x in fnc["arguments"]:
-                        if x["name"] == hierachy2.removeHandle(t[0].split("[")[0]):
-                            className = x["type"]
-                            break
-                for x in globalScopeVars:
-                    # print(f"({x['name']} == {t[0]} == {x['name'] == t[0]})")
-                    if x["name"] == hierachy2.removeHandle(t[0].split("[")[0]):
-                        className = x["type"]
+        if len(t) >= 2 and line.strip().endswith("."):
+            if fnc.get("err") == "not-found":
+                fnc["arguments"] = hierachy2.remove_handles_from_args(fnc["arguments"])
+                for x in fnc["arguments"] + global_scope_vars + local_scope_vars:
+                    if x["name"] == hierachy2.remove_handle(t[0].split("[")[0]):
+                        class_name = x["type"]
                         break
-                for x in localScopeVars:
-                    if x["name"] == hierachy2.removeHandle(t[0].split("[")[0]):
-                        className = x["type"]
-                        break
-                
-                for p in globalProperties:
-                    for prop in globalProperties[p]:
-                        if prop["name"].lower() == hierachy2.removeHandle(t[0].split("[")[0]):
-                            ret, attrs = hierachy2.removeReservedKeywords(prop["full"])
-                            className = hierachy2.removeHandle(ret)
-                            break
-
-        if className == None:
-            className = line.strip()
-
-            # NO CLUE
-            if len(self.code.splitlines()[lineN - 2].strip().split("// @force-autocomplete-class ")) >= 2:
-                className = self.code.splitlines()[lineN - 2].strip().split("// @force-autocomplete-class ")[1]
             else:
-                className = None
+                for p in globalProperties.values():
+                    for prop in p:
+                        if prop["name"].lower() == hierachy2.remove_handle(t[0].split("[")[0]):
+                            ret, attrs = hierachy2.remove_reserved_keywords(prop["full"])
+                            class_name = hierachy2.remove_handle(ret)
+                            break
+
+        if class_name == None:
+            class_name = line.strip()
+            # NO CLUE
+            s = split_lines[line_number - 2].strip().split("// @force-autocomplete-class ")
+
+            if len(s) >= 2:
+                class_name = s[1]
+            else:
+                class_name = None
         
-        def handleProp(prop):
+        def handle_prop(prop):
             if prop["type"] == "function" or prop["type"] == "event":
                 suggestions.append({
                     "type": prop["type"],
@@ -230,35 +221,26 @@ class JJ2PlusLinter:
         
         # enum identification
         # TODO allow enum identification for this file
-        enum = self.code.splitlines()[lineN - 1][:char].strip().split(" ")[-1].split("::")[0].lower()
-        enumsFound = False
+        enum = split_lines[line_number - 1][:char].strip().split(" ")[-1].split("::")[0].lower()
+        enums_found = False
 
-        # print(f"BFR enum: |{enum}| line[:char]: |{self.code.splitlines()[lineN - 1][:char]}|")
-        # st=self.code.splitlines()[lineN - 1][:char].strip().split(" ")
-        # print(f"line: |{self.code.splitlines()[lineN - 1]}|, char: |{char}| split: |{st}|")
-        # print(f"next line: |{self.code.splitlines()[lineN - 1]}|")
-        # for ie, ieline in enumerate(self.code.splitlines()):
+        # print(f"BFR enum: |{enum}| line[:char]: |{split_lines[line_number - 1][:char]}|")
+        # st=split_lines[line_number - 1][:char].strip().split(" ")
+        # print(f"line: |{split_lines[line_number - 1]}|, char: |{char}| split: |{st}|")
+        # print(f"next line: |{split_lines[line_number - 1]}|")
+        # for ie, ieline in enumerate(split_lines):
         #     print(f"{ie}: {ieline}")
         
-        if className == None:
+        if class_name == None:
             for enumStarterX in ENUM_ARRAY:
                 enumStarter = enumStarterX.split("::")[0].lower()
 
-                if len(self.code.splitlines()[lineN - 1].strip().split("// @force-autocomplete-enum ")) >= 2:
-                    enum = self.code.splitlines()[lineN - 1].strip().split("// @force-autocomplete-enum ")[1] + "::"
+                if len(split_lines[line_number - 1].strip().split("// @force-autocomplete-enum ")) >= 2:
+                    enum = split_lines[line_number - 1].strip().split("// @force-autocomplete-enum ")[1] + "::"
                     enum = enum.lower()
-                # print(f"enum: {enum} enumStarter: {enumStarter}")
+                
                 if enum.startswith(enumStarter):
-                    enumsFound = True
-
-                    # if fnc["err"] == "none": # no error
-                    #     for prop in classProperties[className]:
-                    #         print(fnc["name"])
-                    #         if prop["name"] == fnc["name"]:
-                    #             for arg in prop["arguments"]:
-                    #                 if arg["type"].strip() == enumStarterX.strip():
-                    #                     handleProp(prop)
-                    #     break # stop looking for other enums
+                    enums_found = True
                     
                     for enumName in ENUM_ARRAY[enumStarterX]:
                         suggestions.append({
@@ -266,36 +248,37 @@ class JJ2PlusLinter:
                             "name": enumName,
                             "description": enumStarterX
                         })
+                    break
 
-            if enumsFound:
+            if enums_found:
                 return suggestions
 
-        if className != None:
-            if classProperties.get(className):
-                for prop in classProperties[className]:
-                    handleProp(prop)
+        if class_name != None:
+            if classProperties.get(class_name):
+                for prop in classProperties[class_name]:
+                    handle_prop(prop)
         else:
-            canAutocompleteNamespace = False
-            namespaces = hierachy2.getNamespaces(self.code.splitlines())
+            can_autocomplete_namespace = False
+            namespaces = hierachy2.get_namespaces(split_lines)
 
             for namespace in namespaces:
                 if line.split("::")[0] == namespace["name"].lower():
-                    for p in namespace["vars"]:
-                        handleProp({**p, **{"description": ""}})
-                    for p in namespace["funs"]:
-                        handleProp({**p, **{"description": ""}})
-                    canAutocompleteNamespace = True
+                    for prop in namespace["vars"] + namespace["funs"]:
+                        handle_prop({**prop, **{"description": ""}})
+                    can_autocomplete_namespace = True
+                    break
+
             for namespace in namespaces:
-                if line.split("::")[0] != namespace["name"].lower():
-                    if not canAutocompleteNamespace:
-                        suggestions.append({
-                            "type": "namespace",
-                            "name": namespace["name"],
-                            "description": ""
-                        })
-            if canAutocompleteNamespace:
+                if line.split("::")[0] != namespace["name"].lower() and not can_autocomplete_namespace:
+                    suggestions.append({
+                        "type": "namespace",
+                        "name": namespace["name"],
+                        "description": ""
+                    })
+
+            if can_autocomplete_namespace:
                 return suggestions
-            
+
             for prop in fnc["arguments"]:
                 suggestions.append({
                     "type": prop["type"],
@@ -303,27 +286,20 @@ class JJ2PlusLinter:
                     "description": ""
                 })
         
-            for fn in globalScopeFuncs:
+            for fn in global_scope_funcs:
                 if fn["name"] in eventsList:
                     continue
-                handleProp(fn)
+                handle_prop(fn)
 
-            for scope_vars in [globalScopeVars, localScopeVars]:
+            for scope_vars in [global_scope_vars, local_scope_vars]:
                 for p in scope_vars:
-                    description = self.code.splitlines()[p["line"] - 1].strip()
-                    if description != "" and description.startswith("//"):
-                        description = '//'.join(description.split("//")[1:]).strip()
-                    else: description = ""
-                    generatedP = {
-                        "type": p["type"],
-                        "name": p["name"],
-                        "description": description
-                    }
-                    handleProp(generatedP)
+                    description = split_lines[p["line"] - 1].split("//", 1)[-1].strip() if split_lines[p["line"] - 1].strip().startswith("//") else ""
+                    generated_p = {"type": p["type"], "name": p["name"], "description": description}
+                    handle_prop(generated_p)
 
-            for p in globalProperties:
-                for prop in globalProperties[p]:
-                    handleProp(prop)
+            for props in globalProperties.values():
+                for prop in props:
+                    handle_prop(prop)
         
         return suggestions
 
@@ -347,7 +323,11 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 print("Now listening for clients at port 17338!")
 
-def handle_client(conn: socket.socket, addr: Tuple[str, int]):    
+import cProfile, pstats
+
+def handle_client(conn: socket.socket, addr: Tuple[str, int]):
+    profiler = cProfile.Profile()
+
     while True:
         try:
             data = conn.recv(4096)
@@ -377,12 +357,19 @@ def handle_client(conn: socket.socket, addr: Tuple[str, int]):
         linter = JJ2PlusLinter(file)
         autocomplete_data = linter.autocomplete(line, char)
 
-        autocomplete_bytes = json.dumps(autocomplete_data).encode("utf-8")
-        linter_bytes = json.dumps(linter.lint(advanced == 1)).encode("utf-8")
-        
+        # result, profiling_data = profiler.runctx("linter.autocomplete(line, char)", globals(), locals()), None
+        # stats = pstats.Stats(profiler)
+        # stats.strip_dirs()
+        # stats.sort_stats('time')
+        # stats.print_stats()
+        # print(result)
+
         endTime = time.time()
 
-        print(f"Took {endTime - startTime} to analyze with {len(autocomplete_data)} elements!")
+        print(f"Took {endTime - startTime} to analyze with {len(autocomplete_data)} elements!") # type: ignore
+        
+        autocomplete_bytes = json.dumps(autocomplete_data).encode("utf-8")
+        linter_bytes = json.dumps(linter.lint(advanced == 1)).encode("utf-8")
 
         conn.sendall(autocomplete_bytes + b"\n" + linter_bytes)
 
