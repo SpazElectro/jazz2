@@ -271,11 +271,30 @@ class JJ2PlusLinter:
                 return suggestions
 
         if className != None:
-            print(className)
             if classProperties.get(className):
                 for prop in classProperties[className]:
                     handleProp(prop)
         else:
+            canAutocompleteNamespace = False
+
+            for namespace in hierachy2.getNamespaces(self.code.splitlines()):
+                if line.split("::")[0] == namespace["name"].lower():
+                    for p in namespace["vars"]:
+                        handleProp({**p, **{"description": ""}})
+                    for p in namespace["funs"]:
+                        handleProp({**p, **{"description": ""}})
+                    canAutocompleteNamespace = True
+            for namespace in hierachy2.getNamespaces(self.code.splitlines()):
+                if line.split("::")[0] != namespace["name"].lower():
+                    if not canAutocompleteNamespace:
+                        suggestions.append({
+                            "type": "namespace",
+                            "name": namespace["name"],
+                            "description": ""
+                        })
+            if canAutocompleteNamespace:
+                return suggestions
+            
             for prop in fnc["arguments"]:
                 suggestions.append({
                     "type": prop["type"],

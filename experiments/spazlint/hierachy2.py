@@ -1,4 +1,4 @@
-# TODO getReturnType(full: str)
+# TODO insideComment(lines, cursorLine)
 
 import json
 
@@ -142,8 +142,6 @@ def findFunction(lines, cursorLine):
             # "err": "none"
         }
     else:
-        print("I was unable to find a function!")
-        print(cursorLine)
         return {
             "err": "not-found"
         }
@@ -216,7 +214,7 @@ def isDataType(dt, x):
 
     return t.strip() in dt
 
-def getGlobalScopeVariables(lines):
+def getGlobalScopeVariables(lines, insideNamespace=False, startNamespaceLine=0):
     dataTypes = getDatatypes(lines)
     output = []
 
@@ -225,22 +223,24 @@ def getGlobalScopeVariables(lines):
 
         if len(line.split(" ")) >= 2:
             if isDataType(dataTypes, line.split(" ")[:-1]):
-                if lineX.startswith("\t") or lineX.startswith(" "):
-                    continue
-                if lineX.endswith(") {") or lineX.endswith("){"):
-                    continue
-                if len(lines) > lineIndex+1 and lines[lineIndex + 1].strip() == "{":
-                    continue
-                
-                output.append({
-                    "type": getDataTypeOf(removeHandle(line)),
-                    "name": getNameOf(dataTypes, removeHandle(line)),
-                    "line": lineIndex
-                })
+                fn = findFunction(lines, lineIndex)
+                if fn.get("err"):
+                    if not insideNamespace and (lineX.startswith("\t") or lineX.startswith(" ")):
+                        continue
+                    if line.endswith(") {") or line.endswith("){"):
+                        continue
+                    if len(lines) > lineIndex+1 and lines[lineIndex + 1].strip() == "{":
+                        continue
+                    
+                    output.append({
+                        "type": getDataTypeOf(removeHandle(line)),
+                        "name": getNameOf(dataTypes, removeHandle(line)),
+                        "line": startNamespaceLine + lineIndex
+                    })
 
     return output
 
-def getGlobalScopeFunctions(lines):
+def getGlobalScopeFunctions(lines, insideNamespace=False):
     output = []
 
     for lineIndex, lineX in enumerate(lines):
@@ -250,8 +250,9 @@ def getGlobalScopeFunctions(lines):
         split = line.split(" ")
         if len(split) >= 2:
             if line.endswith("{") or line.endswith(")"):
-                if lineX.startswith("\t") or lineX.startswith(" "):
+                if not insideNamespace and (lineX.startswith("\t") or lineX.startswith(" ")):
                     continue
+                # if line.split(" ")[0] in ["if", "switch", "while", "for"]
                 if line.startswith("if(") or line.startswith("if ("):
                     continue
                 if line.startswith("switch(") or line.startswith("switch ("):
@@ -269,6 +270,32 @@ def getGlobalScopeFunctions(lines):
 
     return output
 
+def getNamespaces(lines):
+    output = []
+    nsN = ""
+    nsL = 0
+    nsEL = 0
+
+    for lineIndex, lineX in enumerate(lines):
+        line: str = lineX.strip()
+        if line.startswith("//"):
+            continue
+        split = line.split(" ")
+        if len(split) >= 2:
+            if split[0] != "namespace":
+                continue
+            nsN = split[1]
+            nsL = lineIndex
+        
+        if nsN != "" and (line == "}" or line == "};"):
+            output.append({
+                "name": nsN, "line": nsL, "endLine": lineIndex,
+                "vars": getGlobalScopeVariables(lines[nsL:lineIndex], True, nsL),
+                "funs": getGlobalScopeFunctions(lines[nsL:lineIndex], True)
+            })
+            nsN = ""
+
+    return output
 
 def getLocalScopeVariables(lines, cursorLine):
     fn = findFunction(lines, cursorLine)
@@ -305,9 +332,33 @@ if __name__ == "__main__":
     script = open("../../scripts/STVutil.asc").read()
     lines = script.splitlines()
     # print(getLocalScopeVariables(lines, 736))
-    pprint(
-    getGlobalScopeFunctions(lines)
-    )
+    # pprint(
+    # getNamespaces(lines)[0]
+    # )
+    suggestions = []
+    def handleProp(prop):
+        if prop["type"] == "function" or prop["type"] == "event":
+            suggestions.append({
+                "type": prop["type"],
+                "name": prop["name"],
+                "description": prop["description"],
+                "full": prop["full"],
+                "items": prop["arguments"]
+            })
+        else:
+            suggestions.append({
+                "type": prop["type"],
+                "name": prop["name"],
+                "description": prop["description"]
+            })
+    line = "Test::"
+    for namespace in getNamespaces(lines):
+        if line.split("::")[0] == namespace["name"]:
+            for p in namespace["vars"]:
+                handleProp({**p, **{"description": ""}})
+            for p in namespace["funs"]:
+                handleProp({**p, **{"description": ""}})
+    print(suggestions)
 
     # print(getGlobalScopeVariables(lines))
     # fnc = findFunction(lines, 711)

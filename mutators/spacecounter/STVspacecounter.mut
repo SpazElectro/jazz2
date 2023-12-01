@@ -43,6 +43,7 @@ void welcomeUser(jjPLAYER@ user) {
 
     jjCharacters[CHAR::JAZZ].
     jjPlayers[0].
+    
 }
 
 
