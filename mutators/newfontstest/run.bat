@@ -8,8 +8,8 @@ un.ini" ^| find "="') do (
 )
 
 echo Copying files...
-for %%i in (*.j2l *.j2as *.mut *.asc) do (RY%" /y
-for %%i in (*.j2l *.j2as *.mut *.asc) do (
+for %%i in (*.j2l *.j2as *.mut *.asc *.j2t) do (RY%" /y
+for %%i in (*.j2l *.j2as *.mut *.asc *.j2t) do (
   copy "%%i" "%GAME_DIRECTORY%" /y
 )
 
