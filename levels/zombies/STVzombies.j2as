@@ -51,7 +51,9 @@ void onLevelLoad() {
     jjObjectPresets[OBJECT::NORMTURTLE].determineCurFrame();
 }
 
-const int MAX_ZOMBIE_HEALTH = 5;
+// This is stupid, plz fix?
+#define MAX_ZOMBIE_HEALTH 5
+const int MAX_ZOMBIE_HEALTH = $MAX_ZOMBIE_HEALTH$;
 
 #ifdef ZOMBIE_HEALTH_BARS
 const float ZOMBIE_HEALTHBAR_WIDTH = 20;
@@ -64,15 +66,16 @@ class ZombieBehavior : jjBEHAVIORINTERFACE {
     void onBehave(jjOBJ@ obj) {
         if(obj.state == STATE::START) {
             obj.var[8] = MAX_ZOMBIE_HEALTH;
+            obj.determineCurAnim(ANIM::TURTLE, 0);
         }
-        // obj.curAnim = 0;
-        // obj.determineCurFrame();
+
         obj.behave(BEHAVIOR::WALKINGENEMY
         , false
         );
     }
 
     void onDraw(jjOBJ@ obj) {
+        // obj.yPos = obj.yPos - 7;
         jjDrawSprite(obj.xPos, obj.yPos - 7, ANIM::TURTLE, 0, obj.curFrame, obj.direction, obj.freeze == 0 ? SPRITE::NORMAL : SPRITE::FROZEN);
 
 #ifdef ZOMBIE_HEALTH_BARS
@@ -107,9 +110,7 @@ class ZombieBehavior : jjBEHAVIORINTERFACE {
         if(obj.var[8] <= 1) {
             obj.state = STATE::KILL;
 
-            obj.determineCurFrame();
-
-            jjAddParticlePixelExplosion(obj.xPos, obj.yPos, obj.curFrame, obj.direction, 0);
+            obj.particlePixelExplosion(0);
             emitParticles(PARTICLE::SMOKE, 24, obj.xPos, obj.yPos, 2);
         } else {
             obj.state = STATE::WALK;
