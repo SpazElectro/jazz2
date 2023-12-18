@@ -23,5 +23,6 @@
     "cmake.sourceDirectory": "G:/steve/jazz2stuff/jazz2/re/jj2/funccall",
     "python.analysis.extraPaths": [
         "./experiments/spazlint"
-    ]
+    ],
+    "python.analysis.autoImportCompletions": true
 }
