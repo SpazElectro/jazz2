@@ -8,11 +8,16 @@ for /f "tokens=1* delims==" %%a in ('type "..\..\run.ini" ^| find "="') do (
 
 echo Copying files...
 copy "../../scripts/" "%GAME_DIRECTORY%" /y
-for %%i in (*.j2l *.j2as *.mut *.asc *.j2t) do (
+for %%i in (*.j2l *.j2t) do (
   copy "%%i" "%GAME_DIRECTORY%" /y
 )
+
 for %%i in (./assets/*.*) do (
-  copy ".\assets\%%i" "%GAME_DIRECTORY%" /y
+  copy ".\assets\%%i" "%GAME_DIRECTORY%\STVzombies_%%i" /y
+)
+
+for %%i in (*.j2as *.mut *.asc) do (
+  python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i"
 )
 
 set "J2L_LEVEL="
@@ -32,6 +37,6 @@ for %%i in (*.mut) do (
 
 :start_game
 if not defined J2L_LEVEL set "J2L_LEVEL=battle1"
-"%GAME_DIRECTORY%%GAME_NAME%" -server %MUTATOR% %J2L_LEVEL% -battle
+"%GAME_DIRECTORY%%GAME_NAME%" -server %MUTATOR% %J2L_LEVEL%
 @echo on
 

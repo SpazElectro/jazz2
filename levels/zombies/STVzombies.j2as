@@ -1,7 +1,123 @@
+// #define ZOMBIE_HEALTH_BARS
+
 #pragma require "STVutil.asc"
 
 #include "STVutil.asc"
 
-void onLevelBegin() {
+bool isPoweredUpBullet(uint8 obj) {
+    return (
+        obj == OBJECT::BLASTERBULLETPU ||
+        obj == OBJECT::BOUNCERBULLETPU ||
+        obj == OBJECT::ICEBULLETPU ||
+        obj == OBJECT::SEEKERBULLETPU ||
+        obj == OBJECT::RFBULLETPU ||
+        obj == OBJECT::TOASTERBULLETPU ||
+        obj == OBJECT::FIREBALLBULLETPU ||
+        obj == OBJECT::ELECTROBULLETPU ||
+        obj == OBJECT::FIRESHIELDBULLET ||
+        obj == OBJECT::WATERSHIELDBULLET ||
+        obj == OBJECT::BUBBLESHIELDBULLET ||
+        obj == OBJECT::LIGHTNINGSHIELDBULLET ||
+        obj == OBJECT::PLASMASHIELDBULLET
+    );
+}
+
+void emitParticles(PARTICLE::Type particleType, uint count, float xPos, float yPos, int padding = 3) {
+    for(uint i = 0; i < count; i++) {
+        jjPARTICLE@ particle = jjAddParticle(particleType);
+        if (particle !is null) {
+            particle.xPos = xPos + (i * padding);
+            particle.yPos = yPos;
+        }
+    }
+}
+
+void onLevelLoad() {
     jjConsole("Started!");
+
+    jjAnimSets[ANIM::TURTLE].load(
+        jjPIXELMAP("STVzombies_zombie.png"), // 38x57 a frame
+        frameWidth: 52,
+		frameHeight: 62,
+		frameSpacingX: 1,
+		frameSpacingY: 1,
+		startY: 0,
+		firstAnimToOverwrite: jjAnimSets[ANIM::TURTLE]
+    );
+
+    jjObjectPresets[OBJECT::NORMTURTLE].scriptedCollisions = true; 
+    jjObjectPresets[OBJECT::NORMTURTLE].behavior = ZombieBehavior();
+    jjObjectPresets[OBJECT::NORMTURTLE].playerHandling = HANDLING::SPECIAL; 
+    jjObjectPresets[OBJECT::NORMTURTLE].determineCurFrame();
+}
+
+const int MAX_ZOMBIE_HEALTH = 5;
+
+#ifdef ZOMBIE_HEALTH_BARS
+const float ZOMBIE_HEALTHBAR_WIDTH = 20;
+const float ZOMBIE_HEALTHBAR_HEIGHT = 10;
+#endif
+
+class ZombieBehavior : jjBEHAVIORINTERFACE {
+    // obj.var[8] == health
+
+    void onBehave(jjOBJ@ obj) {
+        if(obj.state == STATE::START) {
+            obj.var[8] = MAX_ZOMBIE_HEALTH;
+        }
+        // obj.curAnim = 0;
+        // obj.determineCurFrame();
+        obj.behave(BEHAVIOR::WALKINGENEMY
+        , false
+        );
+    }
+
+    void onDraw(jjOBJ@ obj) {
+        jjDrawSprite(obj.xPos, obj.yPos - 7, ANIM::TURTLE, 0, obj.curFrame, obj.direction, obj.freeze == 0 ? SPRITE::NORMAL : SPRITE::FROZEN);
+
+#ifdef ZOMBIE_HEALTH_BARS
+        float healthPercentage = float(obj.var[8]) / MAX_ZOMBIE_HEALTH;
+        float filledWidth = healthPercentage * ZOMBIE_HEALTHBAR_WIDTH;
+        float startX = (obj.xPos - ZOMBIE_HEALTHBAR_WIDTH / 2) - (obj.direction >= 0 ? 5 : -5);
+
+        for (float x = startX; x < startX + filledWidth; ++x) {
+            for (float y = obj.yPos - 7 - 40; y < obj.yPos - 7 - 40 + ZOMBIE_HEALTHBAR_HEIGHT; ++y) {
+                jjDrawPixel(x, y, 24, SPRITE::NORMAL, 0, 4, 4, -1);
+            }
+        }
+
+        // background
+        for (float x = startX + filledWidth; x < startX + ZOMBIE_HEALTHBAR_WIDTH; ++x) {
+            for (float y = obj.yPos - 7 - 40; y < obj.yPos - 7 - 40 + ZOMBIE_HEALTHBAR_HEIGHT; ++y) {
+                jjDrawPixel(x, y, 0, SPRITE::NORMAL, 0, 4, 4, -1);
+            }
+        }
+#endif
+    }
+
+    bool onObjectHit(jjOBJ@ obj, jjOBJ@ bullet, jjPLAYER@ player, int force) {
+        // player touched the zombie
+        if(bullet is null) {
+            if(!(player.buttstomp >= 41 && player.buttstomp <= 121) && player.specialMove == 0) {
+                player.hurt(1);
+                return true;
+            }
+        }
+
+        if(obj.var[8] <= 1) {
+            obj.state = STATE::KILL;
+
+            obj.determineCurFrame();
+
+            jjAddParticlePixelExplosion(obj.xPos, obj.yPos, obj.curFrame, obj.direction, 0);
+            emitParticles(PARTICLE::SMOKE, 24, obj.xPos, obj.yPos, 2);
+        } else {
+            obj.state = STATE::WALK;
+            obj.var[8] = obj.var[8] - ((player.buttstomp == 41 || player.specialMove != 0) ? 1 : (isPoweredUpBullet(bullet.eventID) ? 2 : 1));
+            bullet.state = STATE::KILL;
+            emitParticles(PARTICLE::SMOKE, 3, obj.xPos, obj.yPos);
+        }
+
+        return true;
+    }
 }
