@@ -32,9 +32,39 @@ void emitParticles(PARTICLE::Type particleType, uint count, float xPos, float yP
     }
 }
 
+class Point
+{
+    int x, y;
+
+    Point() {}
+    Point(int x, int y) { this.x = x; this.y = y; }
+};
+
+class ZombieSpawnPoint
+{
+    Point@ position;
+    bool isWindow, isRight;
+
+    ZombieSpawnPoint(Point@ position, bool isWindow, bool isRight) {
+        @this.position = position;
+        this.isWindow = isWindow;
+        this.isRight  = isRight;
+    }
+
+    void spawn() {
+        // *32 for pixel position
+        jjOBJ@ obj = jjObjects[jjAddObject(OBJECT::NORMTURTLE, this.position.x*32, this.position.y*32)];
+        obj.direction = isRight ? (+obj.direction) : (-obj.direction);
+    }
+};
+
+array<ZombieSpawnPoint@> zombieSpawnPoints = {};
+
+// 247=Zombie Spawn Point |+|ExtraZMB  |ZMB |Spawn |IsWindow:c1|Right:c1
 void onLevelLoad() {
     jjConsole("Started!");
 
+    jjAnimSets[ANIM::TURTLE].load();
     jjAnimSets[ANIM::TURTLE].load(
         jjPIXELMAP("STVzombies_zombie.png"), // 38x57 a frame
         frameWidth: 52,
@@ -49,11 +79,33 @@ void onLevelLoad() {
     jjObjectPresets[OBJECT::NORMTURTLE].behavior = ZombieBehavior();
     jjObjectPresets[OBJECT::NORMTURTLE].playerHandling = HANDLING::SPECIAL; 
     jjObjectPresets[OBJECT::NORMTURTLE].determineCurFrame();
+
+    for(int y = 0; y < jjLayers[4].height; y++)
+    for(int x = 0; x < jjLayers[4].width; x++) {
+        if(jjEventGet(x, y) == 247) {
+            bool isWindow = jjParameterGet(x, y, 0, 1) == 1 ? true : false;
+            bool isRight  = jjParameterGet(x, y, 1, 1) == 1 ? true : false;
+            jjConsole("Found spawn point at " + x + ", " + y);
+            zombieSpawnPoints.insertLast(ZombieSpawnPoint(Point(x, y), isWindow, isRight));
+        }
+    }
+}
+
+void onMain() {
+    if((jjGameTicks % 70) == 0) {
+        jjConsole("Spawning");
+
+        for(uint i = 0; i < zombieSpawnPoints.length(); i++) {
+            zombieSpawnPoints[i].spawn();
+        }
+    }
 }
 
 // This is stupid, plz fix?
 #define MAX_ZOMBIE_HEALTH 5
 const int MAX_ZOMBIE_HEALTH = $MAX_ZOMBIE_HEALTH$;
+const int ZOMBIE_MAX_TRACKING_DISTANCE = 10000*32;
+const int ZOMBIE_SPEED = 1;
 
 #ifdef ZOMBIE_HEALTH_BARS
 const float ZOMBIE_HEALTHBAR_WIDTH = 20;
@@ -64,14 +116,32 @@ class ZombieBehavior : jjBEHAVIORINTERFACE {
     // obj.var[8] == health
 
     void onBehave(jjOBJ@ obj) {
-        if(obj.state == STATE::START) {
-            obj.var[8] = MAX_ZOMBIE_HEALTH;
-            obj.determineCurAnim(ANIM::TURTLE, 0);
+        switch(obj.state) {
+            case STATE::START:
+                obj.var[8] = MAX_ZOMBIE_HEALTH;
+                obj.determineCurAnim(ANIM::TURTLE, 0);
+                obj.state = STATE::WALK;
+                break;
+            case STATE::WALK:
+                obj.direction = ((obj.xPos <= jjPlayers[obj.findNearestPlayer(ZOMBIE_MAX_TRACKING_DISTANCE)].xPos) ? 1 : -1);
+                obj.xPos += obj.direction * ZOMBIE_SPEED;
+                break;
+            case STATE::FREEZE:
+				if (--obj.freeze == 0) obj.state = obj.oldState;
+
+				break;
+			case STATE::DEACTIVATE:
+				obj.deactivate();
+				break;
+			case STATE::KILL:
+				obj.delete();
+				break;
         }
 
-        obj.behave(BEHAVIOR::WALKINGENEMY
-        , false
-        );
+        obj.putOnGround();
+
+        // obj.behave(BEHAVIOR::WALKINGENEMY, false);
+
     }
 
     void onDraw(jjOBJ@ obj) {
