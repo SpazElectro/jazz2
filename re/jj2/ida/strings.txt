@@ -72,7 +72,7 @@ pos %i,%i
 %u\%u
 %07i
 more
-                                                                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""#######################################################################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))*************************************************************************************+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-----------------------
+----------------------
 D'E'F'
 Playing
 Client Connected
@@ -1081,10 +1081,6 @@ Reason: %s
 .tga
 .pcx
 Jazz%04u
-776543210
-WWVUTSRQP
-''&%$#"!
-__^]\[ZYX
 Could not load Language file %s
 .J2S
 Invalid Language Version in file "%s", found %u strings, expecting %u strings
@@ -1158,7 +1154,6 @@ recv %i baud
 -------------
 %i
 %s%u
-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-~.
 Server_GetStream: netRead error: %s
 Server_CheckConnection: Client already active! DUH!
 Server_Upload:could not open file for sending to client!
@@ -1166,14 +1161,6 @@ Server_Do: Disconnecting Client %i after %is non-activity (t %i - t %i)
 BANLIST.LST
 BANLIST.TXT
 GRADE (Win32, Build 98-194) Oct 22 1998 14:57:09
-Ggf
-<TU/7
-CxM
-)mN
-/3=
-O~.
-y$r#
-cDRf
 ^Could not register window class
 Fatal Application Error
 WIN: Amnesia Error: Out of memory, user canceled memory request
@@ -1325,14 +1312,6 @@ You must this program under Windows 95 or Windows NT.
 RichEdit
 RICHED32.DLL
 Viewing File: %s
-,"M
-t!M
-`!M
-<!M
-d M
-H M
-8 M
-$ M
 X-Alignment error
 Wrong mode
 DirectDraw still drawing
@@ -1500,18 +1479,6 @@ Unable to write all bytes
 fileRead
 Input past end of file
 SOCK
-x.M
-l.M
-X.M
-H.M
-,.M
-l-M
-X-M
-@-M
-4-M
-|,M
-`,M
-,,M
 tcp
 udp
 Illegal host name
@@ -1603,13 +1570,6 @@ DLS
 sfbk
 AI
  deflate 1.0.4 Copyright 1995-1996 Jean-loup Gailly
-0/J
-@7J
-@7J
-@7J
-@7J
-@7J
-@7J
  inflate 1.0.4 Copyright 1995-1996 Mark Adler
 invalid literal/length code
 invalid distance code
