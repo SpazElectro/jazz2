@@ -1,6 +1,6 @@
 import argparse
 
-preprocessors = ["#define", "#ifdef", "#endif", "#undef", "#ifndef", "#macro", "#defmacro", "#enddef"]
+preprocessors = ["#define", "#ifdef", "#endif", "#undef", "#ifndef", "#macro", "#defmacro", "#enddef", "#else"]
 optimize_newlines = True
 
 def process(source_code: str):
@@ -12,17 +12,18 @@ def process(source_code: str):
     
     ifdef_inside = False
     ifdef_allowed = False
-    ifdef_line = -2 # This is for errors
+    ifdef_line = -2 # This is for warns
 
     macro_inside = False
     macro_current = {}
-    macro_line = -2 # This is for errors
+    macro_line = -2 # This is for warns
 
     for line_index, line in enumerate(lines):
         unstripped_line = line
         line = line.strip()
         split = line.split(" ")
 
+        # conditionals
         if split[0] == "#define":
             assert len(split) >= 2, "Not enough arguments!"
             definitions[split[1]] = True if len(split) == 2 else split[2]
@@ -50,7 +51,16 @@ def process(source_code: str):
             ifdef_inside = True
             ifdef_allowed = not definitions.get(split[1])
             continue
+        if split[0] == "#else":
+            assert ifdef_line != -1, "You are not inside a conditional preprocessor!"
+            assert ifdef_inside, "You are not inside a conditional preprocessor!"
+            ifdef_allowed = not definitions.get(lines[ifdef_line].strip().split(" ")[1])
+            continue
         
+        if ifdef_inside and not ifdef_allowed:
+            continue
+
+        # macros
         if split[0] == "#macro":
             assert len(split) >= 2, "Not enough arguments!"
             assert macros.get(split[1]) != None, "Macro doesn't exist!"
@@ -78,9 +88,6 @@ def process(source_code: str):
             continue
         if macro_inside:
             macro_current["code"] += unstripped_line + "\n"
-            continue
-
-        if ifdef_inside and not ifdef_allowed:
             continue
 
         # nicer looking output

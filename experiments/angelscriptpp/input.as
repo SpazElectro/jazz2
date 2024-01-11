@@ -28,3 +28,15 @@ jjConsole("$DEBUG$");
 // we '#undef'ed DEBUG, and so this shouldnt appear!
 #endif
 
+
+#ifdef DEBUG
+// again, undef
+
+#macro gaming 3 2
+
+#else
+// yay this should appear because this is an else statement
+#macro gaming 6 9
+
+#endif
+

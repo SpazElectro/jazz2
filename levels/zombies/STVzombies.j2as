@@ -1,8 +1,16 @@
+const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
+#include "MLLE-Include-1.6.asc" ///@MLLE-Generated
+#pragma require "STVzombies.j2l" ///@MLLE-Generated
 // #define ZOMBIE_HEALTH_BARS
 
 #pragma require "STVutil.asc"
+#pragma require "STVhooks.asc"
 
 #include "STVutil.asc"
+#include "STVhooks.asc"
+
+const int DEFAULT_POINTS = 200;
+array<int> playerPoints(32, DEFAULT_POINTS);
 
 bool isPoweredUpBullet(uint8 obj) {
     return (
@@ -34,11 +42,71 @@ void emitParticles(PARTICLE::Type particleType, uint count, float xPos, float yP
 
 class Point
 {
-    int x, y;
+    float x, y;
 
     Point() {}
-    Point(int x, int y) { this.x = x; this.y = y; }
+    Point(float x, float y) { this.x = x; this.y = y; }
 };
+
+class WindowQueueItem
+{
+    Point@ pos;
+    bool isRight;
+    WindowQueueItem(Point@ pos, bool isRight) {
+        @this.pos = pos;
+        this.isRight = isRight;
+    }
+};
+
+class DrawQueueItem
+{
+    Point@ pos;
+    int setID;
+    uint8 animation, frame;
+    int direction;
+    SPRITE::Mode mode;
+    int param;
+    int8 layerZ;
+    uint8 layerXY;
+    int8 playerID;
+    float sx, sy;
+
+    DrawQueueItem(float xPixel, float yPixel,
+        int setID, uint8 animation, uint8 frame,
+        int direction = 0, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0,
+        int8 layerZ = 4, uint8 layerXY = 4,
+        int8 playerID = -1)
+    {
+        @this.pos = Point(xPixel, yPixel);
+        this.setID = setID;
+        this.animation = animation;
+        this.frame = frame;
+        this.direction = direction;
+        this.mode = mode;
+        this.param = param;
+        this.layerZ = layerZ;
+        this.layerXY = layerXY;
+        this.playerID = playerID;
+
+        this.sx = jjRandom() & 3;
+        this.sy = jjRandom() & 3;
+        this.direction = jjRandom() & 360;
+    }
+};
+
+array<WindowQueueItem@> windowQueue = {};
+array<DrawQueueItem@> drawQueue = {};
+
+void insertIntoWindowQueue(Point@ point, bool isRight) {
+    windowQueue.insertLast(WindowQueueItem(point, isRight));
+
+    TimerV(35, function(args) {
+        Point@ position;
+        args.get("position", @position);
+        jjObjects[jjAddObject(OBJECT::NORMTURTLE, position.x*32, position.y*32)].var[6] = 1;
+        windowQueue.removeLast();
+    }, {{"position", point}});
+}
 
 class ZombieSpawnPoint
 {
@@ -52,17 +120,75 @@ class ZombieSpawnPoint
     }
 
     void spawn() {
+        if(isWindow) {
+            insertIntoWindowQueue(Point(this.position.x, this.position.y), this.isRight);
+            return;
+        }
+
         // *32 for pixel position
-        jjOBJ@ obj = jjObjects[jjAddObject(OBJECT::NORMTURTLE, this.position.x*32, this.position.y*32)];
-        obj.direction = isRight ? (+obj.direction) : (-obj.direction);
+        jjObjects[jjAddObject(OBJECT::NORMTURTLE, this.position.x*32, this.position.y*32)].var[6] = 0;
+    }
+};
+
+class ZombieBarrier
+{
+    bool isWindow;
+    uint8 health;
+    int x, y;
+    uint16 originalTile;
+
+    ZombieBarrier(int xTile, int yTile, bool isWindow, uint8 health = 2) {
+        this.x = xTile;
+        this.y = yTile;
+        this.originalTile = jjTileGet(4, xTile, yTile);
+
+        this.isWindow = isWindow;
+        this.health = health;
+    }
+
+    void damage() {
+        this.health--;
+        jjConsole("health--");
+
+        if(this.health <= 0) {
+            jjConsole("Tile set to air");
+            jjTileSet(4, this.x, this.y, 0);
+            this.health = 0;
+        }
+    }
+
+    void heal(jjPLAYER@ healer) {
+        playerPoints[healer.playerID] += 10;
+        this.health++;
+        jjTileSet(4, this.x, this.y, this.originalTile);
     }
 };
 
 array<ZombieSpawnPoint@> zombieSpawnPoints = {};
+array<ZombieBarrier@> zombieBarriers = {};
 
-// 247=Zombie Spawn Point |+|ExtraZMB  |ZMB |Spawn |IsWindow:c1|Right:c1
+// xPos, yPos are pixel coordinates
+dictionary getNearestBarrier(int xPos, int yPos) {
+    int nearestDistance = (99*99)*32;
+    uint nearestBarrier = -1;
+
+    for(uint i = 0; i < zombieBarriers.length(); i++) {
+        ZombieBarrier@ barrier = zombieBarriers[i];
+        int distance = abs((barrier.x*32+barrier.y*32)-(xPos+yPos));
+        if(distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestBarrier = i;
+        }
+    }
+
+    return {{"distance", nearestDistance}, {"barrier", nearestBarrier}};
+}
+
 void onLevelLoad() {
     jjConsole("Started!");
+
+    jjAnimSets[ANIM::JAZZ3D].load(0, "stvzombies_wavefont.j2a");
+    jjAnimSets[ANIM::SPAZ3D].load(0, "stvzombies_zombieextra.j2a");
 
     jjAnimSets[ANIM::TURTLE].load();
     jjAnimSets[ANIM::TURTLE].load(
@@ -82,29 +208,145 @@ void onLevelLoad() {
 
     for(int y = 0; y < jjLayers[4].height; y++)
     for(int x = 0; x < jjLayers[4].width; x++) {
-        if(jjEventGet(x, y) == 247) {
-            bool isWindow = jjParameterGet(x, y, 0, 1) == 1 ? true : false;
-            bool isRight  = jjParameterGet(x, y, 1, 1) == 1 ? true : false;
-            jjConsole("Found spawn point at " + x + ", " + y);
-            zombieSpawnPoints.insertLast(ZombieSpawnPoint(Point(x, y), isWindow, isRight));
+        auto event = jjEventGet(x, y);
+
+        switch(event) {
+            case 247:
+            {
+                bool isWindow = jjParameterGet(x, y, 0, 1) == 1 ? true : false;
+                bool isRight  = jjParameterGet(x, y, 1, 1) == 1 ? true : false;
+                zombieSpawnPoints.insertLast(ZombieSpawnPoint(Point(x, y), isWindow, isRight));
+                break;
+            }
+            case 239:
+            {
+                bool isWindow = jjParameterGet(x, y, 0, 1) == 1 ? true : false;
+                auto health = jjParameterGet(x, y, 1, 8);
+                zombieBarriers.insertLast(ZombieBarrier(x, y, isWindow, health));
+                break;
+            }
         }
+    }
+
+    if(jjIsServer) {
+        playerLeaveCallbacks.insertLast(function(jjPLAYER@ player) {
+            playerPoints[player.playerID] = DEFAULT_POINTS;
+            jjConsole("the " + player.nameUnformatted + " left!");
+        });
+    }
+
+    uint newSizeX = 42;
+    uint newSizeY = 60;
+    
+    for(int i = 16; i < 25; i++) {
+        auto frame = jjAnimFrames[jjAnimations[jjAnimSets[ANIM::JAZZ3D].firstAnim].firstFrame+i];
+        jjPIXELMAP(frame).resize(newSizeX, newSizeY).save(frame);
     }
 }
 
 void onMain() {
-    if((jjGameTicks % 70) == 0) {
-        jjConsole("Spawning");
+    if(jjIsServer)
+        updateHooks();
+
+    if((jjGameTicks % (70*4)) == 0) {
+        // jjConsole("Spawning");
 
         for(uint i = 0; i < zombieSpawnPoints.length(); i++) {
             zombieSpawnPoints[i].spawn();
         }
     }
+
+    for(uint i = 0; i < windowQueue.length(); i++) {
+        jjDrawSprite(windowQueue[i].pos.x*32+(1*32), windowQueue[i].pos.y*32-7+(1*32), ANIM::TURTLE, 0, 0, windowQueue[i].isRight ? 1 : -1, SPRITE::NORMAL, 0, 6);
+    }
+
+    
 }
 
-// This is stupid, plz fix?
-#define MAX_ZOMBIE_HEALTH 5
-const int MAX_ZOMBIE_HEALTH = $MAX_ZOMBIE_HEALTH$;
-const int ZOMBIE_MAX_TRACKING_DISTANCE = 10000*32;
+#ifdef UIDEBUG
+int fx = 50;
+int fy = 310;
+
+bool active=false;
+#endif
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+#ifdef FONTSIZEDEBUG
+    // frame-016 to frame-025
+    // size=9=25-16
+    if(stringReceived == "reset") {
+        jjAnimSets[ANIM::JAZZ3D].load(0, "stvzombies_wavefont.j2a");
+        return false;
+    }
+    uint newSizeX = uint(parseInt(stringReceived.split(" ")[0]));
+    uint newSizeY = uint(parseInt(stringReceived.split(" ")[1]));
+    jjConsole("SX: " + newSizeX + " SY: " + newSizeY);
+    for(int i = 16; i < 25; i++) {
+        auto frame = jjAnimFrames[jjAnimations[jjAnimSets[ANIM::JAZZ3D].firstAnim].firstFrame+i];
+        jjPIXELMAP(frame).resize(newSizeX, newSizeY).save(frame);
+    }
+#endif
+
+    return false;
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+#ifdef UIDEBUG
+    if(jjKey[1] && active) {
+        active = false;
+        fx = jjMouseX;
+        fy = jjMouseY;
+        jjConsole("frXY: " + fx + ", " + fy);
+    }
+    if(jjKey[2]) {
+        active = true;
+        jjConsole("XY: " + jjMouseX + ", " + jjMouseY);
+    }
+#endif
+
+    canvas.drawString(
+#ifdef UIDEBUG
+        active ? jjMouseX :
+#else
+        10,
+#endif
+#ifdef UIDEBUG
+        active ? jjMouseY :
+#else
+        350,
+#endif
+        "12", jjAnimations[jjAnimSets[ANIM::JAZZ3D].firstAnim]);
+
+    for(int i = 0; i < 32; i++) {
+        jjPLAYER@ plr = jjPlayers[i];
+        if(!plr.isActive) continue;
+        canvas.drawSprite(50, (310 - (i * 30)), ANIM::SPAZ, 10, 0, 0, SPRITE::PLAYER, i);
+        canvas.drawString(50 + 15, (310 - (i * 30)) - 5, 
+        // plr.nameUnformatted
+        ""+playerPoints[plr.playerID]
+        );
+        // canvas.drawString(50 + 15, 310 + 10, "" + playerPoints[plr.playerID]);
+    }
+
+    // canvas.drawSprite(50, 50, ANIM::SPAZ3D, 0, 6);
+
+    for(uint i = 0; i < drawQueue.length(); i++) {
+        auto this = drawQueue[i];
+
+        canvas.drawRotatedSprite(this.pos.x, this.pos.y, this.setID, this.animation, this.frame,
+            this.direction, this.sx, this.sy, this.mode, this.param
+        );
+        // ,
+            // this.layerZ, this.layerXY, this.playerID);
+        
+        // drawQueue[i].draw();
+    }
+
+    return false;
+}
+
+const int MAX_ZOMBIE_HEALTH = 3;
+const int ZOMBIE_MAX_TRACKING_DISTANCE = 100000*32;
 const int ZOMBIE_SPEED = 1;
 
 #ifdef ZOMBIE_HEALTH_BARS
@@ -113,21 +355,52 @@ const float ZOMBIE_HEALTHBAR_HEIGHT = 10;
 #endif
 
 class ZombieBehavior : jjBEHAVIORINTERFACE {
-    // obj.var[8] == health
+    // obj.var[6]  == is window zombie
+    // obj.var[7]  == attack cooldown
+    // obj.var[8]  == health
+    // obj.counter == current animation
 
     void onBehave(jjOBJ@ obj) {
+        obj.putOnGround();
+        obj.var[7] = obj.var[7] - 1;
+        if(obj.var[7] > 0)
+            return;
         switch(obj.state) {
             case STATE::START:
+                obj.var[7] = 0;
                 obj.var[8] = MAX_ZOMBIE_HEALTH;
                 obj.determineCurAnim(ANIM::TURTLE, 0);
+                obj.determineCurFrame();
                 obj.state = STATE::WALK;
                 break;
             case STATE::WALK:
-                obj.direction = ((obj.xPos <= jjPlayers[obj.findNearestPlayer(ZOMBIE_MAX_TRACKING_DISTANCE)].xPos) ? 1 : -1);
-                obj.xPos += obj.direction * ZOMBIE_SPEED;
+            { // curly braces are present so we bypass the switch-case rule where you
+              // can't define variables in cases
+                auto nearestPlayer = obj.findNearestPlayer(ZOMBIE_MAX_TRACKING_DISTANCE);
+                obj.direction = ((obj.xPos <= jjPlayers[nearestPlayer].xPos) ? 1 : -1);
+                if((jjGameTicks % 10) == 0)
+                    obj.counter += 1;
+                if(nearestPlayer >= 0) { // this is to make the zombies not go into the endless void
+                    if(!jjMaskedPixel(obj.xPos + (obj.direction * ZOMBIE_SPEED), obj.yPos)) {
+                        obj.xPos += obj.direction * ZOMBIE_SPEED;
+                    } else if(obj.var[6] != 1) {
+                        // barriers hit
+                        auto barrier = getNearestBarrier(obj.xPos, obj.yPos);
+                        
+                        if(int(barrier["distance"]) <= 32) {
+                            zombieBarriers[uint(barrier["barrier"])].damage();
+                            obj.var[7] = 70;
+                            jjConsole("ATTACK!");
+                        }
+                    }
+                }
                 break;
+            }
             case STATE::FREEZE:
-				if (--obj.freeze == 0) obj.state = obj.oldState;
+				if (--obj.freeze == 0) {
+                    obj.state = obj.oldState;
+                    obj.unfreeze(0);
+                }
 
 				break;
 			case STATE::DEACTIVATE:
@@ -138,15 +411,12 @@ class ZombieBehavior : jjBEHAVIORINTERFACE {
 				break;
         }
 
-        obj.putOnGround();
-
         // obj.behave(BEHAVIOR::WALKINGENEMY, false);
-
     }
 
     void onDraw(jjOBJ@ obj) {
         // obj.yPos = obj.yPos - 7;
-        jjDrawSprite(obj.xPos, obj.yPos - 7, ANIM::TURTLE, 0, obj.curFrame, obj.direction, obj.freeze == 0 ? SPRITE::NORMAL : SPRITE::FROZEN);
+        jjDrawSprite(obj.xPos, obj.yPos - 7, ANIM::TURTLE, 0, obj.counter, obj.direction, obj.freeze == 0 ? SPRITE::NORMAL : SPRITE::FROZEN);
 
 #ifdef ZOMBIE_HEALTH_BARS
         float healthPercentage = float(obj.var[8]) / MAX_ZOMBIE_HEALTH;
@@ -172,17 +442,31 @@ class ZombieBehavior : jjBEHAVIORINTERFACE {
         // player touched the zombie
         if(bullet is null) {
             if(!(player.buttstomp >= 41 && player.buttstomp <= 121) && player.specialMove == 0) {
+                // show bloodsplatter
+
+                drawQueue.insertLast(DrawQueueItem(
+                    // obj.xPos, obj.yPos,
+                    jjRandom() & (jjResolutionWidth - (jjRandom() & jjResolutionWidth)), jjRandom() & (jjResolutionHeight - (jjRandom() & jjResolutionHeight)),
+                    ANIM::SPAZ3D, 0, 6+(jjRandom()&2)));
+                TimerV(70*3, function() {
+                    drawQueue.removeLast();
+                });
+
                 player.hurt(1);
                 return true;
             }
         }
 
         if(obj.var[8] <= 1) {
+            if(player !is null)
+                playerPoints[player.playerID] += 50;
             obj.state = STATE::KILL;
 
             obj.particlePixelExplosion(0);
             emitParticles(PARTICLE::SMOKE, 24, obj.xPos, obj.yPos, 2);
         } else {
+            if(player !is null && bullet !is null)
+                playerPoints[player.playerID] += 10;
             obj.state = STATE::WALK;
             obj.var[8] = obj.var[8] - ((player.buttstomp == 41 || player.specialMove != 0) ? 1 : (isPoweredUpBullet(bullet.eventID) ? 2 : 1));
             bullet.state = STATE::KILL;

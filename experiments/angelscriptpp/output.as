@@ -10,3 +10,8 @@ int xy = "testing_string"; // this has yah epics!!!!!!
 int yp = xy*3;
 jjConsole("$DEBUG$");
 
+
+// yay this should appear because this is an else statement
+// this is the gaming macro
+int xy = 6; // this has 9 epics!!!!!!
+int yp = xy*3;
