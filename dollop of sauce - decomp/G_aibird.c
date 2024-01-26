@@ -30,66 +30,6 @@
 
 
 
-void cFEATHER(int num)
-{
-	Omonster *obj;
-
-
-	obj=(Omonster *)(&gameobj[num]);
-
-	if ((obj->state==sDEACTIVATE) || (obj->state==sKILL))
-	{
-		MyDeleteObject(num);//obj->code=NULL;
-		return;
-	}
-
-	if (obj->state==sSTART)
-	{
-		obj->xpos+=Rand2Fac(32767);
-		obj->ypos+=-16384-RandFac(32767);
-
-		obj->xspeed=Rand2Fac(32767)*16;
-		obj->yspeed=(-16384+RandFac(32767))*16;
-
-		if (obj->ypos>level.waterlevel)
-		{
-			obj->xspeed/=4;
-			obj->yspeed/=4;
-		};
-
-		if (obj->xspeed<0)
-			obj->direction=-1;
-
-		obj->phase=((int)RandFac(16383))%anims[obj->curanim].numframes;
-		obj->state=sACTION;	//whatever
-	};
-
-	obj->xpos+=obj->xspeed;
-	obj->ypos+=obj->yspeed;
-
-	if (obj->ypos>level.waterlevel)
-		obj->yspeed+=level.gravity/4;
-	else
-		obj->yspeed+=level.gravity;
-
-	if ((gamecounter&3)==0)
-	{
-		obj->phase++;
-		if (obj->phase>=anims[obj->curanim].numframes)
-			obj->phase=0;
-	};
-
-	if (!InViewArea(obj->xpos,obj->ypos)) 
-		MyDeleteObject(num);//obj->code=NULL;
-
-
-	obj->curframe=anims[obj->curanim].framelist[obj->phase];
-
-	DrawGameobj(num);
-
-} //cFEATHER()
-
-
 
 
 static void birdcircle(int num)

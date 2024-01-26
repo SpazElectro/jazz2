@@ -3,7 +3,6 @@ WARNING: Trigger Scenery at position %i,%i needs at least 2 animation frames. Tr
 x%u
 No Warp Target found!
 Double SNOW event in level??
-*DQT^`defghijklmopqrstuvx{|}~
 Object %i illegal in multiplayer game
 More then two flags in CAPTURE the FLAG level!
 should not happen, robot added by devan!

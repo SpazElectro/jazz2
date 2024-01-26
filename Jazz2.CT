@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="45">
+  <Forms>
+    <UDF1 Class="TCEForm" Encoding="Ascii85">Rgb_:!axv*hqiP9.o!,?4};a2F:)Qmq0+2?0tq!7P3.bJ!?5hBQQ;L4di3Ix[!;ThZD__5(17c2]Tq9=Kr^;cEDA:UHqXw)U3lqCa7p$TxMLKnl/Xg^BfYV_p{7#8Qrl[t1[[B+474JnC36FVF)C]$4GFE;g3:A7Kt)m/:,IY*W{u{uj[;:;2^X/])KD9FMJfoPof!;Zh%)%PURYVDrIa/vovdA^@a:IzN?l9EhsnCvisGlK.b/%X$a9XkAU5FK.C6d{o;$P50)w=LKcJNKJP$fkb(va5e*I;}a3b81,vRWC?W//$^[R!2HAgw8+pSt2XXOOdic$-X@UbkPl(7u34rQFI_BdFfm(n{ZcBm!Klz#y</UDF1>
+  </Forms>
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"dword_5F37C8"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5F37C8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"dword_5F37FC"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5F37FC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2</ID>
+      <Description>"dword_5F37F8"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5F37F8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"No description"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Float</VariableType>
+      <Address>4E527C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>4</ID>
+      <Description>"dword_560720"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>560720</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>5</ID>
+      <Description>"No description"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>560724</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>6</ID>
+      <Description>"No description"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5F38AC</Address>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
