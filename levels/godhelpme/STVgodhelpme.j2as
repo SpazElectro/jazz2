@@ -2,7 +2,8 @@
 
 #include "STVutil.asc"
 
-#define RANDOMIZED_KEYS
+// #define RANDOMIZED_KEYS
+#define SHOOT_MUSIC
 
 #pragma region random keys
 #ifdef RANDOMIZED_KEYS
@@ -38,15 +39,27 @@ void randomizeControls() {
 #endif
 #pragma endregion
 
+#pragma region shoot music
+#ifdef SHOOT_MUSIC
+bool prevKeyFire = true;
+uint8 newMusicSpeed, newMusicTempo = 0;
+#endif
+#pragma endregion
+
 void onLevelBegin() {
 	jjConsole("Started!");
+
 #ifdef RANDOMIZED_KEYS
 	randomizeControls();
+#endif
+
+#ifdef SHOOT_MUSIC
+	newMusicSpeed = jjGetModSpeed();
+	newMusicTempo = jjGetModTempo();
 #endif
 }
 
 void onPlayerInput(jjPLAYER@ player) {
-#pragma region randomized keys functionality
 #ifdef RANDOMIZED_KEYS
 	player.keyDown = jjKey[keyDown];
 	player.keyFire = jjKey[keyFire];
@@ -57,7 +70,25 @@ void onPlayerInput(jjPLAYER@ player) {
 	player.keySelect = jjKey[keySelect];
 	player.keyUp = jjKey[keyUp];
 #endif
-#pragma endregion
+
+#ifdef SHOOT_MUSIC
+	if (prevKeyFire == false and player.keyFire) {
+		for(int i = 0; i < 10; i++)
+			jjSetModPosition(getRandomNumber(0, 20), getRandomNumber(0, 20), false);
+		
+		newMusicSpeed = jjGetModSpeed()+getRandomNumber(-30, 30);
+		newMusicTempo = jjGetModTempo()+getRandomNumber(-30, 30);
+	}
+
+	prevKeyFire = player.keyFire;
+#endif
+}
+
+void onMain() {
+#ifdef SHOOT_MUSIC
+	jjSetModSpeed(newMusicSpeed);
+	jjSetModTempo(newMusicTempo);
+#endif
 }
 
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
