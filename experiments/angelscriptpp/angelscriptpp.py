@@ -1,6 +1,12 @@
 import argparse
 
-preprocessors = ["#define", "#ifdef", "#endif", "#undef", "#ifndef", "#macro", "#defmacro", "#enddef", "#else"]
+preprocessors = [
+    "#define", "#undef",
+    "#ifdef", "#endif", "#ifndef", "#else",
+    "#macro", "#defmacro", "#enddef",
+    "#pragma", # regions
+]
+
 optimize_newlines = True
 
 def process(source_code: str):
@@ -24,6 +30,9 @@ def process(source_code: str):
         split = line.split(" ")
 
         # conditionals
+        if split[0] == "#pragma":
+            if split[1] == "region" or split[1] == "endregion":
+                continue
         if split[0] == "#define":
             assert len(split) >= 2, "Not enough arguments!"
             definitions[split[1]] = True if len(split) == 2 else split[2]

@@ -1,0 +1,79 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+#define RANDOMIZED_KEYS
+
+#pragma region random keys
+#ifdef RANDOMIZED_KEYS
+uint8 keyDown = 0;
+uint8 keyFire = 0;
+uint8 keyJump = 0;
+uint8 keyLeft = 0;
+uint8 keyRight = 0;
+uint8 keyRun = 0;
+uint8 keySelect = 0;
+uint8 keyUp = 0;
+
+uint8 getRandomKey() {
+	auto key = PLAYKEYS[getRandomNumber(0, PLAYKEYS.length()-1)].code;
+	return key;
+}
+
+void randomizeControls() {
+	keyDown = getRandomKey();
+	keyFire = getRandomKey();
+	keyJump = getRandomKey();
+	keyLeft = getRandomKey();
+	keyRight = getRandomKey();
+	keyRun = getRandomKey();
+	keySelect = getRandomKey();
+	keyUp = getRandomKey();
+	jjKeyChat = getRandomKey();
+
+	jjConsole("Randomized!");
+
+	TimerV(70*5, randomizeControls);
+}
+#endif
+#pragma endregion
+
+void onLevelBegin() {
+	jjConsole("Started!");
+#ifdef RANDOMIZED_KEYS
+	randomizeControls();
+#endif
+}
+
+void onPlayerInput(jjPLAYER@ player) {
+#pragma region randomized keys functionality
+#ifdef RANDOMIZED_KEYS
+	player.keyDown = jjKey[keyDown];
+	player.keyFire = jjKey[keyFire];
+	player.keyJump = jjKey[keyJump];
+	player.keyLeft = jjKey[keyLeft];
+	player.keyRight = jjKey[keyRight];
+	player.keyRun = jjKey[keyRun];
+	player.keySelect = jjKey[keySelect];
+	player.keyUp = jjKey[keyUp];
+#endif
+#pragma endregion
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+#pragma region draw randomized key ids
+#ifdef RANDOMIZED_KEYS
+	canvas.drawString(5, 50, "Up: " + getKeyByCode(keyUp).id);
+	canvas.drawString(5, 70, "Down: " + getKeyByCode(keyDown).id);
+	canvas.drawString(5, 90, "Left: " + getKeyByCode(keyLeft).id);
+	canvas.drawString(5, 110, "Right: " + getKeyByCode(keyRight).id);
+	canvas.drawString(5, 130, "Fire: " + getKeyByCode(keyFire).id);
+	canvas.drawString(5, 150, "Jump: " + getKeyByCode(keyJump).id);
+	canvas.drawString(5, 170, "Run: " + getKeyByCode(keyRun).id);
+	canvas.drawString(5, 190, "Select: " + getKeyByCode(keySelect).id);
+	canvas.drawString(5, 210, "Chat: " + getKeyByCode(jjKeyChat).id);
+#endif
+#pragma endregion
+
+	return false;
+}
