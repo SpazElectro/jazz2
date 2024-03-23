@@ -2,10 +2,11 @@
 
 #include "STVutil.asc"
 
-// #define RANDOMIZED_KEYS
-// #define SHOOT_MUSIC
-// #define CERVEZA_CRISTAL
+#define RANDOMIZED_KEYS
+#define SHOOT_MUSIC
+#define CERVEZA_CRISTAL
 #define REVERSE_RUSH
+#define REVERSE_DAMAGE
 
 #pragma region random keys
 #ifdef RANDOMIZED_KEYS
@@ -36,11 +37,11 @@ void randomizeControls() {
 
 	jjConsole("Randomized!");
 
-	TimerV(70*5, randomizeControls);
+	// every 1 minute
+	TimerV(70*1*60, randomizeControls);
 }
 #endif
 #pragma endregion
-
 #pragma region shoot music
 #ifdef SHOOT_MUSIC
 bool prevKeyFire = true;
@@ -48,23 +49,20 @@ uint8 newMusicSpeed, newMusicTempo = 0;
 #endif
 #pragma endregion
 
-void onLevelBegin() {
+void onLevelLoad() {
 	jjConsole("Started!");
 
 #ifdef RANDOMIZED_KEYS
 	randomizeControls();
 #endif
-
 #ifdef SHOOT_MUSIC
 	newMusicSpeed = jjGetModSpeed();
 	newMusicTempo = jjGetModTempo();
 #endif
-
 #ifdef CERVEZA_CRISTAL
 	// TODO this also replaces normal carrots, can be fixed by making a custom behavior
 	jjPIXELMAP("STVgodhelpme.j2as_Cerveza_Cristal.png").save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim+21].firstFrame]);
 #endif
-
 #ifdef REVERSE_RUSH
 	auto pickups = jjAnimSets[ANIM::PICKUPS].firstAnim;
 
@@ -78,6 +76,17 @@ void onLevelBegin() {
 			);
 		}
 	}
+#endif
+#ifdef REVERSE_DAMAGE
+	// for (int eventID = OBJECT::BLASTERBULLET; eventID <= OBJECT::ELECTROBULLETPU; ++eventID) {
+	// 	// jjObjectPresets[eventID].scriptedCollisions = true;
+	// 	// jjObjectPresets[eventID].playerHandling = HANDLING::SPECIAL;
+    //     jjObjectPresets[eventID].behavior = BulletWrapper(jjObjectPresets[eventID].behavior);
+    // }
+
+	jjObjectPresets[OBJECT::CARROT].scriptedCollisions = true;
+	jjObjectPresets[OBJECT::CARROT].playerHandling = HANDLING::SPECIAL;
+	jjObjectPresets[OBJECT::CARROT].behavior = KillerCarrot();
 #endif
 }
 
@@ -139,3 +148,49 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
 
 	return false;
 }
+
+#ifdef REVERSE_DAMAGE
+// class BulletWrapper : jjBEHAVIORINTERFACE {
+//     private jjBEHAVIOR nativeBehavior;
+//     BulletWrapper(const jjBEHAVIOR &in nb) { nativeBehavior = nb; }
+
+//     void onBehave(jjOBJ@ obj) {
+//         if (obj.state == STATE::START) {
+// 			obj.state = STATE::FLY;
+// 			if (obj.creatorType == CREATOR::PLAYER)
+// 				obj.xSpeed += obj.var[7] / 65536;
+// 		} else if (obj.state == STATE::DEACTIVATE) {
+// 			obj.delete();
+// 		} else if (obj.state == STATE::EXPLODE) {
+// 			obj.behavior = BEHAVIOR::EXPLOSION2;
+// 			obj.frameID = 0;
+// 		} else {
+// 			obj.xSpeed += obj.xAcc;
+// 			obj.ySpeed += obj.yAcc;
+// 			if ((--obj.counterEnd == 0) || (jjMaskedPixel(obj.xPos + obj.xSpeed, obj.yPos + obj.ySpeed))) {
+// 				obj.state = STATE::EXPLODE;
+// 			} else {
+// 				obj.xPos += obj.xSpeed;
+// 				obj.yPos += obj.ySpeed;
+// 				obj.draw();
+// 			}
+// 		}
+// 	}
+// }
+
+class KillerCarrot : jjBEHAVIORINTERFACE {
+	void onBehave(jjOBJ@ obj) {
+		obj.behave(BEHAVIOR::PICKUP);
+	}
+
+	bool onObjectHit(jjOBJ@ obj, jjOBJ@, jjPLAYER@ player, int) {
+		player.hurt();
+
+		obj.behavior = BEHAVIOR::EXPLOSION2;
+		obj.scriptedCollisions = false;
+		obj.frameID = 0;
+
+		return true;
+	}
+}
+#endif
