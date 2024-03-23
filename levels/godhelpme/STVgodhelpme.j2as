@@ -149,6 +149,12 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
 	return false;
 }
 
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+	#ifdef REVERSE_RUSH
+	if(pd.sugarRush) pd.player.kill();
+	#endif
+}
+
 #ifdef REVERSE_DAMAGE
 // class BulletWrapper : jjBEHAVIORINTERFACE {
 //     private jjBEHAVIOR nativeBehavior;
