@@ -3,7 +3,9 @@
 #include "STVutil.asc"
 
 // #define RANDOMIZED_KEYS
-#define SHOOT_MUSIC
+// #define SHOOT_MUSIC
+// #define CERVEZA_CRISTAL
+#define REVERSE_RUSH
 
 #pragma region random keys
 #ifdef RANDOMIZED_KEYS
@@ -57,6 +59,26 @@ void onLevelBegin() {
 	newMusicSpeed = jjGetModSpeed();
 	newMusicTempo = jjGetModTempo();
 #endif
+
+#ifdef CERVEZA_CRISTAL
+	// TODO this also replaces normal carrots, can be fixed by making a custom behavior
+	jjPIXELMAP("STVgodhelpme.j2as_Cerveza_Cristal.png").save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim+21].firstFrame]);
+#endif
+
+#ifdef REVERSE_RUSH
+	auto pickups = jjAnimSets[ANIM::PICKUPS].firstAnim;
+
+	for(int i = 0; i < 83; i++) {
+		auto pixelMap = jjPIXELMAP(
+			jjAnimFrames[jjAnimations[pickups+getRandomNumber(0, 95)].firstFrame]);
+		
+		for(uint v = 0; v < jjAnimations[jjAnimSets[ANIM::AMMO].firstAnim+i].frameCount;v++) {
+			pixelMap.save(
+				jjAnimFrames[jjAnimations[jjAnimSets[ANIM::AMMO].firstAnim+i].firstFrame+v]
+			);
+		}
+	}
+#endif
 }
 
 void onPlayerInput(jjPLAYER@ player) {
@@ -88,6 +110,15 @@ void onMain() {
 #ifdef SHOOT_MUSIC
 	jjSetModSpeed(newMusicSpeed);
 	jjSetModTempo(newMusicTempo);
+#endif
+}
+
+void onPlayer(jjPLAYER@ player) {
+#ifdef REVERSE_RUSH
+	if(player.food >= 99) {
+		player.food = 0;
+		player.kill();
+	}
 #endif
 }
 
