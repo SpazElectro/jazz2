@@ -1,0 +1,156 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+#pragma region perlin noise
+class PerlinNoise
+{
+    array<int> p(256);
+
+    PerlinNoise()
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            p[i] = i;
+        }
+
+        for (int i = 0; i < 256; i++)
+        {
+            int j = gameRNG() & 255;
+            int temp = p[i];
+            p[i] = p[j];
+            p[j] = temp;
+        }
+    }
+
+    float lerp(float a, float b, float t)
+    {
+        return a + t * (b - a);
+    }
+
+    float fade(float t)
+    {
+        return t * t * t * (t * (t * 6 - 15) + 10);
+    }
+
+    float noise(float x)
+    {
+		// return 1;
+        int X = int(x) & 255;
+        x -= int(x);
+        float u = fade(x);
+
+        int A = p[X];
+        int B = p[X + 1];
+        return lerp(A, B, u) / 255.0f;
+    }
+};
+#pragma endregion
+
+// drawing
+int screenWidth = 640;
+int screenHeight = 480;
+
+jjPIXELMAP@ gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
+jjPAL gamePalette = jjPAL();
+
+// logic
+jjRNG gameRNG = jjRNG();
+PerlinNoise@ gamePerlin = PerlinNoise();
+
+int playerX = 0;
+
+void onLevelLoad() {
+	jjConsole("Started!");
+
+	// grass
+    gamePalette.color[1] = jjPALCOLOR(0, 255, 0); // green
+    gamePalette.color[2] = jjPALCOLOR(50, 205, 50); // dark green
+
+    // road
+    gamePalette.color[3] = jjPALCOLOR(255, 0, 0); // red
+    gamePalette.color[4] = jjPALCOLOR(255, 255, 255); // white
+
+    // sky
+    gamePalette.color[5] = jjPALCOLOR(176, 224, 230); // powder blue
+    gamePalette.color[6] = jjPALCOLOR(73, 216, 230); // light blue
+
+    // ground
+    gamePalette.color[7] = jjPALCOLOR(127, 127, 127); // gray
+
+	array<uint8> indexMapping;
+    indexMapping.insertLast(0);
+    indexMapping.insertLast(1);
+    indexMapping.insertLast(2);
+    indexMapping.insertLast(3);
+    indexMapping.insertLast(4);
+    indexMapping.insertLast(5);
+    indexMapping.insertLast(6);
+
+    jjSpriteModeSetMapping(1, indexMapping, gamePalette);
+	jjConsole("INIT: Mappings");
+}
+
+int quarterScreenHeight = screenHeight/8;
+
+void setTerrainPoint(int pos, int height, int color = -1) {
+    // 1 == bright, 2 == dark
+	// 	jjConsole("Setting pos: " + pos + " height: " + height);
+	// }
+	// if(playerX >= 10800) {
+	// 	jjSpy("" + playerX);
+	// 	return;
+	// }
+
+    for (int y = screenHeight - 1; y >= height; y--)
+		gamePixelMap[pos, y] = (color == -1 ? ((y >= height + quarterScreenHeight) ? 2 : 1) : color);
+}
+
+
+const float frequency = 0.001;
+const float amplitude = 100;
+const int terrainOffset = screenWidth/2;
+
+int difference = 2;
+int timeDifference = 4;
+
+void onMain() {
+	if(jjGameTicks % timeDifference == 0) {
+		// Clear! this crashes the game with an access violation after a few seconds
+		// if only we could delete gamePixelMap;
+		@gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
+
+		for (int x = 0; x < screenWidth; x += difference) {
+			for(int i = 0; i < difference; i++) {
+				setTerrainPoint(x + i, int(
+					terrainOffset - (
+						amplitude * gamePerlin.noise(
+							(x + i + playerX) * frequency
+						)
+					)
+				));
+			}
+		}
+	}
+
+	playerX += timeDifference*4;
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen) {
+	gamePixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame]);
+	
+	screen.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
+	screen.drawSprite(0, 0, ANIM::CUSTOM[0], 0, 0, /* direction */ 0, SPRITE::MAPPING, 1);
+	screen.drawString(10, 30, "screenWidth: " + screenWidth + " - screenHeight: " + screenHeight);
+	screen.drawString(10, 45, "frequency: " + frequency + " - amplitude: " + amplitude + " - terrainOffset: " + terrainOffset);
+	screen.drawString(10, 60, "difference: " + difference + " - timeDifference: " + timeDifference);
+	screen.drawString(10, 75, "playerX: " + playerX);
+
+    return true;
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
