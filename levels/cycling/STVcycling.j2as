@@ -48,8 +48,8 @@ class PerlinNoise
 #pragma endregion
 
 // drawing
-int screenWidth = 640;
-int screenHeight = 480;
+int screenWidth = jjResolutionWidth;
+int screenHeight = jjResolutionHeight;
 
 jjPIXELMAP@ gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
 jjPAL gamePalette = jjPAL();
@@ -63,29 +63,28 @@ int playerX = 0;
 void onLevelLoad() {
 	jjConsole("Started!");
 
-	// grass
-    gamePalette.color[1] = jjPALCOLOR(0, 255, 0); // green
-    gamePalette.color[2] = jjPALCOLOR(50, 205, 50); // dark green
-
-    // road
-    gamePalette.color[3] = jjPALCOLOR(255, 0, 0); // red
-    gamePalette.color[4] = jjPALCOLOR(255, 255, 255); // white
-
-    // sky
-    gamePalette.color[5] = jjPALCOLOR(176, 224, 230); // powder blue
-    gamePalette.color[6] = jjPALCOLOR(73, 216, 230); // light blue
-
-    // ground
-    gamePalette.color[7] = jjPALCOLOR(127, 127, 127); // gray
-
 	array<uint8> indexMapping;
-    indexMapping.insertLast(0);
-    indexMapping.insertLast(1);
-    indexMapping.insertLast(2);
-    indexMapping.insertLast(3);
-    indexMapping.insertLast(4);
-    indexMapping.insertLast(5);
-    indexMapping.insertLast(6);
+
+#defmacro define_color index r g b
+	gamePalette.color[%index%] = jjPALCOLOR(%r%, %g%, %b%);
+	indexMapping.insertLast(%index%);
+#enddef
+
+	// grass
+	#macro define_color 1 0 255 0   // green
+	#macro define_color 2 50 205 50 // dark green
+	
+	// road
+	#macro define_color 3 255 0 0     // red
+	#macro define_color 4 255 255 255 // white
+	
+	// sky
+	#macro define_color 5 176 224 230 // powder blue
+	#macro define_color 6 73 216 230  // light blue
+	
+	// ground
+	#macro define_color 7 127 127 127 // gray
+#undef define_color
 
     jjSpriteModeSetMapping(1, indexMapping, gamePalette);
 	jjConsole("INIT: Mappings");
@@ -141,16 +140,16 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen) {
 	
 	screen.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
 	screen.drawSprite(0, 0, ANIM::CUSTOM[0], 0, 0, /* direction */ 0, SPRITE::MAPPING, 1);
-	screen.drawString(10, 30, "screenWidth: " + screenWidth + " - screenHeight: " + screenHeight);
-	screen.drawString(10, 45, "frequency: " + frequency + " - amplitude: " + amplitude + " - terrainOffset: " + terrainOffset);
-	screen.drawString(10, 60, "difference: " + difference + " - timeDifference: " + timeDifference);
-	screen.drawString(10, 75, "playerX: " + playerX);
+	screen.drawString(10, 10, "screenWidth: " + screenWidth + " - screenHeight: " + screenHeight);
+	screen.drawString(10, 25, "frequency: " + frequency + " - amplitude: " + amplitude + " - terrainOffset: " + terrainOffset);
+	screen.drawString(10, 40, "difference: " + difference + " - timeDifference: " + timeDifference);
+	screen.drawString(10, 55, "playerX: " + playerX);
 
     return true;
 }
 
-bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
-bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
-bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
-bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
-bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawHealth(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawLives(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawPlayerTimer(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawScore(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawGameModeHUD(jjPLAYER@, jjCANVAS@) { return true; }

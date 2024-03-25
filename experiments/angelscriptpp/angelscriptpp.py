@@ -73,7 +73,7 @@ def process(source_code: str):
         if split[0] == "#macro":
             assert len(split) >= 2, "Not enough arguments!"
             assert macros.get(split[1]) != None, "Macro doesn't exist!"
-            assert len(split[2:]) == len(macros[split[1]]["args"]), "Incorrect number of arguments for macro!"
+            # assert len(split[2:]) == len(macros[split[1]]["args"]), "Incorrect number of arguments for macro!"
 
             macro_code: str = macros[split[1]]["code"]
             for i, arg in enumerate(macros[split[1]]["args"]):
