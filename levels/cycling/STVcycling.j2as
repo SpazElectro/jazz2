@@ -60,8 +60,14 @@ PerlinNoise@ gamePerlin = PerlinNoise();
 
 int playerX = 0;
 
+array<uint8> emptyColors(256);
+
 void onLevelLoad() {
 	jjConsole("Started!");
+
+	// for(uint8 i = 0; i < 256; i++) {
+	// 	emptyColors[i] = 0;
+	// }
 
 	array<uint8> indexMapping;
 
@@ -84,10 +90,23 @@ void onLevelLoad() {
 	
 	// ground
 	#macro define_color 7 127 127 127 // gray
-#undef define_color
+	
+	#undef define_color
 
     jjSpriteModeSetMapping(1, indexMapping, gamePalette);
 	jjConsole("INIT: Mappings");
+
+	jjAnimSets[ANIM::HELMUT].load(
+		jjPIXELMAP("STVcycling.j2as_texture.png"),
+		frameWidth: 64,
+		frameHeight: 64,
+		frameSpacingX: 2,
+		frameSpacingY: 2,
+		startY: 0,
+		firstAnimToOverwrite: jjAnimSets[ANIM::HELMUT]
+	);
+
+	jjConsole("INIT: Animations");
 }
 
 int quarterScreenHeight = screenHeight/8;
@@ -111,24 +130,33 @@ const float amplitude = 100;
 const int terrainOffset = screenWidth/2;
 
 int difference = 2;
-int timeDifference = 4;
+int timeDifference = 2;
+bool drawAdj = false;
 
 void onMain() {
+	// if(true) return;
 	if(jjGameTicks % timeDifference == 0) {
 		// Clear! this crashes the game with an access violation after a few seconds
-		// if only we could delete gamePixelMap;
-		@gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
+		// it doesn't anymore! WOWZA!
+		// @gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
+		gamePixelMap.recolor(emptyColors);
 
 		for (int x = 0; x < screenWidth; x += difference) {
-			for(int i = 0; i < difference; i++) {
-				setTerrainPoint(x + i, int(
-					terrainOffset - (
-						amplitude * gamePerlin.noise(
-							(x + i + playerX) * frequency
-						)
+			int y = int(terrainOffset - (
+					amplitude * gamePerlin.noise(
+						(x + playerX) * frequency
 					)
-				));
+				)
+			);
+
+			if(drawAdj) {
+				for(int i = 0; i < difference; i++) {
+					setTerrainPoint(x + i, y);
+				}
+			} else {
+				setTerrainPoint(x, y);
 			}
+
 		}
 	}
 
@@ -144,6 +172,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen) {
 	screen.drawString(10, 25, "frequency: " + frequency + " - amplitude: " + amplitude + " - terrainOffset: " + terrainOffset);
 	screen.drawString(10, 40, "difference: " + difference + " - timeDifference: " + timeDifference);
 	screen.drawString(10, 55, "playerX: " + playerX);
+	screen.drawSprite(screenWidth/2, screenHeight/2, ANIM::HELMUT, 0, 5);
 
     return true;
 }
