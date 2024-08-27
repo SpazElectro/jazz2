@@ -4,6 +4,12 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        {
+            "command": "cd levels && cd motorracer && run && exit",
+            "name": "Run motor racer",
+            "request": "launch",
+            "type": "node-terminal"
+        },
 		{
 			"name": "Run Extension",
 			"type": "extensionHost",

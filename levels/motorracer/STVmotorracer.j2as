@@ -2,6 +2,181 @@
 
 #include "STVutil.asc"
 
+const ANIM::Set playerAnimSet = ANIM::CUSTOM[1];
+Key@ leftKey;
+Key@ rightKey;
+Key@ jumpKey;
+
+int max(int a, int b) {
+	return a > b ? a : b;
+}
+int min(int a, int b) {
+	return a < b ? a : b;
+}
+
+class MotorPlayer
+{
+	AnimatedSprite@ sprite;
+	string name;
+	bool isLocal;
+
+	Vector2@ position;
+	Vector2@ velocity;
+	
+	int speed;
+	int jumpForce;
+
+	int jumpHeld;
+	bool isGrounded;
+
+	MotorPlayer() {
+		@this.sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
+		this.sprite.animSet = playerAnimSet;
+		
+		@this.position = Vector2((jjResolutionWidth/2)+64, 64);
+
+		@this.velocity = Vector2(0, 0);
+
+		this.isLocal = false;
+		this.speed = 2;
+		this.jumpForce = 25;
+		this.jumpHeld = 0;
+		this.isGrounded = false;
+	}
+
+	void update() {
+		// physics
+		if(!this.isGrounded)
+			this.velocity.y += int((9.807)/3);
+
+		// Add velocity to the position
+		this.position.x += this.velocity.x;
+		this.position.y += this.velocity.y;
+		
+		// Decrease velocity over time
+		if(this.velocity.x > 0) {
+			 this.velocity.x -= 1;
+		} else if(this.velocity.x < 0) { this.velocity.x += 1; }
+		if(this.velocity.y > 0) {
+			 this.velocity.y -= 1;
+		} else if(this.velocity.y < 0) { this.velocity.y += 1; }
+		
+		// Limit the bounds
+		this.position.x = max(32, this.position.x);
+		this.position.y = max(32, this.position.y);
+		this.position.x = min(jjResolutionWidth-32, this.position.x);
+		this.position.y = min(jjResolutionHeight-32, this.position.y);
+
+		this.sprite.x = this.position.x;
+		this.sprite.y = this.position.y;
+		this.sprite.update();
+
+		// temporary
+		bool previouslyGrounded = this.isGrounded;
+		this.isGrounded = this.position.y >= jjResolutionHeight-32;
+		if(!previouslyGrounded && this.isGrounded)
+			this.velocity.y = 0; // impact *sparkles*
+
+		// controls
+
+		if(this.isLocal) {
+			// dont gain velocity when colliding with the corners
+			if(!(this.position.x <= 32))
+				if(isKeyDown(leftKey))
+					this.velocity.x -= this.speed;
+			if(!(this.position.x >= jjResolutionWidth-32))
+				if(isKeyDown(rightKey))
+					this.velocity.x += this.speed;
+
+			// makes the bike tilt up the faster you are
+			this.sprite.angle = /*abs*/(this.velocity.x)*3;
+			
+			if(isKeyDown(jumpKey)) {
+				if(this.isGrounded) {
+					if(this.jumpHeld == -1)
+						this.jumpHeld = 0;
+					this.velocity.y -= this.jumpForce;
+					this.jumpHeld += 15; // feedback
+				}
+			} else {
+				this.jumpHeld = 0;
+			}
+
+			if(this.jumpHeld > 0) {
+				this.velocity.y -= 1;
+				if(this.jumpHeld > 15) {
+					this.jumpHeld = -1;
+				}
+			}
+		}
+	}
+
+	void draw(jjCANVAS@ canvas) {
+		int width = jjGetStringWidth(this.name, STRING::SMALL, normalTextAppearance);
+
+		canvas.drawString(
+			this.position.x-(width/2),
+			this.position.y-32,
+			this.name,
+			STRING::SMALL
+		);
+
+		this.sprite.draw(canvas);
+	}
+
+	void _update() {
+		@motorPlayers[this.name] = this;
+	}
+};
+
+dictionary motorPlayers = {};
+MotorPlayer@ localMotorPlayer;
+
+MotorPlayer@ addPlayer(string name) {
+	MotorPlayer@ motorPlayer = MotorPlayer();
+	motorPlayer.name = name;
+	// motorPlayers.insertLast(motorPlayer);
+	motorPlayers.set(name, @motorPlayer);
+
+	return motorPlayer;
+}
+
 void onLevelBegin() {
 	jjConsole("Started!");
+
+	@leftKey  = getKeyById("A");
+	@rightKey = getKeyById("D");
+	@jumpKey  = getKeyById("Space");
+
+	jjAnimSets[playerAnimSet].load(
+		jjPIXELMAP("STVmotorracer_split.png"),
+		frameWidth: 64,
+		frameHeight: 64,
+		frameSpacingX: 4,
+		frameSpacingY: 0,
+		startY: 0,
+		firstAnimToOverwrite: jjAnimSets[playerAnimSet]
+	);
+
+	auto p = addPlayer("Steve");
+	p.isLocal = true;
+	p._update();
+
+	@localMotorPlayer = p;
+}
+
+void onMain() {
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).update();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+	canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
+	
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).draw(canvas);
+
+	canvas.drawString(0, 16, "Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y);
+
+	return false;
 }
