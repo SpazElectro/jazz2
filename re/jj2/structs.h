@@ -25,6 +25,7 @@ struct Player_Display {
     char* Text;
 }
 
+// TODO reorder
 struct Player {
     int xpos;
     int ypos;
