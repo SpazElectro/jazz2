@@ -30,6 +30,9 @@ uint type = 3;
 struct readypkt {};
 */
 
+// god please give me power to finish this project
+// -spaz electro
+
 #pragma require "STVmotorracer_split.png"
 #pragma require "STVutil.asc"
 
@@ -45,6 +48,15 @@ int min(int a, int b) {
 }
 int max(int a, int b) {
 	return a > b ? a : b;
+}
+
+int bandwidthInThisSecond  = 0;
+int bandwidthOutThisSecond = 0;
+uint64 lastPKTtime = 0;
+
+bool sendPacket(jjSTREAM &in packet, int toClientID = 0, uint toScriptModuleID = jjScriptModuleID) {
+	bandwidthOutThisSecond += packet.getSize();
+	return jjSendPacket(packet, toClientID, toScriptModuleID);
 }
 
 class MotorPlayer
@@ -204,7 +216,12 @@ class MotorPlayer
 		stream.push(this.velocity.x);
 		stream.push(this.velocity.y);
 
-		return jjSendPacket(stream);
+		// if we're the server
+		// send to everyone except the person who moved
+		// TODO check if this actually works because the bandwidth in/out says otherwise
+		// maybe that's because our bandwidth in/out implementation doesn't check
+		// if we're excluded?
+		return sendPacket(stream, jjIsServer ? -this.id : 0);
 	}
 	#pragma endregion
 
@@ -220,7 +237,7 @@ void sendPlayerJoinPacket(string name, int8 id, int target = 0) {
 	stream.push(type);
 	stream.push(id);
 	stream.push(name);
-	jjSendPacket(stream, target);
+	sendPacket(stream, target);
 }
 
 void sendPlayerLeavePacket(int8 id) {
@@ -228,7 +245,7 @@ void sendPlayerLeavePacket(int8 id) {
 	jjSTREAM stream;
 	stream.push(type);
 	stream.push(id);
-	jjSendPacket(stream);
+	sendPacket(stream);
 }
 
 MotorPlayer@ addPlayer(string name, int8 id) {
@@ -271,15 +288,25 @@ jjPLAYER@ getPlayerByClientID(int clientId) {
 }
 
 void removePlayer(int8 id) {
+	// jjConsole("I am a " + (jjIsServer ? "server" : "client") + ", deleting " + id);
+	
 	if(jjIsServer)
 		sendPlayerLeavePacket(id);
-	motorPlayers.delete(getMotorPlayerById(id).name);
+
+	auto motorPlayer = getMotorPlayerById(id);
+	if(@motorPlayer != null) {
+		// jjConsole("Deleted " + id + "!");
+		motorPlayers.delete(motorPlayer.name);
+	} else {
+		jjConsole("removePlayer()::motorPlayer is null! I am a " + (jjIsServer ? "server" : "client") + " ID: " + id);
+	}
 }
 
 array<bool> activePlayersArray(32, false);
+array<int8> activePlayersClientIDsArray(32, -1);
 
 void onLevelBegin() {
-	jjConsole("Started!");
+	// jjConsole("Started!");
 
 	@leftKey  = getKeyById("A");
 	@rightKey = getKeyById("D");
@@ -301,14 +328,17 @@ void onLevelBegin() {
 		uint8 id = 3;
 		jjSTREAM readyPacket;
 		readyPacket.push(id);
-		jjSendPacket(readyPacket);
+		sendPacket(readyPacket);
 	}
-
 }
 
 void onReceive(jjSTREAM &in packet, int clientID) {
 	uint8 type;
 	packet.pop(type);
+
+	bandwidthInThisSecond += packet.getSize();
+	if(jjIsServer)
+		jjConsole("Recv: " + type + " from " + clientID);
 
 	if(!jjIsServer) {
 		switch(type) {
@@ -352,11 +382,13 @@ void onReceive(jjSTREAM &in packet, int clientID) {
 			// ready
 			case 3: {
 				// send all the other players that have joined
-				for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+				for(uint i = 0; i < motorPlayers.getKeys().length(); i++) {
 					sendPlayerJoinPacket(motorPlayers.getKeys()[i], cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id, clientID);
-				
+					cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).sendMovePacket();
+				}
+
 				auto player = getPlayerByClientID(clientID);
-				jjConsole(player.nameUnformatted + " is ready!");
+				// jjConsole(player.nameUnformatted + " is ready!");
 				addPlayer(player.nameUnformatted, clientID);
 
 				break;
@@ -373,13 +405,23 @@ void onMain() {
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).update();
 	
-	for(uint i = 0; i < 32; i++) {
-		if(activePlayersArray[i] && !jjPlayers[i].isActive) {
-			jjConsole(jjPlayers[i].nameUnformatted + " has left the game!");
-			// removePlayer(jjPlayers[i].clientID);
-		}
+	if(jjIsServer) {
+		for(uint i = 0; i < 32; i++) {
+			if(activePlayersArray[i] && !jjPlayers[i].isActive) {
+				// jjConsole(jjPlayers[i].nameUnformatted + " has left the game!");
+				// jjPlayers[i].clientID here is going to be -1 so we use this array 
+				removePlayer(activePlayersClientIDsArray[i]);
+			}
 
-		activePlayersArray[i] = jjPlayers[i].isActive;
+			activePlayersArray[i] = jjPlayers[i].isActive;
+			activePlayersClientIDsArray[i] = jjPlayers[i].clientID;
+		}
+	}
+
+	if(jjUnixTimeSec() >= lastPKTtime+1) {
+		lastPKTtime = jjUnixTimeSec();
+		bandwidthInThisSecond = 0;
+		bandwidthOutThisSecond = 0;
 	}
 }
 
@@ -390,12 +432,12 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).draw(canvas);
 
 	if(@localMotorPlayer != null)
-		canvas.drawString(0, 16, "Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y);
+		canvas.drawString(0, 16, "||||Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y+" -| Bandwidth IN: " + bandwidthInThisSecond);
 	
-	canvas.drawString(0, 32, "Player count: "+motorPlayers.getKeys().length());
+	canvas.drawString(0, 32, "|Player count: "+motorPlayers.getKeys().length()+" -| Bandwidth OUT: " + bandwidthOutThisSecond);
 	canvas.drawString(0, 48, "-- MotorPlayer ids in order --");
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
-		canvas.drawString(0, 56+(i*8), "ID: " + (cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id));
+		canvas.drawString(0, 60+(i*12), "|||ID: " + (cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id));
 
 	return false;
 }
