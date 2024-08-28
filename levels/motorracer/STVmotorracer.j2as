@@ -50,6 +50,7 @@ int max(int a, int b) {
 	return a > b ? a : b;
 }
 
+bool isChatting = false;
 int bandwidthInThisSecond  = 0;
 int bandwidthOutThisSecond = 0;
 uint64 lastPKTtime = 0;
@@ -136,16 +137,15 @@ class MotorPlayer
 
 			// dont gain velocity when colliding with the corners
 			if(!(this.position.x <= 32))
-				if(isKeyDown(leftKey)) {
+				if(isKeyDown(leftKey) && !isChatting) {
 					this.velocity.x -= this.speed; anyInput = true;
 				}
 			if(!(this.position.x >= jjResolutionWidth-32))
-				if(isKeyDown(rightKey)) {
+				if(isKeyDown(rightKey) && !isChatting) {
 					this.velocity.x += this.speed; anyInput = true;
 				}
 
-			
-			if(isKeyDown(jumpKey)) {
+			if(isKeyDown(jumpKey) && !isChatting) {
 				if(this.isGrounded) {
 					if(this.jumpHeld == -1)
 						this.jumpHeld = 0;
@@ -337,8 +337,8 @@ void onReceive(jjSTREAM &in packet, int clientID) {
 	packet.pop(type);
 
 	bandwidthInThisSecond += packet.getSize();
-	if(jjIsServer)
-		jjConsole("Recv: " + type + " from " + clientID);
+	// if(jjIsServer)
+	// 	jjConsole("Recv: " + type + " from " + clientID);
 
 	if(!jjIsServer) {
 		switch(type) {
@@ -402,6 +402,11 @@ void onReceive(jjSTREAM &in packet, int clientID) {
 }
 
 void onMain() {
+	if(jjKey[jjKeyChat])
+		isChatting = true;
+	if(isChatting && (jjKey[27] || jjKey[13]))
+		isChatting = false;
+
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).update();
 	
