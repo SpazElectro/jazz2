@@ -26,8 +26,16 @@ struct remplayerpkt {
 };
 
 // This is sent by all the clients when they are ready to start receiving information
-uint type = 3;
+uint8 type = 3;
 struct readypkt {};
+
+uint8 type = 4;
+struct shootpkt {
+	/ if client
+	uint8 id;
+	/ endif
+	uint8 weapon;
+};
 */
 
 // god please give me power to finish this project
