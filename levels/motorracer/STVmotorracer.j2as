@@ -46,6 +46,12 @@ struct shootpkt {
 
 #include "STVutil.asc"
 
+// #define INFINITE_TILT
+// #define DEBUG_MOTORPLAYER_IDS
+#define LIMIT_BOUNDS
+#define GROUND_IMPACT
+#define TILT_NEGATIVE
+
 const ANIM::Set playerAnimSet = ANIM::CUSTOM[1];
 Key@ leftKey;
 Key@ rightKey;
@@ -120,35 +126,54 @@ class MotorPlayer
 		} else if(this.velocity.y < 0) { this.velocity.y += 1; }
 		
 		// Limit the bounds
+		#ifdef LIMIT_BOUNDS
+		// TODO set a specific resolution in multiplayer
 		this.position.x = max(32, this.position.x);
 		this.position.y = max(32, this.position.y);
 		this.position.x = min(jjResolutionWidth-32, this.position.x);
 		this.position.y = min(jjResolutionHeight-32, this.position.y);
+		#endif
 
 		this.sprite.x = this.position.x;
 		this.sprite.y = this.position.y;
 		this.sprite.update();
 
+		#ifdef GROUND_IMPACT
 		bool previouslyGrounded = this.isGrounded;
+		#endif
 		// temporary
 		this.isGrounded = this.position.y >= jjResolutionHeight-32;
+		#ifdef GROUND_IMPACT
 		if(!previouslyGrounded && this.isGrounded)
 			this.velocity.y = 0; // impact *sparkles*
+		#endif
 
 		// makes the bike tilt up the faster you are
-		this.sprite.angle = /*abs*/(this.velocity.x)*3;
-		
+		#ifdef TILT_NEGATIVE
+		this.sprite.angle = this.velocity.x*3;
+		#else
+		this.sprite.angle = abs(this.velocity.x)*3;
+		#endif
+
 		// controls
 
 		if(this.isLocal) {
 			bool anyInput = false;
 
 			// dont gain velocity when colliding with the corners
+			#ifdef INFINITE_TILT
+			if(true)
+			#else
 			if(!(this.position.x <= 32))
+			#endif
 				if(isKeyDown(leftKey) && !isChatting) {
 					this.velocity.x -= this.speed; anyInput = true;
 				}
+			#ifdef INFINITE_TILT
+			if(true)
+			#else
 			if(!(this.position.x >= jjResolutionWidth-32))
+			#endif
 				if(isKeyDown(rightKey) && !isChatting) {
 					this.velocity.x += this.speed; anyInput = true;
 				}
@@ -448,9 +473,12 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 		canvas.drawString(0, 16, "||||Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y+" -| Bandwidth IN: " + bandwidthInThisSecond);
 	
 	canvas.drawString(0, 32, "|Player count: "+motorPlayers.getKeys().length()+" -| Bandwidth OUT: " + bandwidthOutThisSecond);
+	
+	#ifdef DEBUG_MOTORPLAYER_IDS
 	canvas.drawString(0, 48, "-- MotorPlayer ids in order --");
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		canvas.drawString(0, 60+(i*12), "|||ID: " + (cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id));
+	#endif
 
 	return false;
 }
