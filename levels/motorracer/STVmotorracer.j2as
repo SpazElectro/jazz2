@@ -94,11 +94,8 @@ class MotorPlayer
 	MotorPlayer(int8 id) {
 		@this.sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
 		this.sprite.animSet = playerAnimSet;
-		
 		@this.position = Vector2((jjResolutionWidth/2)+64, 64);
-
 		@this.velocity = Vector2(0, 0);
-
 		this.isLocal = false;
 		this.speed = 2;
 		this.jumpForce = 25;
@@ -228,6 +225,7 @@ class MotorPlayer
 		if(stream.getSize() != 4*4) // an int is 4 bytes, and we have 4 fields
 			return false;
 
+		// TODO validate the position and velocity by checking bounds
 		stream.pop(this.position.x);
 		stream.pop(this.position.y);
 		stream.pop(this.velocity.x);
