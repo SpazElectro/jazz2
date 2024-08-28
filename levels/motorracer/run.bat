@@ -6,6 +6,9 @@ for /f "tokens=1* delims==" %%a in ('type "..\..\run.ini" ^| find "="') do (
   if /i "%%a"=="GAME_NAME" set "GAME_NAME=%%b"
 )
 
+REM Close any running instances
+taskkill /f /im jazz2.exe
+
 echo Copying files...
 copy "../../scripts/" "%GAME_DIRECTORY%" /y
 

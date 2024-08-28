@@ -1,3 +1,36 @@
+/*
+// psuedocode for all the packets
+
+struct Vector2 {
+	int x, y;
+};
+
+uint8 type = 0;
+struct movepkt {
+	/ if client
+	uint8 id;
+	/ endif
+	Vector2 position;
+	Vector2 velocity;
+};
+
+uint8 type = 1;
+struct addplayerpkt {
+	string name;
+	int id;
+};
+
+uint8 type = 2;
+struct remplayerpkt {
+	int id;
+};
+
+// This is sent by all the clients when they are ready to start receiving information
+uint type = 3;
+struct readypkt {};
+*/
+
+#pragma require "STVmotorracer_split.png"
 #pragma require "STVutil.asc"
 
 #include "STVutil.asc"
@@ -7,11 +40,11 @@ Key@ leftKey;
 Key@ rightKey;
 Key@ jumpKey;
 
-int max(int a, int b) {
-	return a > b ? a : b;
-}
 int min(int a, int b) {
 	return a < b ? a : b;
+}
+int max(int a, int b) {
+	return a > b ? a : b;
 }
 
 class MotorPlayer
@@ -29,7 +62,9 @@ class MotorPlayer
 	int jumpHeld;
 	bool isGrounded;
 
-	MotorPlayer() {
+	int8 id;
+
+	MotorPlayer(int8 id) {
 		@this.sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
 		this.sprite.animSet = playerAnimSet;
 		
@@ -42,8 +77,10 @@ class MotorPlayer
 		this.jumpForce = 25;
 		this.jumpHeld = 0;
 		this.isGrounded = false;
+		this.id = id;
 	}
 
+	#pragma region base
 	void update() {
 		// physics
 		if(!this.isGrounded)
@@ -71,33 +108,40 @@ class MotorPlayer
 		this.sprite.y = this.position.y;
 		this.sprite.update();
 
-		// temporary
 		bool previouslyGrounded = this.isGrounded;
+		// temporary
 		this.isGrounded = this.position.y >= jjResolutionHeight-32;
 		if(!previouslyGrounded && this.isGrounded)
 			this.velocity.y = 0; // impact *sparkles*
 
+		// makes the bike tilt up the faster you are
+		this.sprite.angle = /*abs*/(this.velocity.x)*3;
+		
 		// controls
 
 		if(this.isLocal) {
+			bool anyInput = false;
+
 			// dont gain velocity when colliding with the corners
 			if(!(this.position.x <= 32))
-				if(isKeyDown(leftKey))
-					this.velocity.x -= this.speed;
+				if(isKeyDown(leftKey)) {
+					this.velocity.x -= this.speed; anyInput = true;
+				}
 			if(!(this.position.x >= jjResolutionWidth-32))
-				if(isKeyDown(rightKey))
-					this.velocity.x += this.speed;
+				if(isKeyDown(rightKey)) {
+					this.velocity.x += this.speed; anyInput = true;
+				}
 
-			// makes the bike tilt up the faster you are
-			this.sprite.angle = /*abs*/(this.velocity.x)*3;
 			
 			if(isKeyDown(jumpKey)) {
 				if(this.isGrounded) {
 					if(this.jumpHeld == -1)
 						this.jumpHeld = 0;
 					this.velocity.y -= this.jumpForce;
-					this.jumpHeld += 15; // feedback
+					anyInput = true;
 				}
+
+				this.jumpHeld += 15; // feedback
 			} else {
 				this.jumpHeld = 0;
 			}
@@ -108,6 +152,9 @@ class MotorPlayer
 					this.jumpHeld = -1;
 				}
 			}
+
+			if(anyInput)
+				this.sendMovePacket();
 		}
 	}
 
@@ -127,19 +174,109 @@ class MotorPlayer
 	void _update() {
 		@motorPlayers[this.name] = this;
 	}
+	#pragma endregion
+
+	#pragma region packets
+
+	#pragma region recv
+	bool recvMovePacket(jjSTREAM@ stream) {
+		if(stream.getSize() != 4*4) // an int is 4 bytes, and we have 4 fields
+			return false;
+
+		stream.pop(this.position.x);
+		stream.pop(this.position.y);
+		stream.pop(this.velocity.x);
+		stream.pop(this.velocity.y);
+
+		return true;
+	}
+	#pragma endregion
+
+	#pragma region send
+	bool sendMovePacket() {
+		uint8 type = 0;
+		jjSTREAM stream;
+		stream.push(type);
+		if(jjIsServer)
+			stream.push(this.id);
+		stream.push(this.position.x);
+		stream.push(this.position.y);
+		stream.push(this.velocity.x);
+		stream.push(this.velocity.y);
+
+		return jjSendPacket(stream);
+	}
+	#pragma endregion
+
+	#pragma endregion
 };
 
 dictionary motorPlayers = {};
 MotorPlayer@ localMotorPlayer;
 
-MotorPlayer@ addPlayer(string name) {
-	MotorPlayer@ motorPlayer = MotorPlayer();
+void sendPlayerJoinPacket(string name, int8 id, int target = 0) {
+	uint8 type = 1;
+	jjSTREAM stream;
+	stream.push(type);
+	stream.push(id);
+	stream.push(name);
+	jjSendPacket(stream, target);
+}
+
+void sendPlayerLeavePacket(int8 id) {
+	uint8 type = 2;
+	jjSTREAM stream;
+	stream.push(type);
+	stream.push(id);
+	jjSendPacket(stream);
+}
+
+MotorPlayer@ addPlayer(string name, int8 id) {
+	MotorPlayer@ motorPlayer = MotorPlayer(id);
 	motorPlayer.name = name;
-	// motorPlayers.insertLast(motorPlayer);
+	// jjConsole("Added player: " + name + " id: " + id);
+	if(id == jjLocalPlayers[1].clientID) {
+		// jjConsole("Found the local player! Name: " + name);
+		motorPlayer.isLocal = true;
+		@localMotorPlayer = motorPlayer;
+	}
 	motorPlayers.set(name, @motorPlayer);
+
+	if(jjIsServer)
+		sendPlayerJoinPacket(name, id);
 
 	return motorPlayer;
 }
+
+MotorPlayer@ getMotorPlayerById(int8 id) {
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++) {
+		auto plr = cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]);
+		if(plr.id == id)
+			return plr;
+	}
+
+	jjConsole("getMotorPlayerById returned null!");
+	return null;
+}
+
+jjPLAYER@ getPlayerByClientID(int clientId) {
+	for(uint i = 0; i < 32; i++) {
+		if(jjPlayers[i].clientID == clientId) {
+			return jjPlayers[i];
+		}
+	}
+
+	jjConsole("getPlayerByClientID returned null!");
+	return null;
+}
+
+void removePlayer(int8 id) {
+	if(jjIsServer)
+		sendPlayerLeavePacket(id);
+	motorPlayers.delete(getMotorPlayerById(id).name);
+}
+
+array<bool> activePlayersArray(32, false);
 
 void onLevelBegin() {
 	jjConsole("Started!");
@@ -158,16 +295,92 @@ void onLevelBegin() {
 		firstAnimToOverwrite: jjAnimSets[playerAnimSet]
 	);
 
-	auto p = addPlayer("Steve");
-	p.isLocal = true;
-	p._update();
+	if(jjIsServer) {
+		addPlayer(jjLocalPlayers[1].nameUnformatted, jjLocalPlayers[1].clientID);
+    } else {
+		uint8 id = 3;
+		jjSTREAM readyPacket;
+		readyPacket.push(id);
+		jjSendPacket(readyPacket);
+	}
 
-	@localMotorPlayer = p;
+}
+
+void onReceive(jjSTREAM &in packet, int clientID) {
+	uint8 type;
+	packet.pop(type);
+
+	if(!jjIsServer) {
+		switch(type) {
+			// move
+			case 0: {
+				uint8 id;
+				packet.pop(id);
+				getMotorPlayerById(id).recvMovePacket(packet);
+				break;
+			}
+			// join
+			case 1: {
+				uint8 id;
+				string name;
+				packet.pop(id);
+				packet.pop(name);
+				addPlayer(name, id);
+				break;
+			}
+			// leave
+			case 2: {
+				uint8 id;
+				packet.pop(id);
+				removePlayer(id);
+				break;
+			}
+			default: {
+				jjConsole("Unknown packet with type: " + type);
+				break;
+			}
+		}
+	} else {
+		switch(type) {
+			// move
+			case 0: {
+				auto plr = getMotorPlayerById(clientID);
+				plr.recvMovePacket(packet);
+				plr.sendMovePacket();
+				break;
+			}
+			// ready
+			case 3: {
+				// send all the other players that have joined
+				for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+					sendPlayerJoinPacket(motorPlayers.getKeys()[i], cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id, clientID);
+				
+				auto player = getPlayerByClientID(clientID);
+				jjConsole(player.nameUnformatted + " is ready!");
+				addPlayer(player.nameUnformatted, clientID);
+
+				break;
+			}
+			default: {
+				jjConsole("Unknown packet with type: " + type);
+				break;
+			}
+		}
+	}
 }
 
 void onMain() {
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).update();
+	
+	for(uint i = 0; i < 32; i++) {
+		if(activePlayersArray[i] && !jjPlayers[i].isActive) {
+			jjConsole(jjPlayers[i].nameUnformatted + " has left the game!");
+			// removePlayer(jjPlayers[i].clientID);
+		}
+
+		activePlayersArray[i] = jjPlayers[i].isActive;
+	}
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
@@ -176,7 +389,13 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).draw(canvas);
 
-	canvas.drawString(0, 16, "Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y);
+	if(@localMotorPlayer != null)
+		canvas.drawString(0, 16, "Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y);
+	
+	canvas.drawString(0, 32, "Player count: "+motorPlayers.getKeys().length());
+	canvas.drawString(0, 48, "-- MotorPlayer ids in order --");
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+		canvas.drawString(0, 56+(i*8), "ID: " + (cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id));
 
 	return false;
 }
