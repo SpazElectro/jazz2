@@ -87,9 +87,6 @@ class pinger(threading.Thread):
                 querysocket.sendto(dgram, address)
                 data, srv = querysocket.recvfrom(1024)
                 
-                with open("ddebug.txt", "wb") as fasdfasdf:
-                    fasdfasdf.write(data)
-                
                 private = (data[8] >> 5) & 1
 
                 if jj2server.get("private") != private:

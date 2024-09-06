@@ -94,14 +94,12 @@ class server_handler(port_handler):
                 server.set("origin", self.ls.address)
 
                 broadcast = True
+                self.ls.log.warning("Server added!")
 
             # existing server sending an update
             elif not new and data and (len(data) == 2 or data[0] == 0x02):
                 broadcast = True
 
-                with open("debug.txt", "wb") as fasdfasdf:
-                    fasdfasdf.write(data)
-                
                 if data[0] == 0:
                     if server.get("players") != data[1]:
                         self.ls.log.info("Updating player count for server %s" % self.key)
