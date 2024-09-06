@@ -23,18 +23,6 @@ def create_server_data(server_name: str, port: int, player_count: int, max_playe
     data += version.encode()
     return data
 
-# elif data[0] == 0x1:
-#     self.ls.log.info("Updating game mode for server %s" % self.key)
-#     server.set("mode", decode_mode(int(data[1])))
-# elif data[0] == 0x02:
-#     self.ls.log.info("Updating server name for server %s" % self.key)
-#     name = server.validate_name(data[1:33].decode("ascii", "ignore"), self.ip,
-#                                 "Server on %s" % self.ip)
-#     server.set("name", name)
-# elif data[0] == 0x03:
-#     self.ls.log.info("Updating max players for server %s" % self.key)
-#     server.set("max", data[1])
-
 import string
 def generate_random_bytes(length):
     random_string = ''.join(random.choice(string.ascii_letters) for _ in range(length))
