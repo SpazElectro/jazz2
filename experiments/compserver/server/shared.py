@@ -23,6 +23,22 @@ def create_udp_packet(data):
 
     return proper_data
 
+def create_tcp_packet(data):
+    # struct TCP_Packet {
+    #     byte packetLength;	// Length/size of the packet
+    #     byte packetID;		// Identified type of packet
+    #     misc extraData;		// Can be of variable size
+    # };
+    proper_data = bytearray([0])
+    for x in data:
+        if type(x) == bytearray:
+            for y in x:
+                proper_data.append(y)
+        else:
+            proper_data.append(x)
+    proper_data[0] = len(proper_data)
+    return proper_data
+
 def create_jj2_string(text: str):
     data = bytearray([len(text)])
     for x in text:

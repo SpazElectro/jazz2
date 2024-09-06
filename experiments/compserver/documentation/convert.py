@@ -7,12 +7,15 @@ tcp = ["Send", "Recv"]
 udp = ["SendTo", "RecvFrom"]
 
 tcp_packets = {
-    
+    "0F": "join_request",
+    "10": "join_details",
 }
 udp_packets = {
-    "05": "main_menu_ping_cs", # C->S
-    "06": "main_menu_ping_sc", # S->C
-
+    "01": "animation",
+    "03": "main_menu_ping_2",
+    "04": "main_menu_ping_2",
+    "05": "main_menu_ping",
+    "06": "main_menu_ping",
 }
 
 who_am_i = "client"
@@ -28,7 +31,7 @@ for line in trace.splitlines():
         index += 1
         end = line.strip().split(" ")[-1]
         
-        #output += f"{index:02} "
+        output += f"{index:02} "
         if end in tcp:
             output += "TCP "
             packet_type = "TCP"

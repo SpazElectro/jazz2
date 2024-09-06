@@ -1,100 +1,100 @@
 # This log is registered as being the client
-UDP Sent main_menu_ping_cs
-UDP Got main_menu_ping_sc
-UDP Sent unknown_03
-UDP Got unknown_04
-TCP Sent unknown_0F
-TCP Got unknown_10
-UDP Sent unknown_09
-TCP Sent unknown_3F
-TCP Sent unknown_0E
-TCP Got unknown_3F
-TCP Got unknown_5B
-UDP Got unknown_02
-UDP Sent unknown_09
-UDP Sent unknown_09
-TCP Got unknown_51
-TCP Sent unknown_1A
-TCP Got unknown_44
-TCP Got unknown_41
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Got unknown_09
-UDP Sent unknown_09
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
-UDP Sent unknown_01
+01 UDP Sent main_menu_ping
+02 UDP Got main_menu_ping
+03 UDP Sent main_menu_ping_2
+04 UDP Got main_menu_ping_2
+05 TCP Sent join_request
+06 TCP Got join_details
+07 UDP Sent unknown_09
+08 TCP Sent unknown_3F
+09 TCP Sent unknown_0E
+10 TCP Got unknown_3F
+11 TCP Got unknown_5B
+12 UDP Got unknown_02
+13 UDP Sent unknown_09
+14 UDP Sent unknown_09
+15 TCP Got unknown_51
+16 TCP Sent unknown_1A
+17 TCP Got unknown_44
+18 TCP Got unknown_41
+19 UDP Sent animation
+20 UDP Sent animation
+21 UDP Sent animation
+22 UDP Sent animation
+23 UDP Sent animation
+24 UDP Sent animation
+25 UDP Sent animation
+26 UDP Sent animation
+27 UDP Sent animation
+28 UDP Sent animation
+29 UDP Sent animation
+30 UDP Sent animation
+31 UDP Sent animation
+32 UDP Sent animation
+33 UDP Sent animation
+34 UDP Sent animation
+35 UDP Sent animation
+36 UDP Sent animation
+37 UDP Sent animation
+38 UDP Sent animation
+39 UDP Sent animation
+40 UDP Sent animation
+41 UDP Sent animation
+42 UDP Sent animation
+43 UDP Sent animation
+44 UDP Sent animation
+45 UDP Sent animation
+46 UDP Sent animation
+47 UDP Sent animation
+48 UDP Sent animation
+49 UDP Sent animation
+50 UDP Sent animation
+51 UDP Sent animation
+52 UDP Sent animation
+53 UDP Sent animation
+54 UDP Sent animation
+55 UDP Sent animation
+56 UDP Sent animation
+57 UDP Sent animation
+58 UDP Sent animation
+59 UDP Sent animation
+60 UDP Sent animation
+61 UDP Sent animation
+62 UDP Sent animation
+63 UDP Sent animation
+64 UDP Sent animation
+65 UDP Sent animation
+66 UDP Sent animation
+67 UDP Sent animation
+68 UDP Sent animation
+69 UDP Sent animation
+70 UDP Sent animation
+71 UDP Sent animation
+72 UDP Sent animation
+73 UDP Sent animation
+74 UDP Sent animation
+75 UDP Sent animation
+76 UDP Sent animation
+77 UDP Sent animation
+78 UDP Sent animation
+79 UDP Sent animation
+80 UDP Sent animation
+81 UDP Sent animation
+82 UDP Sent animation
+83 UDP Sent animation
+84 UDP Sent animation
+85 UDP Sent animation
+86 UDP Sent animation
+87 UDP Sent animation
+88 UDP Sent animation
+89 UDP Sent animation
+90 UDP Sent animation
+91 UDP Sent animation
+92 UDP Sent animation
+93 UDP Sent animation
+94 UDP Sent animation
+95 UDP Sent animation
+96 UDP Sent animation
+97 UDP Sent animation
+98 UDP Sent animation
+99 UDP Sent animation

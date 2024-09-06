@@ -1,15 +1,17 @@
 ```c
 // packet id = 0x03
 struct client {
-    char ??[5];
-    char ??[3];
-    char version[2];
+    char numberInList;
+    char ping[4];
+    char version[4];
 };
 
 // packet id = 0x04
 struct server {
-    char ??[5];
-    char ??;
+    char numberInList;
+    char ping[4]; // this controls the ping, the closer it is to the original ping value, the "better" the ping
+    // gamemode, password, etc
+    char flags;
 };
 ```
 
