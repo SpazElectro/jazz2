@@ -1,5 +1,4 @@
 {
-    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "*.mut": "cpp",
         "*.asc": "cpp",
