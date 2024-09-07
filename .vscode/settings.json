@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.cookmd": "xml",
         "*.mut": "cpp",
         "*.asc": "cpp",
         "*.j2as": "cpp",
@@ -15,7 +16,8 @@
         "xstring": "cpp",
         "limits": "cpp",
         "windows.h": "c",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "cassert": "cpp"
     },
     "python.analysis.typeCheckingMode": "basic",
     "discord.enabled": true,

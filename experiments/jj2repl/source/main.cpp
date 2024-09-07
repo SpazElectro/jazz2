@@ -3,6 +3,7 @@
 #include <fstream>
 #include "funcs.h"
 #include "runtime.h"
+#include "types.h"
 
 // TODO don't hardcode these
 #include "G:/steve/angelscript_2.37.0/add_on/scriptarray/scriptarray.h"
@@ -51,7 +52,9 @@ int main() {
     
     engine->RegisterGlobalFunction("void print(const string& in)", asFUNCTION(asPrint), asCALL_CDECL);
 
+    RegisterEnums(engine);
     RegisterFunctions(engine);
+    
 
     std::string script = readScriptFromFile("script.as");
     if (script.empty()) {

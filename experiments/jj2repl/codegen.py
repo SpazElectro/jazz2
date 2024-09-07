@@ -3,27 +3,11 @@ import json
 OUTPUT = """// This file was automatically generated. Do not modify.
 #include "funcs.h"
 
-// Typedefs
-typedef uint8_t  byte;
-typedef int8_t   int8;
-typedef uint8_t  uint8;
-
-typedef int16_t  int16;
-typedef uint16_t uint16;
-
-typedef int32_t  int;
-typedef uint32_t uint;
-typedef float    float32;
-
-typedef int64_t  int64;
-typedef uint64_t uint64;
-typedef double   double64;
-
-%DEFINE_FUNCTIONS%
-
 void RegisterFunctions(asIScriptEngine* engine) {
 %REGISTER_FUNCTIONS%
 }
+
+%DEFINE_FUNCTIONS%
 """
 
 f = open("global.json").read()
@@ -37,6 +21,7 @@ register_functions = ""
 funcs = f["globalfunctionsList"]
 for x in funcs:
     returns = "0"
+    x["full"] = x["full"].replace("@", "*")
     return_type = x["full"].split(x["name"])[0].strip()
     if return_type == "bool":
         returns = "true"
@@ -48,8 +33,9 @@ for x in funcs:
         returns = "\"\""
     elif return_type != "int" and return_type != "uint16" and return_type != "uint64" and return_type != "uint":
         print(f"IDK what this is {return_type}")
-        
-    define_functions += x["full"] + " {\n"
+        returns = "new "+(return_type.replace("*", ""))+"()"
+    
+    define_functions += (x["full"].replace("&in", "&").replace("& in", "&")) + " {\n"
     define_functions += f"\treturn {returns};\n"
     define_functions += "}\n\n"
 
