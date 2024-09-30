@@ -1,4 +1,5 @@
 {
+    "rust-analyzer.linkedProjects": ["./experiments/proxy/rewrite/Cargo.toml"],
     "files.associations": {
         "*.cookmd": "xml",
         "*.mut": "cpp",
