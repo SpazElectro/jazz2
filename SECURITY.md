@@ -12,3 +12,7 @@
 ## Reporting a Vulnerability
 
 Message me on Discord through my profile;
+<<<<<<< HEAD
+=======
+
+>>>>>>> recovery-branch
