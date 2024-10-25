@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "JJ2ClientLib", "JJ2ClientLib\JJ2ClientLib.vbproj", "{66C1BF7F-1FB9-4A63-AC60-13264360BB6B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{D011D9FD-5DD3-4204-B07D-E870870A55EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CS", "CS", "{70EB08A8-BA49-4A02-B538-903A18BF6524}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chatlogger", "Chatlogger\Chatlogger.csproj", "{FFCAEBC2-F79B-45D9-A083-CA77B6B64405}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library Builds old", "Library Builds old", "{8C1B42B5-48FC-492A-B1B2-8F40D9339E19}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Standard 2.0", ".NET Standard 2.0", "{67A2B04F-9862-44BC-B4C2-23B9341C948C}"
+	ProjectSection(SolutionItems) = preProject
+		JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.deps.json = JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.deps.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x86", "x86", "{84A1831D-2DC4-49DE-AD3B-5B807B846075}"
+	ProjectSection(SolutionItems) = preProject
+		JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.dll = JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x64", "x64", "{ED2C4CE1-6050-4784-941B-CB4D0BA9B73D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".NET Standard 2.0", ".NET Standard 2.0", "{EB99338C-5EEB-4312-8049-CB5D7D5AA80D}"
+	ProjectSection(SolutionItems) = preProject
+		JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.deps.json = JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.deps.json
+		JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.dll = JJ2ClientLib\bin\Release\netstandard2.0\JJ2ClientLib.dll
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66C1BF7F-1FB9-4A63-AC60-13264360BB6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66C1BF7F-1FB9-4A63-AC60-13264360BB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66C1BF7F-1FB9-4A63-AC60-13264360BB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66C1BF7F-1FB9-4A63-AC60-13264360BB6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFCAEBC2-F79B-45D9-A083-CA77B6B64405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFCAEBC2-F79B-45D9-A083-CA77B6B64405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFCAEBC2-F79B-45D9-A083-CA77B6B64405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFCAEBC2-F79B-45D9-A083-CA77B6B64405}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{70EB08A8-BA49-4A02-B538-903A18BF6524} = {D011D9FD-5DD3-4204-B07D-E870870A55EC}
+		{FFCAEBC2-F79B-45D9-A083-CA77B6B64405} = {70EB08A8-BA49-4A02-B538-903A18BF6524}
+		{67A2B04F-9862-44BC-B4C2-23B9341C948C} = {84A1831D-2DC4-49DE-AD3B-5B807B846075}
+		{84A1831D-2DC4-49DE-AD3B-5B807B846075} = {8C1B42B5-48FC-492A-B1B2-8F40D9339E19}
+		{ED2C4CE1-6050-4784-941B-CB4D0BA9B73D} = {8C1B42B5-48FC-492A-B1B2-8F40D9339E19}
+		{EB99338C-5EEB-4312-8049-CB5D7D5AA80D} = {ED2C4CE1-6050-4784-941B-CB4D0BA9B73D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {489A795F-F05B-413B-86AE-41E9BDB32985}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,163 @@
+#pragma name "Health View"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+string settingsVersion = "0.1A";
+
+bool toggled_on = true;
+
+int paddingX = 25;
+int paddingY = 50;
+int healthPadding = 15;
+
+jjSTREAM saveSettings() {
+    jjSTREAM settingsStream = jjSTREAM();
+    settingsStream.push(settingsVersion);
+    settingsStream.push(toggled_on);
+    
+    settingsStream.push(formatInt(paddingX));
+    settingsStream.push(formatInt(paddingY));
+    settingsStream.push(formatInt(healthPadding));
+
+    settingsStream.save("STVhealthview-" + p.nameUnformatted + ".asdat");
+    
+    return settingsStream;
+}
+
+void backupData() {
+    jjSTREAM vstream("STVhealthview-" + p.nameUnformatted + ".asdat");
+    vstream.save("STVhealthview-restore-" + p.nameUnformatted + ".asdat");
+}
+
+void loadSettings(jjSTREAM settingsStream) {
+    string version;
+    if (!settingsStream.pop(version)) {
+        jjConsole("[HV] Version not found!");
+        return;
+    }
+
+    if (version != settingsVersion) {
+        backupData();
+        jjConsole("[HV] Version mismatch found! Your old settings have been saved");
+        jjConsole("... into STVhealthview-restore-" + p.nameUnformatted + ".asdat");
+        saveSettings();
+        return;
+    }
+
+    settingsStream.pop(toggled_on);
+
+    string paddingXStr, paddingYStr, healthPaddingStr;
+    settingsStream.pop(paddingXStr);
+    settingsStream.pop(paddingYStr);
+    settingsStream.pop(healthPaddingStr);
+
+    paddingX = parseInt(paddingXStr);
+    paddingY = parseInt(paddingYStr);
+    healthPadding = parseInt(healthPaddingStr);
+}
+
+void onLevelBegin() {
+    jjSTREAM settingsStream("STVhealthview-" + p.nameUnformatted + ".asdat");
+    
+    if(settingsStream.isEmpty()) {
+        settingsStream = saveSettings();
+    }
+
+    loadSettings(jjSTREAM("STVhealthview-" + p.nameUnformatted + ".asdat"));
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!hvenable") {
+        toggled_on = true;
+
+        saveSettings();
+
+        return true;
+    }
+
+    if(stringReceived == "!hvdisable") {
+        toggled_on = false;
+
+        saveSettings();
+        
+        return true;
+    }
+
+    if(stringReceived.findFirst("!setpadding") == 0) {
+        if(stringReceived.split(" ").length() == 1 || stringReceived.split(" ").length == 2) {
+            if(stringReceived.split(" ").length == 2) {
+                jjConsole("[HV] Provide another number to set the padding to!");
+                return true;
+            }
+
+            jjConsole("[HV] Provide a number to set the padding to!");
+            return true;
+        }
+
+        int paddingXI = parseInt(stringReceived.split(" ")[1]);
+        int paddingYI = parseInt(stringReceived.split(" ")[2]);
+
+        paddingX = paddingXI;
+        paddingY = paddingYI;
+
+        jjConsole("[HV] The padding has been set!");
+
+        saveSettings();
+
+        return true;
+    }
+
+    if(stringReceived.findFirst("!setseparationpadding") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[HV] Provide a number to set the separation padding to!");
+            return true;
+        }
+
+        int separationPaddingI = parseInt(stringReceived.split(" ")[1]);
+
+        healthPadding = separationPaddingI;
+
+        jjConsole("[HV] The separation padding has been set!");
+
+        saveSettings();
+
+        return true;
+    }
+
+    if(stringReceived == "!hvhelp") {
+        jjConsole("----------------");
+        jjConsole("!setpadding - Sets the padding to the 2 parameters");
+        jjConsole("!setseparationpadding - Sets the health separation padding to the parameter");
+        jjConsole("!hvdisable - Disables the health view");
+        jjConsole("!hvenable - Enables the health view");
+        jjConsole("----------------");
+
+        return true;
+    }
+
+    return false;
+}
+
+// we're doing ondrawlayer and not ondrawplayer to support minus
+void onDrawLayer4(jjPLAYER@ _player, jjCANVAS@ canvas) {
+    if(toggled_on) {
+        for (uint pi = 0; pi < 32; pi++)
+        {
+            jjPLAYER@ player = jjPlayers[pi];
+
+            if(player.team == _player.team) {
+                for(int i = 0; i < player.health; i++) {
+                    canvas.drawSprite(
+                        int(player.xPos - (i * healthPadding) + paddingX),
+                        int(player.yPos - paddingY),
+                        ANIM::PICKUPS, 41, 0
+                    );
+                }
+            }
+        }
+    }
+}

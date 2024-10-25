@@ -1,0 +1,115 @@
+#pragma name "Startpos Viewer"
+
+class StartPos
+{
+    int x;
+    int y;
+    string type;
+
+    StartPos(int x, int y, string type)
+    {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+    }
+};
+
+bool showStartPos = false;
+
+array<StartPos@> startPos;
+
+// assp == always_show_start_pos
+// sassp == should_^
+enum packet_type { packet_assp, packet_sassp };
+
+// server to all clients
+void sendAlwaysShowStartPos(int toClientID = 0) {
+    jjSTREAM packet;
+    packet.push(uint8(packet_assp));
+    packet.push(showStartPos);
+
+    jjSendPacket(packet, toClientID);
+}
+
+void onReceive(jjSTREAM &in packet, int clientID) {
+    uint8 type;
+    packet.pop(type);
+
+    if(!jjIsServer) {
+        if(type == packet_assp) {
+            packet.pop(showStartPos);
+        }
+    } else {
+        if(type == packet_sassp) {
+            sendAlwaysShowStartPos(clientID);
+        }
+    }
+}
+
+void onLevelLoad() {
+    if(!jjIsServer) {
+        jjSTREAM packet;
+        packet.push(uint8(packet_sassp));
+
+        jjSendPacket(packet);
+    }
+
+    for(uint x = 0; x < 255; x++) {
+        for(uint y = 0; y < 64; y++) {
+            int event = jjEventGet(x, y);
+
+            if(jjEventGet(x, y) != 0) {
+                bool good = false;
+                string type = "JAZZ";
+
+                if(event == AREA::JAZZLEVELSTART)
+                    good = true;
+                if(event == AREA::SPAZLEVELSTART) {
+                    type = "SPAZ";
+                    good = true;
+                }
+                if(event == AREA::LORILEVELSTART) {
+                    type = "LORI";
+                    good = true;
+                }
+                if(event == AREA::MPLEVELSTART) {
+                    good = true;
+                    type = "MP";
+                }
+
+                if(good) {
+                    StartPos@ pos = StartPos(x, y, type);
+                    startPos.insertLast(pos);
+                }
+            }
+        }
+    }
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!showstartpos") {
+        if(jjIsServer) {
+            showStartPos = !showStartPos;
+
+            jjConsole("[SPV] Showing start positions: " + showStartPos);
+            
+            sendAlwaysShowStartPos();
+        } else {
+            jjConsole("[SPV] You don't have permission to do this!");
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(jjGameState == GAME::PREGAME || showStartPos || jjGameState == GAME::STOPPED) {
+        for(uint i = 0; i < startPos.length(); i++) {
+            StartPos@ pos = startPos[i];
+            canvas.drawRectangle(pos.x * 32, pos.y * 32, 32, 32, 255, SPRITE::BLEND_NORMAL, 64);
+            canvas.drawString(pos.x * 32 + 16 - (pos.type.length() * 6), pos.y * 32 + 16, pos.type, STRING::SMALL, STRING::NORMAL, 0);
+        }
+    }
+}

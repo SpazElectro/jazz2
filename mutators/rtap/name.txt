@@ -1,0 +1,1 @@
+rtap == "respawn time = alive players"

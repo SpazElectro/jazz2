@@ -1,0 +1,59 @@
+from enum import Enum, auto
+
+class JJ2_Character(Enum):
+    JAZZ = 0
+    SPAZ = 1
+    LORI = 2
+    BIRD = 3
+    FROG = 4
+class JJ2_Player_Team(Enum):
+    BLUE = auto()
+    RED = auto()
+    GREEN = auto()
+    YELLOW = auto()
+class JJ2_DIRECTION(Enum):
+    UP = 8
+class JJ2_Disconnect_Message(Enum): # byte
+    DISCONNECT_MESSAGE_SERVER_FULL = 0x1
+    DISCONNECT_MESSAGE_VERSION_DIFFERENT = 0x2
+    DISCONNECT_MESSAGE_ERROR_DURING_HANDSHAKING = 0x4
+    DISCONNECT_MESSAGE_FEATURE_NOT_SUPPORTED_IN_SHAREWARE = 0x5
+    DISCONNECT_MESSAGE_WINSOCK_ERROR = 0x8
+    DISCONNECT_MESSAGE_DENIED = 0xD
+    DISCONNECT_MESSAGE_ERROR_DOWNLOADING_LEVEL = 0x6
+    DISCONNECT_MESSAGE_CONNECTION_LOST = 0x7
+    DISCONNECT_MESSAGE_CONNECTION_TIMED_OUT = 0x9
+    DISCONNECT_MESSAGE_SERVER_STOPPED = 0xA
+    DISCONNECT_MESSAGE_KICKED_OFF = 0xB
+    DISCONNECT_MESSAGE_BANNED = 0xC
+    DISCONNECT_MESSAGE_VERSION_OF_JJ2PLUS_IS_DIFFERENT = 0xE
+    DISCONNECT_MESSAGE_SERVER_KICKED_YOU_FOR_IDLING = 0xF
+    DISCONNECT_MESSAGE_NO_DOWNLOADS_ALLOWED = 0x10
+    DISCONNECT_MESSAGE_UNAUTHORIZED_FILE_REQUEST = 0x11
+    DISCONNECT_MESSAGE_NO_SPLITSCREENERS_ALLOWED = 0x12
+class JJ2Plus_Game_State(Enum): # byte
+    NORMAL = auto()
+    TIME_LIMIT = auto()
+    PREGAME = auto()
+    OVERTIME = auto()
+class JJ2_Custom_Game_Type(Enum):
+    NONE = 0
+    RT = 1
+    LRS = 2
+    XLRS = 3
+    PEST = 4
+    TB = 11
+    JB = 12
+    DCTF = 13
+    FR = 14
+    TLRS = 15
+    DOM = 16
+    HEAD = 17
+
+# I have no clue what this is
+class SFSDF(Enum):
+    aPLAYERBULLETP5 = auto()
+class Network_Protocol(Enum):
+    sckTCPProtocol = 0
+    sckUDPProtocol = 1
+    

@@ -1,0 +1,1583 @@
+labrat(): Illegal state: obj:%i, type:%i, state:%i
+WARNING: Trigger Scenery at position %i,%i needs at least 2 animation frames. TriggerScenery now deactivated
+x%u
+No Warp Target found!
+Double SNOW event in level??
+Object %i illegal in multiplayer game
+More then two flags in CAPTURE the FLAG level!
+should not happen, robot added by devan!
+Low Detail
+Ambient Lighting
+Textured Background
+Hardware Acceleration
+MMX Support
+JAZZ2.CFG
+Warning: Could not save config!
+Make sure Jazz Jackrabbit 2 has been installed correctly and retry. If the problem persists, please reinstall Jazz Jackrabbit 2.
+Please solve this problem and restart Jazz Jackrabbit 2.
+This is an internal error and cannot be solved.
+No Start positions found!
+WARNING: No Start positions found!
+warning: no start position found for SPAZ!
+HKEY_LOCAL_MACHINE:
+.J2M
+.J2L
+Server specified on command line %s
+-CONNECT: syntax error "%s"
+JAZZ2://
+-CONNECT
+Server %s specified through .j2i file "%s"
+-J2I: syntax error "%s"
+%u.%u.%u.%u:%u
+-J2I "
+-COUNTS
+-MAXPLAYERS
+-SERVER
+-MAXCACHE2
+-MAXCACHE8
+-MAXCACHE32
+-MAXCACHE128
+-NOTRIPLE
+-NOFILTER
+-EASY
+-MEDIUM
+-HARD
+CAPTURE1.J2L
+-CAPTURE
+RACE1.J2L
+-RACE
+TREASUR1.J2L
+-TREASURE
+BATTLE1.J2L
+-BATTLE
+-COOP
+-PLAYER
+-SPAZ
+-LORI
+-PLAY
+Macro Recording ON
+-RECORD
+ARB
+HUHA
+|||
+BOSS1.J2B
+Secret level cannot warp to another secret level
+%4u
+%2u:%02u:%02u
+%u bit color
+%ux%u
+fps %3u
+pos %i,%i
+%u\%u
+%07i
+more
+----------------------
+D'E'F'
+Playing
+Client Connected
+Handle Connected
+Connecting
+Pinging Servers
+Not Connected
+actLAST
+actDIAMONDUPDATE
+actTREASUREFINISH
+actCAPTURETHEFLAG
+actCOPTERSTATE
+actOBJECTADDTREASUREDIAMONDS
+actPLAYERADDTREASUREDIAMONDS
+actTRIGGERGENERATOR
+actCHANGETARGET
+actOBJECTHITEXPLODE
+actOBJECTEXPLODE
+actOBJECTPICKUPGEM
+actOBJECTPICKUP
+actOBJECTUNFREEZEKILL
+actOBJECTUNFREEZE
+actOBJECTSTOMP
+actOBJECTKILL
+actOBJECTADD
+actPLAYERSTOMP
+actPLAYERKILL
+actPLAYERHITSHIELD
+actPLAYERHIT
+actPLAYERFREEZEEXPLODE
+actPLAYERFREEZE
+actCHANGECHARACTER
+actUPDATEENERGY
+actADDBULLET
+actACKRESTART
+actRESTART
+actADDSPAWN
+actADDCORPSE
+actCOLLISION
+actOBJECTCOLLISION
+actNONE
+readme.txt
+Read &Readme file...
+http://www.project2.com/distrib.htm
+Jazz Jackrabbit 2 &distributors in UK / Europe / Australia...
+https://www.epicgames.com/jazzshop/orderuk.html
+&Order Jazz Jackrabbit 2 in the UK / Europe...
+https://www.epicgames.com/jazzshop/orderus.html
+&Order Jazz Jackrabbit 2 in the US...
+HTML\index.html
+Epic MegaGames on the &Internet...
+&Help
+Mute &Sound
+Mute &Music
+Sound && Music &Properties...
+&Music
+%ux%u %s
+&%u-bit color
+&Low Detail
+Ambient &Lighting
+Use &Hardware Acceleration
+Use &MMX Capabilities
+Textured &Background
+&Video
+&Exit
+&Pause
+&Game
+You must have a web browser installed to view HTML pages
+jazz2.log
+jazz2w
+Loading Jazz Jackrabbit 2
+1.24
+Jazz Jackrabbit 2 Special Edition
+Epic MegaGames
+[Levelname[.j2l]]
+1.24
+Jazz Jackrabbit 2
+sZDOG_WAF3
+sZDOG_WAF2
+sZDOG_WAF1
+sZDOG_SNIF1
+sZDOG_AGRESSIV
+sXTURTLE_TURN
+sXTURTLE_SPK4TURT
+sXTURTLE_SPK3TURT
+sXTURTLE_SPK2TURT
+sXTURTLE_SPK1TURT
+sXTURTLE_NECK
+sXTURTLE_IDLE2
+sXTURTLE_IDLE1
+sXTURTLE_HITSHELL
+sXTURTLE_HIDE
+sXTURTLE_BITE3
+sXLIZARD_LIZ6
+sXLIZARD_LIZ4
+sXLIZARD_LIZ2
+sXLIZARD_LIZ1
+sXBILSY_ZIP
+sXBILSY_THUNDER
+sXBILSY_SCARY3
+sXBILSY_FIRESTART
+sXBILSY_FIRE
+sXBILSY_FINGERSNAP
+sXBILSY_BILLAPPEAR
+sWITCH_MAGIC
+sWITCH_LAUGH
+sWIND_WIND2A
+sUTERUS_STEP2
+sUTERUS_STEP1
+sUTERUS_SCREAM1
+sUTERUS_SCISSORS8
+sUTERUS_SCISSORS7
+sUTERUS_SCISSORS6
+sUTERUS_SCISSORS5
+sUTERUS_SCISSORS4
+sUTERUS_SCISSORS3
+sUTERUS_SCISSORS2
+sUTERUS_SCISSORS1
+sUTERUS_CRABOPEN2
+sUTERUS_CRABCLOSE
+sTURTLE_TURN
+sTURTLE_SPK4TURT
+sTURTLE_SPK3TURT
+sTURTLE_SPK2TURT
+sTURTLE_SPK1TURT
+sTURTLE_NECK
+sTURTLE_IDLE2
+sTURTLE_IDLE1
+sTURTLE_HITSHELL
+sTURTLE_HIDE
+sTURTLE_BITE3
+sTUFBOSS_SWING
+sTUFBOSS_RELEASE
+sTUFBOSS_CATCH
+sSUCKER_UP
+sSUCKER_PLOPSEQ4
+sSUCKER_PLOPSEQ3
+sSUCKER_PLOPSEQ2
+sSUCKER_PLOPSEQ1
+sSUCKER_PINCH3
+sSUCKER_PINCH2
+sSUCKER_PINCH1
+sSUCKER_FART
+sSTONED_STONED
+sSTEAM_STEAM
+sSPRING_SPRING1
+sSPRING_BOING_DOWN
+sSPAZSOUNDS_YAHOO2
+sSPAZSOUNDS_YAHOO
+sSPAZSOUNDS_WOOHOO
+sSPAZSOUNDS_OOOH
+sSPAZSOUNDS_OHOH
+sSPAZSOUNDS_KARATE8
+sSPAZSOUNDS_KARATE7
+sSPAZSOUNDS_HOOO
+sSPAZSOUNDS_HOHOHO1
+sSPAZSOUNDS_HIHI
+sSPAZSOUNDS_HAPPY
+sSPAZSOUNDS_HAHAHA2
+sSPAZSOUNDS_HAHAHA
+sSPAZSOUNDS_EATBIRD
+sSPAZSOUNDS_CHIRP
+sSPAZSOUNDS_BURP
+sSPAZSOUNDS_BIRDSIT
+sSPAZSOUNDS_AUTSCH2
+sSPAZSOUNDS_AUTSCH1
+sSONCSHIP_TARGETLOCK
+sSONCSHIP_SHIPLOOP
+sSONCSHIP_SCRAPE
+sSONCSHIP_MISSILE2
+sSONCSHIP_METAL1
+sSMALTREE_HEAD
+sSMALTREE_GROUND
+sSMALTREE_FALL
+sSKELETON_BONE7
+sSKELETON_BONE6
+sSKELETON_BONE5
+sSKELETON_BONE3
+sSKELETON_BONE2
+sSKELETON_BONE1
+sSCIENCE_PLOPKAOS
+sRUSH_RUSH
+sROCK_ROCK1
+sROBOT_STEP3
+sROBOT_STEP2
+sROBOT_STEP1
+sROBOT_SHOOT
+sROBOT_POLE
+sROBOT_POEP
+sROBOT_OUT
+sROBOT_OPEN
+sROBOT_METAL5
+sROBOT_METAL4
+sROBOT_METAL3
+sROBOT_METAL2
+sROBOT_METAL1
+sROBOT_JMPCAN9
+sROBOT_JMPCAN8
+sROBOT_JMPCAN7
+sROBOT_JMPCAN6
+sROBOT_JMPCAN5
+sROBOT_JMPCAN4
+sROBOT_JMPCAN3
+sROBOT_JMPCAN2
+sROBOT_JMPCAN10
+sROBOT_JMPCAN1
+sROBOT_IDLE2
+sROBOT_IDLE1
+sROBOT_HYDROPUF
+sROBOT_HYDROFIL
+sROBOT_HYDRO2
+sROBOT_HYDRO
+sROBOT_CAN2
+sROBOT_CAN1
+sROBOT_BIG2
+sROBOT_BIG1
+sRAPIER_HITCHAR
+sRAPIER_GOSTRIP
+sRAPIER_GOSTOOOH
+sRAPIER_GOSTLOOP
+sRAPIER_GOSTDIE
+sQUEEN_SCREAM
+sQUEEN_LADYUP
+sPINBALL_FLIP4
+sPINBALL_FLIP3
+sPINBALL_FLIP2
+sPINBALL_FLIP1
+sPINBALL_BELL
+sPICKUPS_STRETCH1A
+sPICKUPS_HELI2
+sPICKUPS_BOING_CHECK
+sP2_TONG
+sP2_THROW
+sP2_SPLUT
+sP2_SPLOUT
+sP2_PTOEI
+sP2_POEP
+sP2_PLOPSEQ4
+sP2_PLOPSEQ3
+sP2_PLOPSEQ2
+sP2_PLOPSEQ1
+sP2_PINCH2
+sP2_PINCH1
+sP2_OPEN
+sP2_KISS4
+sP2_FROG5
+sP2_FROG4
+sP2_FROG3
+sP2_FROG2
+sP2_FROG1
+sP2_FOEW5
+sP2_FOEW4
+sP2_FOEW1
+sP2_FART
+sP2_CRUNCH
+sORANGE_SWEEP2R
+sORANGE_SWEEP2L
+sORANGE_SWEEP1R
+sORANGE_SWEEP1L
+sORANGE_SWEEP0R
+sORANGE_SWEEP0L
+sORANGE_MERGE
+sORANGE_GLAS2R
+sORANGE_GLAS2L
+sORANGE_GLAS1R
+sORANGE_GLAS1L
+sORANGE_BUBBELSR
+sORANGE_BUBBELSL
+sORANGE_BOEMR
+sORANGE_BOEML
+sMOTH_FLAPMOTH
+sMONKEY_THROW
+sMONKEY_SPLUT
+sMENUSOUNDS_TYPEENTER
+sMENUSOUNDS_TYPE
+sMENUSOUNDS_SELECT6
+sMENUSOUNDS_SELECT5
+sMENUSOUNDS_SELECT4
+sMENUSOUNDS_SELECT3
+sMENUSOUNDS_SELECT2
+sMENUSOUNDS_SELECT1
+sMENUSOUNDS_SELECT0
+sLORISOUNDS_WEHOO
+sLORISOUNDS_TOUCH
+sLORISOUNDS_LORIJUMP4
+sLORISOUNDS_LORIJUMP3
+sLORISOUNDS_LORIJUMP2
+sLORISOUNDS_LORIJUMP
+sLORISOUNDS_LORIFALL
+sLORISOUNDS_LORIBOOM
+sLORISOUNDS_LORI2
+sLORISOUNDS_LORI1
+sLORISOUNDS_HURT7
+sLORISOUNDS_HURT6
+sLORISOUNDS_HURT5
+sLORISOUNDS_HURT4
+sLORISOUNDS_HURT3
+sLORISOUNDS_HURT2
+sLORISOUNDS_HURT1
+sLORISOUNDS_HURT0
+sLORISOUNDS_DIE1
+sLIZARD_LIZ6
+sLIZARD_LIZ4
+sLIZARD_LIZ2
+sLIZARD_LIZ1
+sLABRAT_MOUSE3
+sLABRAT_MOUSE2
+sLABRAT_MOUSE1
+sLABRAT_EYE3
+sLABRAT_EYE2
+sLABRAT_BITE
+sJAZZSOUNDS_PFOE
+sJAZZSOUNDS_JUMMY
+sJAZZSOUNDS_JAZZV4
+sJAZZSOUNDS_JAZZV3
+sJAZZSOUNDS_JAZZV2
+sJAZZSOUNDS_JAZZV1
+sJAZZSOUNDS_IDLE
+sJAZZSOUNDS_HEY4
+sJAZZSOUNDS_HEY3
+sJAZZSOUNDS_HEY2
+sJAZZSOUNDS_HEY1
+sJAZZSOUNDS_BALANCE
+sINTRO_WIND_01
+sINTRO_UP2
+sINTRO_UP1
+sINTRO_UHTURT
+sINTRO_SWISH4
+sINTRO_SWISH3
+sINTRO_SWISH2
+sINTRO_SWISH1
+sINTRO_STRING
+sINTRO_SKI
+sINTRO_SHOTGRN
+sINTRO_SHOT1
+sINTRO_RUN
+sINTRO_ROPE2
+sINTRO_ROPE1
+sINTRO_ROCK
+sINTRO_MONSTER2
+sINTRO_MONSTER
+sINTRO_LAND
+sINTRO_KATROL
+sINTRO_INSECT
+sINTRO_INHALE
+sINTRO_IFEEL
+sINTRO_HITTURT
+sINTRO_HITSPAZ
+sINTRO_HELI
+sINTRO_GUNM2
+sINTRO_GUNM1
+sINTRO_GUNM0
+sINTRO_GREN3
+sINTRO_GREN2
+sINTRO_GREN1
+sINTRO_GRAB
+sINTRO_END
+sINTRO_BRAKE
+sINTRO_BOEM2
+sINTRO_BOEM1
+sINTRO_BLOW
+sHATTER_SPLOUT
+sHATTER_SPLIN
+sHATTER_PTOEI
+sHATTER_HAT
+sHATTER_CUP
+sGLOVE_HIT
+sFROG_TONG
+sFROG_JAZZ2FROG
+sFROG_FROG5
+sFROG_FROG4
+sFROG_FROG3
+sFROG_FROG2
+sFROG_FROG1
+sFROG_FROG
+sFENCER_FENCE1
+sFATCHK_HIT3
+sFATCHK_HIT2
+sFATCHK_HIT1
+sFAN_FAN
+sEVA_KISS4
+sEVA_KISS3
+sEVA_KISS2
+sEVA_KISS1
+sEPICLOGO_EPIC2
+sEPICLOGO_EPIC1
+sENDTUNESPAZ_TUNE
+sENDTUNELORI_CAKE
+sENDTUNEJAZZ_TUNE
+sENDING_OHTHANK
+sDRAGFLY_BEELOOP
+sDOG_WAF3
+sDOG_WAF2
+sDOG_WAF1
+sDOG_SNIF1
+sDOG_AGRESSIV
+sDEVILDEVAN_WINGSOUT
+sDEVILDEVAN_WHISTLEDESCENDING2
+sDEVILDEVAN_VANISH1
+sDEVILDEVAN_STRETCH3
+sDEVILDEVAN_STRETCH1
+sDEVILDEVAN_STRECHTAIL
+sDEVILDEVAN_STRECH2
+sDEVILDEVAN_PHASER2
+sDEVILDEVAN_LAUGH
+sDEVILDEVAN_JUMPUP
+sDEVILDEVAN_FROG4
+sDEVILDEVAN_FLAP
+sDEVILDEVAN_DRAGONFIRE
+sDEMON_RUN
+sCOMMON_WOOD1
+sCOMMON_WATER
+sCOMMON_UP
+sCOMMON_TELPORT2
+sCOMMON_TELPORT1
+sCOMMON_SWISH8
+sCOMMON_SWISH7
+sCOMMON_SWISH6
+sCOMMON_SWISH5
+sCOMMON_SWISH4
+sCOMMON_SWISH3
+sCOMMON_SWISH2
+sCOMMON_SWISH1
+sCOMMON_STRETCH
+sCOMMON_STEP
+sCOMMON_STEAM
+sCOMMON_SPRING1
+sCOMMON_SPLUT
+sCOMMON_SPLAT4
+sCOMMON_SPLAT3
+sCOMMON_SPLAT2
+sCOMMON_SPLAT1
+sCOMMON_SMASH
+sCOMMON_SLIP
+sCOMMON_SHLDOF3
+sCOMMON_SHIELD_ELEC
+sCOMMON_SHIELD4
+sCOMMON_SHIELD1
+sCOMMON_RINGGUN2
+sCOMMON_RINGGUN
+sCOMMON_REVUP
+sCOMMON_PREHELI
+sCOMMON_PREEXPL1
+sCOMMON_PLOPKORK
+sCOMMON_PLOP4
+sCOMMON_PLOP3
+sCOMMON_PLOP2
+sCOMMON_PLOP1
+sCOMMON_PLOOP1
+sCOMMON_PISTOL1
+sCOMMON_PICKUPW1
+sCOMMON_PICKUP1
+sCOMMON_NOCOIN
+sCOMMON_MONITOR
+sCOMMON_METALHIT
+sCOMMON_LOADSPAZ
+sCOMMON_LOADJAZZ
+sCOMMON_LANDPOP
+sCOMMON_LANDCAN2
+sCOMMON_LANDCAN1
+sCOMMON_LAND2
+sCOMMON_LAND1
+sCOMMON_LAND
+sCOMMON_JUMP2
+sCOMMON_JUMP
+sCOMMON_ITEMTRE
+sCOMMON_IMPACT9
+sCOMMON_IMPACT8
+sCOMMON_IMPACT7
+sCOMMON_IMPACT6
+sCOMMON_IMPACT5
+sCOMMON_IMPACT4
+sCOMMON_IMPACT3
+sCOMMON_IMPACT2
+sCOMMON_IMPACT1
+sCOMMON_ICECRUSH
+sCOMMON_HORN1
+sCOMMON_HOLYFLUT
+sCOMMON_HIBELL
+sCOMMON_HELI1
+sCOMMON_HEAD
+sCOMMON_HARP1
+sCOMMON_GUNSM1
+sCOMMON_GLASS2
+sCOMMON_GEMSMSH1
+sCOMMON_FOEW5
+sCOMMON_FOEW4
+sCOMMON_FOEW3
+sCOMMON_FOEW2
+sCOMMON_FOEW1
+sCOMMON_FLAP
+sCOMMON_FLAMER
+sCOMMON_EXPSM1
+sCOMMON_EXPL_TNT
+sCOMMON_ELECTRICHIT
+sCOMMON_ELECTRIC2
+sCOMMON_ELECTRIC1
+sCOMMON_EAT4
+sCOMMON_EAT3
+sCOMMON_EAT2
+sCOMMON_EAT1
+sCOMMON_DRINKSPAZZ4
+sCOMMON_DRINKSPAZZ3
+sCOMMON_DRINKSPAZZ2
+sCOMMON_DRINKSPAZZ1
+sCOMMON_DOWNFL2
+sCOMMON_DOWN
+sCOMMON_DAMPED1
+sCOMMON_CUP
+sCOMMON_COLLAPS
+sCOMMON_COIN
+sCOMMON_CLOCK
+sCOMMON_CANSPS
+sCOMMON_BURNIN
+sCOMMON_BURN
+sCOMMON_BUBBLGN1
+sCOMMON_BLUB1
+sCOMMON_BLOKPLOP
+sCOMMON_BIRDFLY2
+sCOMMON_BIRDFLY
+sCOMMON_BENZIN1
+sCOMMON_BELL_FIRE2
+sCOMMON_BELL_FIRE
+sCOMMON_BASE1
+sCOMMON_AIRBTURN2
+sCOMMON_AIRBTURN
+sCOMMON_AIRBOARD
+sCATERPIL_RIDOE
+sBUMBEE_BEELOOP
+sBUBBA_TORNADOATTACK2
+sBUBBA_SNEEZE2
+sBUBBA_FROG5
+sBUBBA_FROG4
+sBUBBA_FROG3
+sBUBBA_FROG2
+sBUBBA_BUBBAEXPLO
+sBUBBA_BUBBABOUNCE2
+sBUBBA_BUBBABOUNCE1
+sBONUS_BONUSBLUB
+sBONUS_BONUS1
+sBILSBOSS_ZIP
+sBILSBOSS_THUNDER
+sBILSBOSS_SCARY3
+sBILSBOSS_FIRESTART
+sBILSBOSS_FIRE
+sBILSBOSS_FINGERSNAP
+sBILSBOSS_BILLAPPEAR
+sBAT_BATFLY1
+sAMMO_SPZBL3
+sAMMO_SPZBL2
+sAMMO_SPZBL1
+sAMMO_MISSILE
+sAMMO_LAZRAYS
+sAMMO_LASER3
+sAMMO_LASER2
+sAMMO_LASER
+sAMMO_ICEPU4
+sAMMO_ICEPU3
+sAMMO_ICEPU2
+sAMMO_ICEPU1
+sAMMO_ICEGUNPU
+sAMMO_ICEGUN2
+sAMMO_ICEGUN
+sAMMO_GUNVELOCITY
+sAMMO_GUNJAZZ
+sAMMO_GUNFLPL
+sAMMO_GUNFLP4
+sAMMO_GUNFLP3
+sAMMO_GUNFLP2
+sAMMO_GUNFLP1
+sAMMO_GUNFLP
+sAMMO_GUN3PLOP
+sAMMO_GUN2
+sAMMO_GUN1
+sAMMO_FUMP
+sAMMO_FIREGUN2A
+sAMMO_FIREGUN1A
+sAMMO_BULFL3
+sAMMO_BULFL2
+sAMMO_BULFL1
+sAMMO_BUL1
+sAMMO_BOEM1
+sAMMO_BMP6
+sAMMO_BMP5
+sAMMO_BMP4
+sAMMO_BMP3
+sAMMO_BMP2
+sAMMO_BMP1
+sAMMO_BLUB2
+sAMMO_BLUB1
+ZSPARK
+ZDOG
+XTURTLE
+XLIZARD
+XBILSY
+WITCH
+WIND
+WARP50
+WARP20
+WARP100
+WARP10
+VINE
+UTERUS
+TWEEDLE
+TURTLE
+TUFTURT
+TUFBOSS
+TUBETURT
+SUCKER
+STONED
+STEAM
+SPRING
+SPIKEPLAT
+SPIKEBOLL3D
+SPIKEBOLL
+SPAZSOUNDS
+SPAZ3D
+SPAZ2
+SPAZ
+SPARK
+SONICPLAT
+SONCSHIP
+SNOW
+SMALTREE
+SKELETON
+SCIENCE
+RUSH
+ROCKTURT
+ROCK
+ROBOT
+RAVEN
+RAPIER
+QUEEN
+PSYCHPOLE
+PINKPLAT
+PINBALL
+PICKUPS
+ORANGE
+MOTH
+MONKEY
+MENUSOUNDS
+MENUFONT
+MENU
+LORISOUNDS
+LORI2
+LORI
+LIZARD
+LABRAT
+JUNGLEPOLE
+JAZZSOUNDS
+JAZZ3D
+JAZZ
+INTRO
+HELMUT
+HATTER
+GRASSPLAT
+GLOVE
+GEMRING
+FRUITPLAT
+FROG
+FONT
+FLARE
+FLAG
+FISH
+FENCER
+FATCHK
+FAN
+FACES
+EVA
+EPICLOGO
+ENDTUNESPAZ
+ENDTUNELORI
+ENDTUNEJAZZ
+ENDING
+DRAGON
+DRAGFLY
+DOOR
+DOG
+DIAMPOLE
+DEVILDEVAN
+DEVAN
+DESTSCEN
+DEMON
+CONTINUE
+COMMON
+CHUCK
+CATERPIL
+CAT2
+CAT
+CARROTPOLE
+BUTTERFLY
+BUMBEE
+BUBBA
+BRIDGE
+BOSS
+BONUS
+BOLLPLAT
+BIRD3D
+BIRD
+BILSBOSS
+BIGTREE
+BIGROCK
+BIGBOX
+BEES
+BEEBOY
+BAT
+AMMO
+Italiano
+Fran
+ais
+Espa
+Hollands
+Deutsch
+English
+ITALIAN
+FRENCH
+SPANISH
+DUTCH
+GERMAN
+ENGLISH
+***gameloop ended after %u gameticks
+Timer SYNC: AIFrames %d RenderFrame %d
+***gameloop started***
+There is not enough memory to load the level file "%s".
+The level file "%s" cannot be loaded because of a version conflict.
+Could not load level file "%s" because the level file or tileset has been damaged.
+Could not find level file or tileset for level "%s".
+(downloaded) tileset has wrong crc, aborting
+Loading level '%s' (%s)
+(downloaded) level has wrong crc, aborting
+cache\
+END
+J2M
+Normally exiting program
+total memory %u, largest block %u
+Intro
+P2Lq.j2v
+GOD
+GODLq.j2v
+Logo
+BPP
+Height
+VideoSize
+Width
+Picture.Continue
+TRAINER.J2L
+castle1.j2l
+System
+No Episodes could be found.
+SECRETF.J2E
+*.J2E
+HOME
+EASTER
+XMAS
+SHARE
+magic
+Final episode-level doesn't have correct ending!
+Menu.Texture.128x128
+Menu.Texture.32x32
+Menu.Texture.16x16
+billg
+royale
+randy
+joe
+diana
+aaron
+tom
+conan
+darcy
+craig
+nigel
+mark
+kingtim
+nando
+dean
+evilbill
+sable
+cliffy
+michiel
+arjan
+HiScores.j2h
+Error in userlevel %s, please try resaving with JCS
+*.J2L
+custom level %s
+Picture.Loading
+Std.Palette
+Menu.ColorLUT
+Menu.Palette
+LOGO
+Picture.EasterTit
+#Custom Level
+#Standard Level
+#Select Level
+ARACE1.J2L
+Server banned you
+Server kicked you off
+#Max
+---
+1%i ms
+ . . . . . . . .
+HKEY_LOCAL_MACHINE:Game Servers
+%03i
+%s %u.%u.%u.%u
+%u.%u.%u.%u
+%s %s
+Game
+NetServerName
+unknown
+treasur1
+capture1
+MaxPlayers
+MultiPlayerCount
+MultiPlayerType
+LevelFile
+NetPrivate
+NetPassword
+battle1
+?%d, %d, %d
+Balls.Dump
+ogLogo.Balls
+ogLogo.ColorLUT
+ogLogo.Palette
+Could not get video mode list, there might be a problem with the configuration of your DirectX drivers.
+16 bit
+8 bit
+2DirectSound
+1Windows MM
+#%d
+1#%3d
+Order
+Picture.OrderTexture128x128
+Picture.CreditsEaster
+Order.Newspaper
+Order.ShadeLUT
+Credits.Palette
+Order.Palette
+Tiles.Order
+Tiles.Offset
+Order.Colors
+#.........
+#Team:
+#.......
+#%s
+#%i
+Color
+Char
+Name
+Player0
+Team
+LocalPlayers
+Player %i
+SAVEGAME.TMP
+SAVEGAME.%03u
+Warning: file save error
+SAVEGAME.123
+Warning: file load error
+intro
+%slq.j2v
+ANIM: Benchmarked achievable framerate as %u FPS, using low-res animations
+Intro.j2v
+%s.j2v
+SoundFXList.%s
+GODSnd.j2v
+time gap = %u
+The animation file "%s" is corrupt
+CineFeed
+Can't open animation file "%s"
+Shield.Plasma
+Could not set video mode %ux%ux%u with %s
+Make sure that this mode is supported by your adapter and that drivers for your video board are properly installed. If you have not installed DirectX, please do so.
+Could not set Mode!
+Could not unlock backbuffer
+jjcolor
+jjcoins
+jjt
+jjnxt
+jjk
+jjq
+jjbird
+jjrush
+jjmorph
+jjnext
+jjfire
+jjgems
+jjammo
+jjlight
+jjnowall
+jjfly
+jjinv
+jjending
+jjkill
+jjcpu
+jjd
+jjpower
+jjshield
+jjgod
+jjguns
+Server bans player %i
+ ban
+Server kicks off player %i
+ kick
+Data.j2d
+Can't find library resource '%s'
+The library file '%s' is incomplete, corrupt or of an unknown version.
+PLIB
+Could not find the library file '%s'.
+town3.j2l
+town2.j2l
+town1.j2l
+haunted3.j2l
+haunted2.j2l
+haunted1.j2l
+easter3.j2l
+easter2.j2l
+easter1.j2l
+arace2.j2l
+arace1.j2l
+abattle1.j2l
+xmbattle2.j2l
+xmbattle1.j2l
+Xmas3.j2l
+Xmas2.j2l
+Xmas1.j2l
+Tube3.j2l
+Tube2.j2l
+Tube1.j2l
+Treasur3.j2l
+Treasur2.j2l
+Treasur1.j2l
+Trainer.j2l
+ShareTrs.j2l
+ShareCtf.j2l
+Share3.j2l
+Share2.j2l
+Share1.j2l
+Race3.j2l
+Race2.j2l
+Race1.j2l
+Psych3.j2l
+Psych2.j2l
+Psych1.j2l
+Medivo2.j2l
+Medivo1.j2l
+Labrat3.j2l
+Labrat2.j2l
+Labrat1.j2l
+Jung2.j2l
+Jung1.j2l
+Hell2.j2l
+Hell.j2l
+DiamSecr.j2l
+Diam3.j2l
+Diam1.j2l
+Damn2.j2l
+Damn.j2l
+Colon2.j2l
+Colon1.j2l
+Capture3.j2l
+Capture2.j2l
+Capture1.j2l
+Castle1n.j2l
+Castle1.j2l
+Carrot1n.j2l
+Carrot1.j2l
+Beach2.j2l
+Beach.j2l
+Battlea.j2l
+Battle3.j2l
+Battle2.j2l
+Battle1.j2l
+                      Jazz Jackrabbit 2 Data File
+         Retail distribution of this data is prohibited without
+             written permission from Epic MegaGames, Inc.
+MUSE
+.J2B
+%s.j2b
+Jazz 2 ran out of internal animation structures. There are most probably too much enemies in the current level.
+Too much anims: counts: %i %i
+The Animation library file '%s' is incomplete, corrupt or of an unknown version.
+ANIM
+ALIB
+Could not find the Animation library file '%s'.
+Reading animation library
+LEVL
+.j2l
+Warning! LoadLevel(%s): File corrupt
+Warning! LoadLevel(%s): Decompression error
+Warning! LoadLevel(%s): Out of memory
+Warning! LoadLevel(%s): CRC error, file corrupt
+Warning! LoadLevel(%s): Premature end of file
+Warning! LoadLevel(%s): Incorrect version
+Warning! LoadLevel(%s): Header corrupt
+Warning! LoadLevel(%s): File not found
+%s - %s
+LEVEL: Level "%s" has version %u.%02x, not compatible with newest version %u.%02x
+TILE
+.j2t
+Macro Saved OK
+SaveConfig didnt work!
+Saving macro: name %s
+%i macro files found in current directory
+*.J2M
+CACHE: Created section cache with %u entries
+Cannot create a tiles cache surface sized 256x32 in the video memory.
+Reason: %s
+.tga
+.pcx
+Jazz%04u
+Could not load Language file %s
+.J2S
+Invalid Language Version in file "%s", found %u strings, expecting %u strings
+Could not load Language file "%s"
+General
+Language
+Illegal Net Action. Action %i too large %u
+]:
+%s was kicked off
+%s was BANNED
+Warning: Client: Serverstatus received while already logging in
+LocalClient.PacketHandle==NULL
+%i bytes received in %i s : %i K/s
+Could not open file %s for downloading content
+cache
+Killed by Server. Server version %u reason %i
+st_SC_JOINPLAYERS should not be sent to the joining client!
+Client_ConnectToServer: Couldn't connect to server %s
+Downloading [%s]
+FILTER.LST
+jazz.logicware.com
+mail.godgames.com
+list.jazzjackrabbit.com
+Connected with ListServer %s
+Warning: Could not connect to List server '%s'
+Warning: Can't resolve hostname for list server '%s'
+HKEY_LOCAL_MACHINE:List Servers
+%03u
+Could not open Listening handle
+NET: Error reading, closing handle, cleaning up
+LIST
+Server_SendPrivatePacket Error: %s
+Client_SendPrivatePacket Error: %s
+NetSendPacket Error: %s
+NetSendPrivateSecurePacket: netWrite to %s, length %u error %s
+Couldn't start listening for TCP connections
+Error: %s
+Provider Not Implemented
+S | INIT | Couldn't start listening for TCP connections on port %i
+Error: %s
+S | INIT | Couldn't start listening for UDP packets on port %i
+Error: %s
+Starting TCP Network
+S | INIT | Couldn't start listening for SPX connections
+Error: %s
+NET  Couldn't start listening for IPX packets
+Error: %s
+Starting IPX Network
+Packets out-of-order: total:%i
+Packets Lost: total:%i
+- Packets outoforder %2d
+- Packets Lost %2d
+- Total Packets %i
+CLIENT %i
+Total Packets outoforder %i
+Total Packets Lost %i
+Total Secure Bytes Recv %i
+Total Bytes Recv %i
+Total Secure Bytes Send %i
+Total Bytes Send %i
+Total Packets %i
+PACKETSTATS
+NetDeInitialize
+Computer is SERVER
+Computer is CLIENT
+Provider %i not supported! should not happen
+Wrong MultiplayerConnection
+NetStart
+send %i baud
+recv %i baud
+-------------
+%i
+%s%u
+Server_GetStream: netRead error: %s
+Server_CheckConnection: Client already active! DUH!
+Server_Upload:could not open file for sending to client!
+Server_Do: Disconnecting Client %i after %is non-activity (t %i - t %i)
+BANLIST.LST
+BANLIST.TXT
+GRADE (Win32, Build 98-194) Oct 22 1998 14:57:09
+^Could not register window class
+Fatal Application Error
+WIN: Amnesia Error: Out of memory, user canceled memory request
+WIN: Memory block succesfully allocated
+WIN: Could not allocate %u KB memory block, negotiating with user
+open
+%u%%
+%s has run out of memory!
+Could not allocate %s KB memory block
+Could not resize memory block %08X to %u Kb (%u bytes)
+Error code %d
+---- Starting execution: invoke MainProg()
+DDWndClass
+LOG: %s version %s
+LOG: GRADE (Build 98-194W), Executable: %s
+WIN: Safe mode startup
+-nocpucheck
+-noerrtrap
+-nojoy
+-noreg
+-noddrawmemcheck
+-noddraw
+-noddrawwin
+-nonetwork
+-nodsound
+-nosound
+-nospy
+-spy
+-safelog
+-nolog
+-log
+-fullscreen
+-windowed
+-safe
+-log=
+Lock_%s
+DDWinSock
+DirectDraw
+WIN: Switch to bit depth %u BPP
+WIN: Monitor low-power activating
+WIN: Screensaver activating
+Could not obtain keyboard hook!
+WIN: Application notified error: %s
+Information
+WIN: Application notified message: %s
+WIN: All done! Have a nice day
+WIN: Closing window
+SPY: Closing spy
+---- Exiting program
+Software\%s\%s\%s
+Window Position
+Window Snap Data
+Window Snap Presets
+Spy
+Sound Mixing Rate
+Sound Mixing Options
+Software\%s\%s\%s\%s
+Sound FX Volume
+Sound FX Active
+Music Volume
+Music Active
+Free Scale
+Last VideoMode
+WIN: Writing registry
+WIN: First time startup, using defaults
+Application Error - %s
+WIN: %s
+ by attempting to %s address %08Xh
+ at address %08Xh
+performed a Divide by Zero
+attempted to execute a Priviledged Instruction
+Private Instruction
+caused a Stack Overflow
+caused a (floating point) Stack Overflow
+Stack Overflow
+performed a floating-point Divide by Zero
+Divide by Zero
+attempted to execute an Illegal Instruction
+Illegal Opcode
+caused a Page Fault
+Page Fault
+caused a Breakpoint Exception
+Breakpoint
+caused an access violation
+Access Violation
+%s has
+%04Xh:%08Xh
+%04Xh:%08Xh
+%04Xh:%08Xh
+%04Xh
+%04Xh
+%04Xh
+%04Xh
+%Xh
+%Xh
+%Xh
+%Xh
+%Xh
+%Xh
+%Xh
+Arial
+"write" to
+"read" from
+%s signaled the following internal error:
+%s Command-Line Options
+Usage: %s [options] %s
+CPU: CPUID Not supported, no more information available
+CPU: Processor Features %08X (%sFPU, %sMMX)
+CPU: Processor Vendor ID '%s', Family %u, Model %u, Stepping %u
+CPU: %sfound
+Unknown processor, type %u
+Pentium Pro
+M2-MMX
+Pentium II
+(without coprocessor)
+processor
+MMX
+Pentium
+Nx586
+6x86
+K6+ 3D (Model %u)
+K6 3D (Model %u)
+K6 (Model %u)
+K5 (Model %u)
+486%s processor
+5x86 processor
+with 387 coprocessor unit
+with 287 coprocessor unit
+386 processor
+NexGen
+NexGenDriven
+United Microelectronics Corporation
+UMC UMC UMC
+Cyrix
+CyrixInstead
+AMD ISBETTER
+AMD
+AuthenticAMD
+Intel
+GenuineIntel
+No
+WIN: Running %s version %u.%u, Build %u
+Microsoft Windows
+Microsoft Windows NT
+an unknown operating system
+This program requires a 256 color display mode.
+This program cannot be run under Win32s.
+You must this program under Windows 95 or Windows NT.
+RichEdit
+RICHED32.DLL
+Viewing File: %s
+X-Alignment error
+Wrong mode
+DirectDraw still drawing
+Vertical blank in progress
+Unsupported mask
+Unsupported mode
+Unsupported FOURCC format
+Unsupported action
+Width is too big
+Size is too big
+Height is too big
+Surface not attached
+Surface lost
+Surface obscured
+Surface busy
+Surface already dependant
+Surface already attached
+Region for clipper too small
+Primary surface already exists
+Palette busy
+Overlay hidden
+Only one color key for overlay
+No clip overlay support
+Out of Video Memory
+Out of Memory
+Out of Caps
+No hardware Z overlay
+No hardware Z buffer
+No VSYNC hardware
+Not palettized
+Page not locked
+Not locked
+Not initialized
+Item was not found
+Not flippable
+No texture hardware
+Not an overlay surface
+Not an 8 bit mode
+No stretching hardware
+No rotation hardware
+No ROP hardware
+No palette hardware
+No palette attached
+No overlay hardware
+No overlay destination
+No mirror hardware
+No HWND for cooperation
+No GDI present
+No page flip support
+No exclusive mode
+No emulation available
+No DirectDraw support currently
+No DirectDraw hardware
+No DirectDraw ROP hardware
+No DC for surface
+No Cooperative level set
+No hardware color key
+No color key
+No color conversion hardware
+No cliplist
+No Clipper attached
+No Blitter hardware
+No Alpha hardware
+No 3D
+Locked surface
+Invalid Surface Type
+Invalid Rectangle
+Invalid Position
+Invalid PixelFormat
+Invalid Parms
+Invalid Object
+Invalid Display mode
+Invalid GUID
+Invalid Cliplist
+Invalid Caps
+Incompatible primary buffer
+Can't restore implicit surface
+HWND is subclassed
+HWND already set
+H-Alignment Error
+Generic Failure
+Exclusive mode is already set
+Exception occured
+DC Already created
+DirectDraw object already created
+Support is currently not available
+No Color key set
+Clipper is monitoring a HWND
+Can't Unlock Page
+Can't Lock Page
+Can't Duplicate Surface
+Can't Create DC
+Surface can't be Detached
+Surface can't be Attached
+BltFast Can't Clip
+Already initialized
+VID: DirectDraw check skipped on user request
+VID: Checking for available video modes
+Window (DIB)
+Any fullscreen mode
+Any windowed mode
+Any compatible mode
+Unknown DirectDraw error code %08X
+(DIBSection)
+(DirectDraw)
+Closing display
+Resizing display
+VID:
+VID:     DirectDraw not found or too old - Disabled
+ N/A
+ %uKb (%uKb Free)
+VID:     Video memory %uKb (%uKb Free), AGP memory
+VID:     DirectDraw%s found
+ v%s
+\StringFileInfo\%04X04B0\ProductVersion
+\StringFileInfo\%04X04E4\ProductVersion
+\VarFileInfo\Translation
+DirectDrawCreate
+ddraw.dll
+No error
+VID:     Direct3D not found - Disabled
+VID:     Direct3D found
+Could not create DIBSection
+MEM: Block corrupted, stopping memory dump
+MEM: Block %08X Size %8u Flags %02X Previous %08X Next %08X
+MEM: Memory Linked-List Dump
+MEM: Block %2u @ %08Xh, Size %6u, Free space %6u
+MEM: -- Pool %2u ---- %2u Blocks ------------
+MEM: Pools dump
+Cannot allocate %u.%u MB memory pool
+memAlloc() Amnesia Error: Out of memory
+Amnesia Error: Out of memory
+memReAlloc() can't resize NULL memory block
+SND: Detected Windows Multimedia sound driver
+SND: Detected DirectSound driver
+SND: %s
+SND: Error initialising Sound System - Sound disabled
+SND: Closing sound system
+Could not load music - %s
+Unknown error
+Bad parameter
+File is damaged
+Unsupported format
+Unsupported device
+Could not write to device
+Device busy
+Out of sample memory
+Out of pattern memory
+Out of memory
+Out of instruments
+Out of channels
+Output is not active
+Output is active
+No music is playing
+No music loaded
+Music is playing
+Music is still loaded
+.am
+Could not start music - %s
+SND: Warning! Could not start output - %s
+FHND
+Fatal Error in %s on file "%s", error: %s
+fileWrite
+Unable to write all bytes
+fileRead
+Input past end of file
+SOCK
+tcp
+udp
+Illegal host name
+NET_HANDLE has closed
+Illegal NET_HANDLE
+Connection reset by remote host
+Connection was aborted due to timeout or failure.
+Socket has been shut down
+Socket not connected
+Network has reset connection
+Network down
+Not a socket
+Host unreachable
+Datagram size too large
+Network call canceled
+Access to address denied
+Time out
+Network is unreachable
+Connection refused
+Address not available
+Socket is already connected
+Address in use
+Socket not supported with this address family
+Illegal protocol for socket
+Protocol not supported
+No more buffer space
+No more socket descriptors
+No data found
+Unrecoverable error
+Try again
+Host not found
+Blocking call is in progress
+Call would block socket
+Address family not supported
+WSAStartup() not called
+SOCK
+Unknown Error %u
+NET: WinSock v%u.%u "%s", Status: %s, Host: %s
+NET: Unsupported WinSock version %u.%u, no network support
+NET: WinSock not found or could not initialize, no network support
+NET: Closing network system
+NET: %s failed: %s
+netClose
+netWrite
+netRead
+netRecv
+netGetHostAddr
+Unknown network address
+ socket %04Xh
+%02X
+ port %u
+WinSock Window
+01M
+$1M
+incompatible version
+buffer error
+insufficient memory
+data error
+stream error
+file error
+stream end
+need dictionary
+incorrect data check
+incorrect header check
+invalid window size
+unknown compression method
+H2M
+Log
+%uKB (%uKB free)
+DDSplashClass
+Galaxy Music System v5.0a
+DirectSound output driver v4.0
+Windows Multimedia output driver 4.0
+BMOD2STM
+!Scream!
+Extended Module:
+MAS_UTrack_V00
+PTMF
+SCRM
+AM
+IMPM
+FAR
+MTM
+SCRS
+WAVE
+.snd
+AS
+DLS
+sfbk
+AI
+ deflate 1.0.4 Copyright 1995-1996 Jean-loup Gailly
+ inflate 1.0.4 Copyright 1995-1996 Mark Adler
+invalid literal/length code
+invalid distance code
+plus.dll
+it length repeat
+too many length or distance symbols
+invalid stored block lengths
+invalid block type
+incomplete dynamic bit lengths tree
+oversubscribed dynamic bit lengths tree
+incomplete literal/length tree
+oversubscribed literal/length tree

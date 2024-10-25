@@ -1,0 +1,184 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+#pragma region perlin noise
+class PerlinNoise
+{
+    array<int> p(256);
+
+    PerlinNoise()
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            p[i] = i;
+        }
+
+        for (int i = 0; i < 256; i++)
+        {
+            int j = gameRNG() & 255;
+            int temp = p[i];
+            p[i] = p[j];
+            p[j] = temp;
+        }
+    }
+
+    float lerp(float a, float b, float t)
+    {
+        return a + t * (b - a);
+    }
+
+    float fade(float t)
+    {
+        return t * t * t * (t * (t * 6 - 15) + 10);
+    }
+
+    float noise(float x)
+    {
+		// return 1;
+        int X = int(x) & 255;
+        x -= int(x);
+        float u = fade(x);
+
+        int A = p[X];
+        int B = p[X + 1];
+        return lerp(A, B, u) / 255.0f;
+    }
+};
+#pragma endregion
+
+// drawing
+int screenWidth = jjResolutionWidth;
+int screenHeight = jjResolutionHeight;
+
+jjPIXELMAP@ gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
+jjPAL gamePalette = jjPAL();
+
+// logic
+jjRNG gameRNG = jjRNG();
+PerlinNoise@ gamePerlin = PerlinNoise();
+
+int playerX = 0;
+
+array<uint8> emptyColors(256);
+
+void onLevelLoad() {
+	jjConsole("Started!");
+
+	// for(uint8 i = 0; i < 256; i++) {
+	// 	emptyColors[i] = 0;
+	// }
+
+	array<uint8> indexMapping;
+
+#defmacro define_color index r g b
+	gamePalette.color[%index%] = jjPALCOLOR(%r%, %g%, %b%);
+	indexMapping.insertLast(%index%);
+#enddef
+
+	// grass
+	#macro define_color 1 0 255 0   // green
+	#macro define_color 2 50 205 50 // dark green
+	
+	// road
+	#macro define_color 3 255 0 0     // red
+	#macro define_color 4 255 255 255 // white
+	
+	// sky
+	#macro define_color 5 176 224 230 // powder blue
+	#macro define_color 6 73 216 230  // light blue
+	
+	// ground
+	#macro define_color 7 127 127 127 // gray
+	
+	#undef define_color
+
+    jjSpriteModeSetMapping(1, indexMapping, gamePalette);
+	jjConsole("INIT: Mappings");
+
+	jjAnimSets[ANIM::HELMUT].load(
+		jjPIXELMAP("STVcycling.j2as_texture.png"),
+		frameWidth: 64,
+		frameHeight: 64,
+		frameSpacingX: 2,
+		frameSpacingY: 2,
+		startY: 0,
+		firstAnimToOverwrite: jjAnimSets[ANIM::HELMUT]
+	);
+
+	jjConsole("INIT: Animations");
+}
+
+int quarterScreenHeight = screenHeight/8;
+
+void setTerrainPoint(int pos, int height, int color = -1) {
+    // 1 == bright, 2 == dark
+	// 	jjConsole("Setting pos: " + pos + " height: " + height);
+	// }
+	// if(playerX >= 10800) {
+	// 	jjSpy("" + playerX);
+	// 	return;
+	// }
+
+    for (int y = screenHeight - 1; y >= height; y--)
+		gamePixelMap[pos, y] = (color == -1 ? ((y >= height + quarterScreenHeight) ? 2 : 1) : color);
+}
+
+
+const float frequency = 0.001;
+const float amplitude = 100;
+const int terrainOffset = screenWidth/2;
+
+int difference = 2;
+int timeDifference = 2;
+bool drawAdj = false;
+
+void onMain() {
+	// if(true) return;
+	if(jjGameTicks % timeDifference == 0) {
+		// Clear! this crashes the game with an access violation after a few seconds
+		// it doesn't anymore! WOWZA!
+		// @gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
+		gamePixelMap.recolor(emptyColors);
+
+		for (int x = 0; x < screenWidth; x += difference) {
+			int y = int(terrainOffset - (
+					amplitude * gamePerlin.noise(
+						(x + playerX) * frequency
+					)
+				)
+			);
+
+			if(drawAdj) {
+				for(int i = 0; i < difference; i++) {
+					setTerrainPoint(x + i, y);
+				}
+			} else {
+				setTerrainPoint(x, y);
+			}
+
+		}
+	}
+
+	playerX += timeDifference*4;
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ screen) {
+	gamePixelMap.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame]);
+	
+	screen.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
+	screen.drawSprite(0, 0, ANIM::CUSTOM[0], 0, 0, /* direction */ 0, SPRITE::MAPPING, 1);
+	screen.drawString(10, 10, "screenWidth: " + screenWidth + " - screenHeight: " + screenHeight);
+	screen.drawString(10, 25, "frequency: " + frequency + " - amplitude: " + amplitude + " - terrainOffset: " + terrainOffset);
+	screen.drawString(10, 40, "difference: " + difference + " - timeDifference: " + timeDifference);
+	screen.drawString(10, 55, "playerX: " + playerX);
+	screen.drawSprite(screenWidth/2, screenHeight/2, ANIM::HELMUT, 0, 5);
+
+    return true;
+}
+
+bool onDrawHealth(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawLives(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawPlayerTimer(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawScore(jjPLAYER@, jjCANVAS@) { return true; }
+bool onDrawGameModeHUD(jjPLAYER@, jjCANVAS@) { return true; }

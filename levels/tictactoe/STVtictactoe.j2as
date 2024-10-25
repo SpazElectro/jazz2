@@ -1,0 +1,201 @@
+#pragma require "STVutil.asc"
+#pragma require "stvtictactoe_o.png"
+#pragma require "stvtictactoe_x.png"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+array<array<string>> board();
+
+array<string> players = {};
+array<array<int>> available = {};
+int currentPlayer;
+string winner;
+int gridSize;
+float spriteSize;
+
+int xwins = 0;
+int owins = 0;
+
+void resetGame() {
+    board = {};
+    available = {};
+
+    for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 3; i++) {
+            array<int> t = {i, j};
+            available.insertLast(t);
+        }
+    }
+    
+    array<string> emptyBoardLine = {"", "", ""};
+    for(int i = 0; i < 3; i++)
+        board.insertLast(emptyBoardLine);
+    
+    winner = "";
+}
+
+void nextAIMove() {
+    if(winner != "" || available.length() == 0) {
+        return;
+    }
+
+    int index = getRandomNumber(0, available.length()-1);
+    array<int> spot = available[index];
+    available.removeAt(index);
+
+    board[spot[0]][spot[1]] = players[1];
+    currentPlayer = 0;
+}
+
+void onMain() {
+    gridSize = jjResolutionWidth == 320 ? 50 : 100;
+    spriteSize = jjResolutionWidth == 320 ? 0.5 : 1;
+    stvutilRNG.seed(generateSeed());
+    updateKeys();
+    checkWinner();
+}
+
+void onLevelBegin() {
+    stvutilRNG.seed(generateSeed());
+    
+    players.insertLast("X");
+    players.insertLast("O");
+
+    keyPressCallbacks.insertLast(function(key) {
+        if(jjKey[0x1]) {
+            if(winner != "") return;
+
+            int gridMarginX = (jjResolutionWidth - gridSize * 3) / 2;
+            int gridMarginY = (jjResolutionHeight - gridSize * 3) / 2;
+
+            for(int j = 0; j < 3; j++) {
+                for(int i = 0; i < 3; i++) {
+                    int x = gridMarginX + i * gridSize;
+                    int y = gridMarginY + j * gridSize;
+
+                    string spot = board[i][j];
+
+                    if(
+                        jjMouseX >= x && jjMouseX <= x + gridSize &&
+                        jjMouseY >= y && jjMouseY <= y + gridSize &&
+                        spot == ""
+                    ) {
+                        board[i][j] = players[0];
+                        array<int> slot = {i, j};
+                        available.removeAt(available.find(slot));
+                        currentPlayer = 1;
+                        nextAIMove();
+                    }
+                }
+            }
+        }
+    });
+
+    currentPlayer = 0;
+
+    for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 3; i++) {
+            array<int> t = {i, j};
+            available.insertLast(t);
+        }
+    }
+
+    jjAnimSets[ANIM::CUSTOM[0]].load(
+		jjPIXELMAP("stvtictactoe_o.png"),
+		frameWidth: 50,
+		frameHeight: 50
+	);
+    jjAnimSets[ANIM::CUSTOM[1]].load(
+		jjPIXELMAP("stvtictactoe_x.png"),
+		frameWidth: 50,
+		frameHeight: 50
+	);
+
+    jjConsole("Started!");
+
+    array<string> emptyBoardLine = {"", "", ""};
+    for(int i = 0; i < 3; i++)
+        board.insertLast(emptyBoardLine);
+}
+
+void checkWinner() {
+    if(winner != "") return;
+    winner = "";
+
+    // horiz
+    for (int i = 0; i < 3; i++)
+    {
+        if(board[i][0] == board[i][1] && board[i][1] == board[i][2])
+            winner = board[i][0];
+    }
+
+    // vertic
+    for (int i = 0; i < 3; i++)
+    {
+        if((board[0][i] == board[1][i] && board[1][i] == board[2][i]))
+            winner = board[0][i];
+    }
+
+    // diag
+    if((board[0][0] == board[1][1] && board[1][1] == board[2][2])) 
+        winner = board[0][0];
+    if((board[2][0] == board[1][1] && board[1][1] == board[0][2]))
+        winner = board[2][0];
+
+    if(winner == "" && available.length == 0) {
+        winner = "It's a tie!";
+    } else if(winner != "") {
+        if(winner == "X")
+            xwins++;
+        if(winner == "O")
+            owins++;
+        winner = winner + " wins!";
+    }
+
+    if(winner != "" || available.length == 0) {
+        TimerV(70, function() {
+            resetGame();
+        });
+    }
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
+
+    int gridMarginX = (jjResolutionWidth - gridSize * 3) / 2;
+    int gridMarginY = (jjResolutionHeight - gridSize * 3) / 2;
+
+    for(int j = 0; j < 3; j++) {
+        for(int i = 0; i < 3; i++) {
+            int x = gridMarginX + i * gridSize;
+            int y = gridMarginY + j * gridSize;
+
+            string spot = board[i][j];
+
+            if(spot != "X" && spot != "O") {
+                canvas.drawString(x + gridSize/2, y + gridSize/2, spot, spriteSize == 0.5 ? STRING::SMALL : STRING::MEDIUM);
+            } else {
+                canvas.drawResizedSprite(x + gridSize/2, y + gridSize/2, ANIM::CUSTOM[spot == "X" ? 1 : 0], 0, 0, spriteSize, spriteSize);
+            }
+
+            // hitbox
+            // canvas.drawRectangle(x, y, gridSize, gridSize, 3);
+        }
+    }
+
+    canvas.drawRectangle(gridMarginX + gridSize, gridMarginY, 10, gridSize * 3, 15);
+    canvas.drawRectangle(gridMarginX + gridSize * 2, gridMarginY, 10, gridSize * 3, 15);
+    canvas.drawRectangle(gridMarginX, gridMarginY + gridSize, gridSize * 3, 10, 15);
+    canvas.drawRectangle(gridMarginX, gridMarginY + gridSize * 2, gridSize * 3, 10, 15);
+    
+    if(winner != "")
+        canvas.drawString(jjResolutionWidth/2-jjGetStringWidth(winner, spriteSize == 0.5 ? STRING::MEDIUM : STRING::LARGE, normalTextAppearance)/2, 10, winner, spriteSize == 0.5 ? STRING::MEDIUM : STRING::LARGE);
+
+    canvas.drawString(0, 10, "X wins: " + xwins);
+    canvas.drawString(0, 20, "O wins: " + owins);
+
+    return false;
+}

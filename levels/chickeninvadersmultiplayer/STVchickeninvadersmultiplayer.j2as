@@ -1,0 +1,340 @@
+#pragma require "STVutil.asc"
+#pragma require "STVhooks.asc"
+
+#include "STVutil.asc"
+#include "STVhooks.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+#include "../../scripts/STVhooks.asc"
+
+enum ANIMCUSTOMAssets {
+    ASSETS_BACKGROUND_1 = 0,
+    ASSETS_BACKGROUND_2 = 1,
+    ASSETS_CHICKEN = 2, // spritesheet
+    ASSETS_CHICKENBONES = 3, // spritesheet
+    ASSETS_CHICKENEGG = 4, // spritesheet
+    ASSETS_SPACESHIP = 5, // spritesheet
+    ASSETS_SPACESHIPPARTICLES = 6 // spritesheet
+};
+
+void preloadAssets() {
+    // jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_1]].load(
+	// 	jjPIXELMAP("cibackground1.png"),
+	// 	frameWidth: 512,
+	// 	frameHeight: 512
+	// );
+
+    // jjAnimSets[ANIM::CUSTOM[ASSETS_BACKGROUND_2]].load(
+	// 	jjPIXELMAP("cibackground2.png"),
+	// 	frameWidth: 512,
+	// 	frameHeight: 512
+	// );
+
+    jjAnimSets[ANIM::CUSTOM[ASSETS_CHICKEN]].load(
+		jjPIXELMAP("cichicken.png"),
+		frameWidth: 99,
+		frameHeight: 99,
+        frameSpacingX: 1,
+		frameSpacingY: 1,
+        startX: 0,
+		startY: 0,
+		firstAnimToOverwrite: ANIM::CUSTOM[ASSETS_CHICKEN]
+	);
+
+    jjAnimSets[ANIM::CUSTOM[ASSETS_SPACESHIP]].load(
+        jjPIXELMAP("cispaceshipnew.png"),
+        frameWidth: 99,
+        frameHeight: 99,
+        frameSpacingX: 1,
+        frameSpacingY: 1,
+        startX: 0,
+        startY: 0,                 // size of ASSETS_CHICKEN's anim count
+        firstAnimToOverwrite: ANIM::CUSTOM[ASSETS_SPACESHIP + 3]
+    );
+}
+
+class Chicken
+{
+    AnimatedSprite@ sprite;
+    int animationState = 0;
+
+    Chicken(int x, int y) {
+        @this.sprite = AnimatedSprite(0, 0, x, y, 0.2, false);
+        this.sprite.setAnimSet(ANIM::CUSTOM[ASSETS_CHICKEN]);
+        this.sprite.xScale = 0.5; this.sprite.yScale = 0.5;
+        this.sprite.id = 1;
+
+        @this.sprite.animfinishcallback = function(dictionary@ args) {
+            Chicken@ chick;
+            args.get("chicken", @chick);
+
+            if(chick.sprite.reverse) {
+                chick.animationState--;
+            } else {
+                chick.animationState++;
+            }
+
+            if(chick.animationState < 1) {
+                chick.sprite.reverse = false;
+                chick.animationState = 1;
+                chick.sprite.frame = 0;
+            }
+
+            if(chick.animationState > 3) {
+                chick.sprite.reverse = true;
+                chick.animationState = 3;
+                chick.sprite.frame = 4;
+            }
+
+            chick.sprite.setId(chick.animationState);
+        };
+
+        @this.sprite.animfinisharguments = {{"chicken", @this}};
+    }
+
+    void update() {
+        sprite.update();
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        sprite.draw(canvas);
+    }
+};
+
+enum SpaceshipWeapon {
+    BORONRAILGUN = 0,
+};
+
+int SpaceshipWeaponBehave(SpaceshipWeapon weapon, int x, int y, int energy) {
+    int firerate = 0;
+
+    switch (weapon)
+    {
+    case BORONRAILGUN:
+        if(energy == 1)
+            bullets.insertLast(Bullet(x, y, 0, 4, false));
+        else if(energy == 2) {
+            bullets.insertLast(Bullet(x - 5, y, 0, 4, false));
+            bullets.insertLast(Bullet(x + 5, y, 0, 4, false));
+        }
+
+        firerate = 0;
+
+        break;
+    
+    default:
+        break;
+    }
+
+    return firerate;
+}
+
+class SpaceshipPlayer {
+    AnimatedSprite@ sprite;
+    jjPLAYER@ player;
+    bool animatingDirection = false;
+    int prevmx;
+    bool isAnimating = false;
+    SpaceshipWeapon weapon = BORONRAILGUN;
+    int energy = 2;
+    int canShootAt = 0;
+    bool canShoot = true;
+
+    SpaceshipPlayer(jjPLAYER@ player) {
+        @this.player = player;
+        @this.sprite = AnimatedSprite(0, 4, 150, 150, 0.2, false);
+        this.sprite.animate = false;
+        this.sprite.setAnimSet(ANIM::CUSTOM[ASSETS_SPACESHIP]);
+        this.sprite.xScale = 0.5; this.sprite.yScale = 0.5;
+        @this.sprite.animfinishcallback = function(dictionary@ args) {
+            SpaceshipPlayer@ spaceship;
+            args.get("spaceship", @spaceship);
+
+            if (spaceship.animatingDirection) {
+                spaceship.sprite.reverse = true;
+            }
+
+            if (spaceship.sprite.reverse && spaceship.animatingDirection) {
+                spaceship.animatingDirection = false;
+                spaceship.sprite.reverse = false;
+                spaceship.isAnimating = false;
+            }
+        };
+
+        @this.sprite.animfinisharguments = {{"spaceship", @this}};
+    }
+
+    string predictMouseDirection(int currX, int prevX) {
+        int deltaX = currX - prevX;
+        int tolerance = 0; // Tolerance threshold for movement detection
+
+        if (deltaX > tolerance)
+            return "Right";
+        else if (deltaX < -tolerance)
+            return "Left";
+        else
+            return "None";
+    }
+
+    void shoot() {
+        if(canShoot || jjGameTicks >= canShootAt) {
+            canShootAt = jjGameTicks + SpaceshipWeaponBehave(this.weapon, this.sprite.x - 3, this.sprite.y - 20, this.energy);
+            canShoot = false;
+        }
+    }
+
+    void update() {
+        string mouseDirection = predictMouseDirection(this.sprite.x, prevmx);
+        this.prevmx = this.sprite.x;
+
+        if(this.player.keyLeft)
+            this.sprite.x -= 1;
+        if(this.player.keyRight)
+            this.sprite.x += 1;
+        if(this.player.keyUp)
+            this.sprite.y -= 1;
+        if(this.player.keyDown)
+            this.sprite.y += 1;
+        if(this.player.keyFire)
+            this.shoot();
+
+        if (!animatingDirection) {
+            this.sprite.xScale = 0.5; this.sprite.yScale = 0.5;
+
+            if (mouseDirection == "Left") {
+                this.sprite.frame = 0;
+                this.sprite.setId(0);
+            } else if (mouseDirection == "Right") {
+                this.sprite.frame = 0;
+                this.sprite.xScale = -0.5;
+                this.sprite.setId(0);
+                // this.sprite.setId(1);
+            } else {
+                this.sprite.frame = 4;
+                this.sprite.setId(0);
+            }
+
+            if (isAnimating && mouseDirection != "Left" && mouseDirection != "Right") {
+                // Stop animation and keep the last frame
+                this.sprite.animate = false;
+                this.sprite.update();
+            } else if (!isAnimating && (mouseDirection == "Left" || mouseDirection == "Right")) {
+                // Start animation
+                this.sprite.animate = true;
+                this.sprite.reverse = false;
+                this.sprite.update();
+                isAnimating = true;
+            }
+        }
+
+
+        // this.sprite.x = jjMouseX;
+        // this.sprite.y = jjMouseY;
+        this.sprite.update();
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        this.sprite.draw(canvas);
+    }
+};
+
+class Bullet
+{
+    float x, y;
+    float xVelocity, yVelocity;
+    bool isEgg;
+
+    Bullet(float x, float y, float xVelocity, float yVelocity, bool isEgg) {
+        this.x = x;
+        this.y = y;
+        this.xVelocity = xVelocity;
+        this.yVelocity = yVelocity;
+        this.isEgg = isEgg;
+    }
+
+    void update() {
+        this.x -= xVelocity;
+        this.y -= yVelocity;
+    }
+
+    void draw(jjCANVAS@ canvas) {
+        canvas.drawRectangle(int(this.x), int(this.y), 2, 4, 15);
+    }
+};
+
+array<Chicken@> chickens();
+array<SpaceshipPlayer@> players();
+array<Bullet@> bullets();
+
+void onLevelBegin() {
+    jjConsole("Started!");
+
+    preloadAssets();
+
+    // for (int j = 0; j < 5; j++)
+    // {
+    //     for (int i = 0; i < (8*2)+1; i++)
+    //     {
+    //         chickens.insertLast(Chicken(i*50, 100+j*50));
+    //     }
+    // }
+
+    chickens.insertLast(Chicken(250, 200));
+
+    playerJoinCallbacks.insertLast(function(jjPLAYER@ player) {
+        players.insertLast(SpaceshipPlayer(player));
+    });
+}
+
+void onMain() {
+    updateHooks();
+
+    for (uint chickenIndex = 0; chickenIndex < chickens.length(); chickenIndex++)
+    {
+        chickens[chickenIndex].update();
+    }
+
+    for (uint playerIndex = 0; playerIndex < players.length(); playerIndex++)
+    {
+        players[playerIndex].update();
+    }
+
+    for (uint bulletIndex = 0; bulletIndex < bullets.length(); bulletIndex++)
+    {
+        bullets[bulletIndex].update();
+
+        if(bullets[bulletIndex].y <= 0) {
+            bullets.removeAt(bulletIndex);
+        }
+    }
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    // // jjResolutionWidth and jjResolutionHeight are both integers
+    // // so they get rounded up and become 1 which is not correct
+    // float resX = float(jjResolutionWidth)/512;
+    // float resY = float(jjResolutionHeight)/512;
+    // // I don't even know what the fuck this is but it works?
+    // resX += jjResolutionWidth/395.56962;
+    // resY += jjResolutionHeight/297.935594;
+
+    // canvas.drawResizedSprite(0, 0, ANIM::CUSTOM[ASSETS_BACKGROUND_1], 0, 0, resX, resY);
+    
+    for (uint chickenIndex = 0; chickenIndex < chickens.length(); chickenIndex++)
+    {
+        chickens[chickenIndex].draw(canvas);
+    }
+
+    for (uint playerIndex = 0; playerIndex < players.length(); playerIndex++)
+    {
+        players[playerIndex].draw(canvas);
+    }
+
+    for (uint bulletIndex = 0; bulletIndex < bullets.length(); bulletIndex++)
+    {
+        bullets[bulletIndex].draw(canvas);
+    }
+
+    return true;
+}

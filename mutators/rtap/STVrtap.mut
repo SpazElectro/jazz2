@@ -1,0 +1,22 @@
+#pragma name "rtap"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+}
+
+void onMain() {
+    for (int objId = 1; objId < jjObjectCount; objId++)
+    {
+        jjOBJ@ obj = jjObjects[objId];
+        if(obj.eventID == 72)
+        {
+            jjConsole("" + obj.var[0]);
+        }
+    }
+}

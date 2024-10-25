@@ -1,0 +1,82 @@
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+Dialogue @dialog = Dialogue("Devan stole the rabbits' carrots!", {});
+int dialogId = 0;
+
+// 1 | == green
+// 2 | == red
+// 3 | == blue
+// 4 | == yellow
+// 5 | == pink
+// 6 | == default
+// 7 | == gray
+// 8 | == greenish
+// repeat from 1 (green, red, blue, etc)
+
+void onLevelBegin()
+{
+    jjConsole("[ST] started");
+
+    dialogId = 0;
+    dialog.moreDialog = true;
+    dialog.speed = 3;
+}
+
+void onMain()
+{
+    if (dialogId == 0 && dialog.finished)
+    {
+        int time = dialog.skipped ? 1 : 100;
+        dialogId = -1;
+
+        TimerV(
+            time, function() {
+                dialog.text = "Go get the carrots back!";
+                dialog.moreDialog = false;
+                dialog.initialize();
+                dialogId = 1;
+            });
+    }
+
+    dialog.update();
+}
+
+void onPlayerInput(jjPLAYER @player)
+{
+    dialog.input(player);
+}
+
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
+{
+    dialog.draw(canvas);
+
+    return false;
+}
+
+void onFunction0(jjPLAYER @player)
+{
+    dialog.initialize();
+}
+
+void onFunction1(jjPLAYER @player)
+{
+    dialogId = 2;
+    dialog.text = "troll";
+    dialog.moreDialog = true;
+
+    TimerV(
+        150, function() {
+            dialog.text = "TROLLED";
+            dialog.moreDialog = false;
+            dialog.initialize();
+            dialogId = 3;
+
+            TimerV(
+                300, function() {
+                    dialog.end();
+                });
+        });
+
+    dialog.initialize();
+}

@@ -1,0 +1,1126 @@
+default:
+  coldspot: 0,0
+  fps: 10
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-000:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-001:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-002:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-003:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-004:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-005:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-006:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-007:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-008:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-009:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-010:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-011:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-012:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,13
+  tagged: 0
+frame-013:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,9
+  tagged: 0
+frame-014:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,13
+  tagged: 0
+frame-015:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,1
+  tagged: 0
+frame-016:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,7
+  tagged: 0
+frame-017:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,3
+  tagged: 0
+frame-018:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-019:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,4
+  tagged: 0
+frame-020:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,3
+  tagged: 0
+frame-021:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,3
+  tagged: 0
+frame-022:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,4
+  tagged: 0
+frame-023:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,3
+  tagged: 0
+frame-024:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-025:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-026:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,4
+  tagged: 0
+frame-027:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,4
+  tagged: 0
+frame-028:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,5
+  tagged: 0
+frame-029:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,6
+  tagged: 0
+frame-030:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,5
+  tagged: 0
+frame-031:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-032:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-033:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-034:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-035:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 5,2
+  tagged: 0
+frame-036:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,3
+  tagged: 0
+frame-037:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,4
+  tagged: 0
+frame-038:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 4,2
+  tagged: 0
+frame-039:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-040:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 4,1
+  tagged: 0
+frame-041:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 4,2
+  tagged: 0
+frame-042:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,1
+  tagged: 0
+frame-043:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,1
+  tagged: 0
+frame-044:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 4,3
+  tagged: 0
+frame-045:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,2
+  tagged: 0
+frame-046:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,3
+  tagged: 0
+frame-047:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-048:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,2
+  tagged: 0
+frame-049:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-050:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,2
+  tagged: 0
+frame-051:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 4,3
+  tagged: 0
+frame-052:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,2
+  tagged: 0
+frame-053:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,3
+  tagged: 0
+frame-054:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,3
+  tagged: 0
+frame-055:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,2
+  tagged: 0
+frame-056:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 4,2
+  tagged: 0
+frame-057:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 4,2
+  tagged: 0
+frame-058:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-059:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-060:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-061:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-062:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,5
+  tagged: 0
+frame-063:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-064:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-065:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,5
+  tagged: 0
+frame-066:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-067:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,6
+  tagged: 0
+frame-068:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-069:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,5
+  tagged: 0
+frame-070:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-071:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,7
+  tagged: 0
+frame-072:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-073:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-074:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,1
+  tagged: 0
+frame-075:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-076:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-077:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,6
+  tagged: 0
+frame-078:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,7
+  tagged: 0
+frame-079:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,7
+  tagged: 0
+frame-080:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,6
+  tagged: 0
+frame-081:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,5
+  tagged: 0
+frame-082:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,7
+  tagged: 0
+frame-083:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,7
+  tagged: 0
+frame-084:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,3
+  tagged: 0
+frame-085:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,6
+  tagged: 0
+frame-086:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,7
+  tagged: 0
+frame-087:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,5
+  tagged: 0
+frame-088:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,8
+  tagged: 0
+frame-089:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,8
+  tagged: 0
+frame-090:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,6
+  tagged: 0
+frame-091:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-092:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-093:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-094:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,8
+  tagged: 0
+frame-095:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-096:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-097:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-098:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-099:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-100:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-101:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-102:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-103:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-104:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-105:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-106:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-107:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-108:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-109:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-110:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-111:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-112:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-113:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-114:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-115:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-116:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-117:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-118:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-119:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-120:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-121:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-122:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-123:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-124:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,4
+  tagged: 0
+frame-125:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-126:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-127:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-128:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-129:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-130:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-131:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-132:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-133:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-134:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-135:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-136:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-137:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-138:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-139:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-140:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-141:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-142:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-143:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-144:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-145:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-146:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-147:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-148:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-149:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-150:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-151:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-152:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-153:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-154:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-155:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-156:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-157:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-158:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-159:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-160:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-161:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-162:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,0
+  tagged: 0
+frame-163:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-164:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,0
+  tagged: 0
+frame-165:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-166:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-167:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,4
+  tagged: 0
+frame-168:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,0
+  tagged: 0
+frame-169:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 1,0
+  tagged: 0
+frame-170:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-171:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-172:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,0
+  tagged: 0
+frame-173:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-174:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-175:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-176:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,5
+  tagged: 0
+frame-177:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-178:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-179:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-180:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-181:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-182:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,0
+  tagged: 0
+frame-183:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,1
+  tagged: 0
+frame-184:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,2
+  tagged: 0
+frame-185:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-186:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-187:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-188:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-189:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-190:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-191:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-192:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-193:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-194:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-195:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-196:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-197:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-198:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,5
+  tagged: 0
+frame-199:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,4
+  tagged: 0
+frame-200:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-201:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-202:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-203:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-204:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,1
+  tagged: 0
+frame-205:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-206:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-207:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,1
+  tagged: 0
+frame-208:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,1
+  tagged: 0
+frame-209:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-210:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-211:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-212:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-213:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-214:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-215:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-216:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 3,5
+  tagged: 0
+frame-217:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-218:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-219:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-220:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-221:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0
+frame-222:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 0,0
+  tagged: 0
+frame-223:
+  coldspot: 0,0
+  gunspot: 0,0
+  origin: 2,0
+  tagged: 0

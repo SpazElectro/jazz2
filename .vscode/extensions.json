@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "shd101wyy.markdown-preview-enhanced",
+        "esbenp.prettier-vscode",
+        "michelemelluso.gitignore",
+        "ms-python.vscode-pylance",
+        "ms-vscode.cpptools",
+    ]
+}

@@ -1,0 +1,5 @@
+rich
+pick
+pydirectinput
+jsonc-parser
+prodict

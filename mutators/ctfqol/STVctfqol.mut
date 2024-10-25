@@ -1,0 +1,12 @@
+#pragma name "CTF Quality of Life Pack"
+
+void onLevelBegin() {
+    if(jjIsServer) {
+        jjChat("/mutators STVhealthview on");
+        jjChat("/mutators STVcustomhud on");
+        jjChat("/mutators STVstartposviewer on");
+        jjChat("/mutators STVweaponlist on");
+        jjChat("/mutators STVctfqol off");
+        jjChat("/r");
+    }
+}

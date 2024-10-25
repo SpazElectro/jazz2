@@ -1,0 +1,495 @@
+/*
+// psuedocode for all the packets
+
+struct Vector2 {
+	int x, y;
+};
+
+uint8 type = 0;
+struct movepkt {
+	/ if client
+	uint8 id;
+	/ endif
+	Vector2 position;
+	Vector2 velocity;
+};
+
+uint8 type = 1;
+struct addplayerpkt {
+	string name;
+	int id;
+};
+
+uint8 type = 2;
+struct remplayerpkt {
+	int id;
+};
+
+// This is sent by all the clients when they are ready to start receiving information
+uint8 type = 3;
+struct readypkt {};
+
+uint8 type = 4;
+struct shootpkt {
+	/ if client
+	uint8 id;
+	/ endif
+	uint8 weapon;
+};
+*/
+
+// god please give me power to finish this project
+// -spaz electro
+
+#pragma require "STVmotorracer_split.png"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// #define INFINITE_TILT
+// #define DEBUG_MOTORPLAYER_IDS
+#define LIMIT_BOUNDS
+#define GROUND_IMPACT
+#define TILT_NEGATIVE
+// #define MULTIPLAYER
+
+const ANIM::Set playerAnimSet = ANIM::CUSTOM[1];
+Key@ leftKey;
+Key@ rightKey;
+Key@ jumpKey;
+
+int min(int a, int b) {
+	return a < b ? a : b;
+}
+int max(int a, int b) {
+	return a > b ? a : b;
+}
+
+bool isChatting = false;
+#ifdef MULTIPLAYER
+int bandwidthInThisSecond  = 0;
+int bandwidthOutThisSecond = 0;
+uint64 lastPKTtime = 0;
+
+bool sendPacket(jjSTREAM &in packet, int toClientID = 0, uint toScriptModuleID = jjScriptModuleID) {
+	bandwidthOutThisSecond += packet.getSize();
+	return jjSendPacket(packet, toClientID, toScriptModuleID);
+}
+#endif
+
+float lerp(float a, float b, float t)
+{
+	return a + (b - a) * t;
+}
+
+class MotorPlayer
+{
+	AnimatedSprite@ sprite;
+	string name;
+	bool isLocal;
+
+	Vector2@ position;
+	Vector2@ velocity;
+
+	int8 id;
+	float prevPosX;
+
+	MotorPlayer(int8 id) {
+		@this.sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
+		this.sprite.animSet = playerAnimSet;
+		this.sprite.spriteMode = SPRITE::PLAYER;
+
+		@this.position = Vector2((jjResolutionWidth/2)+64, 64);
+		@this.velocity = Vector2(0, 0);
+		this.isLocal = false;
+		this.id = id;
+		this.prevPosX = 0;
+	}
+
+	#pragma region base
+	void update() {
+		// Decrease velocity over time
+		const int VEL_SPEED = 2;
+		if(this.velocity.x > 0) {
+			 this.velocity.x -= VEL_SPEED;
+		} else if(this.velocity.x < 0) { this.velocity.x += VEL_SPEED; }
+		if(this.velocity.y > 0) {
+			 this.velocity.y -= VEL_SPEED;
+		} else if(this.velocity.y < 0) { this.velocity.y += VEL_SPEED; }
+
+		this.sprite.x = this.position.x;
+		this.sprite.y = this.position.y;
+		this.sprite.update();
+
+		this.velocity.x += int(jjP.xPos-this.prevPosX);
+		this.prevPosX = jjP.xPos;
+
+		const int MAX_ANGLE = 180;
+		const int MAX_NEG_ANGLE = 90;
+		if(this.velocity.x*3 >= MAX_ANGLE)
+			this.velocity.x = MAX_ANGLE/3;
+		if(this.velocity.x*3 < -MAX_NEG_ANGLE)
+			this.velocity.x = -MAX_NEG_ANGLE/3;
+		
+		// makes the bike tilt up the faster you are
+		// #ifdef TILT_NEGATIVE
+		// this.sprite.angle = this.velocity.x*3;
+		// #else
+		// this.sprite.angle = abs(this.velocity.x)*3;
+		// #endif
+
+		/*
+		0 air
+		721 ground
+
+		702-703-712 solid going up
+		704-705-715 solid going down
+		*/
+		int tileUnder = jjTileGet(4, this.position.x/32, (this.position.y/32)+1);
+		float alpha = 0.3;
+		// jjConsole(""+tileUnder);
+		if(tileUnder == 702 || tileUnder == 703 || tileUnder == 712 || tileUnder == 700)
+			this.sprite.angle = int(lerp(float(this.sprite.angle), 90.0, alpha));
+		else if(tileUnder == 704 || tileUnder == 705 || tileUnder == 715 || tileUnder == 701)
+			this.sprite.angle = int(lerp(float(this.sprite.angle), -90.0, alpha));
+		else
+			this.sprite.angle = int(lerp(float(this.sprite.angle), 0.0, alpha));
+	}
+
+	void draw(jjCANVAS@ canvas, int clientID) {
+		int width = jjGetStringWidth(this.name, STRING::SMALL, normalTextAppearance);
+
+		canvas.drawString(
+			this.position.x-(width/2),
+			this.position.y-32,
+			this.name,
+			STRING::SMALL
+		);
+
+		this.sprite.spriteModeParam = clientID;
+		this.sprite.draw(canvas);
+	}
+
+	void _update() {
+		// Why is this in update?
+		@motorPlayers[this.name] = this;
+	}
+	#pragma endregion
+
+	#ifdef MULTIPLAYER
+
+	#pragma region packets
+
+	#pragma region recv
+	bool recvMovePacket(jjSTREAM@ stream) {
+		if(stream.getSize() != 4*4) // an int is 4 bytes, and we have 4 fields
+			return false;
+
+		// TODO validate the position and velocity by checking bounds
+		stream.pop(this.position.x);
+		stream.pop(this.position.y);
+		stream.pop(this.velocity.x);
+		stream.pop(this.velocity.y);
+
+		return true;
+	}
+	#pragma endregion
+
+	#pragma region send
+	bool sendMovePacket() {
+		uint8 type = 0;
+		jjSTREAM stream;
+		stream.push(type);
+		if(jjIsServer)
+			stream.push(this.id);
+		stream.push(this.position.x);
+		stream.push(this.position.y);
+		stream.push(this.velocity.x);
+		stream.push(this.velocity.y);
+
+		// if we're the server
+		// send to everyone except the person who moved
+		// TODO check if this actually works because the bandwidth in/out says otherwise
+		// maybe that's because our bandwidth in/out implementation doesn't check
+		// if we're excluded?
+		return sendPacket(stream, jjIsServer ? -this.id : 0);
+	}
+	#pragma endregion
+
+	#pragma endregion
+
+	#endif
+};
+
+dictionary motorPlayers = {};
+MotorPlayer@ localMotorPlayer;
+
+#ifdef MULTIPLAYER
+void sendPlayerJoinPacket(string name, int8 id, int target = 0) {
+	uint8 type = 1;
+	jjSTREAM stream;
+	stream.push(type);
+	stream.push(id);
+	stream.push(name);
+	sendPacket(stream, target);
+}
+
+void sendPlayerLeavePacket(int8 id) {
+	uint8 type = 2;
+	jjSTREAM stream;
+	stream.push(type);
+	stream.push(id);
+	sendPacket(stream);
+}
+#endif
+
+MotorPlayer@ addPlayer(string name, int8 id) {
+	MotorPlayer@ motorPlayer = MotorPlayer(id);
+	motorPlayer.name = name;
+	// jjConsole("Added player: " + name + " id: " + id);
+	if(id == jjLocalPlayers[1].clientID) {
+		// jjConsole("Found the local player! Name: " + name);
+		motorPlayer.isLocal = true;
+		@localMotorPlayer = motorPlayer;
+	}
+	motorPlayers.set(name, @motorPlayer);
+
+	#ifdef MULTIPLAYER
+	if(jjIsServer)
+		sendPlayerJoinPacket(name, id);
+	#endif
+
+	return motorPlayer;
+}
+
+MotorPlayer@ getMotorPlayerById(int8 id) {
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++) {
+		auto plr = cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]);
+		if(plr.id == id)
+			return plr;
+	}
+
+	jjConsole("getMotorPlayerById returned null!");
+	return null;
+}
+
+jjPLAYER@ getPlayerByClientID(int clientId) {
+	for(uint i = 0; i < 32; i++) {
+		if(jjPlayers[i].clientID == clientId) {
+			return jjPlayers[i];
+		}
+	}
+
+	jjConsole("getPlayerByClientID returned null!");
+	return null;
+}
+
+void removePlayer(int8 id) {
+	// jjConsole("I am a " + (jjIsServer ? "server" : "client") + ", deleting " + id);
+	
+	#ifdef MULTIPLAYER
+	if(jjIsServer)
+		sendPlayerLeavePacket(id);
+	#endif
+
+	auto motorPlayer = getMotorPlayerById(id);
+	if(@motorPlayer != null) {
+		// jjConsole("Deleted " + id + "!");
+		motorPlayers.delete(motorPlayer.name);
+	} else {
+		jjConsole("removePlayer()::motorPlayer is null! I am a " + (jjIsServer ? "server" : "client") + " ID: " + id);
+	}
+}
+
+array<bool> activePlayersArray(32, false);
+array<int8> activePlayersClientIDsArray(32, -1);
+
+void onLevelBegin() {
+	// jjConsole("Started!");
+
+	@leftKey  = getKeyById("A");
+	@rightKey = getKeyById("D");
+	@jumpKey  = getKeyById("Space");
+
+	jjAnimSets[playerAnimSet].load(
+		jjPIXELMAP("STVmotorracer_split.png"),
+		frameWidth: 64,
+		frameHeight: 64,
+		frameSpacingX: 4,
+		frameSpacingY: 0,
+		startY: 0,
+		firstAnimToOverwrite: jjAnimSets[playerAnimSet]
+	);
+
+	if(jjIsServer) {
+		addPlayer(jjLocalPlayers[1].nameUnformatted, jjLocalPlayers[1].clientID);
+    } else {
+		#ifdef MULTIPLAYER
+		uint8 id = 3;
+		jjSTREAM readyPacket;
+		readyPacket.push(id);
+		sendPacket(readyPacket);
+		#endif
+	}
+
+	// remove all abilities
+	array<CHAR::Char> characters = {CHAR::JAZZ, CHAR::SPAZ, CHAR::LORI};
+	for(uint i = 0; i < characters.length(); i++) {
+		jjCHARACTER@ character = jjCharacters[characters[i]];
+		character.airJump = AIR::NONE;
+		character.doubleJumpCountMax = 0;
+		character.groundJump = GROUND::CROUCH;
+	}
+}
+
+#ifdef MULTIPLAYER
+void onReceive(jjSTREAM &in packet, int clientID) {
+	uint8 type;
+	packet.pop(type);
+
+	bandwidthInThisSecond += packet.getSize();
+	// if(jjIsServer)
+	// 	jjConsole("Recv: " + type + " from " + clientID);
+
+	if(!jjIsServer) {
+		switch(type) {
+			// move
+			case 0: {
+				uint8 id;
+				packet.pop(id);
+				getMotorPlayerById(id).recvMovePacket(packet);
+				break;
+			}
+			// join
+			case 1: {
+				uint8 id;
+				string name;
+				packet.pop(id);
+				packet.pop(name);
+				addPlayer(name, id);
+				break;
+			}
+			// leave
+			case 2: {
+				uint8 id;
+				packet.pop(id);
+				removePlayer(id);
+				break;
+			}
+			default: {
+				jjConsole("Unknown packet with type: " + type);
+				break;
+			}
+		}
+	} else {
+		switch(type) {
+			// move
+			case 0: {
+				auto plr = getMotorPlayerById(clientID);
+				plr.recvMovePacket(packet);
+				plr.sendMovePacket();
+				break;
+			}
+			// ready
+			case 3: {
+				// send all the other players that have joined
+				for(uint i = 0; i < motorPlayers.getKeys().length(); i++) {
+					sendPlayerJoinPacket(motorPlayers.getKeys()[i], cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id, clientID);
+					cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).sendMovePacket();
+				}
+
+				auto player = getPlayerByClientID(clientID);
+				// jjConsole(player.nameUnformatted + " is ready!");
+				addPlayer(player.nameUnformatted, clientID);
+
+				break;
+			}
+			default: {
+				jjConsole("Unknown packet with type: " + type);
+				break;
+			}
+		}
+	}
+}
+#endif
+
+void onMain() {
+	if(jjKey[jjKeyChat])
+		isChatting = true;
+	if(isChatting && (jjKey[27] || jjKey[13]))
+		isChatting = false;
+
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).update();
+	
+	// TODO prevent spamming run to get a boost
+	
+	jjP.keyDown = false;
+	// jjP.keyRight = true;
+
+	#ifdef MULTIPLAYER
+	if(jjIsServer) {
+		for(uint i = 0; i < 32; i++) {
+			if(activePlayersArray[i] && !jjPlayers[i].isActive) {
+				// jjConsole(jjPlayers[i].nameUnformatted + " has left the game!");
+				// jjPlayers[i].clientID here is going to be -1 so we use this array 
+				removePlayer(activePlayersClientIDsArray[i]);
+			}
+
+			activePlayersArray[i] = jjPlayers[i].isActive;
+			activePlayersClientIDsArray[i] = jjPlayers[i].clientID;
+		}
+	}
+
+	if(jjUnixTimeSec() >= lastPKTtime+1) {
+		lastPKTtime = jjUnixTimeSec();
+		bandwidthInThisSecond = 0;
+		bandwidthOutThisSecond = 0;
+	}
+	#endif
+
+	localMotorPlayer.position.x = int(jjP.xPos);
+	localMotorPlayer.position.y = int(jjP.yPos);
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).draw(canvas, player.clientID);
+
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+	// canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
+
+	#ifdef MULTIPLAYER
+	if(@localMotorPlayer != null)
+		canvas.drawString(0, 16, "||||Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y+" -| Bandwidth IN: " + bandwidthInThisSecond);
+	
+	canvas.drawString(0, 32, "|Player count: "+motorPlayers.getKeys().length()+" -| Bandwidth OUT: " + bandwidthOutThisSecond);
+	#else
+	if(@localMotorPlayer != null)
+		canvas.drawString(0, 16, "||||Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y);
+	
+	#endif
+
+	#ifdef DEBUG_MOTORPLAYER_IDS
+	canvas.drawString(0, 48, "-- MotorPlayer ids in order --");
+	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
+		canvas.drawString(0, 60+(i*12), "|||ID: " + (cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id));
+	#endif
+	// TODO this overlaps with other debug text
+	canvas.drawString(0, 48, "|||Position: "+localMotorPlayer.position.x+", "+localMotorPlayer.position.y);
+
+	return false;
+}
+
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+	pd.sprite = false;
+	pd.name = false;
+}
+bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {
+	return true;
+}
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) {
+	return true;
+}

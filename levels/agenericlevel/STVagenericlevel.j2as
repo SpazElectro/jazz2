@@ -1,0 +1,17 @@
+const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
+#include "MLLE-Include-1.6.asc" ///@MLLE-Generated
+#pragma require "STVagenericlevel.j2l" ///@MLLE-Generated
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+void onLevelBegin() {
+	MLLE::SpawnOffgrids();
+    jjConsole("Started!");
+	
+}
+
+void onLevelReload() {
+	MLLE::SpawnOffgridsLocal();
+	
+}

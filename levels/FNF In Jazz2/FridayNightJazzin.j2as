@@ -1,0 +1,151 @@
+float noteSpeed = 2.5;
+int score = 0;
+int misses = 0;
+
+class Note
+{
+	int x;
+	int y;
+	int type;
+
+	Note(int x, int y, int type)
+	{
+		this.x = x;
+		this.y = y;
+		this.type = type;
+	}
+
+	void update()
+	{
+		this.y += noteSpeed;
+
+		if (this.y > 600)
+		{
+			this.y = 0;
+		}
+	}
+
+	void draw(jjCANVAS @canvas)
+	{
+		canvas.drawRectangle(this.x, this.y, 16, 16, 255, SPRITE::NORMAL, 0);
+	}
+}
+
+class GameKey
+{
+	int code;
+	int x;
+	int y;
+
+	GameKey(int code, int x, int y)
+	{
+		this.code = code;
+		this.x = x;
+		this.y = y;
+	}
+
+	bool checkCollisionBetweenNote(Note @note)
+	{
+		if (
+			this.x >= note.x &&
+			this.x <= note.x + 64 &&
+			this.y >= note.y &&
+			this.y <= note.y + 64)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	void update()
+	{
+		for (uint i = 0; i < notes.length(); i++)
+		{
+			Note @note = notes[i];
+
+			if (jjKey[this.code] && this.checkCollisionBetweenNote(note))
+			{
+				score += 1;
+				notes.removeAt(i);
+			}
+		}
+	}
+
+	void draw(jjCANVAS @canvas)
+	{
+		canvas.drawRectangle(this.x, this.y, 32, 32, 15, SPRITE::NORMAL, 0);
+	}
+}
+
+array<Note @>
+	notes;
+array<GameKey @> keys;
+
+jjRNG @mainRNG = jjRNG();
+
+int rand(int min, int max)
+{
+	int num = mainRNG();
+	if (num < 0)
+		num *= -1;
+
+	num = (num % (max - min + 1)) + min;
+	return num;
+}
+
+void onLevelBegin()
+{
+	for (uint i = 0; i < 500; i++)
+	{
+		int xPos;
+		int rndPos = rand(1, 4);
+
+		if (rndPos == 1)
+			xPos = 108;
+		if (rndPos == 2)
+			xPos = 144;
+		if (rndPos == 3)
+			xPos = 180;
+		if (rndPos == 4)
+			xPos = 216;
+
+		notes.insertLast(Note(xPos, rand(-5000, 0), 0));
+	}
+
+	keys.insertLast(GameKey(0x44, 108, 400)); // d
+	keys.insertLast(GameKey(0x46, 144, 400)); // f
+	keys.insertLast(GameKey(0x4A, 180, 400)); // j
+	keys.insertLast(GameKey(0x4B, 216, 400)); // k
+
+	jjConsole("onLevelBegin");
+}
+
+void onMain()
+{
+	for (uint i = 0; i < notes.length(); i++)
+	{
+		notes[i].update();
+	}
+
+	for (uint i = 0; i < keys.length(); i++)
+	{
+		keys[i].update();
+	}
+}
+
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
+{
+	for (uint i = 0; i < notes.length(); i++)
+	{
+		notes[i].draw(canvas);
+	}
+
+	for (uint i = 0; i < keys.length(); i++)
+	{
+		keys[i].draw(canvas);
+	}
+
+	canvas.drawString(jjResolutionWidth / 2 - 50, 550, "Score: " + score, STRING::MEDIUM, STRING::NORMAL, 0);
+
+	return false;
+}

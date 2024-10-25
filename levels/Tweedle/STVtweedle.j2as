@@ -1,0 +1,425 @@
+funcdef void TimerVDictionaryFunction(dictionary @);
+class TimerV : jjBEHAVIORINTERFACE
+{
+    TimerV(int time, jjVOIDFUNC @callback)
+    {
+        @_callback = @callback;
+        _start(time);
+    }
+    TimerV(int time, TimerVDictionaryFunction @callback, dictionary @arguments)
+    {
+        @_callbackWithArguments = @callback;
+        @_arguments = @arguments;
+        _start(time);
+    }
+    bool get_Active() const
+    {
+        return cast<jjBEHAVIORINTERFACE @>(_object.behavior) is this;
+    }
+    int get_Elapsed() const
+    {
+        if (Active)
+            return _object.age;
+        return -1;
+    }
+    int get_Total() const
+    {
+        if (Active)
+            return _object.counter;
+        return -1;
+    }
+    int get_Remaining() const
+    {
+        if (Active)
+            return _object.counter - _object.age;
+        return -1;
+    }
+    bool Stop()
+    {
+        if (Active && _object.age < _object.counter)
+        {
+            _object.delete();
+            return true;
+        }
+        return false;
+    }
+    bool Paused = false;
+
+private
+    jjVOIDFUNC @_callback = null;
+private
+    TimerVDictionaryFunction @_callbackWithArguments;
+private
+    dictionary @_arguments;
+private
+    jjOBJ @_object;
+private
+    int _startTime;
+private
+    void _start(int time)
+    {
+        if (time > 0)
+        {
+            @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
+            _object.behavior = this;
+            _object.counter = time;
+            _object.age = 0;
+            _object.playerHandling = HANDLING::PARTICLE;
+            _object.deactivates = false;
+            _startTime = jjGameTicks;
+        }
+        else
+        {
+            @_object = jjObjects[0]; // avoid null pointer access
+            _pickCallback();
+        }
+    }
+private
+    void onBehave(jjOBJ @obj)
+    {
+        if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter)
+        {
+            _pickCallback();
+            _object.delete();
+        }
+    }
+private
+    void _pickCallback()
+    {
+        if (_callback !is null)
+            _callback();
+        else
+            _callbackWithArguments(_arguments);
+    }
+}
+
+class AnimatedSprite
+{
+    int id;
+    float frame;
+    int frame_count;
+    int x;
+    int y;
+    int8 direction;
+    float anim_speed;
+    bool can_reverse;
+    bool reverse = false;
+    bool visible = true;
+    ANIM::Set animSet = ANIM::AMMO;
+
+    AnimatedSprite(int id, int frame, int frame_count, int x, int y, float anim_speed, bool can_reverse)
+    {
+        this.id = id;
+        this.frame = frame;
+        this.frame_count = frame_count;
+        this.x = x;
+        this.y = y;
+        this.anim_speed = anim_speed;
+        this.can_reverse = can_reverse;
+    }
+
+    void setVisible(bool visible)
+    {
+        this.visible = visible;
+    }
+
+    void setAnimSet(ANIM::Set animSet)
+    {
+        this.animSet = animSet;
+    }
+
+    void setId(int id)
+    {
+        this.id = id;
+    }
+
+    void setFrame(int frame)
+    {
+        this.frame = frame;
+    }
+
+    void setFrameCount(int frame_count)
+    {
+        this.frame_count = frame_count;
+    }
+
+    void update()
+    {
+        if (this.reverse == false)
+        {
+            this.frame += this.anim_speed;
+        }
+        else
+        {
+            this.frame -= this.anim_speed;
+        }
+
+        if (this.frame > this.frame_count)
+        {
+            if (this.can_reverse == true)
+            {
+                this.reverse = not this.reverse;
+            }
+            else
+            {
+                this.frame = 0;
+            }
+        }
+
+        if (this.frame <= 0)
+        {
+            if (this.can_reverse == true)
+            {
+                this.reverse = not this.reverse;
+            }
+            else
+            {
+                this.frame = 0;
+            }
+        }
+    }
+
+    void draw(jjCANVAS @canvas)
+    {
+        if (this.visible)
+        {
+            canvas.drawSprite(this.x, this.y, this.animSet, this.id, int(this.frame), this.direction, SPRITE::NORMAL, 123);
+        }
+    }
+}
+
+// TODO use stvutil
+
+jjRNG mainRNG = jjRNG();
+
+jjOBJ @tweedle;
+jjOBJ @tweedle2;
+
+AnimatedSprite @tweedleSprite = AnimatedSprite(6, 0, 10, 0, 0, 0.15, false);
+AnimatedSprite @tweedle2Sprite = AnimatedSprite(6, 0, 10, 0, 0, 0.15, false);
+
+int tweedleState = 0;
+int tweedle2State = 0;
+int tweedleLastEnergy = -1;
+int tweedle2LastEnergy = -1;
+
+int getRandom(int min, int max)
+{
+    int num = mainRNG();
+
+    if (num < 0)
+        num *= -1;
+
+    num = (num % (max - min + 1)) + min;
+
+    return num;
+}
+
+void onLevelBegin()
+{
+    tweedleSprite.setAnimSet(ANIM::TWEEDLE);
+    tweedle2Sprite.setAnimSet(ANIM::TWEEDLE);
+
+    jjConsole("[PT] Tweedle is here!");
+
+    for (int i = 1; i < jjObjectCount; i++)
+    {
+        jjOBJ @o = jjObjects[i];
+
+        if (o.isActive && o.eventID == OBJECT::TWEEDLEBOSS)
+        {
+            @tweedle = @o;
+            tweedleLastEnergy = tweedle.energy;
+        }
+
+        if (o.isActive && o.eventID == OBJECT::TWEEDLEBOSS && tweedle2 == @null)
+        {
+            @tweedle2 = @o;
+            tweedle2LastEnergy = tweedle2.energy;
+        }
+    }
+
+    tweedleState = 5;
+
+    TimerV(
+        1 * 70, function() {
+            tweedleState = 3;
+        });
+
+    TimerV(
+        2 * 70, function() {
+            tweedleState = 6;
+        });
+
+    TimerV(
+        2.9 * 70, function() {
+            tweedleState = 0;
+        });
+}
+
+void onMain()
+{
+    mainRNG.seed(jjGameTicks + jjUnixTimeMs() + jjUnixTimeSec());
+
+    tweedleSprite.update();
+    tweedle2Sprite.update();
+
+    int hurtTick = 0;
+    bool newTweedleFound = false;
+    bool newTweedle2Found = false;
+
+    for (int i = 1; i < jjObjectCount; i++)
+    {
+        jjOBJ @o = jjObjects[i];
+
+        if (o.isActive && o.eventID == OBJECT::TWEEDLEBOSS)
+        {
+            @tweedle = @o;
+            newTweedleFound = true;
+
+            if (o.energy != tweedleLastEnergy)
+            {
+                tweedleLastEnergy = o.energy;
+                tweedleState = 2;
+                hurtTick = jjGameTicks;
+            }
+
+            if (o.energy != tweedleLastEnergy && tweedleState == 2)
+            {
+                // hey! let him have some time to recover
+                o.energy = tweedleLastEnergy;
+            }
+        }
+
+        if (o.isActive && o.eventID == OBJECT::TWEEDLEBOSS && @tweedle2 == @null)
+        {
+            @tweedle2 = @o;
+            newTweedle2Found = true;
+
+            if (o.energy != tweedle2LastEnergy)
+            {
+                tweedle2LastEnergy = o.energy;
+                tweedle2State = 2;
+                hurtTick = jjGameTicks;
+            }
+
+            if (o.energy != tweedle2LastEnergy && tweedle2State == 2)
+            {
+                // hey! let him have some time to recover
+                o.energy = tweedle2LastEnergy;
+            }
+        }
+    }
+
+    if (newTweedleFound == false)
+    {
+        @tweedle = @null;
+    }
+    else if (newTweedleFound == true)
+    {
+        if (tweedleSprite.x >= jjLocalPlayers[0].xPos)
+        {
+            tweedleSprite.direction = SPRITE::FLIPH;
+        }
+        else
+        {
+            tweedleSprite.direction = SPRITE::FLIPNONE;
+        }
+    }
+
+    if (newTweedle2Found == false)
+    {
+        @tweedle2 = @null;
+    }
+    else if (newTweedle2Found == true)
+    {
+        if (tweedle2Sprite.x >= jjLocalPlayers[0].xPos)
+        {
+            tweedle2Sprite.direction = SPRITE::FLIPH;
+        }
+        else
+        {
+            tweedle2Sprite.direction = SPRITE::FLIPNONE;
+        }
+    }
+
+    if (jjGameTicks != hurtTick && tweedleState == 2 && tweedleSprite.frame == 0)
+    {
+        tweedleState = 0;
+    }
+
+    if (tweedleState != 7 && tweedleState != 5 && tweedleState != 3 && tweedleState != 6)
+    {
+        int gr = getRandom(0, 100);
+
+        if (gr == 50)
+        {
+            tweedleState = 7;
+
+            TimerV(
+                5 * 70, function() {
+                    tweedleState = 0;
+                });
+        }
+    }
+
+    // tweedleState = 1 || 4
+}
+
+void onDrawLayer4(jjPLAYER @player, jjCANVAS @canvas)
+{
+    if (@tweedle != @null)
+    {
+        tweedleSprite.x = int(tweedle.xPos);
+        tweedleSprite.y = int(tweedle.yPos - 13);
+
+        switch (tweedleState)
+        {
+        case 0:
+            tweedleSprite.setId(6);
+            tweedleSprite.setFrameCount(10);
+            break;
+        case 1:
+            if (jjLocalPlayers[0].charCurr == CHAR::JAZZ)
+            {
+                tweedleSprite.setId(3);
+            }
+            else
+            {
+                // lori support
+                tweedleSprite.setId(4);
+            }
+            tweedleSprite.setFrameCount(12);
+            break;
+        case 2:
+            tweedleSprite.setId(5);
+            tweedleSprite.setFrameCount(9);
+            break;
+        case 3:
+            tweedleSprite.setId(7);
+            tweedleSprite.setFrameCount(4);
+            break;
+        case 4:
+            tweedleSprite.setId(1);
+            tweedleSprite.setFrameCount(11);
+            break;
+        case 5:
+            tweedleSprite.setId(0);
+            tweedleSprite.setFrameCount(10);
+            break;
+        case 6:
+            tweedleSprite.setId(2);
+            tweedleSprite.setFrameCount(3);
+            break;
+        case 7:
+            tweedleSprite.setId(8);
+            tweedleSprite.setFrameCount(10);
+            break;
+        default:
+            tweedleState = 0;
+            break;
+        }
+
+        tweedleSprite.draw(canvas);
+    }
+}

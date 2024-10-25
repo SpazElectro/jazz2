@@ -1,0 +1,459 @@
+funcdef void TimerVDictionaryFunction(dictionary @);
+class TimerV : jjBEHAVIORINTERFACE
+{
+    TimerV(int time, jjVOIDFUNC @callback)
+    {
+        @_callback = @callback;
+        _start(time);
+    }
+    TimerV(int time, TimerVDictionaryFunction @callback, dictionary @arguments)
+    {
+        @_callbackWithArguments = @callback;
+        @_arguments = @arguments;
+        _start(time);
+    }
+    bool get_Active() const
+    {
+        return cast<jjBEHAVIORINTERFACE @>(_object.behavior) is this;
+    }
+    int get_Elapsed() const
+    {
+        if (Active)
+            return _object.age;
+        return -1;
+    }
+    int get_Total() const
+    {
+        if (Active)
+            return _object.counter;
+        return -1;
+    }
+    int get_Remaining() const
+    {
+        if (Active)
+            return _object.counter - _object.age;
+        return -1;
+    }
+    bool Stop()
+    {
+        if (Active && _object.age < _object.counter)
+        {
+            _object.delete();
+            return true;
+        }
+        return false;
+    }
+    bool Paused = false;
+
+private
+    jjVOIDFUNC @_callback = null;
+private
+    TimerVDictionaryFunction @_callbackWithArguments;
+private
+    dictionary @_arguments;
+private
+    jjOBJ @_object;
+private
+    int _startTime;
+private
+    void _start(int time)
+    {
+        if (time > 0)
+        {
+            @_object = jjObjects[jjAddObject(OBJECT::BEES, -1000, -1000, 0, CREATOR::OBJECT, BEHAVIOR::BEES)];
+            _object.behavior = this;
+            _object.counter = time;
+            _object.age = 0;
+            _object.playerHandling = HANDLING::PARTICLE;
+            _object.deactivates = false;
+            _startTime = jjGameTicks;
+        }
+        else
+        {
+            @_object = jjObjects[0]; // avoid null pointer access
+            _pickCallback();
+        }
+    }
+private
+    void onBehave(jjOBJ @obj)
+    {
+        if (!Paused && jjGameTicks > _startTime && obj is _object && ++_object.age >= _object.counter)
+        {
+            _pickCallback();
+            _object.delete();
+        }
+    }
+private
+    void _pickCallback()
+    {
+        if (_callback !is null)
+            _callback();
+        else
+            _callbackWithArguments(_arguments);
+    }
+}
+
+// TODO auto saving
+
+enum PACKET_TYPES { BUY_HOUSE,
+                    OPEN_DOOR,
+                    CLOSE_DOOR }
+
+class Vector2
+{
+    float x;
+    float y;
+
+    Vector2(float x, float y)
+    {
+        this.x = x * 32;
+        this.y = y * 32;
+    }
+}
+
+class Room
+{
+    int price = 600;
+    uint roomId = 0;
+    Vector2 @insidePosition;
+    Vector2 @outsidePosition;
+    bool doorOpened = false;
+    string owner;
+
+    Room(int price, Vector2 @entrance, Vector2 @outside)
+    {
+        this.price = price;
+        this.roomId = rooms.length();
+        @ this.insidePosition = @entrance;
+        @ this.outsidePosition = @outside;
+    }
+
+    void openDoor()
+    {
+        doorOpened = true;
+
+        jjSTREAM packet;
+        packet.push(uint8(OPEN_DOOR));
+        packet.push(roomId);
+
+        jjSendPacket(packet);
+    }
+
+    void closeDoor()
+    {
+        doorOpened = false;
+
+        jjSTREAM packet;
+        packet.push(uint8(CLOSE_DOOR));
+        packet.push(roomId);
+
+        jjSendPacket(packet);
+    }
+
+    void buy()
+    {
+        for (uint i = 0; i < rooms.length(); i++)
+        {
+            if (rooms[i].owner == jjLocalPlayers[0].nameUnformatted)
+            {
+                return;
+            }
+        }
+
+        if (cash >= price)
+        {
+            cash -= price;
+            owner = jjLocalPlayers[0].nameUnformatted;
+
+            jjSTREAM packet;
+            packet.push(uint8(BUY_HOUSE));
+            packet.push(roomId);
+
+            jjConsole("" + roomId);
+
+            jjSendPacket(packet);
+        }
+    }
+
+    void sell()
+    {
+        if (owner == jjLocalPlayers[0].nameUnformatted)
+        {
+            cash += price;
+            owner = "";
+        }
+    }
+}
+
+array<Room @>
+    rooms;
+
+float cash = 0;
+
+int roomIndex = 0;
+
+bool insideRoom = false;
+
+bool showPrice = false;
+bool uparrow = false;
+bool upArrowDebounce = false;
+
+void log(string s, bool sendToAll = false)
+{
+    jjConsole("[SpazLife] " + s, sendToAll);
+}
+
+void onLevelBegin()
+{
+    log("Creating rooms...");
+
+    rooms.insertLast(Room(600, Vector2(125, 18), Vector2(22, 57)));
+    rooms.insertLast(Room(600, Vector2(163, 18), Vector2(58, 62)));
+
+    uint roomsLength;
+
+    jjSTREAM roomData("SpazLife_rooms.asdat");
+    roomData.pop(roomsLength);
+
+    for (uint i = 0; i < roomsLength; i++)
+    {
+        string owner;
+        roomData.pop(owner);
+
+        // rooms[i].owner = "";
+        rooms[i].owner = owner;
+    }
+
+    log("Finished creating rooms!");
+    log("Loading data...");
+
+    float _playerx = 0;
+    float _playery = 0;
+
+    jjPLAYER @player = jjLocalPlayers[0];
+
+    jjSTREAM file(player.nameUnformatted + "_SpazLife_data.asdat");
+    file.pop(cash);
+    file.pop(_playerx);
+    file.pop(_playery);
+    file.pop(insideRoom);
+
+    player.xPos = _playerx;
+    player.yPos = _playery;
+
+    log("Loaded data.");
+}
+
+void save()
+{
+    log("Saving...");
+
+    jjPLAYER @player = jjLocalPlayers[0];
+
+    jjSTREAM file;
+    file.push(cash);
+    file.push(player.xPos);
+    file.push(player.yPos);
+    file.push(insideRoom);
+    file.save(player.nameUnformatted + "_SpazLife_data.asdat");
+
+    log("Saving rooms...");
+
+    jjSTREAM roomData;
+    roomData.push(rooms.length);
+
+    for (int i = 0; i < rooms.length(); i++)
+    {
+        roomData.push(rooms[i].owner);
+    }
+
+    roomData.save("SpazLife_rooms.asdat");
+
+    log("Saved!");
+}
+
+void onPlayerInput(jjPLAYER @player)
+{
+    if (jjKey[0x26] && uparrow == true && upArrowDebounce == false)
+    {
+        if (rooms[roomIndex].owner != "")
+        {
+            if (insideRoom == false)
+            {
+                player.xPos = rooms[roomIndex].insidePosition.x;
+                player.yPos = rooms[roomIndex].insidePosition.y;
+            }
+            else
+            {
+                player.xPos = rooms[roomIndex].outsidePosition.x;
+                player.yPos = rooms[roomIndex].outsidePosition.y;
+            }
+
+            insideRoom = !insideRoom;
+            uparrow = false;
+            showPrice = false;
+            upArrowDebounce = true;
+
+            TimerV(
+                150, function() {
+                    upArrowDebounce = false;
+                });
+        }
+        else
+        {
+            rooms[roomIndex].buy();
+        }
+    }
+
+    // test debug code
+    if (jjKey[0x45])
+    {
+        cash += 50;
+    }
+}
+
+string erase(string str, int start, int end)
+{
+    string _str = str;
+    _str.erase(start, end);
+
+    return _str;
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType)
+{
+    if (stringReceived == "!save")
+    {
+        save();
+
+        return true;
+    }
+
+    if (erase(stringReceived, 5, 99) == "!open")
+    {
+        int input = parseInt(erase(stringReceived, 0, 6));
+
+        if (input != 0 && rooms[input - 1] != null)
+        {
+            if (rooms[input - 1].owner == jjLocalPlayers[0].nameUnformatted)
+            {
+                jjConsole("Your door has been unlocked.");
+
+                rooms[input - 1].openDoor();
+
+                return true;
+            }
+        }
+    }
+
+    if (erase(stringReceived, 6, 99) == "!close")
+    {
+        int input = parseInt(erase(stringReceived, 0, 6));
+
+        if (input != 0 && rooms[input - 1] != null)
+        {
+            if (rooms[input - 1].owner == jjLocalPlayers[0].nameUnformatted)
+            {
+                jjConsole("Your door has been locked.");
+
+                rooms[input - 1].closeDoor();
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+void onDrawLayer4(jjPLAYER @player, jjCANVAS @canvas)
+{
+    if (uparrow)
+    {
+        canvas.drawTile(player.xPos - 5, player.yPos - 80, 2813, TILE::ALLQUADRANTS);
+    }
+
+    if (showPrice)
+    {
+        if (rooms[roomIndex].owner == "")
+        {
+            canvas.drawString(player.xPos - 25, player.yPos - 95, "$" + rooms[roomIndex].price, STRING::MEDIUM, STRING::NORMAL);
+        }
+        else
+        {
+            canvas.drawString(player.xPos - 125, player.yPos - 95, "Owned by " + rooms[roomIndex].owner, STRING::MEDIUM, STRING::NORMAL);
+        }
+    }
+
+    canvas.drawString(player.xPos - 35, player.yPos - 45, "|Cash: " + cash, STRING::SMALL, STRING::NORMAL, 0);
+}
+
+void onFunction1(jjPLAYER @player, int8 param)
+{
+    roomIndex = param - 1;
+
+    if (rooms[roomIndex].owner == "" or rooms[roomIndex].owner == player.nameUnformatted or rooms[roomIndex].doorOpened)
+    {
+        uparrow = true;
+    }
+    else
+    {
+        uparrow = false;
+    }
+
+    showPrice = true;
+}
+
+void onFunction2(jjPLAYER @player)
+{
+    roomIndex = 0;
+    uparrow = false;
+    showPrice = false;
+}
+
+void onFunction3(jjPLAYER @player, int8 param)
+{
+    roomIndex = param - 1;
+    uparrow = true;
+    showPrice = false;
+}
+
+void onReceive(jjSTREAM &in packet, int fromClientID)
+{
+    uint8 type;
+    packet.pop(type);
+
+    if (type == BUY_HOUSE)
+    {
+        for (uint i = 0; i < rooms.length(); i++)
+        {
+            if (rooms[i].owner == jjPlayers[fromClientID].nameUnformatted)
+            {
+                return;
+            }
+        }
+
+        uint8 roomId;
+        packet.pop(roomId);
+
+        jjConsole("" + type + " # " + fromClientID + " # " + roomId);
+
+        rooms[roomId].owner = jjPlayers[fromClientID].nameUnformatted;
+    }
+
+    if (type == OPEN_DOOR)
+    {
+        uint8 roomId;
+        packet.pop(roomId);
+
+        rooms[roomId].openDoor();
+    }
+
+    if (type == CLOSE_DOOR)
+    {
+        uint8 roomId;
+        packet.pop(roomId);
+
+        rooms[roomId].closeDoor();
+    }
+}

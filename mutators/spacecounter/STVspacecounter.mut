@@ -1,0 +1,50 @@
+#pragma name "spacecounter"
+#pragma require "STVutil.asc"
+
+#include "scripts\STVutil.asc"
+
+// this is such an epic thing // gaming
+int counter = 0;
+
+void onLevelBegin() {
+    jjConsole("Started!");
+    
+    keyPressCallbacks.insertLast(function(key) {
+        if(key == 0x20) {
+            counter++;
+        } else if(key == 0x60) {
+            counter = 0;
+        }
+    });
+}
+
+void onMain() {
+    updateKeys();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawString(10, 580, counter + " presses", STRING::MEDIUM);
+    return false;
+}
+
+// This is a description of welcomeUser
+void welcomeUser(jjPLAYER@ user) {
+    jjCHARACTER@ character = jjCharacters[CHAR::JAZZ]
+    // This is a description of a variable named testvar
+    int testvar = 2;
+    
+    character.groundJump = GROUND::JAZZ;
+    character.groundJump = GROUND::JUMP;
+    character.canRun = false;
+
+    // @force-autocomplete-class jjPLAYER
+
+    // @force-autocomplete-enum AREA::Area
+
+    jjCharacters[CHAR::JAZZ].
+    jjPlayers[0].
+    
+}
+
+
+

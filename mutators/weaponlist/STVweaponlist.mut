@@ -1,0 +1,1552 @@
+#pragma name "Weapon List"
+
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+funcdef void ButtonCallback(Button @);
+class Button
+{
+    MenuButton @mainButton;
+    int horizontalId = 0;
+    int xOffset = 0;
+    int yOffset = 0;
+    string hoverText;
+    bool debounce = false;
+    bool value = false;
+    bool visible = true;
+    ButtonCallback @callback;
+
+    Button(int horizontalId, ButtonCallback @callback)
+    {
+        this.horizontalId = horizontalId;
+        @ this.callback = @callback;
+    }
+
+    void setValue(bool value)
+    {
+        this.value = value;
+    }
+
+    bool checkCollision(
+        int sourceX, int sourceY, int sourceWidth, int sourceHeight,
+        int targetX, int targetY, int targetWidth, int targetHeight)
+    {
+        if (sourceX + sourceWidth > targetX && sourceX < targetX + targetWidth && sourceY + sourceHeight > targetY && sourceY < targetY + targetHeight)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void input(jjPLAYER @player)
+    {
+        if (jjKey[0x1] && this.debounce == false)
+        {
+            if (checkCollision(
+                    jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset,
+                    jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset,
+                    50, 50,
+                    jjMouseX, jjMouseY,
+                    1, 1))
+            {
+                this.debounce = true;
+                dictionary dict = {{"main", @ this}};
+
+                this.callback(this);
+
+                TimerV(
+                    10, function(this) {
+                        Button @t;
+                        this.get("main", @t);
+                        t.debounce = false;
+                    },
+                    dict);
+            }
+        }
+    }
+
+    void draw(jjCANVAS @canvas)
+    {
+        if (this.visible)
+        {
+            canvas.drawRectangle(jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset, 25, 25, 0, SPRITE::NORMAL, 0);
+            canvas.drawRectangle(jjResolutionWidth / 2 + 6 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 159 + ((this.mainButton.id + 1) * 50) + yOffset, 12, 12, getColorValue(this.value), SPRITE::NORMAL, 0);
+
+            if (checkCollision(
+                    jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset,
+                    jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset,
+                    50, 50,
+                    jjMouseX, jjMouseY,
+                    1, 1) && this.hoverText != "")
+            {
+                canvas.drawString(jjResolutionWidth / 2 + 100 + (horizontalId * 50) + xOffset, jjResolutionHeight / 2 - 165 + ((this.mainButton.id + 1) * 50) + yOffset, this.hoverText, STRING::SMALL, STRING::NORMAL, 0);
+            }
+        }
+    }
+}
+
+class MenuButton
+{
+    string text;
+    int x;
+    int y;
+    int width;
+    int height;
+    int id;
+    int xOffset;
+    int yOffset;
+    bool debounce;
+    bool visible = true;
+    bool showText = true;
+    string size = "medium";
+    array<Button @> buttons;
+
+    MenuButton(string text, int id, array<Button @> buttons)
+    {
+        this.text = text;
+        this.id = id;
+        this.buttons = buttons;
+
+        for (uint i = 0; i < this.buttons.length(); i++)
+        {
+            @ this.buttons[i].mainButton = @ this;
+        }
+    }
+
+    MenuButton(string text, int id, Button @button)
+    {
+        this.text = text;
+        this.id = id;
+        this.buttons = buttons;
+        this.buttons.insertLast(button);
+        @ this.buttons[0].mainButton = @ this;
+    }
+
+    void draw(jjCANVAS @canvas)
+    {
+        if (visible and showMenu)
+        {
+            for (uint i = 0; i < this.buttons.length(); i++)
+            {
+                this.buttons[i].draw(canvas);
+            }
+
+            if (this.showText)
+                canvas.drawString(jjResolutionWidth / 2 - 275 + this.xOffset, jjResolutionHeight / 2 - 150 + ((this.id + 1) * 50) + this.yOffset, this.text, parseSize(this.size), STRING::NORMAL, 0);
+        }
+    }
+
+    void input(jjPLAYER @player)
+    {
+        if (visible and showMenu)
+        {
+            for (uint i = 0; i < this.buttons.length(); i++)
+            {
+                this.buttons[i].input(player);
+            }
+        }
+    }
+}
+
+int menu_page = 1;
+
+MenuButton @getButton(int index) { return menu_buttons[index]; }
+
+array<Button @> indexFontSizes = {Button(
+                                      1, function(button) {
+                                          button.setValue(true);
+                                          button.mainButton.buttons[1].setValue(false);
+                                          index_fontsize = "small";
+                                          save();
+                                      }),
+                                  Button(
+                                      2, function(button) {
+                                          button.setValue(true);
+                                          button.mainButton.buttons[0].setValue(false);
+                                          index_fontsize = "medium";
+                                          save();
+                                      })};
+
+array<Button @> ammoFontSizes = {Button(
+                                     1, function(button) {
+                                         button.mainButton.buttons[1].setValue(false);
+                                         button.setValue(true);
+                                         ammo_fontsize = "small";
+                                         save();
+                                     }),
+                                 Button(
+                                     2, function(button) {
+                                         button.mainButton.buttons[0].setValue(false);
+                                         button.setValue(true);
+                                         ammo_fontsize = "medium";
+                                         save();
+                                     })};
+
+array<Button @> pageButtons = {Button(
+                                   1, function(button) {
+                                       button.setValue(true);
+                                       button.mainButton.buttons[1].setValue(false);
+
+                                       menu_page = 1;
+
+                                       getButton(1).visible = true;
+                                       getButton(2).visible = true;
+                                       getButton(3).visible = true;
+                                       getButton(4).visible = true;
+                                       getButton(5).visible = true;
+                                       getButton(6).visible = true;
+                                       getButton(7).visible = false;
+                                       getButton(8).visible = false;
+                                       getButton(9).visible = false;
+                                       getButton(10).visible = false;
+                                       // getButton(11).visible = false;
+                                   }),
+                               Button(
+                                   2, function(button) {
+                                       button.setValue(true);
+                                       button.mainButton.buttons[0].setValue(false);
+
+                                       menu_page = 2;
+
+                                       getButton(1).visible = false;
+                                       getButton(2).visible = false;
+                                       getButton(3).visible = false;
+                                       getButton(4).visible = false;
+                                       getButton(5).visible = false;
+                                       getButton(6).visible = false;
+                                       getButton(7).visible = true;
+                                       getButton(8).visible = true;
+                                       getButton(9).visible = true;
+                                       getButton(10).visible = true;
+                                    //    getButton(11).visible = true;
+                                   })};
+
+array<Button @> bindModes = {Button(
+                                 1, function(button) {
+                                     button.setValue(true);
+                                     button.mainButton.buttons[1].setValue(false);
+                                     mode = "toggle";
+                                     show = true;
+
+                                     save();
+                                 }),
+                             Button(
+                                 2, function(button) {
+                                     button.setValue(true);
+                                     button.mainButton.buttons[0].setValue(false);
+                                     mode = "hold";
+
+                                     save();
+                                 })};
+
+array<Button @> positions = {Button(
+    1, function(button) {
+        button.setValue(false);
+
+        string direction;
+
+        if (not horizontal and not horizontal2)
+        {
+            horizontal = true;
+            horizontal2 = false;
+            direction = "bottom";
+        }
+        else if (horizontal and not horizontal2)
+        {
+            horizontal = false;
+            horizontal2 = true;
+            direction = "left";
+        }
+        else if (not horizontal and horizontal2)
+        {
+            horizontal = true;
+            horizontal2 = true;
+            direction = "top";
+        }
+        else if (horizontal and horizontal2)
+        {
+            horizontal = false;
+            horizontal2 = false;
+            direction = "right";
+        }
+
+        jjConsole("[WL] The weapons' list is now at the " + direction + " of your screen.");
+
+        save();
+    })};
+
+array<Button @> colorUpgradedButtons = {Button(
+                                            1, function(button) {
+                                                button.setValue(not button.value);
+                                                color_upgraded_ammo = not color_upgraded_ammo;
+                                                save();
+                                            }),
+                                        Button(
+                                            2, function(button) {
+                                                button.setValue(not button.value);
+                                                color_upgraded_index = not color_upgraded_index;
+                                                save();
+                                            })};
+
+array<MenuButton @> menu_buttons = {
+    MenuButton("Page", -1, pageButtons),
+    MenuButton("Show Index", 1, Button(
+                                    1, function(button) {
+                                        button.setValue(not button.value);
+                                        showIndex = not showIndex;
+                                        save();
+                                    })),
+    MenuButton("Position", 0, positions), MenuButton("Color Index", 2, Button(
+                                                                           1, function(button) {
+                                                                               button.setValue(not button.value);
+                                                                               index_color = not index_color;
+                                                                               save();
+                                                                           })),
+    MenuButton("Color Ammo", 3, Button(
+                                    1, function(button) {
+                                        button.setValue(not button.value);
+                                        ammo_color = not ammo_color;
+                                        save();
+                                    })),
+    MenuButton("Show Empty Ammo", 4, Button(
+                                         1, function(button) {
+                                             button.setValue(not button.value);
+                                             show_empty_ammo = not show_empty_ammo;
+                                             save();
+                                         })),
+    MenuButton("Index font size", 5, indexFontSizes), MenuButton("Ammo font size", 0, ammoFontSizes), MenuButton("Bind Mode", 1, bindModes), MenuButton("Bind Key", 2, Button(
+                                                                                                                                                                           1, function(button) {
+                                                                                                                                                                               getButton(9).buttons[0].setValue(false);
+                                                                                                                                                                               binding = true;
+                                                                                                                                                                               showMenu = false;
+                                                                                                                                                                           })),
+    // @ignore-semicolons
+    MenuButton("Color On Upgrade", 3, colorUpgradedButtons)
+    // unfinished profiles // dont forget to remove the comma ^
+//     MenuButton("Profiles", 5, Button(
+// 1, function(button) {
+//     jjConsole("OOOOOOOOOOO");
+
+//     button.setValue(false);
+
+//     for (uint i = 0; i < menu_buttons.length(); i++)
+//     {
+//         getButton(i).visible = false;
+//     }
+
+//     menu_buttons.insertLast(MenuButton("Back", -1, Button( 1, function(button) {
+//         button.debounce = false;
+
+//         getButton(0).visible = true;
+//         getButton(0).buttons[0].debounce = true;
+
+//         TimerV(
+//             35, function() {
+//                 getButton(0).buttons[0].debounce = false;
+//             });
+
+//         menu_buttons[12].buttons[0].visible = false;
+
+//         for (uint i = 7; i < menu_buttons.length(); i++)
+//         {
+//             getButton(i).visible = true;
+//         }
+
+//         menu_buttons.resize(12);
+
+//         save();
+
+//         jjSTREAM file(profile + "_" + data_filename);
+//         file.pop(mode);
+//         file.pop(showIndex);
+//         file.pop(horizontal);
+//         file.pop(index_color);
+//         file.pop(ammo_color);
+//         file.pop(show_empty_ammo);
+//         file.pop(bind_open);
+//         file.pop(index_fontsize);
+//         file.pop(ammo_fontsize);
+//         file.pop(horizontal2);
+//         file.pop(color_upgraded_ammo);
+//         file.pop(color_upgraded_index);
+
+//         menu_buttons[0].buttons[0].setValue(false);
+//         menu_buttons[1].buttons[0].setValue(showIndex);
+//         menu_buttons[2].buttons[0].setValue(false);
+//         menu_buttons[3].buttons[0].setValue(index_color);
+//         menu_buttons[4].buttons[0].setValue(ammo_color);
+//         menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+
+//         if (index_fontsize == "small")
+//         {
+//             menu_buttons[6].buttons[0].setValue(true);
+//             menu_buttons[6].buttons[1].setValue(false);
+//         }
+//         else
+//         {
+//             menu_buttons[6].buttons[0].setValue(false);
+//             menu_buttons[6].buttons[1].setValue(true);
+//         }
+
+//         if (ammo_fontsize == "small")
+//         {
+//             menu_buttons[7].buttons[0].setValue(true);
+//             menu_buttons[7].buttons[1].setValue(false);
+//         }
+//         else
+//         {
+//             menu_buttons[7].buttons[0].setValue(false);
+//             menu_buttons[7].buttons[1].setValue(true);
+//         }
+
+//         if (mode == "toggle")
+//         {
+//             menu_buttons[8].buttons[0].setValue(true);
+//             menu_buttons[8].buttons[1].setValue(false);
+//         }
+//         else
+//         {
+//             menu_buttons[8].buttons[0].setValue(false);
+//             menu_buttons[8].buttons[1].setValue(true);
+//         }
+//     })));
+
+//     menu_buttons.insertLast(MenuButton("(create a new profile by doing !wl newprofile)", 5, Button(99, function(button){})));
+//     menu_buttons[12].size = "small";
+//     menu_buttons[12].buttons[0].visible = true;
+//     menu_buttons[12].xOffset = -10;
+//     menu_buttons[12].yOffset = 20;
+//     menu_buttons[12].buttons[0].xOffset = -10;
+//     menu_buttons[12].buttons[0].yOffset = 20;
+
+//     createProfileButtons();
+// }))
+};
+
+string data_filename = "WLdata_data.asdat";
+string profiles_filename = "WLdata_profiles.asdat";
+
+int originX = jjResolutionWidth;
+int originY = jjResolutionHeight - 15;
+
+int verticalX = jjResolutionWidth - 85;
+int horizontalY = jjResolutionHeight - 15;
+
+int verticalX2 = 85;
+int horizontalY2 = 15;
+
+string profile = "default";
+string version = "0.2";
+
+array<string> profiles;
+
+AnimatedSprite @bouncer = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite @ice = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite @seeker = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite @rf = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite @toaster = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite @tnt = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite @fireball = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+AnimatedSprite @electroblaster = AnimatedSprite(0, 0, 0, 0, 0.25, false);
+
+bool horizontal = false;
+bool horizontal2 = true;
+
+bool show = true;
+bool showIndex = true;
+bool showMenu = false;
+bool showMenuDebounce = false;
+
+bool showSplitscreenWarning = false;
+bool splitscreenWarning_triggered = false;
+
+bool holdingBind = false;
+
+bool ammo_color = true;
+bool index_color = true;
+bool color_upgraded_ammo = false;
+bool color_upgraded_index = false;
+
+bool show_empty_ammo = true;
+
+bool binding = false;
+int bind_open = 192;
+string mode = "hold";
+string index_fontsize = "small";
+string ammo_fontsize = "small";
+
+array<int> unupgradedIds;
+array<int> upgradedIds;
+
+void createProfileButtons()
+{
+    createProfileButton(-1, 0, "default");
+
+    if (profile == "default")
+    {
+        menu_buttons[13].buttons[0].setValue(true);
+    }
+
+    for (uint i = 0; i < profiles.length(); i++)
+    {
+        createProfileButton(i, i + 1);
+    }
+}
+
+void createProfileButton(int i, int position = 0, string prfName = "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc")
+{
+    array<Button @> buttons = {Button(
+                                   1, function(button) {
+                                       for (uint ia = 0; ia < menu_buttons.length(); ia++)
+                                       {
+                                           getButton(ia).buttons[0].setValue(false);
+                                       }
+
+                                       button.setValue(true);
+
+                                       profile = button.mainButton.text;
+
+                                       jjSTREAM file(profile + "_" + data_filename);
+                                       file.pop(mode);
+                                       file.pop(showIndex);
+                                       file.pop(horizontal);
+                                       file.pop(index_color);
+                                       file.pop(ammo_color);
+                                       file.pop(show_empty_ammo);
+                                       file.pop(bind_open);
+                                       file.pop(index_fontsize);
+                                       file.pop(ammo_fontsize);
+                                       file.pop(horizontal2);
+
+                                       jjConsole("[WL] Now using the profile " + profile + ".");
+
+                                       save();
+                                   }),
+                               Button(
+                                   2, function(button) {
+                                       if (button.mainButton.text == profile)
+                                       {
+                                           jjConsole("[WL] You can't delete the profile you're using.");
+                                           return;
+                                       }
+                                       if (button.value == false)
+                                       {
+                                           button.hoverText = "Confirm Delete";
+                                           button.value = true;
+                                           return;
+                                       }
+
+                                       for (uint iq = 0; iq < menu_buttons.length(); iq++)
+                                       {
+                                           getButton(iq).buttons[0].setValue(false);
+                                       }
+
+                                       button.setValue(false);
+
+                                       for (uint iz = 0; iz < profiles.length(); iz++)
+                                       {
+                                           if (profiles[iz] == button.mainButton.text)
+                                           {
+                                               jjConsole("[WL] Deleted the " + button.mainButton.text + " profile.");
+
+                                               button.mainButton.text = "";
+                                               button.mainButton.visible = false;
+
+                                               profiles.removeAt(iz);
+
+                                               createProfileButtons();
+
+                                               break;
+                                           }
+                                       }
+
+                                       save();
+                                   })};
+
+    buttons[0].hoverText = "Use";
+    buttons[1].hoverText = "Delete";
+
+    if (prfName == "default")
+    {
+        buttons.removeLast();
+    }
+
+    if (prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc")
+    {
+        if (profiles[i] == profile)
+        {
+            buttons[0].setValue(true);
+        }
+    }
+
+    if (prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc")
+    {
+        menu_buttons.insertLast(MenuButton(profiles[i], position, buttons));
+    }
+    else
+    {
+        menu_buttons.insertLast(MenuButton(prfName, position, buttons));
+    }
+
+    menu_buttons[i + 14].buttons[0].debounce = true;
+
+    if (prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc")
+    {
+        menu_buttons[i + 14].buttons[1].debounce = true;
+    }
+
+    dictionary d = {{"index", i}, {"prfname", prfName}};
+
+    TimerV(
+        35, function(index) {
+            int t;
+            index.get("index", t);
+            string prfName;
+            index.get("prfname", prfName);
+            menu_buttons[t + 14].buttons[0].debounce = false;
+            if (prfName == "3dkwkvmwlvnelvmekfmek2nglwnfl3nvfkenc")
+                menu_buttons[t + 14].buttons[1].debounce = false;
+        },
+        d);
+}
+
+void save()
+{
+    jjSTREAM file();
+    file.push(mode);
+    file.push(showIndex);
+    file.push(horizontal);
+    file.push(index_color);
+    file.push(ammo_color);
+    file.push(show_empty_ammo);
+    file.push(bind_open);
+    file.push(index_fontsize);
+    file.push(ammo_fontsize);
+    file.push(horizontal2);
+    file.push(color_upgraded_ammo);
+    file.push(color_upgraded_index);
+    file.save(profile + "_" + data_filename);
+
+    jjSTREAM profilesFile();
+    profilesFile.push(profile); // current profile
+    profilesFile.push(profiles.length());
+
+    for (uint i = 0; i < profiles.length(); i++)
+    {
+        profilesFile.push(profiles[i]);
+    }
+
+    profilesFile.save(profiles_filename);
+}
+
+void onLevelBegin()
+{
+    uint profileAmount;
+    jjSTREAM profilesFile("WLdata_profiles.asdat");
+    if(profilesFile.isEmpty()) save();
+    profilesFile.pop(profile);
+    profilesFile.pop(profileAmount);
+
+    for (uint i = 0; i < profileAmount; i++)
+    {
+        string profileName;
+        profilesFile.pop(profileName);
+        profiles.insertLast(profileName);
+    }
+
+    reload();
+
+    menu_buttons[7].visible = false;
+    menu_buttons[8].buttons[0].hoverText = "TOGGLE";
+    menu_buttons[8].buttons[1].hoverText = "HOLD";
+    menu_buttons[8].visible = false;
+    menu_buttons[9].visible = false;
+    menu_buttons[10].visible = false;
+    // menu_buttons[11].visible = false; // unfinished profiles
+    menu_buttons[6].buttons[0].hoverText = "SMALL";
+    menu_buttons[6].buttons[1].hoverText = "MEDIUM";
+    menu_buttons[7].buttons[0].hoverText = "SMALL";
+    menu_buttons[7].buttons[1].hoverText = "MEDIUM";
+    menu_buttons[10].buttons[0].hoverText = "AMMO";
+    menu_buttons[10].buttons[1].hoverText = "INDEX";
+
+    jjConsole("[WL] Press F1 to open the settings menu.");
+
+    // hardcoded stuff
+    unupgradedIds.insertLast(25); // bouncer
+    unupgradedIds.insertLast(29); // ice
+    unupgradedIds.insertLast(34); // seeker
+    unupgradedIds.insertLast(49); // rf
+    unupgradedIds.insertLast(57); // toaster
+    unupgradedIds.insertLast(59); // tnt
+    unupgradedIds.insertLast(62); // fireball
+    unupgradedIds.insertLast(68); // electroblaster
+
+    upgradedIds.insertLast(24); // bouncer
+    upgradedIds.insertLast(28); // ice
+    upgradedIds.insertLast(33); // seeker
+    upgradedIds.insertLast(48); // rf
+    upgradedIds.insertLast(56); // toaster
+    upgradedIds.insertLast(59); // tnt
+    upgradedIds.insertLast(61); // fireball
+    upgradedIds.insertLast(67); // electroblaster
+
+    if (jjLocalPlayerCount > 1)
+    {
+        show = false;
+
+        showSplitscreenWarning = true;
+        splitscreenWarning_triggered = true;
+
+        TimerV(
+            300, function() {
+                showSplitscreenWarning = false;
+            });
+    }
+
+    for (int i = 2; i < 10; i++)
+    {
+        AnimatedSprite @weapon = idToWeapon(i);
+        weapon.x = 0;
+        weapon.y = 0;
+
+        if (horizontal)
+        {
+            weapon.x = (originX - (i * 75));
+            weapon.y = horizontalY;
+        }
+        else
+        {
+            weapon.x = verticalX;
+            weapon.y = (originY - (i * 35)) + 25;
+        }
+    }
+}
+
+bool upgraded(jjPLAYER @player, int id)
+{
+    return player.powerup[id];
+}
+
+void reload()
+{
+    jjSTREAM file(profile + "_" + data_filename);
+    file.pop(mode);
+    file.pop(showIndex);
+    file.pop(horizontal);
+    file.pop(index_color);
+    file.pop(ammo_color);
+    file.pop(show_empty_ammo);
+    file.pop(bind_open);
+    file.pop(index_fontsize);
+    file.pop(ammo_fontsize);
+    file.pop(horizontal2);
+    file.pop(color_upgraded_ammo);
+    file.pop(color_upgraded_index);
+
+    if (mode == "")
+    {
+        mode = "toggle";
+        bind_open = 192;
+        index_fontsize = "small";
+        ammo_fontsize = "small";
+        show_empty_ammo = true;
+        profile = "default";
+    }
+
+    menu_buttons[0].buttons[0].setValue(true);
+    menu_buttons[1].buttons[0].setValue(showIndex);
+    menu_buttons[2].buttons[0].setValue(false);
+    menu_buttons[3].buttons[0].setValue(index_color);
+    menu_buttons[4].buttons[0].setValue(ammo_color);
+    menu_buttons[5].buttons[0].setValue(show_empty_ammo);
+
+    if (index_fontsize == "small")
+    {
+        menu_buttons[6].buttons[0].setValue(true);
+        menu_buttons[6].buttons[1].setValue(false);
+    }
+    else
+    {
+        menu_buttons[6].buttons[0].setValue(false);
+        menu_buttons[6].buttons[1].setValue(true);
+    }
+
+    if (ammo_fontsize == "small")
+    {
+        menu_buttons[7].buttons[0].setValue(true);
+        menu_buttons[7].buttons[1].setValue(false);
+    }
+    else
+    {
+        menu_buttons[7].buttons[0].setValue(false);
+        menu_buttons[7].buttons[1].setValue(true);
+    }
+
+    if (mode == "toggle")
+    {
+        menu_buttons[8].buttons[0].setValue(true);
+        menu_buttons[8].buttons[1].setValue(false);
+    }
+    else
+    {
+        menu_buttons[8].buttons[0].setValue(false);
+        menu_buttons[8].buttons[1].setValue(true);
+    }
+
+    menu_buttons[10].buttons[0].setValue(false);
+    menu_buttons[10].buttons[1].setValue(false);
+
+    if (color_upgraded_ammo)
+    {
+        menu_buttons[10].buttons[0].setValue(true);
+    }
+    if (color_upgraded_index)
+    {
+        menu_buttons[10].buttons[1].setValue(true);
+    }
+}
+
+AnimatedSprite @idToWeapon(int id)
+{
+    if (id == 3)
+        return ice;
+    if (id == 4)
+        return seeker;
+    if (id == 5)
+        return rf;
+    if (id == 6)
+        return toaster;
+    if (id == 7)
+        return tnt;
+    if (id == 8)
+        return fireball;
+    if (id == 9)
+        return electroblaster;
+
+    return bouncer;
+}
+
+void onPlayer(jjPLAYER @player)
+{
+    for (uint i = 2; i < 10; i++)
+    {
+        if (upgraded(player, i))
+        {
+            idToWeapon(i).setId(upgradedIds[i - 2]);
+        }
+        else
+        {
+            idToWeapon(i).setId(unupgradedIds[i - 2]);
+        }
+    }
+}
+
+void onPlayerInput(jjPLAYER @player)
+{
+    mouseInput(player);
+
+    if (binding)
+    {
+        if (jjKey[0x1B])
+        { // ESC
+            binding = false;
+            jjConsole("[WL] Cancelled binding.");
+        }
+
+        for (uint i = 0; i < KEYS.length() - 1; i++)
+        {
+            Key @key = KEYS[i];
+
+            if (jjKey[key.code])
+            {
+                bind_open = key.code;
+
+                jjConsole("[WL] Binded to \"" + key.id + "\".");
+
+                binding = false;
+                save();
+            }
+        }
+    }
+
+    if (jjKey[0x70] && not showMenuDebounce)
+    { // f1
+        showMenu = not showMenu;
+        showMenuDebounce = true;
+
+        TimerV(
+            15, function() {
+                showMenuDebounce = false;
+            });
+    }
+
+    if (mode == "toggle")
+    {
+        if (jjKey[bind_open] && not holdingBind)
+        {
+            show = not show;
+            holdingBind = true;
+
+            TimerV(
+                15, function() {
+                    holdingBind = false;
+                });
+        }
+    }
+    else if (mode == "hold")
+    {
+        if (jjKey[bind_open])
+        {
+            show = true;
+        }
+        else
+        {
+            show = false;
+        }
+    }
+    else
+    {
+        // unknown mode, so we'll set it to true always
+        show = true;
+    }
+}
+
+Key @getKey(uint code)
+{
+    for (uint i = 0; i < KEYS.length() - 1; i++)
+    {
+        Key @key = KEYS[i];
+
+        if (key.code == code)
+        {
+            return @key;
+        }
+    }
+
+    return Key("Backquote", 0xC0);
+}
+
+void onMain()
+{
+    menu_buttons[9].text = "Bind Key                 " + getKey(bind_open).id;
+
+    originX = jjResolutionWidth;
+    originY = jjResolutionHeight - 15;
+
+    verticalX = jjResolutionWidth - 85;
+    horizontalY = jjResolutionHeight - 15;
+
+    for (int i = 2; i < 10; i++)
+    {
+
+        AnimatedSprite @weapon = idToWeapon(i);
+        weapon.x = 0;
+        weapon.y = 0;
+
+        if (horizontal)
+        {
+            weapon.x = (originX - (i * 75));
+            weapon.y = horizontalY;
+        }
+        else
+        {
+            weapon.x = verticalX;
+            weapon.y = (originY - (i * 35)) + 25;
+        }
+
+        if (horizontal and horizontal2)
+        {
+            weapon.x = (originX - (i * 75)) + 25;
+            weapon.y = horizontalY2;
+        }
+        else if (not horizontal and horizontal2)
+        {
+            weapon.x = verticalX2;
+            weapon.y = (originY - (i * 35)) + 25;
+        }
+    }
+
+    bouncer.update();
+    ice.update();
+    seeker.update();
+    rf.update();
+    toaster.update();
+    tnt.update();
+    fireball.update();
+    electroblaster.update();
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType)
+{
+    if (chatType != CHAT::NORMAL)
+        return false;
+
+    if (stringReceived.findFirst("!wl help 2") == 0)
+    {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl index - Show the weapons' index");
+        jjConsole("! wl color ammo - Changes the ammo color");
+        jjConsole("! wl color index - Changes the index color");
+        jjConsole("! wl bind - Binds the weapon list to a key");
+        // jjConsole("! wl mode - Shows the current weapon list mode"); // useless
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl help 3") == 0)
+    {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl emptyammo - Toggles whether to show empty ammo or show all ammo");
+        jjConsole("! wl size index - Switch between small and medium sizes");
+        jjConsole("! wl size ammo - Switch between small and medium sizes");
+        jjConsole("! wl newprofile - Creates a new profile that you input in.");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl help 4") == 0)
+    {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl deleteprofile - Deletes a profile that you input in.");
+        jjConsole("! wl profile - Uses a profile that you input in.");
+        jjConsole("! wl profiles - Shows all the profiles.");
+        jjConsole("! wl colorupgrade ammo - Toggles whether to make the weapons' color to be orange when they're upgraded");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl help 5") == 0)
+    {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl colorupgrade index - Toggles whether to make the weapons' indexes color to be orange when they're upgraded");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl help") == 0)
+    {
+        jjConsole("-----------------------------------------------------");
+        jjConsole("! wl help 1-5 - Shows a help message");
+        jjConsole("! wl position - Changes the position of the weapon list");
+        jjConsole("! wl toggle - Sets the weapon list to Toggle mode");
+        jjConsole("! wl hold - Sets the weapon list to Hold mode");
+        jjConsole("-----------------------------------------------------");
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl size index") == 0)
+    {
+        if (index_fontsize == "small")
+        {
+            index_fontsize = "medium";
+            jjConsole("[WL] Index font size set to medium.");
+        }
+        else
+        {
+            index_fontsize = "small";
+            jjConsole("[WL] Index font size set to small.");
+        }
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl size ammo") == 0)
+    {
+        if (ammo_fontsize == "small")
+        {
+            ammo_fontsize = "medium";
+            jjConsole("[WL] Ammo font size set to medium.");
+        }
+        else
+        {
+            ammo_fontsize = "small";
+            jjConsole("[WL] Ammo font size set to small.");
+        }
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl emptyammo") == 0)
+    {
+        show_empty_ammo = not show_empty_ammo;
+
+        jjConsole("[WL] Showing " + (show_empty_ammo ? "empty" : "all") + " ammo.");
+
+        save();
+
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl bind") == 0)
+    {
+        binding = true;
+        jjConsole("[WL] Press a key to bind the weapon list to it.");
+        return true;
+    }
+
+    // if(stringReceived.findFirst("!wl mode") == 0) { // useless
+    //     jjConsole("[WL] Weapon list mode is currently " + (mode == "toggle" ? "Toggle" : "Hold"));
+    //     return true;
+    // }
+
+    if (stringReceived.findFirst("!wl toggle") == 0)
+    {
+        mode = "toggle";
+        show = true;
+        jjConsole("[WL] Set the weapon mode to Toggle");
+
+        save();
+
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl hold") == 0)
+    {
+        mode = "hold";
+        jjConsole("[WL] Set the weapon mode to Hold");
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl index") == 0)
+    {
+        showIndex = not showIndex;
+        jjConsole("[WL] " + (showIndex ? "Showing" : "Hiding") + " the weapons' index");
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl position") == 0)
+    {
+        string direction;
+
+        if (not horizontal and not horizontal2)
+        {
+            horizontal = true;
+            horizontal2 = false;
+            direction = "bottom";
+        }
+        else if (horizontal and not horizontal2)
+        {
+            horizontal = false;
+            horizontal2 = true;
+            direction = "left";
+        }
+        else if (not horizontal and horizontal2)
+        {
+            horizontal = true;
+            horizontal2 = true;
+            direction = "top";
+        }
+        else if (horizontal and horizontal2)
+        {
+            horizontal = false;
+            horizontal2 = false;
+            direction = "right";
+        }
+
+        jjConsole("[WL] The weapons' list is now at the " + direction + " of your screen.");
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl color index") == 0)
+    {
+        index_color = not index_color;
+        jjConsole("[WL] Changed the weapons' index color to " + (index_color ? "colorful" : "normal"));
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl color ammo") == 0)
+    {
+        ammo_color = not ammo_color;
+        jjConsole("[WL] Changed the weapons' ammo color to " + (ammo_color ? "colorful" : "normal"));
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl colorupgrade ammo") == 0)
+    {
+        color_upgraded_ammo = not color_upgraded_ammo;
+
+        jjConsole("[WL] Now the weapons are " + (color_upgraded_ammo ? "colorful" : "normal") + " when they are upgraded.");
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl colorupgrade index") == 0)
+    {
+        color_upgraded_index = not color_upgraded_index;
+
+        jjConsole("[WL] Now the weapons' indexes are " + (color_upgraded_index ? "colorful" : "normal") + " when the weapons are upgraded.");
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl profiles") == 0)
+    {
+        string profilesString = "";
+
+        for (uint i = 0; i < profiles.length; i++)
+        {
+            profilesString += profiles[i] + ", ";
+        }
+
+        jjConsole("[WL] Available profiles: default, " + profilesString);
+
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl newprofile") == 0)
+    {
+        string profileName = stringReceived.substr(15);
+
+        if (stringReceived.findFirst("!wl newprofile ") != 0)
+        {
+            jjConsole("[WL] The newprofile command must be followed by a profile name.");
+            return true;
+        }
+
+        if (profileName == "")
+        {
+            jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        if (profileName == "default")
+        {
+            jjConsole("[WL] The profile name 'default' is reserved.");
+            return true;
+        }
+
+        if (profiles.length() == 5)
+        {
+            jjConsole("[WL] You can't create more than 5 profiles.");
+            return true;
+        }
+
+        if (profileName == "default")
+        {
+            jjConsole("[WL] You can't create a profile named 'default'.");
+            return true;
+        }
+
+        for (uint i = 0; i < profiles.length; i++)
+        {
+            if (profiles[i] == profileName)
+            {
+                jjConsole("[WL] A profile with that name already exists.");
+                return true;
+            }
+        }
+
+        jjConsole("[WL] Creating a new profile named " + profileName);
+
+        profiles.insertLast(profileName);
+
+        jjConsole("[WL] Created profile " + profileName + ".");
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl profile") == 0)
+    {
+        string profileName = stringReceived.substr(12);
+
+        if (stringReceived.findFirst("!wl profile ") != 0)
+        {
+            jjConsole("[WL] The profile command must be followed by a profile name.");
+            return true;
+        }
+
+        if (profileName == "")
+        {
+            jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        bool exists = false;
+
+        for (uint i = 0; i < profiles.length; i++)
+        {
+            if (profiles[i] == profileName)
+            {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists && profileName != "default")
+        {
+            jjConsole("[WL] A profile with that name does not exist.");
+            return true;
+        }
+
+        save();
+
+        profile = profileName;
+
+        reload();
+
+        jjConsole("[WL] Now using the profile " + profileName + ".");
+
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl deleteprofile") == 0)
+    {
+        string profileName = stringReceived.substr(18);
+
+        if (stringReceived.findFirst("!wl deleteprofile ") != 0)
+        {
+            jjConsole("[WL] The deleteprofile command must be followed by a profile name.");
+            return true;
+        }
+
+        if (profileName == "")
+        {
+            jjConsole("[WL] Please specify a profile name.");
+            return true;
+        }
+
+        bool exists = false;
+
+        for (uint i = 0; i < profiles.length; i++)
+        {
+            if (profiles[i] == profileName)
+            {
+                exists = true;
+                break;
+            }
+        }
+
+        if (profileName == "default")
+        {
+            jjConsole("[WL] You can't delete the profile 'default'.");
+            return true;
+        }
+
+        if (profileName == profile)
+        {
+            jjConsole("[WL] You can't delete the profile you're using.");
+            return true;
+        }
+
+        for (uint i = 0; i < profiles.length; i++)
+        {
+            if (profiles[i] == profileName)
+            {
+                profiles.removeAt(i);
+                break;
+            }
+        }
+
+        jjConsole("[WL] Deleted the profile " + profileName + ".");
+
+        save();
+        return true;
+    }
+
+    if (stringReceived.findFirst("!wl") == 0)
+    {
+        jjConsole("[WL] Invalid command.");
+        return true;
+    }
+
+    return false;
+}
+
+int getColorValue(string mode)
+{
+    if (jjColorDepth == 16)
+    {
+        if (mode == "hold")
+        {
+            return 0;
+        }
+        else
+        {
+            return 255;
+        }
+    }
+    else
+    {
+        if (mode == "hold")
+        {
+            return 0;
+        }
+        else
+        {
+            return 255;
+        }
+    }
+}
+
+int getColorValue(bool whiteOrBlack)
+{
+    if (jjColorDepth == 16)
+    {
+        if (whiteOrBlack)
+        {
+            return 255;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        if (whiteOrBlack)
+        {
+            return 255;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}
+
+bool onDrawAmmo(jjPLAYER @player, jjCANVAS @canvas)
+{
+    if (show)
+    {
+        if (player.ammo[2] > 0 or show_empty_ammo)
+            bouncer.draw(canvas);
+        if (player.ammo[3] > 0 or show_empty_ammo)
+            ice.draw(canvas);
+        if (player.ammo[4] > 0 or show_empty_ammo)
+            seeker.draw(canvas);
+        if (player.ammo[5] > 0 or show_empty_ammo)
+            rf.draw(canvas);
+        if (player.ammo[6] > 0 or show_empty_ammo)
+            toaster.draw(canvas);
+        if (player.ammo[7] > 0 or show_empty_ammo)
+            tnt.draw(canvas);
+        if (player.ammo[8] > 0 or show_empty_ammo)
+            fireball.draw(canvas);
+        if (player.ammo[9] > 0 or show_empty_ammo)
+            electroblaster.draw(canvas);
+        string coloring = "";
+        string coloring2 = "";
+
+        for (uint i = 2; i < 10; i++)
+        {
+            if (player.ammo[i] <= 0 and !show_empty_ammo)
+                continue;
+
+            int x = 0;
+            int y = 0;
+            int indexX = 0;
+            int indexY = 0;
+
+            if (index_color)
+                coloring = coloring + "|";
+            if (ammo_color)
+                coloring2 = coloring2 + "|";
+
+            if (horizontal)
+            {
+                x = (originX - (i * 75)) + 15;
+                y = horizontalY;
+                indexX = (originX - (i * 75)) - 20;
+                indexY = horizontalY - 5;
+            }
+            else
+            {
+                x = verticalX;
+                y = (originY - (i * 35)) + 35;
+                indexX = verticalX - 20;
+                indexY = (originY - (i * 35)) + 25 - 5;
+            }
+
+            if (horizontal and horizontal2)
+            {
+                x = (originX - (i * 75)) + 30;
+                y = horizontalY2 + 5;
+                indexX = (originX - (i * 75)) + 3;
+                indexY = horizontalY2 - 5;
+            }
+            else if (not horizontal and horizontal2)
+            {
+                x = verticalX2;
+                y = (originY - (i * 35)) + 35;
+                indexX = verticalX2 - 20;
+                indexY = (originY - (i * 35)) + 25 - 5;
+            }
+
+            if (color_upgraded_index && upgraded(player, i))
+                coloring = "||||";
+
+            if (color_upgraded_ammo && upgraded(player, i))
+                coloring2 = "||||";
+
+            if (showIndex)
+                canvas.drawString(indexX, indexY, coloring + i, parseSize(index_fontsize), STRING::NORMAL, 0);
+
+            canvas.drawString(x, y, coloring2 + "x" + player.ammo[i], parseSize(ammo_fontsize), STRING::NORMAL, 0);
+
+            if (color_upgraded_index && upgraded(player, i))
+                coloring = "";
+
+            if (color_upgraded_ammo && upgraded(player, i))
+                coloring2 = "";
+        }
+    }
+
+    // menu
+    if (showMenu)
+    {
+        int BACKGROUND_COLOR = 255;
+
+        if (jjColorDepth == 8)
+        {
+            BACKGROUND_COLOR = 15;
+        }
+
+        canvas.drawRectangle(jjResolutionWidth / 2 - 300, jjResolutionHeight / 2 - 200, 600, 400, BACKGROUND_COLOR, SPRITE::BLEND_NORMAL, 128);
+        canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 10, "Weapon List", STRING::MEDIUM, STRING::NORMAL, 0);
+        canvas.drawString(jjResolutionWidth / 2 - 300 + 10, jjResolutionHeight / 2 - 200 + 390, "Weapon List, Made by Spaz Electro, Version: v" + version, STRING::SMALL, STRING::NORMAL, 0);
+
+        for (uint i = 0; i < menu_buttons.length(); i++)
+        {
+            MenuButton @button = menu_buttons[i];
+            button.draw(canvas);
+        }
+
+        // cursor
+        canvas.drawRectangle(jjMouseX - 10, jjMouseY - 10, 10, 10, 18, SPRITE::NORMAL, 0);
+    }
+
+    if (binding)
+        canvas.drawString(jjResolutionWidth / 3, jjResolutionHeight / 2, "Binding... (press a key)", STRING::SMALL, STRING::NORMAL, 0);
+    if (showSplitscreenWarning)
+        canvas.drawString(jjResolutionWidth / 6, jjResolutionHeight / 8, "Splitscreen is not compatible with the weapon list mutator", STRING::SMALL, STRING::NORMAL, 0);
+
+    return false;
+}
+
+void mouseInput(jjPLAYER @player)
+{
+    for (uint i = 0; i < menu_buttons.length(); i++)
+    {
+        MenuButton @button = menu_buttons[i];
+        button.input(player);
+    }
+}

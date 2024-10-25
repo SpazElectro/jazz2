@@ -1,0 +1,579 @@
+#pragma name "guihelper"
+#pragma require "STVutil.asc"
+#pragma require "STVmainMenu.asc"
+
+#include "STVutil.asc"
+#include "STVmenu.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+enum GUIElementType {
+    NORMAL = 0,
+    TEXT = 1,
+    RECTANGLE = 2
+};
+
+class GUIElement {
+    int x, y;
+    bool visible = false;
+    SPRITE::Mode spriteMode;
+    uint8 modeParam;
+
+    // DO NOT CHANGE //
+    int width, height;
+    GUIElementType type = NORMAL;
+    string _id;
+    // DO NOT CHANGE //
+
+    GUIElement(int x = 0, int y = 0, int width = 0, int height = 0) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+
+        this._id = generateUUID();
+    }
+
+    bool opEquals(GUIElement@ otherElement) {
+        return this._id == otherElement._id;
+    }
+
+    void update() {}
+    void draw(jjCANVAS@ canvas) {}
+};
+
+class TextElement: GUIElement {
+    string text;
+    STRING::Size size;
+    STRING::Mode mode;
+
+    TextElement(int x = 0, int y = 0, string text = "TextElement", STRING::Size size = STRING::MEDIUM) {
+        super(x, y);
+
+        this.text = text;
+        this.size = size;
+        this.visible = true;
+        
+        this.type = TEXT;
+        this.width = jjGetStringWidth(this.text, this.size, normalTextAppearance);
+        this.height = getStringHeight(this.text);
+    }
+
+    void update() {}
+    void draw(jjCANVAS@ canvas) {
+        canvas.drawString(this.x, this.y, this.text, this.size, this.mode, this.modeParam);
+    }
+}
+
+class RectangleElement: GUIElement {
+    uint8 color;
+
+    RectangleElement(int x = 0, int y = 0, int width = 0, int height = 0) {
+        super(x, y);
+
+        this.width = width;
+        this.height = height;
+        this.visible = true;
+
+        this.type = RECTANGLE;
+    }
+
+    void update() {}
+    void draw(jjCANVAS@ canvas) {
+        canvas.drawRectangle(this.x, this.y, this.width, this.height, this.color, this.spriteMode, this.modeParam);
+    }
+}
+
+string exportGUI() {
+    string result = "bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {\n";
+
+    for (uint i = 0; i < guiElements.length; i++)
+    {
+        if(guiElements[i].visible) {
+            if(guiElements[i].type == NORMAL) {
+                result += "\n";
+            } else if(guiElements[i].type == TEXT) {
+                TextElement@ element = cast<TextElement>(guiElements[i]);
+                result += "canvas.drawString(" + element.x + ", " + element.y + ", \"" + element.text + "\", STRING::" + toHigherCase(formatSize(element.size)) + ", SPRITE::" + formatStringMode(element.mode) + ", " + element.modeParam + ");\n";
+            } else if(guiElements[i].type == RECTANGLE) {
+                RectangleElement@ element = cast<RectangleElement>(guiElements[i]);
+                result += "canvas.drawRectangle(" + element.x + ", " + element.y + ", " + element.width + ", " + element.height + ", " + element.color + ", SPRITE::" + formatSpriteMode(element.spriteMode) +  ", " + element.modeParam + ");\n";
+            }
+        }
+    }
+
+    result += "}";
+    
+    return result;
+}
+
+// the only reason i seperated PropertyManager to elsewhere is because
+// the code at the draw and update methods looks horrible
+// and i dont want to EVER touch it or see it again
+class PropertyManager {
+    CustomMenu@ pMenu = CustomMenu(Vector2(), false);
+    bool showColorPicker = false;
+
+    PropertyManager() {}
+
+    void update(jjPLAYER@ player) {
+        @pMenu.position = Vector2(jjResolutionWidth - 300, 0);
+        @pMenu.size = Vector2(300, jjResolutionHeight);
+        pMenu.enabled = showPropertyManager;
+        pMenu.update();
+
+        if(pMenu.enabled && (@propertyManager_selectedItem != null) && jjKey[0x1]) {
+            if(showColorPicker) {
+                if(getButtonVector(1).collidingWithMouse()) {
+                    showColorPicker = false;
+                }
+
+                int xPos = 0;
+                int yPos = 0;
+                int baseXPos = jjResolutionWidth / 4 - 32 + 64;
+                int baseYPos = jjResolutionHeight / 4 + 32;
+
+                Vector2@ vec = Vector2(baseXPos + 64, baseYPos + 32, 32, 32);
+
+                // im pretty sure we can optimize this more, but it's not laggy so
+                // it's fine i guess :)
+                for (uint i = 0; i < 96; i++)
+                {
+                    xPos += 32;
+
+                    if (i % 16 == 0) {
+                        yPos += 32;
+                        xPos = -32;
+                    }
+
+                    vec.x = baseXPos + xPos;
+                    vec.y = baseYPos + yPos;
+
+                    if(vec.collidingWithMouse()) {
+                        showColorPicker = false;
+                        cast<RectangleElement>(propertyManager_selectedItem).color = i;
+                        break;
+                    }
+                }
+
+                return;
+            }
+
+            if(showStringMode) {
+                if(getButtonVector(1).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).mode = STRING::NORMAL;
+                }
+
+                if(getButtonVector(2).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).mode = STRING::DARK;
+                }
+
+                if(getButtonVector(3).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).mode = STRING::RIGHTALIGN;
+                }
+
+                if(getButtonVector(4).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).mode = STRING::BOUNCE;
+                }
+
+                if(getButtonVector(5).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).mode = STRING::SPIN;
+                }
+
+                if(getButtonVector(6).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).mode = STRING::PALSHIFT;
+                }
+
+                if(getButtonVector(7).collidingWithMouse()) {
+                    showStringMode = false;
+                }
+
+                return;
+            }
+
+            if(getButtonVector(1).collidingWithMouse()) {
+                locatingItem = true;
+                @itemBeingLocated = propertyManager_selectedItem;
+
+                locatingDebounce = true;
+
+                TimerV(35, function() {
+                    locatingDebounce = false;
+                });
+            }
+
+            if(getButtonVector(2).collidingWithMouse()) {
+                int xRatio = (jjResolutionWidth / 2) - snap(jjMouseX);
+                int yRatio = jjResolutionHeight - snap(jjMouseY);
+
+                jjConsole("---------");
+                jjConsole("" + snap(jjMouseX) + " - " + snap(jjMouseY));
+                jjConsole("Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)));
+                jjConsole("Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)));
+                jjConsole("Bottom center ratio: " + xRatio + "x" + yRatio);
+                jjConsole("---------");
+            }
+
+            if(getButtonVector(9).collidingWithMouse()) {
+                guiElements.removeAt(guiElements.find(propertyManager_selectedItem));
+                
+                @propertyManager_selectedItem = null;
+                showPropertyManager = false;
+                showStringMode = false;
+                showColorPicker = false;
+                talkToSetText = false;
+                return;
+            }
+
+            if(propertyManager_selectedItem.type == TEXT) {
+                if(getButtonVector(3, 1).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).size = STRING::SMALL;
+                }
+                
+                if(getButtonVector(3, 2).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).size = STRING::MEDIUM;
+                }
+
+                if(getButtonVector(3, 3).collidingWithMouse()) {
+                    cast<TextElement>(propertyManager_selectedItem).size = STRING::LARGE;
+                }
+
+                if(getButtonVector(4).collidingWithMouse()) {
+                    showStringMode = true;
+                }
+
+                if(getButtonVector(5).collidingWithMouse() && !talkToSetText) {
+                    talkToSetText = true;
+                    jjConsole("Talk in the chat to set the text.");
+                }
+            } else if(propertyManager_selectedItem.type == RECTANGLE) {
+                if(getButtonVector(3, 1).collidingWithMouse()) {
+                    showColorPicker = true;
+                }
+
+                if(getButtonVector(4, 1).collidingWithMouse()) {
+                    cast<RectangleElement>(propertyManager_selectedItem).width -= 1;
+                }
+
+                if(getButtonVector(4, 2).collidingWithMouse()) {
+                    cast<RectangleElement>(propertyManager_selectedItem).width += 1;
+                }
+
+                if(getButtonVector(5, 1).collidingWithMouse()) {
+                    cast<RectangleElement>(propertyManager_selectedItem).height -= 1;
+                }
+
+                if(getButtonVector(5, 2).collidingWithMouse()) {
+                    cast<RectangleElement>(propertyManager_selectedItem).height += 1;
+                }
+            }
+        } else if(jjKey[0x1] && selectingItem) {
+            for(uint i = 0; i < guiElements.length; i++) {
+                GUIElement@ element = guiElements[i];
+                
+                if(Vector2(element.x, element.y, element.width, element.height).collidingWithMouse()) {
+                    @propertyManager_selectedItem = element;
+                    selectingItem = false;
+                    break;
+                }
+            }
+        }
+    }
+    
+    void draw(jjCANVAS@ canvas) {
+        if(selectingItem) {
+            for(uint i = 0; i < guiElements.length; i++) {
+                GUIElement@ element = guiElements[i];
+                
+                canvas.drawRectangle(element.x, element.y, element.width, element.height, 18);
+            }
+        }
+
+        if(!pMenu.enabled) return;
+
+        if(showColorPicker) {
+            int xPos = 0;
+            int yPos = 0;
+
+            for (uint i = 0; i < 96; i++)
+            {
+                xPos += 32;
+
+                if(i % 16 == 0) {
+                    yPos += 32;
+                    xPos = -32;
+                }
+
+                canvas.drawRectangle(jjResolutionWidth / 4 + xPos + 32, jjResolutionHeight / 4 - 32 + yPos + 64, 32, 32, i);
+            }
+
+            drawButton(canvas, 1, false);
+            drawButtonText(canvas, 1, "Exit");
+
+            return;
+        }
+
+
+        pMenu.draw(canvas);
+        
+        canvas.drawString(pMenu.position.x + 25, pMenu.position.y + 20 + 6, "Property Manager", STRING::MEDIUM);
+
+        if(showStringMode) {
+            drawButton(canvas, 7, false);
+            drawButtonText(canvas, 7, "Exit");
+
+            drawButton(canvas, 1, (cast<TextElement>(propertyManager_selectedItem).mode == STRING::NORMAL));
+            drawButtonText(canvas, 1, "NORMAL");
+            drawButton(canvas, 2, (cast<TextElement>(propertyManager_selectedItem).mode == STRING::DARK));
+            drawButtonText(canvas, 2, "DARK");
+            drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).mode == STRING::RIGHTALIGN));
+            drawButtonText(canvas, 3, "RIGHTALIGN");
+            drawButton(canvas, 4, (cast<TextElement>(propertyManager_selectedItem).mode == STRING::BOUNCE));
+            drawButtonText(canvas, 4, "BOUNCE");
+            drawButton(canvas, 5, (cast<TextElement>(propertyManager_selectedItem).mode == STRING::SPIN));
+            drawButtonText(canvas, 5, "SPIN");
+            drawButton(canvas, 6, (cast<TextElement>(propertyManager_selectedItem).mode == STRING::PALSHIFT));
+            drawButtonText(canvas, 6, "PALSHIFT");
+        } else {
+            if(!(@propertyManager_selectedItem == null)) {
+                drawButton(canvas, 1, false);
+                drawButton(canvas, 2, false);
+
+                drawButtonText(canvas, 1, "Relocate");
+                drawButtonText(canvas, 2, "Get position");
+
+                if(propertyManager_selectedItem.type == TEXT) {
+                    drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).size == STRING::SMALL), 1);
+                    drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).size == STRING::MEDIUM), 2);
+                    drawButton(canvas, 3, (cast<TextElement>(propertyManager_selectedItem).size == STRING::LARGE), 3);
+                    drawButtonText(canvas, 3, "Size", 3);
+
+                    drawButton(canvas, 4, false);
+                    drawButtonText(canvas, 4, "String Mode");
+
+                    drawButton(canvas, 5, false);
+                    drawButtonText(canvas, 5, "Text");
+                } else if(propertyManager_selectedItem.type == RECTANGLE) {
+                    drawButton(canvas, 3, false);
+                    drawButtonText(canvas, 3, "Pick color");
+
+                    drawButton(canvas, 4, false, 1);
+                    drawButton(canvas, 4, false, 2);
+                    drawButtonText(canvas, 4, "Width", 2);
+
+                    drawButton(canvas, 5, false, 1);
+                    drawButton(canvas, 5, false, 2);
+                    drawButtonText(canvas, 5, "Height", 2);
+                }
+
+                drawButton(canvas, 9, false);
+                drawButtonText(canvas, 9, "Delete");
+            }
+        }
+
+        pMenu.finishDrawing(canvas);
+    }
+
+    Vector2@ getButtonVector(int index, int hIndex = 1) {
+        return Vector2(pMenu.position.x + (hIndex * 50), pMenu.position.y + (index * 50), 25, 25);
+    }
+
+    void drawButton(jjCANVAS@ canvas, int index, bool checked, int hIndex = 1) {
+        // I'm gonna explain everything from here because if future me wants to review
+        // this old code, it's easier to understand
+
+        // we arent using the MenuButton or Button class because they are VERY wack
+        // we hate them >:(
+
+        // the 50 in pm_pos_x is for spacing, pm_pos_y is self-explanatory
+        canvas.drawRectangle(pMenu.position.x + (hIndex * 50), pMenu.position.y + (index * 50), 25, 25, 0);
+        // the 6 is to make the dot in the center, same thing for this   \/, also we use size 12
+        // because its the half of 25 (the half of 25 is 12.5, but it'll get rounded either way)
+        canvas.drawRectangle(pMenu.position.x + 6 + (hIndex * 50), pMenu.position.y + 6 + (index * 50), 12, 12, getCheckedColor(checked));
+    }
+
+    void drawButtonText(jjCANVAS@ canvas, int index, string text, int lastHorizontalIndex = 1) {
+        // 30 is for spacing, the 6 in pm_pos_y is to make it look like the text is in the center horizontally
+        canvas.drawString(pMenu.position.x + (lastHorizontalIndex * 50) + 30, pMenu.position.y + (index * 50) + 6, text, STRING::MEDIUM);
+    }
+}
+
+array<GUIElement@> guiElements;
+
+// locating
+bool locatingItem = false;
+bool locatingDebounce = false;
+GUIElement@ itemBeingLocated;
+
+int gridSize = 10;
+
+// menu
+CustomMenu@ mainMenu = CustomMenu();
+array<MenuButton@> menuButtons;
+
+// property manager
+PropertyManager@ propertyManager = PropertyManager();
+GUIElement@ propertyManager_selectedItem;
+bool showPropertyManager = false;
+bool selectingItem = false;
+bool showStringMode = false;
+bool talkToSetText = false;
+
+int snap(int spot) {
+    return (spot + gridSize / 2) / gridSize * gridSize;
+}
+
+void onKeyPress(uint key) {
+    // 48 == numpad dot
+    if(key == KEYS[48].code) {
+        showPropertyManager = false;
+        mainMenu.toggle();
+    }
+
+    // 47 == numpad zero
+    if(key == KEYS[47].code) {
+        mainMenu.disable();
+        showPropertyManager = !showPropertyManager;
+    }
+}
+
+void onLevelBegin() {
+    jjConsole("Started!");
+
+    mainMenu.header = "GUI Helper";
+    mainMenu.footer = "GUI Helper v0.1 by Spaz Electro";
+
+    menuButtons.insertLast(MenuButton("Create new TextElement", -1, {
+        Button(
+            3, function(button) {
+                locatingItem = true;
+                @itemBeingLocated = TextElement();
+                guiElements.insertLast(itemBeingLocated);
+
+                mainMenu.disable();
+                
+                locatingDebounce = true;
+
+                TimerV(35, function() {
+                    locatingDebounce = false;
+                });
+            }, "C", true)
+    }, mainMenu));
+
+    menuButtons.insertLast(MenuButton("Create new RectangleElement", 0, {
+        Button(
+            3, function(button) {
+                locatingItem = true;
+                @itemBeingLocated = RectangleElement(0, 0, 100, 100);
+                guiElements.insertLast(itemBeingLocated);
+
+                mainMenu.disable();
+                
+                locatingDebounce = true;
+
+                TimerV(35, function() {
+                    locatingDebounce = false;
+                });
+            }, "C", true)
+    }, mainMenu));
+
+    menuButtons.insertLast(MenuButton("Select element", 1, {
+        Button(
+            3, function(button) {
+                selectingItem = true;
+
+                mainMenu.disable();
+            }, "C", true)
+    }, mainMenu));
+
+    keyPressCallbacks.insertLast(onKeyPress);
+}
+
+void onPlayer(jjPLAYER@ player) {
+    if(locatingItem) {
+        itemBeingLocated.x = snap(jjMouseX);
+        itemBeingLocated.y = snap(jjMouseY);
+
+        if(jjKey[0x1] && !locatingDebounce) {
+            locatingItem = false;
+            @propertyManager_selectedItem = itemBeingLocated;
+            @itemBeingLocated = null;
+        }
+    }
+
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.input(player);
+    }
+
+    mainMenu.update();
+    propertyManager.update(player);
+
+    updateKeys();
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(talkToSetText) {
+        cast<TextElement>(propertyManager_selectedItem).text = stringReceived;
+        talkToSetText = false;
+        return true;
+    }
+
+    if(stringReceived == "!export") {
+        jjConsole(exportGUI());
+        return true;
+    }
+
+    return false;
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+    mainMenu.draw(canvas);
+    
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.draw(canvas);
+    }
+    
+    mainMenu.finishDrawing(canvas);
+
+    if(!propertyManager.showColorPicker) {
+        for (uint i = 0; i < guiElements.length; i++) {
+            if (guiElements[i].visible) {
+                guiElements[i].draw(canvas);
+            }
+        }
+    }
+
+    // utils
+    if(locatingItem) {
+        int x = itemBeingLocated.x;
+        int y = itemBeingLocated.y;
+
+        x -= 5;
+        y += 65;
+
+        int xRatio = (jjResolutionWidth / 2) - snap(jjMouseX);
+        int yRatio = jjResolutionHeight - snap(jjMouseY);
+
+        if(x + jjGetStringWidth("Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
+            x -= 200;
+        }
+
+        if(y <= 50) {
+            y += 80;
+        }
+
+        canvas.drawString(x, y - 10, "" + snap(jjMouseX) + " - " + snap(jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 30, "Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 40, "Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL);
+    }
+
+    propertyManager.draw(canvas);
+
+    return false;
+}

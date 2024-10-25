@@ -1,0 +1,298 @@
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+int lastHealth = jjMaxHealth;
+int shield = 0;
+
+float npcSpeed = 4.0;
+float fallSpeed = 7.66;
+
+uint8 shieldEventId = 89;
+
+array<RabbitNPC @> npcList;
+
+funcdef void forEachNPCCallback(RabbitNPC @);
+void forEachNPC(forEachNPCCallback @callback)
+{
+    for (uint rabbitIndex = 0; rabbitIndex < npcList.length(); rabbitIndex++)
+    {
+        callback(npcList[rabbitIndex]);
+    }
+}
+
+class ShieldCollectable : jjBEHAVIORINTERFACE
+{
+    void onBehave(jjOBJ @obj)
+    {
+        obj.behave(BEHAVIOR::PICKUP);
+    }
+
+    bool onObjectHit(jjOBJ @obj, jjOBJ @bullet, jjPLAYER @player, int force)
+    {
+        shield += 1;
+
+        jjSample(obj.xPos, obj.yPos, SOUND::COMMON_HARP1);
+
+        obj.frameID = 0;
+        obj.behavior = BEHAVIOR::EXPLOSION2;
+
+        return true;
+    }
+}
+
+void onLevelBegin()
+{
+    npcList.insertLast(RabbitNPC(60 * 32, 40 * 32, 50, CHAR::SPAZ));
+    // npcList.insertLast(RabbitNPC(80 * 32, 40 * 32, 50, CHAR::JAZZ));
+    
+    forEachNPC(function(npc) {
+        npc.updateFur(0);
+        npc.setState(RabbitState::IDLE);
+    });
+
+    jjAnimSets[45].load();
+
+    jjConsole("[ZMB] Started!");
+}
+
+void onPlayer(jjPLAYER @player)
+{
+    // if(jjKey[0xBB]) {
+    //     forEachNPC(function(npc) {
+    //         npc.updateFur(npc.fur + 1);
+    //     });
+
+    //     jjConsole("" + npcList[0].fur);
+    // }
+
+    // if(jjKey[0xBD]) {
+    //     forEachNPC(function(npc) {
+    //         npc.updateFur(npc.fur - 1);
+    //     });
+
+    //     jjConsole("" + npcList[0].fur);
+    // }
+
+    forEachNPC(function(npc) {
+        if (npc.state != RabbitState::DYING && npc.state != RabbitState::DEAD)
+        {
+            if (npc.sprite.x >= jjLocalPlayers[1].xPos)
+            {
+                npc.direction = -1;
+            }
+            else
+            {
+                npc.direction = 1;
+            }
+
+            if (npc.direction == 1)
+            {
+                npc.sprite.x += int(npcSpeed);
+            }
+            else
+            {
+                npc.sprite.x -= int(npcSpeed);
+            }
+        }
+
+        if (npc.colliding() && npc.state != RabbitState::DYING && npc.state != RabbitState::DEAD)
+        {
+            // i dont understand this but it works lol
+
+            bool collideLeft = false;
+            bool collideRight = false;
+
+            if (not jjMaskedPixel(npc.sprite.x - (1 * 32), npc.sprite.y))
+            {
+                collideLeft = true;
+
+                for (int i = 0; i < 10; i++)
+                {
+                    dictionary dict = {{"i", i}};
+
+                    TimerV(
+                        i * 5, function(this) {
+                            int i;
+                            this.get("i", i);
+
+                            forEachNPC(function(npc) {
+                                if (!npc.colliding())
+                                {
+                                    if (npc.state != RabbitState::JUMPING && npc.state != RabbitState::DYING && npc.state != RabbitState::DEAD)
+                                    {
+                                        npc.setState(RabbitState::JUMPING);
+                                    }
+
+                                    npc.sprite.y -= int(fallSpeed);
+                                }
+                            });
+                        },
+                        dict);
+                }
+            }
+
+            if (not jjMaskedPixel(npc.sprite.x + (1 * 32), npc.sprite.y))
+            {
+                collideRight = true;
+
+                for (int i = 0; i < 10; i++)
+                {
+                    dictionary dict = {{"i", i}};
+
+                    TimerV(
+                        i * 5, function(this) {
+                            int i;
+                            this.get("i", i);
+
+                            forEachNPC(function(npc) {
+                                if (!npc.colliding())
+                                {
+                                    if (npc.state != RabbitState::JUMPING)
+                                    {
+                                        npc.setState(RabbitState::JUMPING);
+                                    }
+
+                                    npc.sprite.y -= int(fallSpeed);
+                                }
+                            });
+                        },
+                        dict);
+                }
+            }
+
+            if (collideLeft)
+            {
+                npc.sprite.x -= int(npcSpeed);
+            }
+            else
+            {
+                npc.sprite.x += int(npcSpeed);
+            }
+
+            if (collideRight)
+            {
+                npc.sprite.x += int(npcSpeed);
+            }
+            else
+            {
+                npc.sprite.x -= int(npcSpeed);
+            }
+
+            if ((collideLeft or collideRight) and npc.state != RabbitState::JUMPING)
+            {
+                // jump (but its actually just wall climbing)
+                for (int i = 0; i < 20; i++)
+                {
+                    dictionary dict = {{"i", i}};
+
+                    TimerV(
+                        i * 5, function(this) {
+                            int i;
+                            this.get("i", i);
+
+                            forEachNPC(function(npc) {
+                                if (!npc.colliding())
+                                {
+                                    if (npc.state != RabbitState::JUMPING)
+                                    {
+                                        npc.setState(RabbitState::JUMPING);
+                                    }
+
+                                    npc.sprite.y -= int(fallSpeed);
+                                }
+                            });
+                        },
+                        dict);
+                }
+            }
+        }
+
+        // this number is the height of the npc
+        // some maps have weird heights so you need to adjust this
+
+        if (!npc.onGround() && npc.state != RabbitState::DYING)
+        {
+            if (npc.state != RabbitState::FALLING)
+            {
+                npc.setState(RabbitState::FALLING);
+            }
+
+            npc.sprite.y += int(fallSpeed);
+        }
+        else
+        {
+            if (
+                // @ignore-semicolons
+                ((npc.colliding() and npc.state != RabbitState::RUNNING) or
+                // @ignore-semicolons
+                 (npc.state != RabbitState::RUNNING and
+                 // @ignore-semicolons
+                 npc.state != RabbitState::JUMPING and
+                 // @ignore-semicolons
+                 npc.onGround() and
+                 // @ignore-semicolons
+                 not npc.colliding())) and
+               npc.state != RabbitState::SHOOTING and npc.state != RabbitState::DYING)
+            {
+                npc.setState(RabbitState::RUNNING);
+            }
+        }
+    });
+
+    // this is the worst way to do this but it works SO FUCKING GOOD
+    // it also bypasses the kill command
+
+    if (lastHealth != player.health)
+    {
+        int actualHealth = player.health + shield;
+
+        if (actualHealth > jjMaxHealth)
+        {
+            shield -= (actualHealth - jjMaxHealth);
+            player.health = jjMaxHealth;
+        }
+        else
+        {
+            player.health = actualHealth;
+            shield = 0;
+        }
+
+        lastHealth = player.health;
+    }
+}
+
+void onMain()
+{
+    for (int i = 1; i < jjObjectCount; i++)
+    {
+        jjOBJ @o = jjObjects[i];
+
+        if (o.eventID == shieldEventId)
+        {
+            o.behavior = ShieldCollectable();
+            o.scriptedCollisions = true;
+        }
+    }
+
+    forEachNPC(function(npc) {
+        npc.update();
+    });
+}
+
+void onDrawLayer4(jjPLAYER @player, jjCANVAS @canvas)
+{
+    forEachNPC(function(npc) {
+        // untested dont kill me
+        npc.draw(canvas);
+    });
+}
+
+bool onDrawHealth(jjPLAYER @player, jjCANVAS @canvas)
+{
+    for (int i = 0; i < shield; i++)
+    {
+        canvas.drawSprite(jjResolutionWidth - 10 - (i * 20), 25, 45, 0, 0, 1, SPRITE::NORMAL, 123);
+    }
+
+    return false;
+}

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="45">
+  <Forms>
+    <UDF1 Class="TCEForm" Encoding="Ascii85">RgcR]!$1@/PcF@0wIZ)Ec2NWoN*.7cHe+8/0fj]nl-N0K2FFa9oN9d/w:R7HU(x0rNz.g((AIXM^T}*Ud;4#Z%qM_1FYf)KaOQ?%Am[mHrYM(wIX}dUdgXjWYbFJyj%*3Y:OkZ_;x[)6jE#jbnCFZqE0Q_%Dol=ni5WGJz3seXw76E/xP!p{x/LUNRx?LBHA@L7H^^[1n!LoZ@I:(d:oFg%nyA:ug9%{!Y9H68c36tqo7)dW8ln2V9Vbt;Mxe0*pv+iGl6Ll6+6EIQRIyHK*,f{y^eB/+FqRwRhP/A5)=(dA]oZ/pMLR,jQDVsMb(58]Y*PpNhvnx}W;ki4vid5SKmR+L@sbP3i];@r6q;(</UDF1>
+  </Forms>
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"dword_5BF940"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5BF940</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"dword_5BF944"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5BF944</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2</ID>
+      <Description>"byte_5BF954"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Byte</VariableType>
+      <Address>5BF954</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"byte_5BF955"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Byte</VariableType>
+      <Address>5BF955</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>4</ID>
+      <Description>"------------------------"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Byte</VariableType>
+      <Address>0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>5</ID>
+      <Description>"dword_5BF960 GlowX"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5BF960</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>6</ID>
+      <Description>"dword_5BF964 GlowY"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>5BF964</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>7</ID>
+      <Description>"byte_5BF974"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Byte</VariableType>
+      <Address>5BF974</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>8</ID>
+      <Description>"byte_5BF975"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>Byte</VariableType>
+      <Address>5BF975</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>9</ID>
+      <Description>"dword_4E06B4"</Description>
+      <ShowAsSigned>0</ShowAsSigned>
+      <VariableType>4 Bytes</VariableType>
+      <Address>4E06B4</Address>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>

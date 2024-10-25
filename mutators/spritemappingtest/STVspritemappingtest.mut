@@ -1,0 +1,31 @@
+#pragma name "spritemappingtest"
+
+#include "hh17enemies.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+    // HH17::replaceAllEnemies();
+
+    HH17::setEnemy(OBJECT::BAT);
+    HH17::setEnemy(OBJECT::BILSY);
+    HH17::setEnemy(OBJECT::BUBBA);
+    HH17::setEnemy(OBJECT::CRAB);
+    HH17::setEnemy(OBJECT::DEMON);
+    HH17::setEnemy(OBJECT::DOGGYDOGG);
+    HH17::setEnemy(OBJECT::DRAGON);
+    HH17::setEnemy(OBJECT::FENCER);
+    HH17::setEnemy(OBJECT::FLOATSUCKER);
+    HH17::setEnemy(OBJECT::LABRAT);
+    HH17::setEnemy(OBJECT::STANDMONKEY);
+    HH17::setEnemy(OBJECT::RAVEN);
+    HH17::setEnemy(OBJECT::QUEEN);
+    HH17::setEnemy(OBJECT::ROTATINGROCK);
+    HH17::setEnemy(OBJECT::SKELETON);
+    HH17::setEnemy(OBJECT::SUCKER);
+    HH17::setEnemy(OBJECT::TUFBOSS);
+    HH17::setEnemy(OBJECT::TUFTURT);
+}
+
+void onLevelReload() {
+    HH17::processEnemyColors();
+}

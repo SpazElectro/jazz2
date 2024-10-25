@@ -1,0 +1,191 @@
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+bool recording = false;
+bool watchingRecording = false;
+string recordingName = "";
+
+jjSTREAM recordStream;
+jjSTREAM watchStream;
+
+int watchLength = 0;
+
+array<FakePlayer@> fakePlayers;
+
+class FakePlayer {
+    string name;
+    array<int> ammo;
+    CHAR::Char charCurr;
+    int coins;
+    int currWeapon;
+    int fastfire;
+    int food;
+    int health;
+    int lives;
+    array<bool> powerup;
+    int score;
+    int scoreDisplayed;
+    int shieldTime;
+    int shieldType;
+    float xPos;
+    float yPos;
+    uint curAnim;
+    uint curFrame;
+    uint fur;
+    int direction;
+
+    FakePlayer() {
+
+    }
+};
+
+void onLevelBegin() {
+    jjConsole("Mutator started!");
+}
+
+void onMain() {
+    if(!recording) return;
+
+	for (int i = 0; i < 32; i++)
+	{
+		if (!jjPlayers[i].isActive)
+			return;
+        
+        jjPLAYER@ player = jjPlayers[i];
+
+        recordStream.push(player.name);
+        recordStream.push(formatInt(player.ammo[1]));
+        recordStream.push(formatInt(player.ammo[2]));
+        recordStream.push(formatInt(player.ammo[3]));
+        recordStream.push(formatInt(player.ammo[4]));
+        recordStream.push(formatInt(player.ammo[5]));
+        recordStream.push(formatInt(player.ammo[6]));
+        recordStream.push(formatInt(player.ammo[7]));
+        recordStream.push(formatInt(player.ammo[8]));
+        recordStream.push(formatInt(player.ammo[9]));
+        recordStream.push(formatCharacter(player.charCurr));
+        recordStream.push(formatInt(player.coins));
+        recordStream.push(formatInt(player.currWeapon));
+        recordStream.push(formatInt(player.fastfire));
+        recordStream.push(formatInt(player.food));
+        recordStream.push(formatInt(player.health));
+        recordStream.push(formatInt(player.lives));
+        recordStream.push(formatBool(player.powerup[1]));
+        recordStream.push(formatBool(player.powerup[2]));
+        recordStream.push(formatBool(player.powerup[3]));
+        recordStream.push(formatBool(player.powerup[4]));
+        recordStream.push(formatBool(player.powerup[5]));
+        recordStream.push(formatBool(player.powerup[6]));
+        recordStream.push(formatBool(player.powerup[7]));
+        recordStream.push(formatBool(player.powerup[8]));
+        recordStream.push(formatBool(player.powerup[9]));
+        recordStream.push(formatInt(player.score));
+        recordStream.push(formatInt(player.scoreDisplayed));
+        recordStream.push(formatInt(player.shieldTime));
+        recordStream.push(formatInt(player.shieldType));
+        recordStream.push(formatFloat(player.xPos));
+        recordStream.push(formatFloat(player.yPos));
+        recordStream.push(formatUInt(player.curAnim));
+        recordStream.push(formatUInt(player.curFrame));
+        recordStream.push(formatUInt(player.fur));
+        recordStream.push(formatInt(player.direction));
+    }
+
+    if(watchingRecording) {
+        array<string> items;
+
+        for (uint i = 0; i < 35; i++)
+        {
+            watchStream.pop(items[i]);
+        }
+
+        FakePlayer@ player = fakePlayers[0];
+
+        player.name = items[0];
+
+        player.ammo[1] = parseInt(items[1]);
+        player.ammo[2] = parseInt(items[2]);
+        player.ammo[3] = parseInt(items[3]);
+        player.ammo[4] = parseInt(items[4]);
+        player.ammo[5] = parseInt(items[5]);
+        player.ammo[6] = parseInt(items[6]);
+        player.ammo[7] = parseInt(items[7]);
+        player.ammo[8] = parseInt(items[8]);
+        player.ammo[9] = parseInt(items[9]);
+
+        player.charCurr = parseCharacter(items[10]);
+
+        player.coins = parseInt(items[11]);
+        player.currWeapon = parseUInt(items[12]);
+        player.fastfire = parseInt(items[13]);
+        player.food = parseInt(items[14]);
+
+        player.health = parseUInt(items[15]);
+        player.lives = parseInt(items[16]);
+
+        player.powerup[1] = parseBool(items[17]);
+        player.powerup[2] = parseBool(items[18]);
+        player.powerup[3] = parseBool(items[19]);
+        player.powerup[4] = parseBool(items[20]);
+        player.powerup[5] = parseBool(items[21]);
+        player.powerup[6] = parseBool(items[22]);
+        player.powerup[7] = parseBool(items[23]);
+        player.powerup[8] = parseBool(items[24]);
+        player.powerup[9] = parseBool(items[25]);
+
+        player.score = parseInt(items[26]);
+        player.scoreDisplayed = parseInt(items[27]);
+        player.shieldTime = parseInt(items[28]);
+        player.shieldType = parseInt(items[29]);
+
+        player.xPos = parseFloat(items[30]);
+        player.yPos = parseFloat(items[31]);
+
+        player.curAnim = parseUInt(items[32]);
+        player.curFrame = parseUInt(items[33]);
+
+        player.fur = parseUInt(items[34]);
+        player.direction = parseInt(items[35]);
+    }
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!record") {
+        recordStream.push(getPlayerCount());
+        
+        recording = true;
+        return true;
+    } else if(stringReceived == "!stoprecording") {
+        recording = false;
+        recordStream.save("STVrecording_1.asdat");
+        recordStream.clear();
+        return true;
+    }
+
+    if(stringReceived == "!watch") {
+        watchingRecording = true;
+        recordingName = "STVrecording_1.asdat";
+        
+        watchStream = jjSTREAM(recordingName);
+        watchStream.pop(watchLength);
+
+        watchLength = watchLength * 35;
+
+        for (int pI = 0; pI < watchLength / 35; pI++)
+        {
+            fakePlayers.insertLast(FakePlayer());
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+    for (uint fpI = 0; fpI < fakePlayers.length; fpI++)
+    {
+        FakePlayer@ fplayer = fakePlayers[fpI];
+        canvas.drawSprite(int(fplayer.xPos), int(fplayer.yPos), ANIM::SPAZ, uint8(fplayer.curAnim), uint8(fplayer.curFrame), int8(fplayer.direction), SPRITE::PLAYER, fplayer.fur);
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "name": "testpkg",
+    "author": "Gamer",
+    "repository": {
+        "url": "https://www.github.com/Gamer/testpkg",
+        "type": "git"
+    },
+    "stats": {
+        "stars": 0,
+        "downloads": 0,
+        "views": 0
+    },
+    "dependencies": {
+        "stvutil": "^1.0.0"
+    },
+    "dependants": [
+        "stvhooks"
+    ]
+}

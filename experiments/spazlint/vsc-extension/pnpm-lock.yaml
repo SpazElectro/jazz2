@@ -1,0 +1,21 @@
+lockfileVersion: '6.0'
+
+dependencies:
+  net:
+    specifier: ^1.0.2
+    version: 1.0.2
+
+devDependencies:
+  '@types/vscode':
+    specifier: ^1.70.0
+    version: 1.80.0
+
+packages:
+
+  /@types/vscode@1.80.0:
+    resolution: {integrity: sha512-qK/CmOdS2o7ry3k6YqU4zD3R2AYlJfbwBoSbKpBoP+GpXNE+0NEgJOli4n0bm0diK5kfBnchgCEj4igQz/44Hg==}
+    dev: true
+
+  /net@1.0.2:
+    resolution: {integrity: sha512-kbhcj2SVVR4caaVnGLJKmlk2+f+oLkjqdKeQlmUtz6nGzOpbcobwVIeSURNgraV/v3tlmGIX82OcPCl0K6RbHQ==}
+    dev: false

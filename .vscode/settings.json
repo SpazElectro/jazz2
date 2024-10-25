@@ -1,0 +1,30 @@
+{
+    "rust-analyzer.linkedProjects": ["./experiments/proxy/rewrite/Cargo.toml"],
+    "files.associations": {
+        "*.cookmd": "xml",
+        "*.mut": "cpp",
+        "*.asc": "cpp",
+        "*.j2as": "cpp",
+        "atomic": "cpp",
+        "memory": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "xlocale": "cpp",
+        "xstring": "cpp",
+        "limits": "cpp",
+        "windows.h": "c",
+        "typeinfo": "cpp",
+        "cassert": "cpp"
+    },
+    "python.analysis.typeCheckingMode": "basic",
+    "discord.enabled": true,
+    "cmake.sourceDirectory": "G:/steve/jazz2stuff/jazz2/re/jj2/funccall",
+    "python.analysis.extraPaths": [
+        "./experiments/spazlint"
+    ],
+    "python.analysis.autoImportCompletions": true
+}

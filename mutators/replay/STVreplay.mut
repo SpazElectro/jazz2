@@ -1,0 +1,256 @@
+#pragma require "STVutil.asc"
+#include "STVutil.asc"
+
+bool isRecording = false;
+
+bool isWatching = false;
+string watching = "";
+
+// middle of watching
+int watch_playerCount;
+int watch_spectating;
+
+jjSTREAM recordStream;
+jjSTREAM watchStream;
+
+int playerHeaderLength = 6;
+int objectHeaderLength = 5;
+
+array<FakePlayer@> fakePlayers;
+
+class FakePlayer {
+    string name;
+
+    float xPos, yPos;
+    
+    uint curFrame;
+    int shieldType;
+
+    int direction;
+
+    FakePlayer() {}
+};
+
+void onLevelBegin() {
+    jjConsole("Mutator started!");
+}
+
+void onMain() {
+    if(isRecording) {
+        for (int i = 0; i < 32; i++)
+        {
+            jjPLAYER@ player = jjPlayers[i];
+
+            if (player.isActive) {
+                recordStream.push(player.name);
+                
+                recordStream.push(formatFloat(player.xPos));
+                recordStream.push(formatFloat(player.yPos));
+                
+                recordStream.push(formatUInt(player.curFrame));
+
+                recordStream.push(formatInt(player.shieldType));
+                recordStream.push(formatInt(player.direction));
+            }
+	    }
+
+        recordStream.push(formatInt(jjObjectCount));
+
+        for (int i = 1; i < jjObjectCount; i++) {
+            jjOBJ@ obj = jjObjects[i];
+
+            if (obj.isActive) {
+                recordStream.push(formatFloat(obj.xPos));
+                recordStream.push(formatFloat(obj.yPos));
+                recordStream.push(formatUInt(obj.curFrame));
+                recordStream.push(formatUInt(obj.direction));
+                recordStream.push(formatUInt(obj.eventID));
+            }
+        }
+    }
+
+    if(isWatching) {
+        for (int i = 0; i < watch_playerCount; i++)
+        {
+            FakePlayer@ player = fakePlayers[i];
+
+            array<string> items;
+            items.resize(playerHeaderLength);
+
+            watchStream.pop(items[0]);
+
+            if(items[0] == "EOF") {
+                isWatching = false;
+                watching = "";
+                watchStream.clear();
+
+                fakePlayers.removeRange(0, watch_playerCount);
+
+                jjLocalPlayers[1].cameraUnfreeze();
+
+                jjConsole("Watched to the end!");
+                break;
+            } else if(items[0] == "CHAT_MESSAGE__________") {
+                string sender;
+                string message;
+                watchStream.pop(sender);
+                watchStream.pop(message);
+                
+                jjConsole("[REPLAY] " + sender + ": " + message);
+                
+                return;
+            }
+
+            watchStream.pop(items[1]);
+            watchStream.pop(items[2]);
+            watchStream.pop(items[3]);
+            watchStream.pop(items[4]);
+            watchStream.pop(items[5]);
+
+            player.name = items[0];
+            player.xPos = parseFloat(items[1]);
+            player.yPos = parseFloat(items[2]);
+            player.curFrame = parseUInt(items[3]);
+            player.shieldType = parseUInt(items[4]);
+            player.direction = parseInt(items[5]);
+	    }
+
+        string objectCountstr;
+        int objectCount;
+        watchStream.pop(objectCountstr);
+        objectCount = parseInt(objectCountstr);
+
+        for (int i = 1; i < jjObjectCount; i++) {
+            jjDeleteObject(i);
+        }
+
+        jjSpy("Deletion finished!");
+
+        for(int i = 0; i < objectCount; i++)
+        {
+            array<string> items;
+            items.resize(objectHeaderLength);
+
+            watchStream.pop(items[0]);
+            watchStream.pop(items[1]);
+            watchStream.pop(items[2]);
+            watchStream.pop(items[3]);
+            watchStream.pop(items[4]);
+
+            jjOBJ@ object = jjObjects[jjAddObject(
+                parseUInt(items[4]),
+                parseFloat(items[0]), parseFloat(items[1])
+            )];
+
+            object.curFrame = parseUInt(items[2]);
+            object.direction = parseUInt(items[3]);
+        }
+
+        jjSpy("Objects spawned!");
+    }
+
+    if(isWatching) {
+        jjLocalPlayers[1].cameraFreeze(
+            fakePlayers[watch_spectating].xPos,
+            fakePlayers[watch_spectating].yPos,
+        true, true);
+    }
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived == "!record") {
+        if(isWatching) { jjConsole("You're already watching a recording, you can't record and watch at the same time!"); return true; }
+        if(isRecording) { jjConsole("You're already recording!"); return true; }
+
+        jjConsole("Started recording!");
+        
+        isRecording = true;
+        recordStream = jjSTREAM();
+        
+        // player count
+        recordStream.push(getPlayerCount());
+
+        return true;
+    } else if(stringReceived == "!stop") {
+        if(isRecording) {
+            jjConsole("Stopped recording!");
+
+            isRecording = false;
+
+            for (int i = 0; i < playerHeaderLength * 2; i++)
+            {
+                recordStream.push("EOF");
+            }
+            
+            recordStream.save("STVrecording_1.asdat");
+            recordStream.clear();
+        } else if(isWatching) {
+            jjConsole("Stopped watching!");
+            
+            isWatching = false;
+            watching = "";
+            watchStream.clear();
+
+            fakePlayers.removeRange(0, watch_playerCount);
+
+            jjLocalPlayers[1].cameraUnfreeze();
+        } else {
+            jjConsole("You're not watching or recording anything to stop!");
+        }
+
+        return true;
+    } else if(stringReceived == "!watch") {
+        if(isRecording) { jjConsole("You're already recording, you can't watch and record at the same time!"); return true; }
+        if(isWatching) { jjConsole("You're already watching a recording!"); return true; }
+
+        jjConsole("Started watching the recording!");
+        
+        isWatching = true;
+        watching = "STVrecording_1.asdat";
+        
+        watchStream = jjSTREAM(watching);
+        watchStream.pop(watch_playerCount);
+
+        for (int i = 0; i < watch_playerCount; i++)
+        {
+            fakePlayers.insertLast(FakePlayer());
+        }
+
+        return true;
+    }
+
+    // watch commands
+    if(stringReceived.findFirst("!spectate") == 0) {
+        int toSpectate = parseInt(stringReceived.split(" ")[0]);
+        watch_spectating = toSpectate;
+
+        return true;
+    }
+
+    return false;
+}
+
+void onChat(int clientID, string &in stringReceived, CHAT::Type chatType) {
+    if(isRecording) {
+        recordStream.push("CHAT_MESSAGE__________");
+        recordStream.push(jjPlayers[clientID].nameUnformatted);
+        recordStream.push(stringReceived);
+    }
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+    for (uint fpI = 0; fpI < fakePlayers.length; fpI++)
+    {
+        FakePlayer@ fplayer = fakePlayers[fpI];
+
+        canvas.drawString(
+            int(fplayer.xPos) - jjGetStringWidth(fplayer.name, STRING::SMALL, normalTextAppearance) / 2,
+            int(fplayer.yPos) - 30, fplayer.name
+        );
+
+        canvas.drawSpriteFromCurFrame(
+            int(fplayer.xPos), int(fplayer.yPos),
+            uint(fplayer.curFrame), int8(fplayer.direction)
+        );
+    }
+}

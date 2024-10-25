@@ -1,0 +1,35 @@
+#pragma name "hookstest"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+#include "STVhooks.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+#include "../../scripts/STVhooks.asc"
+
+void onLevelBegin() {
+    jjConsole("Started!");
+    
+    if(jjIsServer) {
+        playerJoinCallbacks.insertLast(function(jjPLAYER@ player) {
+            jjConsole("the " + player.nameUnformatted + " joined!");
+        });
+
+        playerLeaveCallbacks.insertLast(function(jjPLAYER@ player) {
+            jjConsole("the " + player.nameUnformatted + " left :(");
+        });
+
+        playerPropertyChangedCallbacks.insertLast(function(jjPLAYER@ player, string property) {
+            if(property == "xAcc")
+                player.xAcc *= 0.125;
+            else if(property == "yAcc")
+                player.yAcc *= 0.125;
+        });
+    }
+}
+
+void onMain() {
+    if(jjIsServer)
+        updateHooks();
+}

@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "version": "0.6.7"
+  },
+  "savePath": "",
+  "images": [
+    {
+      "name": "wrooom0.png",
+      "path": "G:/steve/jazz2stuff/jazz2/levels/cycling/assets/wrooom0.png",
+      "folder": ""
+    },
+    {
+      "name": "wrooom1.png",
+      "path": "G:/steve/jazz2stuff/jazz2/levels/cycling/assets/wrooom1.png",
+      "folder": ""
+    },
+    {
+      "name": "wrooom2.png",
+      "path": "G:/steve/jazz2stuff/jazz2/levels/cycling/assets/wrooom2.png",
+      "folder": ""
+    },
+    {
+      "name": "wrooom3.png",
+      "path": "G:/steve/jazz2stuff/jazz2/levels/cycling/assets/wrooom3.png",
+      "folder": ""
+    },
+    {
+      "name": "wrooom4.png",
+      "path": "G:/steve/jazz2stuff/jazz2/levels/cycling/assets/wrooom4.png",
+      "folder": ""
+    }
+  ],
+  "folders": [],
+  "packOptions": {
+    "textureName": "texture",
+    "textureFormat": "png",
+    "removeFileExtension": false,
+    "prependFolderName": true,
+    "base64Export": false,
+    "tinify": false,
+    "tinifyKey": "",
+    "scale": 1,
+    "filter": "none",
+    "exporter": "JSON (hash)",
+    "fileName": "pack-result",
+    "savePath": "",
+    "width": 4096,
+    "height": 68,
+    "fixedSize": false,
+    "powerOfTwo": false,
+    "padding": 2,
+    "extrude": 0,
+    "allowRotation": true,
+    "allowTrim": true,
+    "trimMode": "trim",
+    "alphaThreshold": "0",
+    "detectIdentical": true,
+    "packer": "MaxRectsBin",
+    "packerMethod": "BestShortSideFit"
+  }
+}

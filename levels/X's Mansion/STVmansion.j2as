@@ -1,0 +1,92 @@
+#pragma require "STVutil.asc"
+#pragma require "STVprogress.asc"
+#pragma require "STVinteract.asc"
+#pragma require "STVmansion_dialogue.asc"
+
+#include "STVutil.asc"
+#include "STVprogress.asc"
+#include "STVinteract.asc"
+#include "STVmansion_dialogue.asc"
+
+jjTEXTAPPEARANCE mailAppearance = jjTEXTAPPEARANCE(STRING::NORMAL);
+
+bool drawMail = false;
+int partId = 0;
+
+void onLevelBegin()
+{
+    // I apologize in advance for using jjP, but it's a singleplayer level! :P
+
+    mailAppearance.at = STRING::SPECIALSIGN;
+
+    registerInteraction(Interaction(
+        255, function() {
+            jjP.xPos = 225 * 32;
+            jjP.yPos = 62 * 32;
+        }));
+
+    registerInteraction(Interaction(
+        254, function() {
+            jjP.xPos = 16 * 32;
+            jjP.yPos = 62 * 32;
+        }));
+    
+    registerInteraction(Interaction(
+        253, function() {
+            if(drawMail) {
+                jjConsole("Accepted!");
+            } else {
+                drawMail = true;
+            }
+        }, canCancel: true, cancelCallback: function() {
+            drawMail = false;
+
+            jjP.noFire = false;
+            jjP.freeze(false);
+        }));
+
+    jjConsole("[MS] started");
+}
+
+void onPlayer(jjPLAYER @player)
+{
+    // if (partId == 0)
+    // {
+
+    // }
+    if(drawMail) {
+        player.noFire = true;
+        player.xSpeed = 0;
+        player.ySpeed = 0;
+        player.xAcc = 0;
+        player.yAcc = 0;
+        player.freeze(true);
+    }
+
+    updateInteractions(player);
+}
+
+void onDrawLayer3(jjPLAYER @player, jjCANVAS @canvas)
+{
+    drawInteractions(canvas);
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(drawMail) {
+        canvas.drawString(jjResolutionWidth / 16, jjResolutionHeight / 4,
+            "|JazzMail|||||@|frank^mail.jazz|||||||@Hello, " +
+            jjLocalPlayers[1].nameUnformatted +
+            "@We invite you to a dinner at our mansion@(with multiple ||||||carrots||)@" + 
+            "If you're interested, please come by to @308 Negro City New Mexico Alberbeque|@Frank||" + 
+            "@(press up to accept, |press down to discard)",
+            STRING::MEDIUM, mailAppearance);
+    }
+
+    return false;
+}
+
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+    if(drawMail) {
+        pd.spriteMode = pd.player.spriteMode;
+    }
+}

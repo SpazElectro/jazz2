@@ -1,0 +1,679 @@
+// TODO: make teamscore work with both teams, also add support for
+// 3/4 team CTF
+
+#pragma name "Custom HUD"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+#include "STVmenu.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+#include "../../scripts/STVmenu.asc"
+
+bool toggled_on = true;
+
+bool locatingItem = false;
+string itemBeingLocated = "";
+
+string settingsVersion = "0.2A";
+
+array<int> upgradedIds;
+array<int> unupgradedIds;
+
+int gridSize = 10;
+
+// the magic starts here
+
+int ammoX = 700;
+int ammoY = 585;
+STRING::Size ammoSize = STRING::MEDIUM;
+bool ammoEnabled = true;
+
+float ammoSpriteSize = 1;
+int ammoSpritePaddingX = 0;
+int ammoSpritePaddingY = 0;
+
+int healthX       = 785;
+int healthY       = 10;
+float healthSize    = 1;
+int healthPadding = 15;
+bool healthEnabled = true;
+
+int teamScoreX    = 4;
+int teamScoreY    = 12;
+STRING::Size teamScoreSize = STRING::MEDIUM;
+bool teamScoreEnabled = false;
+
+// the magic ends here
+
+jjTEXTAPPEARANCE largeAmmoTextAppearance = jjTEXTAPPEARANCE();
+
+AnimatedSprite@ gun = AnimatedSprite(ANIM::PICKUPS, 0, 0, 0, 0.25, false);
+CustomMenu@ menu = CustomMenu();
+
+array<MenuButton@> menuButtons;
+
+void resetToDefaults() {
+    gridSize = 10;
+    
+    ammoX = 700;
+    ammoY = 585;
+    ammoSize = STRING::MEDIUM;
+    ammoEnabled = true;
+
+    ammoSpriteSize = 1;
+    ammoSpritePaddingX = 0;
+    ammoSpritePaddingY = 0;
+
+    healthX       = 785;
+    healthY       = 10;
+    healthSize    = 1;
+    healthPadding = 15;
+    healthEnabled = true;
+
+    teamScoreX    = 4;
+    teamScoreY    = 12;
+    teamScoreSize = STRING::MEDIUM;
+    teamScoreEnabled = false;
+}
+
+int snap(int spot) {
+    return (spot + gridSize / 2) / gridSize * gridSize;
+}
+
+bool upgraded(jjPLAYER @player, int id) { return player.powerup[id]; }
+
+int idToSprite(jjPLAYER@ player, int id)
+{
+    if(id == 1) {
+        if(gun.animSet == ANIM::PLUS_AMMO && player.charCurr != CHAR::LORI) gun.setAnimSet(ANIM::PICKUPS);
+
+        if(player.charCurr == CHAR::JAZZ) {
+            if(upgraded(player, 1)) {
+                gun.setAnimSet(ANIM::AMMO);
+                return 18;
+            }
+
+            gun.setAnimSet(ANIM::PICKUPS);
+
+            return 29;
+        } else if(player.charCurr == CHAR::SPAZ) {
+            if(upgraded(player, 1)) {
+                gun.setAnimSet(ANIM::AMMO);
+                return 19;
+            }
+
+            gun.setAnimSet(ANIM::PICKUPS);
+            return 30;
+        } else if(player.charCurr == CHAR::LORI) {
+            gun.setAnimSet(ANIM::PLUS_AMMO);
+            
+            return 5;
+        } else if(player.charCurr == CHAR::BIRD2) {
+            if(player.charOrig == CHAR::LORI) {
+                gun.setAnimSet(ANIM::PLUS_AMMO);
+
+                if(upgraded(player, 1)) {
+                    return 6;
+                } else {
+                    return 5;
+                }
+            }
+
+            if(upgraded(player, 1)) {
+                gun.setAnimSet(ANIM::AMMO);
+                return player.charOrig == CHAR::JAZZ ? 18 : 19;
+            }
+
+            gun.setAnimSet(ANIM::PICKUPS);
+
+            return player.charOrig == CHAR::JAZZ ? 29 : 30;
+        }
+
+        gun.setVisible(false);
+        return 0;
+    }
+
+    gun.setAnimSet(ANIM::AMMO);
+
+    return upgraded(player, id) ? upgradedIds[id - 2] : unupgradedIds[id - 2];
+}
+
+jjSTREAM saveSettings() {
+    jjSTREAM settingsStream = jjSTREAM();
+    settingsStream.push(settingsVersion);
+    settingsStream.push(toggled_on);
+    
+    // the magic starts here
+    settingsStream.push(formatInt(ammoX));
+    settingsStream.push(formatInt(ammoY));
+    settingsStream.push(formatSize(ammoSize));
+    settingsStream.push(ammoEnabled);
+
+    settingsStream.push(formatFloat(ammoSpriteSize));
+    
+    settingsStream.push(formatInt(healthX));
+    settingsStream.push(formatInt(healthY));
+    settingsStream.push(formatFloat(healthSize));
+    settingsStream.push(formatInt(healthPadding));
+    settingsStream.push(healthEnabled);
+    
+    settingsStream.push(formatInt(teamScoreX));
+    settingsStream.push(formatInt(teamScoreY));
+    settingsStream.push(formatSize(teamScoreSize));
+    settingsStream.push(teamScoreEnabled);
+    
+    settingsStream.push(formatInt(gridSize));
+
+    // the magic ends here
+
+    settingsStream.save("STVcustomhud-" + p.nameUnformatted + ".asdat");
+    
+    return settingsStream;
+}
+
+void backupData() {
+    jjSTREAM("STVcustomhud-" + p.nameUnformatted + ".asdat").save("STVcustomhud-restore-" + p.nameUnformatted + ".asdat");
+}
+
+void loadSettings(jjSTREAM settingsStream) {
+    string version;
+    if(!settingsStream.pop(version)) {
+        jjConsole("[CH] Version not found!");
+        return;
+    }
+
+    if(version != settingsVersion) {
+        backupData();
+        jjConsole("[CH] Version mismatch found! Your old settings have been saved");
+        jjConsole("... into STVcustomhud-restore-" + p.nameUnformatted + ".asdat");
+        saveSettings();
+        return;
+    }
+
+    settingsStream.pop(toggled_on);
+
+    string ammoXStr, ammoYStr, ammoSizeStr, ammoSpriteSizeStr;
+    settingsStream.pop(ammoXStr);
+    settingsStream.pop(ammoYStr);
+    settingsStream.pop(ammoSizeStr);
+    settingsStream.pop(ammoEnabled);
+    settingsStream.pop(ammoSpriteSizeStr);
+
+    ammoX = parseInt(ammoXStr);
+    ammoY = parseInt(ammoYStr);
+    ammoSize = parseSize(ammoSizeStr);
+    ammoSpriteSize = parseFloat(ammoSpriteSizeStr);
+
+    string healthXStr, healthYStr, healthSizeStr, healthPaddingStr;
+    
+    settingsStream.pop(healthXStr);
+    settingsStream.pop(healthYStr);
+    settingsStream.pop(healthSizeStr);
+    settingsStream.pop(healthPaddingStr);
+    settingsStream.pop(healthEnabled);
+    
+    healthX = parseInt(healthXStr);
+    healthY = parseInt(healthYStr);
+    healthSize = parseFloat(healthSizeStr);
+    healthPadding = parseInt(healthPaddingStr);
+
+    string teamScoreXStr, teamScoreYStr, teamScoreSizeStr;
+    settingsStream.pop(teamScoreXStr);
+    settingsStream.pop(teamScoreYStr);
+    settingsStream.pop(teamScoreSizeStr);
+    settingsStream.pop(teamScoreEnabled);
+
+    teamScoreX = parseInt(teamScoreXStr);
+    teamScoreY = parseInt(teamScoreYStr);
+    teamScoreSize = parseSize(teamScoreSizeStr);
+
+    string snappingStr;
+    settingsStream.pop(snappingStr);
+
+    gridSize = parseInt(snappingStr);
+}
+
+void keyPress(uint keyCode) {
+    if(keyCode == getKeyById("F2").code) {
+        menu.toggle();
+    }
+}
+
+int menuPage = 1;
+
+void toPage(int newPage) {
+    menuPage = newPage;
+    
+    // starts at 1 to skip "Page"
+    for (uint i = 1; i < menuButtons.length(); i++)
+    {
+        menuButtons[i].visible = false;
+    }
+    
+    if(menuPage == 1) {
+        for (int i = 0; i < 6; i++)
+        {
+            menuButtons[i + 1].visible = true;
+        }
+    } else {
+        // menuButtons[7].visible = true;
+    }
+}
+
+void onLevelBegin() {
+    jjConsole("[CH] Started!");
+
+    largeAmmoTextAppearance.spacing = 10;
+
+    menu.header = "Custom HUD";
+    menu.footer = "Custom HUD v" + settingsVersion;
+
+    array<Button@> pageDict = {
+        Button(
+            0, function(button) {
+                button.setValue(true);
+                button.mainButton.buttons[1].setValue(false);
+                toPage(1);
+            // @ignore-semicolons
+            }, "1", true)
+        // dont forget the comma
+        // Button(
+        //     1, function(button) {
+        //         button.setValue(true);
+        //         button.mainButton.buttons[0].setValue(false);
+        //         toPage(2);
+        //     }, "2", true)
+    };
+
+    menuButtons.insertLast(MenuButton("Page", -1, pageDict, menu));
+
+    menuButtons[0].buttons[0].value = true;
+
+    // page 1 //
+
+    array<Button@> healthDict = {
+        Button(
+            0, function(button) {
+                healthSize -= 0.1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                healthSize += 0.1;
+            // @ignore-semicolons
+            }, "+", true)
+    };
+
+    menuButtons.insertLast(MenuButton("Health size", 0, healthDict, menu));
+
+    array<Button@> ammoSizeDict = {
+        Button(
+            0, function(button) {
+                ammoSpriteSize -= 0.1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+            // @ignore-semicolons
+                ammoSpriteSize += 0.1;
+            // @ignore-semicolons
+            }, "+", true)
+    };
+
+    menuButtons.insertLast(MenuButton("Ammo size", 1, ammoSizeDict, menu));
+    
+    array<Button@> ammoTextSizeDict = {
+        Button(
+            0, function(button) {
+                if(ammoSize == STRING::MEDIUM) { ammoSize = STRING::SMALL; return; }
+                if(ammoSize == STRING::LARGE) { ammoSize = STRING::MEDIUM; return; }
+            }, "-", true),
+        Button(
+            1, function(button) {
+                if(ammoSize == STRING::SMALL) { ammoSize = STRING::MEDIUM; return; }
+                if(ammoSize == STRING::MEDIUM) { ammoSize = STRING::LARGE; return; }
+            // @ignore-semicolons
+            }, "+", true)
+    };
+
+    menuButtons.insertLast(MenuButton("Ammo text size", 2, ammoTextSizeDict, menu));
+
+    array<Button@> ammoSpritePaddingXDict = {
+        Button(
+            0, function(button) {
+                ammoSpritePaddingX -= 1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                ammoSpritePaddingX += 1;
+            // @ignore-semicolons
+            }, "+", true)
+    };
+
+    menuButtons.insertLast(MenuButton("Ammo sprite padding X", 3, ammoSpritePaddingXDict, menu));
+
+    array<Button@> ammoSpritePaddingYDict = {
+        Button(
+            0, function(button) {
+                ammoSpritePaddingY -= 1;
+            }, "-", true),
+        Button(
+            1, function(button) {
+                ammoSpritePaddingY += 1;
+            // @ignore-semicolons
+            }, "+", true)
+    };
+
+    menuButtons.insertLast(MenuButton("Ammo sprite padding Y", 4, ammoSpritePaddingYDict, menu));
+    menuButtons.insertLast(MenuButton("Reset to defaults", 5, Button(0, function(button){resetToDefaults();}), menu));
+
+    // page 1 //
+
+    // page 2 //
+    // menuButtons.insertLast(MenuButton("test button for page 2", 0, {
+    //     Button(
+    //         0, function(button) {
+                
+    //         }, "-", true),
+    //     Button(
+    //         1, function(button) {
+                
+    //         }, "+", true)
+    // }, menu));
+
+    // menuButtons[7].visible = false;
+
+    keyPressCallbacks.insertLast(keyPress);
+    
+    jjSTREAM settingsStream("STVcustomhud-" + p.nameUnformatted + ".asdat");
+    
+    if(settingsStream.isEmpty()) {
+        settingsStream = saveSettings();
+    }
+
+    loadSettings(jjSTREAM("STVcustomhud-" + p.nameUnformatted + ".asdat"));
+
+    // jjConsole("[CH] Loaded settings!");
+
+    unupgradedIds.insertLast(25); // bouncer
+    unupgradedIds.insertLast(29); // ice
+    unupgradedIds.insertLast(34); // seeker
+    unupgradedIds.insertLast(49); // rf
+    unupgradedIds.insertLast(57); // toaster
+    unupgradedIds.insertLast(59); // tnt
+    unupgradedIds.insertLast(62); // fireball
+    unupgradedIds.insertLast(68); // electroblaster
+
+    upgradedIds.insertLast(24); // bouncer
+    upgradedIds.insertLast(28); // ice
+    upgradedIds.insertLast(33); // seeker
+    upgradedIds.insertLast(48); // rf
+    upgradedIds.insertLast(56); // toaster
+    upgradedIds.insertLast(59); // tnt
+    upgradedIds.insertLast(61); // fireball
+    upgradedIds.insertLast(67); // electroblaster
+
+    // jjConsole("[CH] Loaded ids!");
+}
+
+void onPlayer(jjPLAYER@ player) {
+    updateKeys();
+
+    if(locatingItem) {
+        int x = snap(jjMouseX);
+        int y = snap(jjMouseY);
+        
+        if(itemBeingLocated == "ammo") {
+            ammoX = x;
+            ammoY = y;
+        }
+        
+        if(itemBeingLocated == "health") {
+            healthX = x;
+            healthY = y;
+        }
+        
+        if(itemBeingLocated == "teamscore") {
+            teamScoreX = x;
+            teamScoreY = y;
+        }
+
+        if(jjKey[0x1]) {
+            locatingItem = false;
+            itemBeingLocated = "";
+            saveSettings();
+        }
+    }
+
+    gun.setId(idToSprite(player, player.currWeapon));
+    
+    gun.update();
+
+    if(!(player.charCurr == CHAR::JAZZ || player.charCurr == CHAR::SPAZ || player.charCurr == CHAR::LORI || player.charCurr == CHAR::BIRD2)) {
+        gun.visible = false;
+    } else {
+        if(!ammoEnabled && itemBeingLocated == "ammo") { gun.visible = true; } else { gun.visible = ammoEnabled; }
+    }
+
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.input(player);
+    }
+
+    menu.update();
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if(stringReceived.findFirst("!locate") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[CH] Provide something to locate, options: ammo, health!");
+            return true;
+        }
+
+        string element = stringReceived.split(" ")[1];
+
+        if(element != "ammo" && element != "health" && element != "teamscore") {
+            jjConsole("[CH] " + element + " does not exist, options: ammo, health!");
+            return true;
+        }
+
+        itemBeingLocated = element;
+        locatingItem = true;
+
+        return true;
+    }
+
+    if(stringReceived == "!hudenable") {
+        toggled_on = true;
+
+        saveSettings();
+
+        return true;
+    }
+
+    if(stringReceived == "!huddisable") {
+        toggled_on = false;
+
+        saveSettings();
+        
+        return true;
+    }
+
+    if(stringReceived.findFirst("!gridsize") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[CH] Provide a number to set the grid size to!");
+            return true;
+        }
+
+        int snapping = parseInt(stringReceived.split(" ")[1]);
+
+        gridSize = snapping;
+
+        jjConsole("[CH] Grid size has been set to " + snapping + "!");
+        
+        saveSettings();
+
+        return true;
+    }
+
+    if(stringReceived.findFirst("!hudtoggle") == 0) {
+        if(stringReceived.split(" ").length() == 1) {
+            jjConsole("[CH] Provide something to toggle, options: ammo, health!");
+            return true;
+        }
+
+        string element = stringReceived.split(" ")[1];
+
+        if(element == "ammo") {
+            ammoEnabled = !ammoEnabled;
+        } else if(element == "health") {
+            healthEnabled = !healthEnabled;
+        } else if(element == "teamscore") {
+            teamScoreEnabled = !teamScoreEnabled;
+        } else {
+            jjConsole("[CH] " + element + " does not exist, options: ammo, health!");
+        }
+
+        return true;
+    }
+
+    if(stringReceived == "!hudhelp") {
+        jjConsole("----------------");
+        jjConsole("!locate - Locate a custom HUD element from the parameter");
+        jjConsole("!gridsize - Sets the locating grid size to the parameter");
+        jjConsole("!hudenable - Enables the custom HUD");
+        jjConsole("!huddisable - Disables the custom HUD");
+        jjConsole("!hudtoggle - Toggle a custom HUD element");
+        jjConsole("----------------");
+
+        return true;
+    }
+
+    return false;
+}
+
+string determineTeamColor(TEAM::Color color) {
+    if(color == TEAM::RED) return "||";
+    if(color == TEAM::BLUE) return "|||";
+    if(color == TEAM::YELLOW) return "||||";
+    
+    // green
+    return "|";
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    menu.draw(canvas);
+
+    for (uint i = 0; i < menuButtons.length(); i++)
+    {
+        MenuButton @button = menuButtons[i];
+        button.draw(canvas);
+    }
+
+    menu.finishDrawing(canvas);
+
+    // utils
+    if(locatingItem) {
+        int x = ammoX;
+        int y = ammoY;
+
+        if(itemBeingLocated == "health") {
+            x = healthX;
+            y = healthY;
+        } else if(itemBeingLocated == "teamscore") {
+            x = teamScoreX;
+            y = teamScoreY;
+        }
+
+        x += 10;
+        int xRatio = (jjResolutionWidth / 2) - snap(jjMouseX);
+        int yRatio = jjResolutionHeight - snap(jjMouseY);
+
+        if(x + jjGetStringWidth("Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
+            x -= 200;
+        }
+
+        if(y <= 50) {
+            y += 80;
+        }
+
+        canvas.drawString(x, y - 10, "" + snap(jjMouseX) + " - " + snap(jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 30, "Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 40, "Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL);
+    }
+
+    if(toggled_on) {
+        if(ammoEnabled || locatingItem) {
+            string ammo = player.currWeapon == 1 ? "^" : "" + player.ammo[player.currWeapon];
+
+            if((
+                // @ignore-semicolons
+                player.charCurr == CHAR::JAZZ ||
+                // @ignore-semicolons
+                player.charCurr == CHAR::SPAZ ||
+                // @ignore-semicolons
+                player.charCurr == CHAR::LORI ||
+                // @ignore-semicolons
+                player.charCurr == CHAR::BIRD2
+            )) {
+                if(ammoSize != STRING::LARGE || (ammoSize == STRING::LARGE && ammo == "^")) {
+                    canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize);
+                } else {
+                    canvas.drawString(ammoX, ammoY, "x" + ammo, ammoSize, largeAmmoTextAppearance);
+                }
+            }
+            
+            gun.x = ammoX - 10 + ammoSpritePaddingX;
+            gun.y = ammoY + ammoSpritePaddingY;
+            
+            gun.spriteMode = (player.currWeapon == 1) ? SPRITE::PLAYER : SPRITE::NORMAL;
+            gun.spriteModeParam = player.clientID;
+
+            gun.xScale = ammoSpriteSize;
+            gun.yScale = ammoSpriteSize;
+            
+            gun.draw(canvas);
+        }
+
+        return true;
+    } else { return false; }
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(toggled_on) {
+        if(healthEnabled || locatingItem) {
+            int maxHealth = jjShowMaxHealth ? jjMaxHealth : player.health;
+
+            for(int i = 0; i < maxHealth; i++) {
+                bool isDamaged = i >= player.health;
+                int sprParam = isDamaged ? 127 : 0;
+
+                canvas.drawResizedSprite(
+                    int(healthX - (i * (healthPadding * healthSize))),
+                    healthY,
+                    ANIM::PICKUPS,
+                    41,
+                    0,
+                    healthSize,
+                    healthSize,
+                    isDamaged ? SPRITE::TINTED : SPRITE::NORMAL,
+                    sprParam
+                );
+            }
+        }
+
+        if((jjGameMode == GAME::CTF && teamScoreEnabled) || itemBeingLocated == "teamscore") {
+            canvas.drawString(teamScoreX, teamScoreY, "" + determineTeamColor(player.team) + jjTeamScore[player.team] + "/" + jjMaxScore, teamScoreSize);
+            
+        }
+
+        return true;
+    } else { return false; }
+}
+
+// bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
+// bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
+// bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {return true;}
+// bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return teamScoreEnabled; }

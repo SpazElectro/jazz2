@@ -1,0 +1,10 @@
+#pragma name "Spy Among Us"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+jjPLAYER @spy;
+
+void onLevelBegin()
+{
+}

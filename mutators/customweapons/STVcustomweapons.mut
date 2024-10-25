@@ -1,0 +1,312 @@
+#pragma name "customweapons"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+// plan:
+// make custom weapon class, which takes most properties from jjWEAPON
+// how will we get these "custom weapons"? Weapon sets, weapon set 0
+// is just the default game weapon set, other mutators can make their own weapons
+// but they have to make and register a weapon set, a weapon set will have an
+// array of the CustomWeapon class which you register in the constructor of the weapon set
+
+bool usingCustomWeapon = false;
+
+// thank you minmay
+class NormalPickup : jjBEHAVIORINTERFACE {
+    void onBehave(jjOBJ@ obj) {
+        obj.behave(BEHAVIOR::PICKUP);
+    }
+    
+    bool onObjectHit(jjOBJ@ obj, jjOBJ@ bullet, jjPLAYER@ player, int force) {
+        if (!usingCustomWeapon) {
+            obj.scriptedCollisions = false;
+            obj.objectHit(obj, HANDLING::PICKUP);
+
+            return false;
+        }
+
+        return true;
+    }
+}
+
+class NormalPowerup : jjBEHAVIORINTERFACE {
+    void onBehave(jjOBJ@ obj) {
+        obj.behave(BEHAVIOR::DEFAULT);
+    }
+    
+    bool onObjectHit(jjOBJ@ obj, jjOBJ@ bullet, jjPLAYER@ player, int force) {
+        // if (usingCustomWeapon) {
+        //     // obj.scriptedCollisions = false;
+        //     // obj.objectHit(obj, HANDLING::PICKUP);
+        //     setWeaponSet(currentWeaponSet, player);
+
+        //     return false;
+        // }
+
+        return true;
+    }
+}
+
+int currentWeaponSet = 0;
+
+namespace CustomWeapons {
+    class WeaponProperties {
+        bool defaultSample = true;
+        int gemsLost = 0;
+        int gemsLostPowerup = 0;
+        bool gradualAim = false;
+        bool infinite = false;
+        int maximum = -1; // -1 == 99 in single player or cooperative, otherwise 50
+        int multiplier = 1; // toaster uses 32
+        bool replacedByBubbles = false;
+        bool replacedByShield = false;
+        SPREAD::Spread spread = SPREAD::NORMAL;
+        WEAPON::Style style = WEAPON::NORMAL;
+
+        WeaponProperties() {}
+    }
+
+    class CustomWeapon {
+        CustomWeapons::WeaponProperties@ properties;
+        CustomWeapons::WeaponProperties@ upgradedProperties;
+        CustomWeapons::CustomWeaponSet@ parentSet;
+
+        CustomWeapon() {
+            @properties = CustomWeapons::WeaponProperties();
+            @upgradedProperties = CustomWeapons::WeaponProperties();
+        }
+
+        void onUsage(jjPLAYER@ player) {}
+        void onHeld(jjPLAYER@ player) {}
+        void onDamage(jjPLAYER@ attacker, jjPLAYER@ victim, int damage) {}
+    };
+
+    class CustomWeaponSet {
+        array<CustomWeapon@> customWeapons();
+        array<int> ammo();
+        array<bool> powerup();
+
+        CustomWeaponSet() {
+            for(int i = 0; i < 9; i++) {
+                ammo.insertLast(0);
+                powerup.insertLast(false);
+            }
+        }
+    }
+};
+
+array<CustomWeapons::CustomWeaponSet@> customWeaponSets();
+
+void registerWeaponSet(CustomWeapons::CustomWeaponSet@ set) {
+    customWeaponSets.insertLast(set);
+}
+
+void setWeaponSet(int newWeaponSet, jjPLAYER@ player) {
+    for(int i = 0; i < 8; i++) {
+        customWeaponSets[currentWeaponSet].ammo[i] = player.ammo[i + 1];
+
+        if(int(player.currWeapon) == i+1 && customWeaponSets[0].ammo[i] == 0) {
+            player.currWeapon = 1;
+        }
+    }
+
+    currentWeaponSet = newWeaponSet;
+
+    // loop thro every weapon and set the properties in jjWeapons[index] accordingly
+    for(int i = 0; i < 8; i++) {
+        jjWEAPON@ weapon = jjWeapons[i + 1];
+        CustomWeapons::CustomWeaponSet@ weaponSet = customWeaponSets[newWeaponSet];
+        CustomWeapons::CustomWeapon@ customWeapon = weaponSet.customWeapons[i];
+        CustomWeapons::WeaponProperties@ properties = customWeapon.properties;
+        CustomWeapons::WeaponProperties@ upgradedProperties = customWeapon.upgradedProperties;
+        CustomWeapons::WeaponProperties@ props = weaponSet.powerup[i] ? upgradedProperties : properties;
+
+        weapon.defaultSample = props.defaultSample;
+        weapon.gemsLost = props.gemsLost;
+        weapon.gemsLostPowerup = props.gemsLostPowerup;
+        weapon.gradualAim = props.gradualAim;
+        weapon.infinite = props.infinite;
+        weapon.maximum = props.maximum;
+        weapon.multiplier = props.multiplier;
+        weapon.replacedByBubbles = props.replacedByBubbles;
+        weapon.replacedByShield = props.replacedByShield;
+        weapon.spread = props.spread;
+        weapon.style = props.style == 0 ? WEAPON::NORMAL : props.style == 1 ? WEAPON::MISSILE : props.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
+
+        player.ammo[i + 1] = weaponSet.ammo[i];
+    }
+
+    usingCustomWeapon = newWeaponSet != 0;
+}
+
+void generateDefaultWeapons(CustomWeapons::CustomWeaponSet@ weaponSet) {
+    for(int i = 1; i < 9; i++) {
+        jjWEAPON@ weapon = jjWeapons[i];
+
+        CustomWeapons::CustomWeapon@ customWeapon = CustomWeapons::CustomWeapon();
+        CustomWeapons::WeaponProperties@ properties = customWeapon.properties;
+        CustomWeapons::WeaponProperties@ upgradedProperties = customWeapon.upgradedProperties;
+        array<CustomWeapons::WeaponProperties@> propList = {properties, upgradedProperties};
+
+        for(int j = 0; j < 2; j++) {
+            CustomWeapons::WeaponProperties@ props = propList[j];
+            props.defaultSample = weapon.defaultSample;
+            props.gemsLost = weapon.gemsLost;
+            props.gemsLostPowerup = weapon.gemsLostPowerup;
+            props.gradualAim = weapon.gradualAim;
+            props.infinite = weapon.infinite;
+            props.maximum = weapon.maximum;
+            props.multiplier = weapon.multiplier;
+            props.replacedByBubbles = weapon.replacedByBubbles;
+            props.replacedByShield = weapon.replacedByShield;
+            props.spread = weapon.spread;
+            props.style = weapon.style == 0 ? WEAPON::NORMAL : weapon.style == 1 ? WEAPON::MISSILE : weapon.style == 2 ? WEAPON::POPCORN : WEAPON::CAPPED;
+        }
+
+        @customWeapon.parentSet = weaponSet;
+
+        weaponSet.customWeapons.insertLast(customWeapon);
+    }
+}
+
+array<OBJECT::Object> ammoObjects();
+array<OBJECT::Object> powerupObjects();
+
+void onLevelBegin() {
+    ammoObjects.insertLast(OBJECT::ICEAMMO3);
+    ammoObjects.insertLast(OBJECT::BOUNCERAMMO3);
+    ammoObjects.insertLast(OBJECT::SEEKERAMMO3);
+    ammoObjects.insertLast(OBJECT::RFAMMO3);
+    ammoObjects.insertLast(OBJECT::TOASTERAMMO3);
+    ammoObjects.insertLast(OBJECT::TNTAMMO3);
+    ammoObjects.insertLast(OBJECT::GUN8AMMO3);
+    ammoObjects.insertLast(OBJECT::GUN9AMMO3);
+    powerupObjects.insertLast(OBJECT::BLASTERPOWERUP);
+    powerupObjects.insertLast(OBJECT::BOUNCERPOWERUP);
+    powerupObjects.insertLast(OBJECT::ICEPOWERUP);
+    powerupObjects.insertLast(OBJECT::SEEKERPOWERUP);
+    powerupObjects.insertLast(OBJECT::RFPOWERUP);
+    powerupObjects.insertLast(OBJECT::TOASTERPOWERUP);
+    powerupObjects.insertLast(OBJECT::TNTPOWERUP);
+    powerupObjects.insertLast(OBJECT::GUN8POWERUP);
+    powerupObjects.insertLast(OBJECT::GUN9POWERUP);
+    
+    for (int i = 0; i < ammoObjects.length(); i++)
+    {
+        OBJECT::Object obj = ammoObjects[i];
+        jjObjectPresets[obj].scriptedCollisions = true;
+        jjObjectPresets[obj].behavior = NormalPickup();
+    }
+
+    for (int i = 0; i < powerupObjects.length(); i++)
+    {
+        OBJECT::Object obj = powerupObjects[i];
+        jjObjectPresets[obj].scriptedCollisions = true;
+        jjObjectPresets[obj].behavior = NormalPowerup();
+    }
+
+    jjConsole("Started!");
+
+    for(int i = 1; i < 9; i++) {
+        jjWeapons[i].allowed = true;
+        jjWeapons[i].allowedPowerup = true;
+    }
+
+    // register the default weapons into 1 weapon set
+    CustomWeapons::CustomWeaponSet@ defaultWeaponSet = CustomWeapons::CustomWeaponSet();
+
+    generateDefaultWeapons(defaultWeaponSet);
+    registerWeaponSet(defaultWeaponSet);
+
+    jjConsole("Default weapon set has been registered!");
+
+    CustomWeapons::CustomWeaponSet@ testSet = CustomWeapons::CustomWeaponSet();
+    generateDefaultWeapons(testSet);
+
+    testSet.customWeapons[0].properties.infinite = false;
+    testSet.customWeapons[0].properties.spread = SPREAD::PEPPERSPRAY;
+    testSet.customWeapons[0].properties.multiplier = 32;
+    testSet.customWeapons[0].properties.style = WEAPON::POPCORN;
+    testSet.customWeapons[0].upgradedProperties.infinite = true;
+    testSet.ammo[0] = 99;
+
+    registerWeaponSet(testSet);
+
+    keyPressCallbacks.insertLast(function(uint key) {
+        int newWeaponSet = 0;
+
+        if(key == getKeyById("P").code) {
+            newWeaponSet += 1;
+
+            if(newWeaponSet > int(customWeaponSets.length() - 1))
+                newWeaponSet = customWeaponSets.length() - 1;
+        } else if(key == getKeyById("O").code) {
+            newWeaponSet -= 1;
+
+            if(newWeaponSet < 0)
+                newWeaponSet = 0;
+        }
+
+        if(key == getKeyById("P").code || key == getKeyById("O").code) {
+            setWeaponSet(newWeaponSet, jjP);
+        }
+    });
+}
+
+void onMain() {
+    for (int i = 0; i < ammoObjects.length(); i++)
+    {
+        OBJECT::Object obj = ammoObjects[i];
+        
+        for (int j = 1; j < jjObjectCount; j++) {
+            jjOBJ@ o = jjObjects[j];
+
+            if (o.isActive && o.eventID == obj && !o.scriptedCollisions) {
+                o.scriptedCollisions = true;
+                o.behavior = NormalPickup();
+            }
+        }
+    }
+
+    // warning: setting `blastermonitor::behavior` does NOT work
+    // for (int i = 0; i < powerupObjects.length(); i++)
+    // {
+    //     OBJECT::Object obj = powerupObjects[i];
+        
+    //     for (int i = 1; i < jjObjectCount; i++) {
+    //         jjOBJ@ o = jjObjects[i];
+
+    //         if (o.isActive && o.eventID == obj && !o.scriptedCollisions) {
+    //             o.scriptedCollisions = true;
+    //             o.behavior = NormalPowerup();
+    //         }
+    //     }
+    // }
+
+    updateKeys();
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+    canvas.drawString(jjResolutionWidth / 2 - 100, 20, "Current weapon set: " + currentWeaponSet);
+    canvas.drawString(jjResolutionWidth / 2 - 100, 40, "Weapon 0 infinite: " + customWeaponSets[currentWeaponSet].customWeapons[0].properties.infinite);
+
+    return false;
+}
+
+bool onCheat(string &in cheat) {
+    if(cheat == "jjgod") {
+        for (int customWeaponSetIndex = 0; customWeaponSetIndex < customWeaponSets.length(); customWeaponSetIndex++)
+        {
+            CustomWeapons::CustomWeaponSet@ weaponSet = customWeaponSets[customWeaponSetIndex];
+            for (int i = 0; i < 9; i++)
+                weaponSet.ammo[i] = 99;
+        }
+        
+    }
+
+    return false;
+}

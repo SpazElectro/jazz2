@@ -1,0 +1,35 @@
+#pragma name "rabbitnpctest"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+// for intellisense
+#include "../../scripts/STVutil.asc"
+
+RabbitNPC@ testNPC;
+bool e;
+
+void onLevelBegin() {
+    jjConsole("Started!");
+}
+
+void onChat(int clientID, string &in stringReceived, CHAT::Type chatType)
+{
+    @testNPC = RabbitNPC(
+        stringReceived, RabbitFur(127, 127, 127, 0), CHAR::SPAZ,
+        int(jjPlayersWithClientID(clientID)[0].xPos), int(jjPlayersWithClientID(clientID)[0].yPos)
+    );
+    
+    e = true;
+}
+
+void onMain() {
+    if(e) {
+        testNPC.update();
+    }
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+    if(e)
+        testNPC.draw(canvas);
+}

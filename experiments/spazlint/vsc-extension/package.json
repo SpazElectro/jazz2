@@ -1,0 +1,38 @@
+{
+	"name": "spazlint",
+	"description": "spazlint lints jj2+ angelscript code for you",
+	"version": "0.0.1",
+	"publisher": "spazelectro",
+	"repository": "https://github.com/SpazElectro/jazz2",
+	"engines": {
+		"vscode": "^1.70.0"
+	},
+	"activationEvents": [
+		"onLanguage:cpp"
+	],
+	"main": "./extension.js",
+	"contributes": {
+		"configuration": {
+			"title": "Spazlint",
+			"properties": {
+				"spazlint.linterdir": {
+					"type": "string",
+					"default": "",
+					"description": "Specifies the folder path containing spazlint"
+				},
+				"spazlint.includedir": {
+					"type": "array",
+					"default": [],
+					"description": "Specifics the folder path containing your includers"
+				}
+			}
+		}
+	},
+	"scripts": {},
+	"devDependencies": {
+		"@types/vscode": "^1.70.0"
+	},
+	"dependencies": {
+		"net": "^1.0.2"
+	}
+}
