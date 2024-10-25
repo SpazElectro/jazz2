@@ -12,3 +12,4 @@
 ## Reporting a Vulnerability
 
 Message me on Discord through my profile;
+
