@@ -119,11 +119,11 @@ class MotorPlayer
 			this.velocity.x = -MAX_NEG_ANGLE/3;
 		
 		// makes the bike tilt up the faster you are
-		// #ifdef TILT_NEGATIVE
-		// this.sprite.angle = this.velocity.x*3;
-		// #else
-		// this.sprite.angle = abs(this.velocity.x)*3;
-		// #endif
+		#ifdef TILT_NEGATIVE
+		this.sprite.angle = lerp(this.sprite.angle, this.velocity.x*3, 0.3);
+		#else
+		this.sprite.angle = lerp(this.sprite.angle, abs(this.velocity.x)*3, 0.3);
+		#endif
 
 		/*
 		0 air
@@ -139,8 +139,8 @@ class MotorPlayer
 			this.sprite.angle = int(lerp(float(this.sprite.angle), 90.0, alpha));
 		else if(tileUnder == 704 || tileUnder == 705 || tileUnder == 715 || tileUnder == 701)
 			this.sprite.angle = int(lerp(float(this.sprite.angle), -90.0, alpha));
-		else
-			this.sprite.angle = int(lerp(float(this.sprite.angle), 0.0, alpha));
+		else if(tileUnder == 721)
+			this.sprite.angle = int(lerp(float(this.sprite.angle), 0.0, alpha*2));
 	}
 
 	void draw(jjCANVAS@ canvas, int clientID) {
@@ -247,6 +247,131 @@ void onLevelBegin() {
 		character.doubleJumpCountMax = 0;
 		character.groundJump = GROUND::CROUCH;
 	}
+	
+	jjGenerateSettableTileArea(4, 0, 0, 255, 63);
+	for(int x = 0; x < 255; x += chunkSize) {
+		// jjConsole("Generate: "+x);
+		generateTilesAt(x/chunkSize);
+	}
+}
+
+int chunkSize = 32;
+int chunkHeight = 16;
+
+void generateTilesAt(int xChunk) {
+	int startX = xChunk * chunkSize;
+	int startY = 16;
+
+	for(int i = 0; i < chunkSize; i++) {
+		jjTileSet(4, startX+i, startY, 721);
+		generateGrassUnder(startX+i, startY);
+	}
+	
+	// generateRampAt(startX+8, startY, 4);
+	// generateDownRampAt(
+	// 	startX
+	// 	+8   // from previous
+	// 	+14   // 4*2
+	// 	+10, // constant
+	// 	startY, 4, startY);
+	// generateRampAt(startX+32, startY, 5);
+	// generateDownRampAt(
+	// 	startX
+	// 	+32   // from previous
+	// 	+14   // 5*2
+	// 	+10,  // constant
+	// 	startY, 5, startY);
+	
+	bool previousIsRamp = false;
+	for(int i = 0; i < chunkSize; i++) {
+		if(getRandomNumber(min: 0, max: 10) == 1 && !previousIsRamp) {
+			generateRampAt(startX+(getRandomNumber(min: 0, max: chunkSize)-16), startY, getRandomNumber(min: 0, max: 10));
+			previousIsRamp = true;
+		} else {
+			previousIsRamp = false;
+		}
+	}
+}
+
+int MAX_ITERATIONS = 30;
+int iterations = 0;
+
+/*
+	UP
+	702-703
+	712-713
+
+	DOWN
+	704-705
+	714-715
+*/
+void generateRampAt(int xTile, int startY, int height, bool base = true) {
+	int t = jjTileGet(4, xTile-1, startY);
+	if(base && (t == 702 || t == 703 || t == 712 || t == 713 ||
+	   t == 704 || t == 705 || t == 714 || t == 715 ||
+	   t == 729)
+	)
+	   return;
+	
+	jjTileSet(4, xTile, startY, 712);
+	jjTileSet(4, xTile, startY-1, 702);
+	jjTileSet(4, xTile+1, startY, 713);
+	jjTileSet(4, xTile+1, startY-1, 703);
+	generateGrassUnder(xTile, startY);
+	generateGrassUnder(xTile+1, startY);
+	if(height != 0) {
+		iterations += 1;
+		if(iterations >= MAX_ITERATIONS) {
+			jjConsole("upramp; Reached max iterations! Stopping!");
+			iterations = 0;
+			return;
+		}
+
+		generateRampAt(
+			xTile+2,
+			startY-1,
+			height-1,
+			false
+		);
+	}
+	
+	if(base)
+		iterations = 0;
+}
+
+void generateDownRampAt(int xTile, int startY, int height, int targetHeight, bool base = true) {
+	jjTileSet(4, xTile, startY, 714);
+	jjTileSet(4, xTile, startY-1, 704);
+	jjTileSet(4, xTile+1, startY, 715);
+	jjTileSet(4, xTile+1, startY-1, 705);
+	generateGrassUnder(xTile, startY);
+	generateGrassUnder(xTile+1, startY);
+	jjConsole("downramp; "+startY+" "+height+" "+targetHeight);
+	if(height <= targetHeight) {
+		iterations += 1;
+		if(iterations >= MAX_ITERATIONS) {
+			jjConsole("downramp; Reached max iterations! Stopping!");
+			iterations = 0;
+			return;
+		}
+		//jjConsole("iterate");
+
+		generateDownRampAt(
+			xTile-2,
+			startY-1,
+			height+2,
+			targetHeight,
+			false
+		);
+	}
+	
+	if(base)
+		iterations = 0;
+}
+
+void generateGrassUnder(int xTile, int startY, int height = chunkHeight) {
+	for(int y = 1; y < height; y++)
+		jjTileSet(4, xTile, startY+y, 729);
 }
 
 void onMain() {
