@@ -48,10 +48,7 @@ struct shootpkt {
 
 // #define INFINITE_TILT
 // #define DEBUG_MOTORPLAYER_IDS
-#define LIMIT_BOUNDS
-#define GROUND_IMPACT
 #define TILT_NEGATIVE
-// #define MULTIPLAYER
 
 const ANIM::Set playerAnimSet = ANIM::CUSTOM[1];
 Key@ leftKey;
@@ -66,16 +63,6 @@ int max(int a, int b) {
 }
 
 bool isChatting = false;
-#ifdef MULTIPLAYER
-int bandwidthInThisSecond  = 0;
-int bandwidthOutThisSecond = 0;
-uint64 lastPKTtime = 0;
-
-bool sendPacket(jjSTREAM &in packet, int toClientID = 0, uint toScriptModuleID = jjScriptModuleID) {
-	bandwidthOutThisSecond += packet.getSize();
-	return jjSendPacket(packet, toClientID, toScriptModuleID);
-}
-#endif
 
 float lerp(float a, float b, float t)
 {
@@ -175,73 +162,10 @@ class MotorPlayer
 		@motorPlayers[this.name] = this;
 	}
 	#pragma endregion
-
-	#ifdef MULTIPLAYER
-
-	#pragma region packets
-
-	#pragma region recv
-	bool recvMovePacket(jjSTREAM@ stream) {
-		if(stream.getSize() != 4*4) // an int is 4 bytes, and we have 4 fields
-			return false;
-
-		// TODO validate the position and velocity by checking bounds
-		stream.pop(this.position.x);
-		stream.pop(this.position.y);
-		stream.pop(this.velocity.x);
-		stream.pop(this.velocity.y);
-
-		return true;
-	}
-	#pragma endregion
-
-	#pragma region send
-	bool sendMovePacket() {
-		uint8 type = 0;
-		jjSTREAM stream;
-		stream.push(type);
-		if(jjIsServer)
-			stream.push(this.id);
-		stream.push(this.position.x);
-		stream.push(this.position.y);
-		stream.push(this.velocity.x);
-		stream.push(this.velocity.y);
-
-		// if we're the server
-		// send to everyone except the person who moved
-		// TODO check if this actually works because the bandwidth in/out says otherwise
-		// maybe that's because our bandwidth in/out implementation doesn't check
-		// if we're excluded?
-		return sendPacket(stream, jjIsServer ? -this.id : 0);
-	}
-	#pragma endregion
-
-	#pragma endregion
-
-	#endif
 };
 
 dictionary motorPlayers = {};
 MotorPlayer@ localMotorPlayer;
-
-#ifdef MULTIPLAYER
-void sendPlayerJoinPacket(string name, int8 id, int target = 0) {
-	uint8 type = 1;
-	jjSTREAM stream;
-	stream.push(type);
-	stream.push(id);
-	stream.push(name);
-	sendPacket(stream, target);
-}
-
-void sendPlayerLeavePacket(int8 id) {
-	uint8 type = 2;
-	jjSTREAM stream;
-	stream.push(type);
-	stream.push(id);
-	sendPacket(stream);
-}
-#endif
 
 MotorPlayer@ addPlayer(string name, int8 id) {
 	MotorPlayer@ motorPlayer = MotorPlayer(id);
@@ -253,11 +177,6 @@ MotorPlayer@ addPlayer(string name, int8 id) {
 		@localMotorPlayer = motorPlayer;
 	}
 	motorPlayers.set(name, @motorPlayer);
-
-	#ifdef MULTIPLAYER
-	if(jjIsServer)
-		sendPlayerJoinPacket(name, id);
-	#endif
 
 	return motorPlayer;
 }
@@ -286,11 +205,6 @@ jjPLAYER@ getPlayerByClientID(int clientId) {
 
 void removePlayer(int8 id) {
 	// jjConsole("I am a " + (jjIsServer ? "server" : "client") + ", deleting " + id);
-	
-	#ifdef MULTIPLAYER
-	if(jjIsServer)
-		sendPlayerLeavePacket(id);
-	#endif
 
 	auto motorPlayer = getMotorPlayerById(id);
 	if(@motorPlayer != null) {
@@ -323,14 +237,7 @@ void onLevelBegin() {
 
 	if(jjIsServer) {
 		addPlayer(jjLocalPlayers[1].nameUnformatted, jjLocalPlayers[1].clientID);
-    } else {
-		#ifdef MULTIPLAYER
-		uint8 id = 3;
-		jjSTREAM readyPacket;
-		readyPacket.push(id);
-		sendPacket(readyPacket);
-		#endif
-	}
+    }
 
 	// remove all abilities
 	array<CHAR::Char> characters = {CHAR::JAZZ, CHAR::SPAZ, CHAR::LORI};
@@ -341,77 +248,6 @@ void onLevelBegin() {
 		character.groundJump = GROUND::CROUCH;
 	}
 }
-
-#ifdef MULTIPLAYER
-void onReceive(jjSTREAM &in packet, int clientID) {
-	uint8 type;
-	packet.pop(type);
-
-	bandwidthInThisSecond += packet.getSize();
-	// if(jjIsServer)
-	// 	jjConsole("Recv: " + type + " from " + clientID);
-
-	if(!jjIsServer) {
-		switch(type) {
-			// move
-			case 0: {
-				uint8 id;
-				packet.pop(id);
-				getMotorPlayerById(id).recvMovePacket(packet);
-				break;
-			}
-			// join
-			case 1: {
-				uint8 id;
-				string name;
-				packet.pop(id);
-				packet.pop(name);
-				addPlayer(name, id);
-				break;
-			}
-			// leave
-			case 2: {
-				uint8 id;
-				packet.pop(id);
-				removePlayer(id);
-				break;
-			}
-			default: {
-				jjConsole("Unknown packet with type: " + type);
-				break;
-			}
-		}
-	} else {
-		switch(type) {
-			// move
-			case 0: {
-				auto plr = getMotorPlayerById(clientID);
-				plr.recvMovePacket(packet);
-				plr.sendMovePacket();
-				break;
-			}
-			// ready
-			case 3: {
-				// send all the other players that have joined
-				for(uint i = 0; i < motorPlayers.getKeys().length(); i++) {
-					sendPlayerJoinPacket(motorPlayers.getKeys()[i], cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id, clientID);
-					cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).sendMovePacket();
-				}
-
-				auto player = getPlayerByClientID(clientID);
-				// jjConsole(player.nameUnformatted + " is ready!");
-				addPlayer(player.nameUnformatted, clientID);
-
-				break;
-			}
-			default: {
-				jjConsole("Unknown packet with type: " + type);
-				break;
-			}
-		}
-	}
-}
-#endif
 
 void onMain() {
 	if(jjKey[jjKeyChat])
@@ -427,27 +263,6 @@ void onMain() {
 	jjP.keyDown = false;
 	// jjP.keyRight = true;
 
-	#ifdef MULTIPLAYER
-	if(jjIsServer) {
-		for(uint i = 0; i < 32; i++) {
-			if(activePlayersArray[i] && !jjPlayers[i].isActive) {
-				// jjConsole(jjPlayers[i].nameUnformatted + " has left the game!");
-				// jjPlayers[i].clientID here is going to be -1 so we use this array 
-				removePlayer(activePlayersClientIDsArray[i]);
-			}
-
-			activePlayersArray[i] = jjPlayers[i].isActive;
-			activePlayersClientIDsArray[i] = jjPlayers[i].clientID;
-		}
-	}
-
-	if(jjUnixTimeSec() >= lastPKTtime+1) {
-		lastPKTtime = jjUnixTimeSec();
-		bandwidthInThisSecond = 0;
-		bandwidthOutThisSecond = 0;
-	}
-	#endif
-
 	localMotorPlayer.position.x = int(jjP.xPos);
 	localMotorPlayer.position.y = int(jjP.yPos);
 }
@@ -461,16 +276,8 @@ void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 	// canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
 
-	#ifdef MULTIPLAYER
-	if(@localMotorPlayer != null)
-		canvas.drawString(0, 16, "||||Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y+" -| Bandwidth IN: " + bandwidthInThisSecond);
-	
-	canvas.drawString(0, 32, "|Player count: "+motorPlayers.getKeys().length()+" -| Bandwidth OUT: " + bandwidthOutThisSecond);
-	#else
 	if(@localMotorPlayer != null)
 		canvas.drawString(0, 16, "||||Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y);
-	
-	#endif
 
 	#ifdef DEBUG_MOTORPLAYER_IDS
 	canvas.drawString(0, 48, "-- MotorPlayer ids in order --");
