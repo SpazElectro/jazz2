@@ -8,6 +8,7 @@ preprocessors = [
 ]
 
 optimize_newlines = True
+is_debugging = True
 
 def process(source_code: str):
     global optimize_newlines
@@ -32,21 +33,25 @@ def process(source_code: str):
         # conditionals
         if split[0] == "#pragma":
             if split[1] == "region" or split[1] == "endregion":
+                if is_debugging: output += "//\n"
                 continue
         if split[0] == "#define":
             assert len(split) >= 2, "Not enough arguments!"
             definitions[split[1]] = True if len(split) == 2 else split[2]
+            if is_debugging: output += "//\n"
             continue
         if split[0] == "#ifdef":
             assert len(split) >= 2, "Not enough arguments!"
             ifdef_inside = True
             ifdef_allowed = definitions.get(split[1])
             ifdef_line = line_index
+            if is_debugging: output += "//\n"
             continue
         if split[0] == "#endif":
             assert ifdef_inside, "No current if condition and a #endif was present!"
             ifdef_inside = False
             ifdef_line = -2
+            if is_debugging: output += "//\n"
             continue
         if split[0] == "#undef":
             assert len(split) >= 2, "Not enough arguments!"
@@ -54,19 +59,23 @@ def process(source_code: str):
                 del definitions[split[1]]
             else:
                 del macros[split[1]]
+            if is_debugging: output += "//\n"
             continue
         if split[0] == "#ifndef":
             assert len(split) >= 2, "Not enough arguments!"
             ifdef_inside = True
             ifdef_allowed = not definitions.get(split[1])
+            if is_debugging: output += "//\n"
             continue
         if split[0] == "#else":
             assert ifdef_line != -1, "You are not inside a conditional preprocessor!"
             assert ifdef_inside, "You are not inside a conditional preprocessor!"
             ifdef_allowed = not definitions.get(lines[ifdef_line].strip().split(" ")[1])
+            if is_debugging: output += "//\n"
             continue
         
         if ifdef_inside and not ifdef_allowed:
+            if is_debugging: output += "//\n"
             continue
 
         # macros
@@ -79,12 +88,14 @@ def process(source_code: str):
             for i, arg in enumerate(macros[split[1]]["args"]):
                 macro_code = macro_code.replace(f"%{arg}%", split[2:][i])
             output += macro_code
+            if is_debugging: output += "//\n"
             continue
         if split[0] == "#defmacro":
             assert len(split) >= 2, "Not enough arguments!"
             macro_inside = True
             macro_current = {"name": split[1], "code": "", "args": split[2:]}
             macro_line = line_index
+            if is_debugging: output += "//\n"
             continue
         if split[0] == "#enddef":
             assert macro_current != {}, "A macro is not being defined currently!"
@@ -94,13 +105,16 @@ def process(source_code: str):
                 macro_current = {}
                 macro_inside = False
                 macro_line = -2
+            if is_debugging: output += "//\n"
             continue
         if macro_inside:
             macro_current["code"] += unstripped_line + "\n"
+            if is_debugging: output += "//\n"
             continue
 
         # nicer looking output
         if optimize_newlines and (line == "" and lines[line_index - 1] != None and lines[line_index - 1].split(" ")[0] in preprocessors):
+            if is_debugging: output += "//\n"
             continue
 
         output += unstripped_line + "\n"

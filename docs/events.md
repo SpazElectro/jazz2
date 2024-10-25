@@ -33,6 +33,6 @@ Examples of `onLocalChat` can be found at [this topic](/chatcommands.md)
 ## `void onRoast(jjPLAYER@ victim, jjPLAYER@ killer)`
 `onRoast` is called when a player kills another player, `victim` is the player who got killed, `killer` is the player who killed `victim`, also: not every death counts as a roast, for example: deaths from the /frustration command or from unspectating wouldn't call onRoast
 
-Wow, that was a lot, Now that you have an understanding of each function, how about we make a simple player point system when you kill another player using the `onRoast` function?
+Wow, that was a lot, Now that you have an understanding of each event, how about we make a simple player point system when you kill another player using the `onRoast` function?
 
 [Next topic](pointsystem.md)

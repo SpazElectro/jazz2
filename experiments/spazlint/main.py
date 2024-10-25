@@ -84,12 +84,13 @@ class JJ2PlusLinter:
         # self.enabled_errors = ["semicolons"]
         self.enabled_errors = []
 
-        disabled_errors = self.code.splitlines()[0]
-        if disabled_errors.startswith("// @ignore-"):
-            err = disabled_errors.split("// @ignore-")[1]
+        if len(self.code.splitlines()) > 0:
+            disabled_errors = self.code.splitlines()[0]
+            if disabled_errors.startswith("// @ignore-"):
+                err = disabled_errors.split("// @ignore-")[1]
 
-            if err in self.enabled_errors:
-                self.enabled_errors.remove(err)
+                if err in self.enabled_errors:
+                    self.enabled_errors.remove(err)
 
     def lint(self, advanced=False):
         return []

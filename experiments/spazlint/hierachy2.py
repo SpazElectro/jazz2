@@ -22,6 +22,8 @@ reserved = ["const", "&in", "&out", "&inout", "private"]
 def remove_reserved_keywords(full: str, start_index=0) -> Tuple[str, List[str]]:
     attributes = []
     split_line = full.split(" ")
+    if start_index >= len(split_line):
+        return full, attributes
     tp = split_line[start_index]
 
     while tp in reserved:
