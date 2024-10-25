@@ -1,43 +1,3 @@
-/*
-// psuedocode for all the packets
-
-struct Vector2 {
-	int x, y;
-};
-
-uint8 type = 0;
-struct movepkt {
-	/ if client
-	uint8 id;
-	/ endif
-	Vector2 position;
-	Vector2 velocity;
-};
-
-uint8 type = 1;
-struct addplayerpkt {
-	string name;
-	int id;
-};
-
-uint8 type = 2;
-struct remplayerpkt {
-	int id;
-};
-
-// This is sent by all the clients when they are ready to start receiving information
-uint8 type = 3;
-struct readypkt {};
-
-uint8 type = 4;
-struct shootpkt {
-	/ if client
-	uint8 id;
-	/ endif
-	uint8 weapon;
-};
-*/
-
 // god please give me power to finish this project
 // -spaz electro
 
@@ -120,9 +80,9 @@ class MotorPlayer
 		
 		// makes the bike tilt up the faster you are
 		#ifdef TILT_NEGATIVE
-		this.sprite.angle = lerp(this.sprite.angle, this.velocity.x*3, 0.3);
+		this.sprite.angle = int(lerp(float(this.sprite.angle), float(this.velocity.x)*3.0, 0.3));
 		#else
-		this.sprite.angle = lerp(this.sprite.angle, abs(this.velocity.x)*3, 0.3);
+		this.sprite.angle = int(lerp(float(this.sprite.angle), abs(float(this.velocity.x))*3.0, 0.3));
 		#endif
 
 		/*
@@ -235,10 +195,8 @@ void onLevelBegin() {
 		firstAnimToOverwrite: jjAnimSets[playerAnimSet]
 	);
 
-	if(jjIsServer) {
-		addPlayer(jjLocalPlayers[1].nameUnformatted, jjLocalPlayers[1].clientID);
-    }
-
+	addPlayer(jjLocalPlayers[1].nameUnformatted, jjLocalPlayers[1].clientID);
+    
 	// remove all abilities
 	array<CHAR::Char> characters = {CHAR::JAZZ, CHAR::SPAZ, CHAR::LORI};
 	for(uint i = 0; i < characters.length(); i++) {
@@ -283,12 +241,15 @@ void generateTilesAt(int xChunk) {
 	// 	startY, 5, startY);
 	
 	bool previousIsRamp = false;
-	for(int i = 0; i < chunkSize; i++) {
-		if(getRandomNumber(min: 0, max: 10) == 1 && !previousIsRamp) {
-			generateRampAt(startX+(getRandomNumber(min: 0, max: chunkSize)-16), startY, getRandomNumber(min: 0, max: 10));
-			previousIsRamp = true;
-		} else {
-			previousIsRamp = false;
+	// jjConsole(""+startX);
+	if(startX <= 220 && startX >= 32) {
+		for(int i = 0; i < chunkSize; i++) {
+			if(getRandomNumber(min: 0, max: 10) == 1 && !previousIsRamp) {
+				generateRampAt(startX+(getRandomNumber(min: 0, max: chunkSize)-16), startY, getRandomNumber(min: 0, max: 10));
+				previousIsRamp = true;
+			} else {
+				previousIsRamp = false;
+			}
 		}
 	}
 }
@@ -383,13 +344,23 @@ void onMain() {
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).update();
 	
+	jjPLAYER@ player = jjP;
+	if(player.xPos/32 >= 240) {
+		player.xPos = player.xPos-(240*32)+(10*32); // try to seamlessly transition
+		player.cameraFreeze(player.xPos, player.yPos, true, true);
+		player.cameraUnfreeze(true);
+	}
+
 	// TODO prevent spamming run to get a boost
 	
 	jjP.keyDown = false;
+	jjP.fireBullet();
 	// jjP.keyRight = true;
 
-	localMotorPlayer.position.x = int(jjP.xPos);
-	localMotorPlayer.position.y = int(jjP.yPos);
+	if(@localMotorPlayer != null) {
+		localMotorPlayer.position.x = int(jjP.xPos);
+		localMotorPlayer.position.y = int(jjP.yPos);
+	}
 }
 
 void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
@@ -409,8 +380,10 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		canvas.drawString(0, 60+(i*12), "|||ID: " + (cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id));
 	#endif
+
 	// TODO this overlaps with other debug text
-	canvas.drawString(0, 48, "|||Position: "+localMotorPlayer.position.x+", "+localMotorPlayer.position.y);
+	if(@localMotorPlayer != null)
+		canvas.drawString(0, 48, "|||Position: "+localMotorPlayer.position.x+", "+localMotorPlayer.position.y);
 
 	return false;
 }
