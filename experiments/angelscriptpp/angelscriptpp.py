@@ -1,16 +1,17 @@
 import argparse
 
 preprocessors = [
-    "#define", "#undef",
-    "#ifdef", "#endif", "#ifndef", "#else",
-    "#macro", "#defmacro", "#enddef",
+    "#define", "#undef", # definitions
+    "#ifdef", "#endif", "#ifndef", "#else", # conditionals
+    "#macro", "#defmacro", "#enddef", # macros
     "#pragma", # regions
+    "#texture" # util
 ]
 
 optimize_newlines = True
 is_debugging = True
 
-def process(source_code: str):
+def process(source_code: str, project_name: str | None = None):
     global optimize_newlines
     definitions = {}
     macros = {}
@@ -29,31 +30,32 @@ def process(source_code: str):
         unstripped_line = line
         line = line.strip()
         split = line.split(" ")
+        preprocessor = split[0]
 
         # conditionals
-        if split[0] == "#pragma":
+        if preprocessor == "#pragma":
             if split[1] == "region" or split[1] == "endregion":
                 if is_debugging: output += "//\n"
                 continue
-        if split[0] == "#define":
+        if preprocessor == "#define":
             assert len(split) >= 2, "Not enough arguments!"
             definitions[split[1]] = True if len(split) == 2 else split[2]
             if is_debugging: output += "//\n"
             continue
-        if split[0] == "#ifdef":
+        if preprocessor == "#ifdef":
             assert len(split) >= 2, "Not enough arguments!"
             ifdef_inside = True
             ifdef_allowed = definitions.get(split[1])
             ifdef_line = line_index
             if is_debugging: output += "//\n"
             continue
-        if split[0] == "#endif":
+        if preprocessor == "#endif":
             assert ifdef_inside, "No current if condition and a #endif was present!"
             ifdef_inside = False
             ifdef_line = -2
             if is_debugging: output += "//\n"
             continue
-        if split[0] == "#undef":
+        if preprocessor == "#undef":
             assert len(split) >= 2, "Not enough arguments!"
             if definitions.get(split[1]):
                 del definitions[split[1]]
@@ -61,13 +63,13 @@ def process(source_code: str):
                 del macros[split[1]]
             if is_debugging: output += "//\n"
             continue
-        if split[0] == "#ifndef":
+        if preprocessor == "#ifndef":
             assert len(split) >= 2, "Not enough arguments!"
             ifdef_inside = True
             ifdef_allowed = not definitions.get(split[1])
             if is_debugging: output += "//\n"
             continue
-        if split[0] == "#else":
+        if preprocessor == "#else":
             assert ifdef_line != -1, "You are not inside a conditional preprocessor!"
             assert ifdef_inside, "You are not inside a conditional preprocessor!"
             ifdef_allowed = not definitions.get(lines[ifdef_line].strip().split(" ")[1])
@@ -79,7 +81,7 @@ def process(source_code: str):
             continue
 
         # macros
-        if split[0] == "#macro":
+        if preprocessor == "#macro":
             assert len(split) >= 2, "Not enough arguments!"
             assert macros.get(split[1]) != None, "Macro doesn't exist!"
             # assert len(split[2:]) == len(macros[split[1]]["args"]), "Incorrect number of arguments for macro!"
@@ -90,14 +92,14 @@ def process(source_code: str):
             output += macro_code
             if is_debugging: output += "//\n"
             continue
-        if split[0] == "#defmacro":
+        if preprocessor == "#defmacro":
             assert len(split) >= 2, "Not enough arguments!"
             macro_inside = True
             macro_current = {"name": split[1], "code": "", "args": split[2:]}
             macro_line = line_index
             if is_debugging: output += "//\n"
             continue
-        if split[0] == "#enddef":
+        if preprocessor == "#enddef":
             assert macro_current != {}, "A macro is not being defined currently!"
 
             if macro_inside:
@@ -110,6 +112,20 @@ def process(source_code: str):
         if macro_inside:
             macro_current["code"] += unstripped_line + "\n"
             if is_debugging: output += "//\n"
+            continue
+        
+        # #texture("Cerveza_Cristal.png") turns into
+        # "STVgodhelpme_Cerveza_Cristal.png"
+        if preprocessor.startswith("#texture"):
+            assert project_name != None, "Project name is not set!"
+            assert preprocessor.startswith("#texture("), "Missing brackets!"
+            assert preprocessor.startswith("#texture(\""), "Missing quotes! (must be double quotes)"
+            assert preprocessor.endswith("\")"), "Unescaped quotes/brackets!"
+            
+            psplit = preprocessor.split("(")
+            filename = psplit[0].split("\"")[1].split("\"")[0]
+            output += f"\"{project_name}_{filename}\"\n"
+            
             continue
 
         # nicer looking output
@@ -138,12 +154,14 @@ def process(source_code: str):
 parser = argparse.ArgumentParser(prog="AngelScript++", description="Enhances AngelScript with extra features", epilog="Made by Spaz Electro")
 parser.add_argument("input")
 parser.add_argument("output")
+parser.add_argument("-P", "--project-name", default=None)
 parser.add_argument("-On", "--optimize-newlines", default="true")
 
 args = parser.parse_args()
 optimize_newlines = True if args.optimize_newlines in ("true", "True") else False
+project_name = args.project_name
 
 source_code = open(args.input).read()
-processed_code = process(source_code)
+processed_code = process(source_code, project_name)
 print(f"Success with {len(processed_code['definitions'])} definition(s) and {len(processed_code['macros'])} macros and {len(processed_code['output'].splitlines())} line(s)!")
 open(args.output, "w").write(processed_code["output"])

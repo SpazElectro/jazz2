@@ -61,7 +61,10 @@ void onLevelLoad() {
 #endif
 #ifdef CERVEZA_CRISTAL
 	// TODO this also replaces normal carrots, can be fixed by making a custom behavior
-	jjPIXELMAP("STVgodhelpme.j2as_Cerveza_Cristal.png").save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim+21].firstFrame]);
+	jjPIXELMAP(
+		#texture("Cerveza_Cristal.png")
+		// "STVgodhelpme_Cerveza_Cristal.png"
+		).save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim+21].firstFrame]);
 #endif
 #ifdef REVERSE_RUSH
 	auto pickups = jjAnimSets[ANIM::PICKUPS].firstAnim;

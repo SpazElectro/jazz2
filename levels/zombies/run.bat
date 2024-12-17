@@ -17,7 +17,7 @@ for %%i in (*.j2l *.j2t *.j2a) do (
 @REM )
 
 for %%i in (*.j2as *.mut *.asc) do (
-  python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i"
+  python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i" -P "zombies"
 )
 
 set "J2L_LEVEL="

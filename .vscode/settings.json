@@ -26,5 +26,6 @@
     "python.analysis.extraPaths": [
         "./experiments/spazlint"
     ],
-    "python.analysis.autoImportCompletions": true
+    "python.analysis.autoImportCompletions": true,
+    "python.REPL.enableREPLSmartSend": false
 }

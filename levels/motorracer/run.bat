@@ -19,7 +19,7 @@ for %%i in (./assets/*.*) do (
   copy ".\assets\%%i" "%GAME_DIRECTORY%\STVmotorracer_%%i" /y
 )
 for %%i in (*.j2as *.mut *.asc) do (
-  python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i"
+  python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i" -P "motorracer"
 )
 
 set "J2L_LEVEL="

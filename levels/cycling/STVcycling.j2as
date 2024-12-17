@@ -97,7 +97,9 @@ void onLevelLoad() {
 	jjConsole("INIT: Mappings");
 
 	jjAnimSets[ANIM::HELMUT].load(
-		jjPIXELMAP("STVcycling.j2as_texture.png"),
+		jjPIXELMAP(
+		#texture("texture.png")
+		),
 		frameWidth: 64,
 		frameHeight: 64,
 		frameSpacingX: 2,
@@ -137,6 +139,7 @@ void onMain() {
 	// if(true) return;
 	if(jjGameTicks % timeDifference == 0) {
 		// Clear! this crashes the game with an access violation after a few seconds
+		// (isn't this memory corruption? ^^^)
 		// it doesn't anymore! WOWZA!
 		// @gamePixelMap = jjPIXELMAP(screenWidth, screenHeight);
 		gamePixelMap.recolor(emptyColors);
