@@ -9,9 +9,9 @@ for /f "tokens=1* delims==" %%a in ('type "..\..\run.ini" ^| find "="') do (
 echo Copying files...
 copy "../../scripts/" "%GAME_DIRECTORY%" /y
 
-for %%i in (*.j2l *.j2t) do (
-  copy "%%i" "%GAME_DIRECTORY%" /y
-)
+REM for %%i in (*.j2l *.j2t) do (
+REM   copy "%%i" "%GAME_DIRECTORY%" /y
+REM )
 for %%i in (./assets/*.*) do (
   copy ".\assets\%%i" "%GAME_DIRECTORY%\STVhh24_%%i" /y
 )
@@ -23,10 +23,11 @@ set "J2L_LEVEL="
 set "MUTATOR="
 
 echo Starting
-for %%i in (*.j2l) do (
-  set "J2L_LEVEL=%%i"
-  goto :check_mutator
-)
+REM for %%i in (*.j2l) do (
+REM   set "J2L_LEVEL=%%i"
+REM   goto :check_mutator
+REM )
+set "J2L_LEVEL=stvhh24.j2l"
 
 :check_mutator
 for %%i in (*.mut) do (

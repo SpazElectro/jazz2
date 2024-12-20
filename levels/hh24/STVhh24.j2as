@@ -1,4 +1,32 @@
+const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
+#include "MLLE-Include-1.6.asc" ///@MLLE-Generated
+#pragma require "CrysilisV.j2t" ///@MLLE-Generated
+#pragma require "Carrot1.j2t" ///@MLLE-Generated
+#pragma require "Lomat.j2t" ///@MLLE-Generated
+#pragma require "STVhh24.j2l" ///@MLLE-Generated
 // This is an AngelScript file!
+/*
+	Holiday Hare 24
+	Jazz Jackrabbit 2
+	Idea points:
+		- The level must be a Christmas-themed level
+		- The level must be outside of the game world
+		  (as in everything will be done by us,
+		   the game engine will not be used)
+		- The level must be fun to play
+		- The level must be a single player level
+		- The level must be an arcade level
+		- The level must make people go "Wow, this was made in JJ2?"
+		- The level must be very fascinating
+		- The level must not need level design as I am awful at level design
+	The idea:
+		Devan Shell has planted a bomb in the North Pole, and Jazz has to defuse it.
+		However, Devan Shell has also planted a lot of traps and enemies to stop Jazz.
+		Will Jazz be able to defuse the bomb and save Christmas?
+		Only you can find out!
+		The bomb will explode in 5 minutes, so you have to be quick!
+		
+*/
 #pragma require "STVutil.asc"
 
 #include "STVutil.asc"
@@ -7,14 +35,24 @@
 	#warn "Outdated version of AngelScript++!"
 #endif
 
-string compiletime_date = 
+string compiledate = 
 	%{__DATE__};
-string compiletime_time =
+string compiletime =
 	%{__TIME__};
-string compiletime_version =
+string compileversion =
 	%{__VERSION__};
 
+int bombTimer = 15*70; // 1 second = 70 frames
+bool bombRunning = false;
+
 void onLevelBegin() {
-	jjConsole("Started!");
-	jjConsole("Compile time: " + compiletime_date + " " + compiletime_time);
+	jjConsole("Compile time: " + compiledate + " " + compiletime);
+	jjIsSnowing = true;
+	jjSnowingType = SNOWING::SNOW;
+	jjAnimSets[ANIM::SNOW].load();
+}
+
+void onMain() {
+	if (bombRunning)
+		bombTimer--;
 }
