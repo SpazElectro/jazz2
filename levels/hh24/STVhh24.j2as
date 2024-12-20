@@ -1,0 +1,22 @@
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+#define test awesome
+
+void onLevelBegin() {
+	jjConsole("Started!");
+	jjConsole(
+		%{__FILE__}
+		+ " " +
+		%{__LINE__}
+		+ " " +
+		%{__DATE__}
+		+ " " +
+		%{__TIME__}
+		+ " " +
+		%{__VERSION__}
+		+ " " +
+		%{test}
+	);
+}

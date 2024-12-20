@@ -98,7 +98,7 @@ void onLevelLoad() {
 
 	jjAnimSets[ANIM::HELMUT].load(
 		jjPIXELMAP(
-		#texture("texture.png")
+		#texture "texture.png"
 		),
 		frameWidth: 64,
 		frameHeight: 64,

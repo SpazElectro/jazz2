@@ -1,20 +1,17 @@
+# TODO make the code better and make it a pyinstaller executable and publish to j2o
 import os, json
 from pathlib import Path
+from tkinter.filedialog import askdirectory
+from tkinter.simpledialog import askstring
 from levelScanner import scanLevel, ScannedLevelResult
-
-folder = "F:/Games/Jazz2/cache/"
 
 levelsParsed = {}
 
-def scanLevels():
+def scanLevels(folder: str):
     global levelsParsed
-    if Path("cache.json").exists():
-        levelsParsed = json.loads(open("cache.json").read())
-        return
 
     print("Scanning levels...")
 
-    # this scans everything to make our life easier
     for file in os.scandir(folder):
         if file.name.endswith(".j2l"):
             data = open(file.path, "rb").read()
@@ -34,14 +31,24 @@ def scanLevels():
     with open("cache.json", "w") as f:
         f.write(json.dumps(levelsParsed))
 
-scanLevels()
+if Path("cache.json").exists():
+    levelsParsed = json.loads(open("cache.json").read())
+else:
+    # we could read it from the registry though instead of asking
+    directory = askdirectory(title="Select the JJ2 folder")
+    if not directory:
+        print("No directory was picked!")
+        exit(1)
+    print(f"Scanning \"{directory}\"...")
+    scanLevels(f"{directory}/cache/")
+    scanLevels(f"{directory}/")
 
 import tkinter as tk
 from tkinter import ttk
-filename_entry = None
-levelname_entry = None
-tileset_entry = None
-helpstring_entry = None
+filename_entry: ttk.Entry
+levelname_entry: ttk.Entry
+tileset_entry: ttk.Entry
+helpstring_entry: ttk.Entry
 
 def filter_treeview():
     keyword_filename = filename_entry.get().lower()
@@ -62,8 +69,8 @@ def filter_treeview():
                 continue
             if passwordprotectedfilter.get() == 3 and lvl.PasswordProtected:
                 continue
-            levelList.insert('', 'end', text=i, values=(
-                i, # to do fix this
+            levelList.insert('', 'end', text=str(i), values=(
+                i, # TODO fix this
                 lvl["fileName"], lvl.LevelName, lvl.TileSetName, lvl.MusicFile, lvl.PasswordProtected, lvl.HideLevel,
                 lvl.HelpStrings[0], lvl.HelpStrings[1], lvl.HelpStrings[2], lvl.HelpStrings[3],
                 lvl.HelpStrings[4], lvl.HelpStrings[5], lvl.HelpStrings[6], lvl.HelpStrings[7],
@@ -122,21 +129,18 @@ passwordprotectedfilter = tk.IntVar(value=2)
 
 open_filter_window()
 
-# Create a Frame to hold the treeview and scrollbars
 frame = tk.Frame(window)
 frame.pack(fill="both", expand=True)
 
-# Create vertical scrollbar
 vsb = ttk.Scrollbar(frame, orient="vertical")
 vsb.pack(side="right", fill="y")
 
-# Create horizontal scrollbar
 hsb = ttk.Scrollbar(frame, orient="horizontal")
 hsb.pack(side="bottom", fill="x")
 
 # Create the treeview and configure it to use the scrollbars
 columns = [f"c{i}" for i in range(7 + 16)]
-levelList = ttk.Treeview(frame, column=columns, show="headings", height=300,
+levelList = ttk.Treeview(frame, column=columns, show="headings", height=300, # type: ignore
                          yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 levelList.pack(side="left", fill="both", expand=True)
 

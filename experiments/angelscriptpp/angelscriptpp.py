@@ -1,19 +1,37 @@
+from datetime import datetime
 import argparse
 
+ANGELSCRIPTPP_VERSION = "0.0.1"
+# #texture "theasset.png" turns into "projectname_theasset.png"
+# [[
+# #define awesome void onMain() { jjConsole("OK"); }
+# #{awesome} // turns into `void onMain() { jjConsole("OK"); }`
+# %{awesome} // turns into `"void onMain() { jjConsole("OK"); }"` (quotes)
+# ]]
 preprocessors = [
-    "#define", "#undef", # definitions
+    "#define", "#undef",                    # definitions
     "#ifdef", "#endif", "#ifndef", "#else", # conditionals
-    "#macro", "#defmacro", "#enddef", # macros
-    "#pragma", # regions
-    "#texture" # util
+    "#macro", "#defmacro", "#enddef",       # macros
+    "#pragma",                              # regions
+    "#texture",                             # util
+    "#error", "#warn", "#log"               # logging
 ]
+
+# TODO implement #error #warn #log
 
 optimize_newlines = True
 is_debugging = True
 
-def process(source_code: str, project_name: str | None = None):
+def process(source_code: str, project_name: str | None = None, file_name: str | None = None):
     global optimize_newlines
-    definitions = {}
+    now = datetime.now()
+    definitions = {
+        "__FILE__": file_name,
+        "__DATE__": now.strftime("%b %d %Y"),
+        "__TIME__": now.strftime("%H:%M:%S"),
+        "__VERSION__": ANGELSCRIPTPP_VERSION
+    }
+    default_definitions_count = len(definitions)
     macros = {}
     lines = source_code.split("\n")
     output = ""
@@ -39,7 +57,7 @@ def process(source_code: str, project_name: str | None = None):
                 continue
         if preprocessor == "#define":
             assert len(split) >= 2, "Not enough arguments!"
-            definitions[split[1]] = True if len(split) == 2 else split[2]
+            definitions[split[1]] = "1" if len(split) == 2 else " ".join(split[2:])
             if is_debugging: output += "//\n"
             continue
         if preprocessor == "#ifdef":
@@ -114,18 +132,38 @@ def process(source_code: str, project_name: str | None = None):
             if is_debugging: output += "//\n"
             continue
         
-        # #texture("Cerveza_Cristal.png") turns into
-        # "STVgodhelpme_Cerveza_Cristal.png"
         if preprocessor.startswith("#texture"):
             assert project_name != None, "Project name is not set!"
-            assert preprocessor.startswith("#texture("), "Missing brackets!"
-            assert preprocessor.startswith("#texture(\""), "Missing quotes! (must be double quotes)"
-            assert preprocessor.endswith("\")"), "Unescaped quotes/brackets!"
+            assert len(split) >= 2, "Not enough arguments!"
+            assert preprocessor.startswith("#texture \""), "Missing quotes! (must be double quotes)"
+            assert preprocessor.endswith("\""), "Unescaped quotes!"
             
-            psplit = preprocessor.split("(")
+            psplit = preprocessor.split("\"")
             filename = psplit[0].split("\"")[1].split("\"")[0]
             output += f"\"{project_name}_{filename}\"\n"
             
+            continue
+		# #{__LINE__} for plain text
+        if preprocessor.startswith("#{"):
+            assert len(preprocessor.split("#{")[1].split("}")) >= 2, "Not enough arguments!"
+            s = preprocessor.split("#{")[1].split("}")[0]
+            if s == "__LINE__":
+                defn = str(line_index + 1)
+            else:
+                defn = definitions.get(s, None)
+            assert defn != None, f"Definition was not found! definition: {split[1]}"
+            output += f"{defn}\n"
+            continue
+        # %{__LINE__} for strings
+        if preprocessor.startswith("%{"):
+            assert len(preprocessor.split("%{")[1].split("}")) >= 2, "Not enough arguments!"
+            s = preprocessor.split("%{")[1].split("}")[0]
+            if s == "__LINE__":
+                defn = str(line_index + 1)
+            else:
+                defn = definitions.get(s, None)
+            assert defn != None, f"Definition was not found! definition: {split[1]}"
+            output += f"\"{defn}\"\n"
             continue
 
         # nicer looking output
@@ -148,6 +186,7 @@ def process(source_code: str, project_name: str | None = None):
     return {
         "output": output,
         "definitions": definitions,
+        "definition_count": len(definitions) - default_definitions_count,
         "macros": macros
     }
 
@@ -162,6 +201,6 @@ optimize_newlines = True if args.optimize_newlines in ("true", "True") else Fals
 project_name = args.project_name
 
 source_code = open(args.input).read()
-processed_code = process(source_code, project_name)
-print(f"Success with {len(processed_code['definitions'])} definition(s) and {len(processed_code['macros'])} macros and {len(processed_code['output'].splitlines())} line(s)!")
+processed_code = process(source_code, project_name, args.input)
+print(f"Success with {processed_code['definition_count']} definition(s) and {len(processed_code['macros'])} macros and {len(processed_code['output'].splitlines())} line(s)!")
 open(args.output, "w").write(processed_code["output"])
