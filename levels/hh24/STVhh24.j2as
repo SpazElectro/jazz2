@@ -3,6 +3,10 @@
 
 #include "STVutil.asc"
 
+#if __VERSION__ <= 1
+	#warn "Outdated version of AngelScript++!"
+#endif
+
 string compiletime_date = 
 	%{__DATE__};
 string compiletime_time =

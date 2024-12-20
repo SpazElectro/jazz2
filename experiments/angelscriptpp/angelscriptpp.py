@@ -2,7 +2,7 @@ from datetime import datetime
 from asteval import Interpreter
 import argparse
 
-ANGELSCRIPTPP_VERSION = "0.0.1"
+ANGELSCRIPTPP_VERSION = 2
 # #texture "theasset.png" turns into "projectname_theasset.png"
 # [[
 # #define awesome void onMain() { jjConsole("OK"); }
@@ -15,7 +15,7 @@ preprocessors = [
     "#macro", "#defmacro", "#enddef",              # macros
     "#pragma",                                     # regions
     "#texture",                                    # util
-    "#error", "#warn", "#log"                      # logging
+    "#error", "#warn", "#info"                     # logging
 ]
 
 # TODO implement #error #warn #log
@@ -146,6 +146,7 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
             if not optimize_newlines: output += "//\n"
             continue
         
+        # #texture "some.png"
         if preprocessor.startswith("#texture"):
             assert project_name != None, "Project name is not set!"
             assert len(split) >= 2, "Not enough arguments!"
@@ -172,6 +173,16 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
                 output += f"{defn}{remaining}\n"
             elif start_delim == "%":
                 output += f"\"{defn}\"{remaining}\n"
+            continue
+        # "#error", "#warn", "#info"
+        if preprocessor == "#error" or preprocessor == "#warn" or preprocessor == "#info":
+            assert len(split) >= 2, "Not enough arguments!"
+            message = " ".join(split[1:])
+            if message.startswith("\"") and message.endswith("\""):
+                message = message[1:-1]
+            color = "\033[91m" if preprocessor == "#error" else "\033[93m" if preprocessor == "#warn" else "\033[94m"
+            reset = "\033[0m"
+            print(f"{color}{preprocessor[1:]}: {message} in {file_name}:{line_index + 1}{reset}")
             continue
 
         # nicer looking output
