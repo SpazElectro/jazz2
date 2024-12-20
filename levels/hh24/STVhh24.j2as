@@ -5,10 +5,10 @@
 
 string compiletime_date = 
 	%{__DATE__};
-// string compiletime_time =
-// 	%{__TIME__};
-// string compiletime_version =
-// 	%{__VERSION__};
+string compiletime_time =
+	%{__TIME__};
+string compiletime_version =
+	%{__VERSION__};
 
 void onLevelBegin() {
 	jjConsole("Started!");

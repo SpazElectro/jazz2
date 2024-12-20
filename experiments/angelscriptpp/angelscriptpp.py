@@ -167,7 +167,7 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
             else:
                 defn = definitions.get(s)
             assert defn is not None, f"Definition was not found! definition: {s}"
-            remaining = line.split("}")[1]
+            remaining = "}".join(line.split("}")[1:])
             if start_delim == "#":
                 output += f"{defn}{remaining}\n"
             elif start_delim == "%":
