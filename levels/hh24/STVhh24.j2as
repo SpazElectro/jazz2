@@ -16,5 +16,5 @@ string compiletime_version =
 
 void onLevelBegin() {
 	jjConsole("Started!");
-	jjConsole(compiletime_date);
+	jjConsole("$__DATE__$");
 }

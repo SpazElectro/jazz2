@@ -3,12 +3,12 @@ from asteval import Interpreter
 import argparse
 
 ANGELSCRIPTPP_VERSION = 2
-# #texture "theasset.png" turns into "projectname_theasset.png"
-# [[
+# ```cpp
 # #define awesome void onMain() { jjConsole("OK"); }
 # #{awesome} // turns into `void onMain() { jjConsole("OK"); }`
 # %{awesome} // turns into `"void onMain() { jjConsole("OK"); }"` (quotes)
-# ]]
+# #texture "theasset.png" // turns into "projectname_theasset.png"
+# ```
 preprocessors = [
     "#define", "#undef",                           # definitions
     "#ifdef", "#endif", "#ifndef", "#if", "#else", # conditionals
@@ -198,9 +198,10 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
     # remove the last new line
     output = output[:-1]
 
-    for defname in definitions:
-        defvalue = definitions[defname]
-        output = output.replace(f"${defname}$", str(defvalue))
+    # Keeping this might cause accidental usage and debugging issues, so preprocessors are preferred.
+    # for defname in definitions:
+    #     defvalue = definitions[defname]
+    #     output = output.replace(f"${defname}$", str(defvalue))
 
     return {
         "output": output,
