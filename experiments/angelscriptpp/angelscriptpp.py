@@ -1,4 +1,5 @@
 from datetime import datetime
+from asteval import Interpreter
 import argparse
 
 ANGELSCRIPTPP_VERSION = "0.0.1"
@@ -9,12 +10,12 @@ ANGELSCRIPTPP_VERSION = "0.0.1"
 # %{awesome} // turns into `"void onMain() { jjConsole("OK"); }"` (quotes)
 # ]]
 preprocessors = [
-    "#define", "#undef",                    # definitions
-    "#ifdef", "#endif", "#ifndef", "#else", # conditionals
-    "#macro", "#defmacro", "#enddef",       # macros
-    "#pragma",                              # regions
-    "#texture",                             # util
-    "#error", "#warn", "#log"               # logging
+    "#define", "#undef",                           # definitions
+    "#ifdef", "#endif", "#ifndef", "#if", "#else", # conditionals
+    "#macro", "#defmacro", "#enddef",              # macros
+    "#pragma",                                     # regions
+    "#texture",                                    # util
+    "#error", "#warn", "#log"                      # logging
 ]
 
 # TODO implement #error #warn #log
@@ -24,6 +25,7 @@ is_debugging = True
 
 def process(source_code: str, project_name: str | None = None, file_name: str | None = None):
     global optimize_newlines
+    aeval = Interpreter()
     now = datetime.now()
     definitions = {
         "__FILE__": file_name,
@@ -90,7 +92,20 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
         if preprocessor == "#else":
             assert ifdef_line != -1, "You are not inside a conditional preprocessor!"
             assert ifdef_inside, "You are not inside a conditional preprocessor!"
-            ifdef_allowed = not definitions.get(lines[ifdef_line].strip().split(" ")[1])
+            ifdef_allowed = not ifdef_allowed
+            if is_debugging: output += "//\n"
+            continue
+        if preprocessor == "#if":
+            assert len(split) >= 2, "Not enough arguments!"
+            aeval.symtable = definitions
+            aeval.symtable["__LINE__"] = line_index + 1
+
+            ifdef_allowed = aeval(" ".join(split[1:]))
+            if len(aeval.error) > 0:
+                print(f"^^^ Line {line_index+1} of {file_name} ^^^")
+                break
+            ifdef_inside = True
+            ifdef_line = line_index
             if is_debugging: output += "//\n"
             continue
         
@@ -143,27 +158,20 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
             output += f"\"{project_name}_{filename}\"\n"
             
             continue
-		# #{__LINE__} for plain text
-        if preprocessor.startswith("#{"):
-            assert len(preprocessor.split("#{")[1].split("}")) >= 2, "Not enough arguments!"
-            s = preprocessor.split("#{")[1].split("}")[0]
+		# #{__LINE__} for plain text, ${__LINE__} for strings
+        if preprocessor.startswith("#{") or preprocessor.startswith("%{"):
+            assert "}" in preprocessor, "Not enough arguments!"
+            start_delim = preprocessor[0]
+            s = preprocessor.split("{")[1].split("}")[0]
             if s == "__LINE__":
                 defn = str(line_index + 1)
             else:
-                defn = definitions.get(s, None)
-            assert defn != None, f"Definition was not found! definition: {split[1]}"
-            output += f"{defn}\n"
-            continue
-        # %{__LINE__} for strings
-        if preprocessor.startswith("%{"):
-            assert len(preprocessor.split("%{")[1].split("}")) >= 2, "Not enough arguments!"
-            s = preprocessor.split("%{")[1].split("}")[0]
-            if s == "__LINE__":
-                defn = str(line_index + 1)
-            else:
-                defn = definitions.get(s, None)
-            assert defn != None, f"Definition was not found! definition: {split[1]}"
-            output += f"\"{defn}\"\n"
+                defn = definitions.get(s)
+            assert defn is not None, f"Definition was not found! definition: {s}"
+            if start_delim == "#":
+                output += f"{defn}\n"
+            elif start_delim == "%":
+                output += f"\"{defn}\"\n"
             continue
 
         # nicer looking output

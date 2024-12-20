@@ -2,8 +2,6 @@
 
 #include "STVutil.asc"
 
-#define test awesome
-
 void onLevelBegin() {
 	jjConsole("Started!");
 	jjConsole(
@@ -16,7 +14,5 @@ void onLevelBegin() {
 		%{__TIME__}
 		+ " " +
 		%{__VERSION__}
-		+ " " +
-		%{test}
 	);
 }
