@@ -3,7 +3,7 @@
 
 #include "STVutil.asc"
 
-#if __VERSION__ <= 1
+#if __VERSION__ < 110
 	#warn "Outdated version of AngelScript++!"
 #endif
 
@@ -16,5 +16,5 @@ string compiletime_version =
 
 void onLevelBegin() {
 	jjConsole("Started!");
-	jjConsole("$__DATE__$");
+	jjConsole("Compile time: " + compiletime_date + " " + compiletime_time);
 }

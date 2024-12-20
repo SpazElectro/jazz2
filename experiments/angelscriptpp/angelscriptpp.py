@@ -2,7 +2,7 @@ from datetime import datetime
 from asteval import Interpreter
 import argparse
 
-ANGELSCRIPTPP_VERSION = 2
+ANGELSCRIPTPP_VERSION = 1_1_0
 # ```cpp
 # #define awesome void onMain() { jjConsole("OK"); }
 # #{awesome} // turns into `void onMain() { jjConsole("OK"); }`
@@ -17,8 +17,6 @@ preprocessors = [
     "#texture",                                    # util
     "#error", "#warn", "#info"                     # logging
 ]
-
-# TODO implement #error #warn #log
 
 optimize_newlines = True
 
