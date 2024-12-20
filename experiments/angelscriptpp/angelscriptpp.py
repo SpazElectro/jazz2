@@ -212,7 +212,7 @@ parser = argparse.ArgumentParser(prog="AngelScript++", description="Enhances Ang
 parser.add_argument("input")
 parser.add_argument("output")
 parser.add_argument("-P", "--project-name", default=None)
-parser.add_argument("-On", "--optimize-newlines", default="true")
+parser.add_argument("-On", "--optimize-newlines", default="false")
 
 args = parser.parse_args()
 optimize_newlines = True if args.optimize_newlines in ("true", "True") else False

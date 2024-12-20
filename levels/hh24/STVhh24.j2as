@@ -20,11 +20,7 @@ const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
 		- The level must be very fascinating
 		- The level must not need level design as I am awful at level design
 	The idea:
-		Devan Shell has planted a bomb in the North Pole, and Jazz has to defuse it.
-		However, Devan Shell has also planted a lot of traps and enemies to stop Jazz.
-		Will Jazz be able to defuse the bomb and save Christmas?
-		Only you can find out!
-		The bomb will explode in 5 minutes, so you have to be quick!
+		Space invaders but with Jazz Jackrabbit 2
 		
 */
 #pragma require "STVutil.asc"
@@ -42,17 +38,27 @@ string compiletime =
 string compileversion =
 	%{__VERSION__};
 
-int bombTimer = 15*70; // 1 second = 70 frames
-bool bombRunning = false;
+jjPIXELMAP@ screen = jjPIXELMAP(1, 1);
 
 void onLevelBegin() {
-	jjConsole("Compile time: " + compiledate + " " + compiletime);
-	jjIsSnowing = true;
-	jjSnowingType = SNOWING::SNOW;
-	jjAnimSets[ANIM::SNOW].load();
+	// jjConsole("Compiled at " + compiledate + " " + compiletime);
+	
+	jjAnimSets[ANIM::FISH].load();
+	screen[0, 0] = 1;
+	@screen = screen.resize(jjResolutionWidth + 100, jjResolutionHeight + 100);
+	refreshScreen();
 }
 
-void onMain() {
-	if (bombRunning)
-		bombTimer--;
+void refreshScreen() {
+	screen.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::FISH].firstAnim].firstFrame]);
 }
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+	canvas.drawSprite(0, 0, ANIM::FISH, 0, 0, 0, SPRITE::NORMAL);
+	return true;
+}
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
