@@ -7,14 +7,14 @@ ANGELSCRIPTPP_VERSION = 1_1_0
 # #define awesome void onMain() { jjConsole("OK"); }
 # #{awesome} // turns into `void onMain() { jjConsole("OK"); }`
 # %{awesome} // turns into `"void onMain() { jjConsole("OK"); }"` (quotes)
-# #texture "theasset.png" // turns into "projectname_theasset.png"
+# #asset "theasset.png" // turns into "projectname_theasset.png"
 # ```
 preprocessors = [
     "#define", "#undef",                           # definitions
     "#ifdef", "#endif", "#ifndef", "#if", "#else", # conditionals
     "#macro", "#defmacro", "#enddef",              # macros
     "#pragma",                                     # regions
-    "#texture",                                    # util
+    "#asset",                                    # util
     "#error", "#warn", "#info"                     # logging
 ]
 
@@ -144,15 +144,15 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
             if not optimize_newlines: output += "//\n"
             continue
         
-        # #texture "some.png"
-        if preprocessor.startswith("#texture"):
+        # #asset "some.png"
+        if preprocessor.startswith("#asset"):
             assert project_name != None, "Project name is not set!"
             assert len(split) >= 2, "Not enough arguments!"
-            assert preprocessor.startswith("#texture \""), "Missing quotes! (must be double quotes)"
-            assert preprocessor.endswith("\""), "Unescaped quotes!"
+            assert line.startswith("#asset \""), "Missing quotes! (must be double quotes)"
+            assert line.split("//")[0].strip().endswith("\""), "Unescaped quotes!"
             
-            psplit = preprocessor.split("\"")
-            filename = psplit[0].split("\"")[1].split("\"")[0]
+            psplit = line.split("\"")
+            filename = psplit[1]
             output += f"\"{project_name}_{filename}\"\n"
             
             continue

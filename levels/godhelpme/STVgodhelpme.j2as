@@ -62,7 +62,7 @@ void onLevelLoad() {
 #ifdef CERVEZA_CRISTAL
 	// TODO this also replaces normal carrots, can be fixed by making a custom behavior
 	jjPIXELMAP(
-		#texture "Cerveza_Cristal.png"
+		#asset "Cerveza_Cristal.png"
 		// "STVgodhelpme_Cerveza_Cristal.png"
 		).save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::PICKUPS].firstAnim+21].firstFrame]);
 #endif

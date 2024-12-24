@@ -1,0 +1,81 @@
+/*
+	// zlib compressed!
+	struct video {
+		int width;
+		int height;
+		char pixels[width * height];
+	};
+
+	Each 8 pixels are stored in a byte
+	0b00000000 -> 8 pixels, all black
+	0b11111111 -> 8 pixels, all white
+*/
+
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+jjSTREAM@ videoStream;
+jjPIXELMAP@ screenPixelmap = jjPIXELMAP(1, 1);
+
+int videoWidth = 0;
+int videoHeight = 0;
+bool videoEnded = false;
+
+int WHITE = 0;
+int BLACK = 0;
+
+jjANIMFRAME@ pixelmapDestination;
+
+void onLevelBegin() {
+	WHITE = jjPalette.findNearestColor(jjPALCOLOR(255, 255, 255));
+	BLACK = jjPalette.findNearestColor(jjPALCOLOR(0, 0, 0));
+
+	jjConsole("Loading video...");
+	@videoStream = jjSTREAM(
+		#asset "badapplevideo.asdat"
+	);
+	jjConsole("Decompressing video...");
+	jjZlibUncompress(videoStream, videoStream, videoStream.getSize());
+	videoStream.pop(videoWidth);
+	videoStream.pop(videoHeight);
+	jjConsole("Video is "+videoWidth+"x"+videoHeight+" with uncompressed size of "+videoStream.getSize()+" bytes");
+	jjAnimSets[ANIM::FISH].load();
+	@pixelmapDestination = jjAnimFrames[jjAnimations[jjAnimSets[ANIM::FISH].firstAnim].firstFrame];
+	screenPixelmap[0, 0] = 1;
+	@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
+}
+
+int8 pixels;
+void decodeFrame() {
+    if (videoStream.isEmpty()) {
+		jjConsole("Video ended!");
+        videoEnded = true;
+        return;
+    }
+
+    for (int y = 0; y < videoHeight; ++y) {
+        for (int x = 0; x < videoWidth; x += 8) {
+            videoStream.pop(pixels);
+
+            for (int i = 0; i < 8; ++i) {
+                screenPixelmap[x + i, y] = ((pixels & (1 << (7 - i))) != 0) ? BLACK : WHITE;
+            }
+        }
+    }
+}
+
+void refreshScreen() {
+	screenPixelmap.save(pixelmapDestination);
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+	if (!videoEnded) {
+		decodeFrame();
+		refreshScreen();
+	}
+
+	canvas.drawSprite(0, 0, ANIM::FISH, 0, 0, 0, SPRITE::NORMAL);
+
+	return true;
+}

@@ -40,13 +40,30 @@ string compileversion =
 
 jjPIXELMAP@ screen = jjPIXELMAP(1, 1);
 
+#defmacro removeSound the_sound
+jjSampleLoad(SOUND::%the_sound%, "empty.wav");
+#enddef
+
 void onLevelBegin() {
 	// jjConsole("Compiled at " + compiledate + " " + compiletime);
 	
+	#macro removeSound AMMO_GUN1
+	//removeSound();
+
 	jjAnimSets[ANIM::FISH].load();
 	screen[0, 0] = 1;
 	@screen = screen.resize(jjResolutionWidth + 100, jjResolutionHeight + 100);
-	refreshScreen();
+	// refreshScreen();
+}
+
+void onPlayer(jjPLAYER@ player) {
+	// Freeze the player
+	player.xPos = 4064;
+	player.yPos = 0;
+	player.morphTo(
+		charNew: CHAR::SPAZ,
+		morphEffect: false
+	);
 }
 
 void refreshScreen() {
@@ -57,6 +74,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 	canvas.drawSprite(0, 0, ANIM::FISH, 0, 0, 0, SPRITE::NORMAL);
 	return true;
 }
+
+
 bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
 bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
 bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
