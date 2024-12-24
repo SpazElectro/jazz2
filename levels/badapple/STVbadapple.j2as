@@ -82,7 +82,7 @@ void onLevelBegin() {
 }
 
 uint64 pixelmapCalls = 0;
-int8 pixels;
+uint8 pixels;
 
 // Returns is OK
 bool decodeFrame() {
@@ -92,14 +92,14 @@ bool decodeFrame() {
         return false;
     }
 
-	if (pixelmapCalls >= 10000000)
-	{
-		jjConsole("Pixelmap calls: "+pixelmapCalls+" videoWidth: "+videoWidth+" videoHeight: "+videoHeight);
-		pixelmapCalls = 0;
-		@screenPixelmap = jjPIXELMAP(1, 1);
-		@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
-		usedAnimSet = ANIM::CAT;
-	}
+	// if (pixelmapCalls >= 10000000)
+	// {
+	// 	jjConsole("Pixelmap calls: "+pixelmapCalls+" videoWidth: "+videoWidth+" videoHeight: "+videoHeight);
+	// 	pixelmapCalls = 0;
+	// 	@screenPixelmap = jjPIXELMAP(1, 1);
+	// 	@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
+	// 	usedAnimSet = ANIM::CAT;
+	// }
 
 	// 141976808 - 134330400 = 7646408
 	// compressed size => 6895683
