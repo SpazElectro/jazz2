@@ -32,20 +32,35 @@ bool videoEnded = false;
 int lastColorDepth = 0;
 #endif
 
-int WHITE = 0;
-int BLACK = 0;
+int WHITE = -1;
+int BLACK = -1;
 
 jjANIMFRAME@ pixelmapDestination;
 ANIM::Set usedAnimSet = ANIM::FISH;
 
 void setColors() {
-	if (jjColorDepth == 8) {
-		WHITE = 255;
-		BLACK = 0;
-	} else {
-		WHITE = 255;
-		BLACK = 246;
+	// DO NOT USE COLORS FROM 0-15
+	// IT WILL CRASH THE GAME
+	// 0-15 are reserved
+
+	// if (jjColorDepth == 8) {
+		// WHITE = 255;
+		// BLACK = 253;
+	int offset = 0;
+
+	for (uint i = 16; i < 256; i++) {
+		auto col = jjPalette.color[i];
+		if (col.red == 255 && col.green == 255 && col.blue == 255) {
+			WHITE = i+offset;
+		} else if(col.red == 0 && col.green == 0 && col.blue == 0) {
+			BLACK = i+offset;
+		}
 	}
+	jjConsole("WHITE: "+WHITE+" BLACK: "+BLACK);
+	// } else {
+	// 	WHITE = 255;
+	// 	BLACK = 246;
+	// }
 
 #ifdef COLOR_DEPTH_CHECKS
 	lastColorDepth = jjColorDepth;
@@ -81,7 +96,8 @@ void onLevelBegin() {
 	setColors();
 }
 
-uint64 pixelmapCalls = 0;
+uint64 pixelmapSaveCalls = 0;
+uint64 pixelmapSetCalls = 0;
 uint8 pixels;
 
 // Returns is OK
@@ -92,10 +108,10 @@ bool decodeFrame() {
         return false;
     }
 
-	// if (pixelmapCalls >= 10000000)
+	// if (pixelmapSaveCalls >= 10000000)
 	// {
-	// 	jjConsole("Pixelmap calls: "+pixelmapCalls+" videoWidth: "+videoWidth+" videoHeight: "+videoHeight);
-	// 	pixelmapCalls = 0;
+	// 	jjConsole("Pixelmap calls: "+pixelmapSaveCalls+" videoWidth: "+videoWidth+" videoHeight: "+videoHeight);
+	// 	pixelmapSaveCalls = 0;
 	// 	@screenPixelmap = jjPIXELMAP(1, 1);
 	// 	@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
 	// 	usedAnimSet = ANIM::CAT;
@@ -112,10 +128,12 @@ bool decodeFrame() {
 			for (int i = 0; i < 8; ++i) {
 				/* Set the pixel color by getting the corresponding bit */
 				screenPixelmap[x + i, y] = ((pixels & (1 << (7 - i))) != 0) ? BLACK : WHITE;
-				pixelmapCalls += 1;
+				// pixelmapSaveCalls += 1;
 			}
         }
     }
+
+	pixelmapSetCalls += videoWidth * videoHeight;
 
 	return true;
 }
@@ -130,6 +148,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 
 		ok = decodeFrame();
 		screenPixelmap.save(jjAnimFrames[jjAnimations[jjAnimSets[usedAnimSet].firstAnim].firstFrame]);
+		pixelmapSaveCalls += 1;
+
 	}
 
 	if (ok)
@@ -139,8 +159,30 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 			usedAnimSet, 0, 0, 0, SPRITE::NORMAL);
 	canvas.drawString(
 		0, 15,
-		"" + pixelmapCalls
+		"" + pixelmapSaveCalls
 	);
+	canvas.drawString(
+		0, 30,
+		"" + pixelmapSetCalls
+	);
+	// canvas.drawRectangle(
+	// 	15, jjResolutionHeight - 50,
+	// 	50, 50,
+	// 	WHITE
+	// );
+	// canvas.drawRectangle(
+	// 	50, jjResolutionHeight - 50,
+	// 	50, 50,
+	// 	BLACK
+	// );
+	// for (int i = 15; i < 256; i++) {
+	// 	canvas.drawRectangle(
+	// 		15 + i,
+	// 		jjResolutionHeight - 50,
+	// 		1, 50,
+	// 		i
+	// 	);
+	// }
 
 	return true;
 }
