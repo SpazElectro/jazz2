@@ -22,28 +22,47 @@ int videoWidth = 0;
 int videoHeight = 0;
 bool videoEnded = false;
 
+int lastColorDepth = 0;
+
 int WHITE = 0;
 int BLACK = 0;
 
 jjANIMFRAME@ pixelmapDestination;
 
-void onLevelBegin() {
-	WHITE = jjPalette.findNearestColor(jjPALCOLOR(255, 255, 255));
-	BLACK = jjPalette.findNearestColor(jjPALCOLOR(0, 0, 0));
+void setColors() {
+	if (jjColorDepth == 8) {
+		WHITE = 255;
+		BLACK = 0;
+	} else {
+		WHITE = 255;
+		BLACK = 246;
+	}
+}
 
+void onLevelBegin() {
+	setColors();
+
+	/* Load the compressed video stream */
 	jjConsole("Loading video...");
 	@videoStream = jjSTREAM(
 		#asset "badapplevideo.asdat"
 	);
+
+	/* Decompress the video stream */
 	jjConsole("Decompressing video...");
 	jjZlibUncompress(videoStream, videoStream, videoStream.getSize());
+	
+	/* Read the width and height */
 	videoStream.pop(videoWidth);
 	videoStream.pop(videoHeight);
 	jjConsole("Video is "+videoWidth+"x"+videoHeight+" with uncompressed size of "+videoStream.getSize()+" bytes");
+	
+	/* Prepare the FISH animation set so we could overwrite it with our pixelmap */
 	jjAnimSets[ANIM::FISH].load();
 	@pixelmapDestination = jjAnimFrames[jjAnimations[jjAnimSets[ANIM::FISH].firstAnim].firstFrame];
-	screenPixelmap[0, 0] = 1;
 	@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
+
+	setColors();
 }
 
 int8 pixels;
@@ -59,23 +78,40 @@ void decodeFrame() {
             videoStream.pop(pixels);
 
             for (int i = 0; i < 8; ++i) {
+				/* Set the pixel color by getting the corresponding bit */
                 screenPixelmap[x + i, y] = ((pixels & (1 << (7 - i))) != 0) ? BLACK : WHITE;
             }
         }
     }
 }
 
-void refreshScreen() {
-	screenPixelmap.save(pixelmapDestination);
-}
-
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 	if (!videoEnded) {
+		if (lastColorDepth != jjColorDepth) {
+			setColors();
+			lastColorDepth = jjColorDepth;
+		}
+
 		decodeFrame();
-		refreshScreen();
+		screenPixelmap.save(pixelmapDestination);
 	}
 
-	canvas.drawSprite(0, 0, ANIM::FISH, 0, 0, 0, SPRITE::NORMAL);
+	canvas.drawSprite(
+		jjResolutionWidth / 2 - videoWidth / 2,
+		jjResolutionHeight / 2 - videoHeight / 2,
+		ANIM::FISH, 0, 0, 0, SPRITE::NORMAL);
 
 	return true;
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) 		{ return true; }
+bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) 		{ return true; }
+bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas)	{ return true; }
+bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) 		{ return true; }
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas)	{ return true; }
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+	pd.gunFlash = false;
+	pd.name = false;
+	pd.sprite = false;
+	pd.trail = false;
 }
