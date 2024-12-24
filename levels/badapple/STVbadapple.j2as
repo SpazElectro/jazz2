@@ -1,6 +1,9 @@
 /*
-	// zlib compressed!
 	struct video {
+		int uncompressedSize;
+		char compressedData[];
+	};
+	struct videodata {
 		int width;
 		int height;
 		char pixels[width * height];
@@ -15,6 +18,9 @@
 
 #include "STVutil.asc"
 
+// #define COLOR_DEPTH_CHECKS
+
+
 jjSTREAM@ videoStream;
 jjPIXELMAP@ screenPixelmap = jjPIXELMAP(1, 1);
 
@@ -22,12 +28,15 @@ int videoWidth = 0;
 int videoHeight = 0;
 bool videoEnded = false;
 
+#ifdef COLOR_DEPTH_CHECKS
 int lastColorDepth = 0;
+#endif
 
 int WHITE = 0;
 int BLACK = 0;
 
 jjANIMFRAME@ pixelmapDestination;
+ANIM::Set usedAnimSet = ANIM::FISH;
 
 void setColors() {
 	if (jjColorDepth == 8) {
@@ -37,69 +46,101 @@ void setColors() {
 		WHITE = 255;
 		BLACK = 246;
 	}
+
+#ifdef COLOR_DEPTH_CHECKS
+	lastColorDepth = jjColorDepth;
+#endif
 }
 
 void onLevelBegin() {
 	setColors();
 
 	/* Load the compressed video stream */
-	jjConsole("Loading video...");
-	@videoStream = jjSTREAM(
+	jjSpy("Loading video...");
+	jjSTREAM@ uncompressedVideoStream = jjSTREAM(
 		#asset "badapplevideo.asdat"
 	);
 
 	/* Decompress the video stream */
-	jjConsole("Decompressing video...");
-	jjZlibUncompress(videoStream, videoStream, videoStream.getSize());
-	
+	int uncompressedSize;
+	uncompressedVideoStream.pop(uncompressedSize);
+	jjSpy("Decompressing video... (uncompressed size of "+uncompressedSize/1024/1024+" megabytes, "+uncompressedSize+" bytes, compressed size:"+uncompressedVideoStream.getSize()+" bytes)");
+	@videoStream = jjSTREAM();
+	jjZlibUncompress(uncompressedVideoStream, videoStream, uncompressedSize);
+	// high possibility of crashing cuz of compression
 	/* Read the width and height */
 	videoStream.pop(videoWidth);
 	videoStream.pop(videoHeight);
-	jjConsole("Video is "+videoWidth+"x"+videoHeight+" with uncompressed size of "+videoStream.getSize()+" bytes");
+	jjSpy("Video is "+videoWidth+"x"+videoHeight);
 	
 	/* Prepare the FISH animation set so we could overwrite it with our pixelmap */
-	jjAnimSets[ANIM::FISH].load();
-	@pixelmapDestination = jjAnimFrames[jjAnimations[jjAnimSets[ANIM::FISH].firstAnim].firstFrame];
+	jjAnimSets[usedAnimSet].load();
+	// @pixelmapDestination = jjAnimFrames[jjAnimations[jjAnimSets[usedAnimSet].firstAnim].firstFrame];
 	@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
 
 	setColors();
 }
 
+uint64 pixelmapCalls = 0;
 int8 pixels;
-void decodeFrame() {
+
+// Returns is OK
+bool decodeFrame() {
     if (videoStream.isEmpty()) {
 		jjConsole("Video ended!");
         videoEnded = true;
-        return;
+        return false;
     }
+
+	if (pixelmapCalls >= 10000000)
+	{
+		jjConsole("Pixelmap calls: "+pixelmapCalls+" videoWidth: "+videoWidth+" videoHeight: "+videoHeight);
+		pixelmapCalls = 0;
+		@screenPixelmap = jjPIXELMAP(1, 1);
+		@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
+		usedAnimSet = ANIM::CAT;
+	}
+
+	// 141976808 - 134330400 = 7646408
+	// compressed size => 6895683
+	// jjConsole(""+videoStream.getSize());
 
     for (int y = 0; y < videoHeight; ++y) {
         for (int x = 0; x < videoWidth; x += 8) {
             videoStream.pop(pixels);
 
-            for (int i = 0; i < 8; ++i) {
+			for (int i = 0; i < 8; ++i) {
 				/* Set the pixel color by getting the corresponding bit */
-                screenPixelmap[x + i, y] = ((pixels & (1 << (7 - i))) != 0) ? BLACK : WHITE;
-            }
+				screenPixelmap[x + i, y] = ((pixels & (1 << (7 - i))) != 0) ? BLACK : WHITE;
+				pixelmapCalls += 1;
+			}
         }
     }
+
+	return true;
 }
 
+bool ok = true;
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 	if (!videoEnded) {
-		if (lastColorDepth != jjColorDepth) {
+#ifdef COLOR_DEPTH_CHECKS
+		if (lastColorDepth != jjColorDepth)
 			setColors();
-			lastColorDepth = jjColorDepth;
-		}
+#endif
 
-		decodeFrame();
-		screenPixelmap.save(pixelmapDestination);
+		ok = decodeFrame();
+		screenPixelmap.save(jjAnimFrames[jjAnimations[jjAnimSets[usedAnimSet].firstAnim].firstFrame]);
 	}
 
-	canvas.drawSprite(
-		jjResolutionWidth / 2 - videoWidth / 2,
-		jjResolutionHeight / 2 - videoHeight / 2,
-		ANIM::FISH, 0, 0, 0, SPRITE::NORMAL);
+	if (ok)
+		canvas.drawSprite(
+			jjResolutionWidth / 2 - videoWidth / 2,
+			jjResolutionHeight / 2 - videoHeight / 2,
+			usedAnimSet, 0, 0, 0, SPRITE::NORMAL);
+	canvas.drawString(
+		0, 15,
+		"" + pixelmapCalls
+	);
 
 	return true;
 }
