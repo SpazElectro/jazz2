@@ -1,0 +1,242 @@
+/*
+in the intro level, write to the "HH21options.asdata" file with the following structure
+```c
+struct opts {
+    bool gemsUpgradeHealth; // should gems upgrade your health?
+};
+```
+in the shared scripts, check if the "HH21options.asdata" file's gemsUpgradeHealth option is true or not
+*/
+
+#include "HH24savegems.asc"
+
+
+auto ta = jjTEXTAPPEARANCE();
+auto selectedAppearance = jjTEXTAPPEARANCE();
+int hhTextColorOffset = 0;
+
+// [[ 0 = START, 1 = GEM UPGRADES TOGGLE ]]
+int selection = 0;
+int maxSelection = 1;
+
+// key states
+bool prevKeyDown   = false;
+bool prevKeyUp     = false;
+bool prevKeyFire   = false;
+bool prevKeySelect = false;
+
+void onLevelBegin() {
+	selectedAppearance.pipe    = STRING::SPECIALSIGN;
+    // thanks jjTEXTAPPEARANCE::newline for not working
+    selectedAppearance.newline = STRING::SPECIALSIGN;
+    selectedAppearance.xAmp = 0;
+    selectedAppearance.yAmp = 1;
+    
+    gem::draw = false;
+    gem::loadSettings();
+}
+
+bool saveSettings() {
+    jjSTREAM settings;
+    settings.push(gem::SETTINGS_VERSION);
+    settings.push(gem::healthUpgradesEnabled);
+    if(!settings.save("HH24settings.asdat")) {
+        jjConsole("Failed to save settings!");
+        return false;
+    }
+
+    return true;
+}
+
+void toggleGemHealthUpgrades() {
+    gem::healthUpgradesEnabled = !gem::healthUpgradesEnabled;
+    playRandomMenuSound();
+}
+
+void playRandomMenuSound() {
+    // WARNING: bad code ahead (dictionary.get for SOUND::Sample doesn't work, how sad)
+    SOUND::Sample randomMenuSound = SOUND::MENUSOUNDS_SELECT0;
+    int soundVariation = 1 + jjRandom() & 6;
+    if (soundVariation == 1)
+        randomMenuSound = SOUND::MENUSOUNDS_SELECT1;
+    else if (soundVariation == 2)
+        randomMenuSound = SOUND::MENUSOUNDS_SELECT2;
+    else if (soundVariation == 3)
+        randomMenuSound = SOUND::MENUSOUNDS_SELECT3;
+    else if (soundVariation == 4)
+        randomMenuSound = SOUND::MENUSOUNDS_SELECT4;
+    else if (soundVariation == 5)
+        randomMenuSound = SOUND::MENUSOUNDS_SELECT5;
+    else if (soundVariation == 6)
+        randomMenuSound = SOUND::MENUSOUNDS_SELECT6;
+    
+    jjSamplePriority(randomMenuSound);
+}
+
+void onMain() {
+    if (jjGameTicks % 35 == 0)
+        // We have to increment by 7 to make the text not twitch
+        hhTextColorOffset += 7;
+}
+
+void onPlayer(jjPLAYER@ player) {
+    player.cameraUnfreeze(true);
+    player.cameraFreeze(0, 0, false, true);
+	player.ballTime = 1;
+	player.keyJump = player.keyRun = false;
+
+    if ((player.keyFire && !prevKeyFire) || (player.keySelect && !prevKeySelect)) {
+        if (player.keyFire && !prevKeyFire)
+            prevKeyFire = true;
+        else
+            prevKeySelect = true;
+
+        if (selection == 0) {
+            if (saveSettings()) {
+                jjNxt(false, true);
+            }
+        } else if (selection == 1) {
+            toggleGemHealthUpgrades();
+        }
+    }
+
+    if (player.keyUp && !prevKeyUp) {
+        prevKeyUp = true;
+        selection -= 1;
+        playRandomMenuSound();
+        if (selection < 0)
+            selection = maxSelection;
+    }
+    if (player.keyDown && !prevKeyDown) {
+        prevKeyDown = true;
+        selection += 1;
+        playRandomMenuSound();
+        if (selection > maxSelection)
+            selection = 0;
+    }
+
+    if (!player.keyFire && prevKeyFire)
+        prevKeyFire = false;
+    if (!player.keySelect && prevKeySelect)
+        prevKeySelect = false;
+    if (!player.keyUp && prevKeyUp)
+        prevKeyUp = false;
+    if (!player.keyDown && prevKeyDown)
+        prevKeyDown = false;
+}
+
+string color(string text, uint offset = 0) {
+    string output = "";
+
+    for (uint i = 0; i < offset; i++)
+        output += "|";
+
+    for (uint i = 0; i < text.length(); i++) {
+        output += "|" + (text.substr(i, 1));
+    }
+
+    return output;
+}
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
+    // level title
+    string text = "Holiday Hare";
+    
+    canvas.drawString(
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::LARGE, selectedAppearance)/2),
+        int(jjSubscreenHeight * 0.08),
+        color(text, hhTextColorOffset),
+        STRING::LARGE,
+        selectedAppearance
+    );
+
+    text = "24";
+
+    canvas.drawString(
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::LARGE, selectedAppearance)/2),
+        int(jjSubscreenHeight * 0.15),
+        color(text, hhTextColorOffset+text.length()),
+        STRING::LARGE,
+        selectedAppearance
+    );
+
+    text = "Start";
+
+    canvas.drawString(
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::MEDIUM, selectedAppearance)/2),
+        int(jjSubscreenHeight * 0.3),
+        selection == 0 ? color(text) : text,
+        STRING::MEDIUM,
+        selectedAppearance
+    );
+
+    // section title
+    text = "Optional Settings";
+    
+    canvas.drawString(
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::MEDIUM, ta)/2),
+        int(jjSubscreenHeight * 0.4),
+        text,
+        STRING::MEDIUM
+    );
+
+    // option title
+    text = "Gems upgrade health";
+
+    canvas.drawString(
+        int(int(jjSubscreenWidth * 0.5) - float(jjGetStringWidth(text, STRING::MEDIUM, selectedAppearance))/1.5),
+        int(jjSubscreenHeight * 0.5),
+        selection == 1 ? color(text) : text,
+        STRING::MEDIUM,
+        selectedAppearance
+    );
+
+    // state
+    text = gem::healthUpgradesEnabled ? "On" : "Off";
+
+    canvas.drawString(
+        int(jjSubscreenWidth * 0.7) - (jjGetStringWidth(text, STRING::SMALL, selectedAppearance)/2),
+        int(jjSubscreenHeight * 0.5),
+        gem::healthUpgradesEnabled ? color(text, 2) : text,
+        STRING::SMALL,
+        selectedAppearance
+    );
+
+    // description
+    text = "Collecting a specific number of gems will increase your max health.";
+
+    canvas.drawString(
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::SMALL, ta)/2),
+        int(jjSubscreenHeight * 0.55),
+        text,
+        STRING::SMALL
+    );
+
+    text = "Disable if you're looking for a more challenging experience.";
+
+    canvas.drawString(
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::SMALL, ta)/2),
+        int(jjSubscreenHeight * 0.58),
+        text,
+        STRING::SMALL
+    );
+
+    return true;
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+// HH24savegems.asc already overrides onDrawScore and suppresses it!
+// bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+
+// why would they name this "onPlayerDraw" and not "onDrawPlayer"
+// this angers me >:(
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+    pd.gunFlash = false;
+    pd.invincibility = false;
+    pd.name = false;
+    pd.sprite = false;
+    pd.trail = false;
+}
