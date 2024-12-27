@@ -1,17 +1,6 @@
-/*
-in the intro level, write to the "HH21options.asdata" file with the following structure
-```c
-struct opts {
-    bool gemsUpgradeHealth; // should gems upgrade your health?
-};
-```
-in the shared scripts, check if the "HH21options.asdata" file's gemsUpgradeHealth option is true or not
-*/
-
 #include "HH24savegems.asc"
 
-
-auto ta = jjTEXTAPPEARANCE();
+auto defaultTextAppearance = jjTEXTAPPEARANCE();
 auto selectedAppearance = jjTEXTAPPEARANCE();
 int hhTextColorOffset = 0;
 
@@ -56,7 +45,7 @@ void toggleGemHealthUpgrades() {
 void playRandomMenuSound() {
     // WARNING: bad code ahead (dictionary.get for SOUND::Sample doesn't work, how sad)
     SOUND::Sample randomMenuSound = SOUND::MENUSOUNDS_SELECT0;
-    int soundVariation = 1 + jjRandom() & 6;
+    int soundVariation = jjRandom() & 6;
     if (soundVariation == 1)
         randomMenuSound = SOUND::MENUSOUNDS_SELECT1;
     else if (soundVariation == 2)
@@ -85,6 +74,7 @@ void onPlayer(jjPLAYER@ player) {
 	player.ballTime = 1;
 	player.keyJump = player.keyRun = false;
 
+    // select
     if ((player.keyFire && !prevKeyFire) || (player.keySelect && !prevKeySelect)) {
         if (player.keyFire && !prevKeyFire)
             prevKeyFire = true;
@@ -100,6 +90,7 @@ void onPlayer(jjPLAYER@ player) {
         }
     }
 
+    // navigation up and down
     if (player.keyUp && !prevKeyUp) {
         prevKeyUp = true;
         selection -= 1;
@@ -115,6 +106,7 @@ void onPlayer(jjPLAYER@ player) {
             selection = 0;
     }
 
+    // check if prev state is true and new state is false
     if (!player.keyFire && prevKeyFire)
         prevKeyFire = false;
     if (!player.keySelect && prevKeySelect)
@@ -125,15 +117,16 @@ void onPlayer(jjPLAYER@ player) {
         prevKeyDown = false;
 }
 
+/*
+Colors text using | chars, offset adds x amount of pipes to the start of the text
+*/
 string color(string text, uint offset = 0) {
     string output = "";
 
     for (uint i = 0; i < offset; i++)
         output += "|";
-
-    for (uint i = 0; i < text.length(); i++) {
+    for (uint i = 0; i < text.length(); i++)
         output += "|" + (text.substr(i, 1));
-    }
 
     return output;
 }
@@ -174,7 +167,7 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     text = "Optional Settings";
     
     canvas.drawString(
-        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::MEDIUM, ta)/2),
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::MEDIUM, defaultTextAppearance)/2),
         int(jjSubscreenHeight * 0.4),
         text,
         STRING::MEDIUM
@@ -206,7 +199,7 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     text = "Collecting a specific number of gems will increase your max health.";
 
     canvas.drawString(
-        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::SMALL, ta)/2),
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::SMALL, defaultTextAppearance)/2),
         int(jjSubscreenHeight * 0.55),
         text,
         STRING::SMALL
@@ -215,7 +208,7 @@ bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) {
     text = "Disable if you're looking for a more challenging experience.";
 
     canvas.drawString(
-        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::SMALL, ta)/2),
+        int(jjSubscreenWidth * 0.5) - (jjGetStringWidth(text, STRING::SMALL, defaultTextAppearance)/2),
         int(jjSubscreenHeight * 0.58),
         text,
         STRING::SMALL
