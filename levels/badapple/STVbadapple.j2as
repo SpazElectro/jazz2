@@ -19,6 +19,7 @@
 #include "STVutil.asc"
 
 #define COLOR_DEPTH_CHECKS
+#define DROP_FRAMES
 // #define COLOR_DEBUG
 
 jjSTREAM@ videoStream;
@@ -26,6 +27,13 @@ jjPIXELMAP@ screenPixelmap = jjPIXELMAP(1, 1);
 
 int videoWidth = 0;
 int videoHeight = 0;
+const double videoFPS = 15.0;
+const double videoFrameDuration = 1.0/videoFPS;
+
+int videoFrame = 0;
+int droppedFrames = 0;
+uint64 videoStartTime = 0;
+
 bool videoEnded = false;
 
 #ifdef COLOR_DEPTH_CHECKS
@@ -37,6 +45,9 @@ int BLACK = -1;
 
 jjANIMFRAME@ pixelmapDestination;
 ANIM::Set usedAnimSet = ANIM::FISH;
+
+int videoFramesThisSecond = 0;
+uint64 videoTimer = 0;
 
 void setColors() {
 	// DO NOT USE COLORS FROM 0-15
@@ -88,32 +99,47 @@ void onLevelBegin() {
 	@screenPixelmap = screenPixelmap.resize(videoWidth, videoHeight);
 
 	setColors();
+
+	videoStartTime = jjUnixTimeMs();
+	videoTimer = jjUnixTimeMs();
 }
 
 uint8 pixels;
 
 // Returns is OK
-bool decodeFrame() {
-    if (videoStream.isEmpty()) {
+bool decodeFrame(bool dropped) {
+	if (videoStream.isEmpty()) {
 		jjConsole("Video ended!");
-        videoEnded = true;
-        return false;
-    }
+		videoEnded = true;
+		return false;
+	}
 
-    for (int y = 0; y < videoHeight; ++y) {
-        for (int x = 0; x < videoWidth; x += 8) {
-            videoStream.pop(pixels);
+#ifdef DROP_FRAMES
+	if (dropped) {
+		videoStream.discard(videoHeight * (videoWidth / 8));
+		videoFrame += 1;
+		return true;
+	}
+#endif
+
+	for (int y = 0; y < videoHeight; ++y) {
+		for (int x = 0; x < videoWidth; x += 8) {
+			videoStream.pop(pixels);
 
 			for (int i = 0; i < 8; ++i) {
 				/* Set the pixel color by getting the corresponding bit */
 				screenPixelmap[x + i, y] = ((pixels & (1 << (7 - i))) != 0) ? BLACK : WHITE;
 			}
-        }
-    }
+		}
+	}
+
+	videoFrame += 1;
+	videoFramesThisSecond += 1;
 
 	return true;
 }
 
+int _videoFramesThisSecond = 0;
 bool ok = true;
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 	if (!videoEnded) {
@@ -122,8 +148,31 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 			setColors();
 #endif
 
-		ok = decodeFrame();
-		screenPixelmap.save(jjAnimFrames[jjAnimations[jjAnimSets[usedAnimSet].firstAnim].firstFrame]);
+		uint64 currentTime = jjUnixTimeMs();
+		uint64 elapsedTime = currentTime - videoStartTime;
+		int currentFrame = int(elapsedTime / videoFrameDuration / 1000.0);
+		int targetFrame = currentFrame;
+		bool shouldDecode = videoFrame < targetFrame;
+
+		if (shouldDecode) {
+#ifdef DROP_FRAMES
+			int framesBehind = targetFrame - videoFrame;
+			if (framesBehind < 0) {
+				framesBehind = 0;
+			}
+			droppedFrames += framesBehind;
+
+			for (int i = 0; i < framesBehind; ++i) {
+				bool isLastFrame = (i != framesBehind - 1);
+				ok = decodeFrame(isLastFrame);
+				if (!ok)
+					break;
+			}
+#else
+			bool ok = decodeFrame(false);
+#endif
+			screenPixelmap.save(jjAnimFrames[jjAnimations[jjAnimSets[usedAnimSet].firstAnim].firstFrame]);
+		}
 	}
 
 	if (ok)
@@ -162,6 +211,24 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
 			);
 		}
 	}
+#endif
+
+	if (jjUnixTimeMs() - videoTimer >= 1000) {
+		_videoFramesThisSecond = videoFramesThisSecond;
+		videoTimer = jjUnixTimeMs();
+		videoFramesThisSecond = 0;
+	}
+
+	canvas.drawString(
+		0, 15,
+		"FPS: " + _videoFramesThisSecond + "/" + videoFPS
+	);
+
+#ifdef DROP_FRAMES
+	canvas.drawString(
+		0, 30,
+		"Frames dropped: " + droppedFrames
+	);
 #endif
 
 	return true;
