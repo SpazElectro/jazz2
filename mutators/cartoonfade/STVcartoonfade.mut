@@ -1,0 +1,56 @@
+#pragma name "cartoonfade"
+#pragma require "STVutil.asc"
+
+#include "STVutil.asc"
+
+bool fading = false;
+float fadeTimer = 1;
+int blackMapping = 0;
+
+void onLevelLoad() {
+	jjAnimSets[45].load();
+
+	blackMapping = jjSpriteModeFirstFreeMapping();
+	if (blackMapping == -1) {
+		jjConsole("Could not find available mapping slot!");
+		return;
+	}
+
+	fade();
+}
+
+void onMain() {
+	if (fading)
+		fadeTimer += 1;
+}
+
+void fade() {
+	fading = true;
+}
+
+void drawCircle(jjCANVAS@ canvas, int x, int y, float scale) {
+	canvas.drawResizedSprite(
+		x, y, // xy pos
+		45, 0, 5, // anim
+		scale, scale, // xy scale
+		SPRITE::MAPPING, blackMapping
+	);
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+	float baseScale = -5;
+	float scaleModifier = -0.2/((fadeTimer/70)*50);
+	float circleCount = 10;
+	float i = 0;
+
+	/*
+	it's a black circle growing from the player until
+	the whole screen is black
+	*/
+
+	drawCircle(
+		canvas,
+		player.xPos, player.yPos,
+		baseScale-(i*scaleModifier)
+	);
+}
