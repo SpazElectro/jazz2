@@ -4,8 +4,32 @@
 #include "STVutil.asc"
 
 bool fading = false;
-float fadeTimer = 1;
 int blackMapping = 0;
+
+// properties
+float baseScale = 1.0;
+float circleMult = 0.09;
+float circleCount = 93.0;
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+	if (stringReceived.findFirst("s ") >= 0) {
+		float value = parseFloat(stringReceived.substr(2));
+		baseScale = value;
+	}
+	if (stringReceived.findFirst("m ") >= 0) {
+		float value = parseFloat(stringReceived.substr(2));
+		circleMult = value;
+	}
+	if (stringReceived.findFirst("c ") >= 0) {
+		float value = parseFloat(stringReceived.substr(2));
+		circleCount = value;
+	}
+	if (stringReceived.findFirst("fade") >= 0) {
+		fade();
+	}
+
+	return false;
+}
 
 void onLevelLoad() {
 	jjAnimSets[45].load();
@@ -15,13 +39,21 @@ void onLevelLoad() {
 		jjConsole("Could not find available mapping slot!");
 		return;
 	}
-
-	fade();
 }
 
 void onMain() {
-	if (fading)
-		fadeTimer += 1;
+	if (fading) {
+		float decrease = 0.1;
+		baseScale += decrease;
+		circleCount -= decrease*10;
+
+		if (circleCount <= 0) {
+			// defaults
+			baseScale = 1.0;
+			circleCount = 93.0;
+			fading = false;
+		}
+	}
 }
 
 void fade() {
@@ -38,19 +70,17 @@ void drawCircle(jjCANVAS@ canvas, int x, int y, float scale) {
 }
 
 void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
-	float baseScale = -5;
-	float scaleModifier = -0.2/((fadeTimer/70)*50);
-	float circleCount = 10;
-	float i = 0;
-
 	/*
 	it's a black circle growing from the player until
 	the whole screen is black
 	*/
 
-	drawCircle(
-		canvas,
-		player.xPos, player.yPos,
-		baseScale-(i*scaleModifier)
-	);
+	for (float i = 0; i < circleCount; i++)
+		drawCircle(
+			canvas,
+			player.xPos, player.yPos,
+			-(baseScale+(i*circleMult))
+		);
+	
+	canvas.drawString(0, 15, "FPS: "+jjFPS);
 }
