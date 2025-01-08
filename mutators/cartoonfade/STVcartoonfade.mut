@@ -1,21 +1,19 @@
 #pragma name "cartoonfade"
 
 bool isFading = false;
-float delta = 0;
-int lastTime = jjGameTicks;
 
-const float DEFAULT_SCALE = 0.0;
-const float SCALE_STEP = 0.05;
+const float DEFAULT_FADE_SCALE = 0.0;
+const float FADE_SCALE_STEP = 0.05;
 
-float scale = DEFAULT_SCALE;
+float fadeScale = DEFAULT_FADE_SCALE;
 
 void initFade() {
 	jjAnimSets[45].load(
 		jjPIXELMAP(
 			#asset "fade.png"
 		),
-		frameWidth: 500,
-		frameHeight: 500,
+		frameWidth: 600,
+		frameHeight: 600,
 		frameSpacingX: 0,
 		frameSpacingY: 0,
 		startY: 0,
@@ -24,15 +22,11 @@ void initFade() {
 }
 
 void updateFade() {
-	// calculate delta time
-	delta = (jjGameTicks - lastTime);
-	lastTime = jjGameTicks;
-
 	if (isFading) {
-		scale += SCALE_STEP * delta;
+		fadeScale += FADE_SCALE_STEP;
 
-		if (scale >= 4) {
-			scale = DEFAULT_SCALE;
+		if (fadeScale >= 4) {
+			fadeScale = DEFAULT_FADE_SCALE;
 			isFading = false;
 			jjNxt(false, true);
 		}
@@ -43,12 +37,18 @@ void drawFade(jjPLAYER@ player, jjCANVAS@ canvas) {
 	canvas.drawResizedSprite(
 		int(player.xPos), int(player.yPos),
 		45, 0, 0,
-		scale, scale
+		fadeScale, fadeScale,
+		SPRITE::ALPHAMAP, 1
 	);
+	canvas.drawSpriteFromCurFrame(int(player.xPos), int(player.yPos), player.curFrame, player.direction, player.spriteMode, player.spriteParam);
 }
 
 void playerDrawFade(jjPLAYERDRAW& pd) {
 	pd.name = !isFading;
+}
+
+void fade() {
+	isFading = true;
 }
 
 void onLevelLoad() {
@@ -65,7 +65,7 @@ void onDrawLayer3(jjPLAYER@ player, jjCANVAS@ canvas) {
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 	if (stringReceived == "fade") {
-		isFading = true;
+		fade();
 		return true;
 	}
 
