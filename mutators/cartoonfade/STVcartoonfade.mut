@@ -9,7 +9,7 @@ int blackMapping = 0;
 // properties
 float baseScale = 1.0;
 float circleMult = 0.09;
-float circleCount = 93.0;
+float circleCount = 96.0;
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 	if (stringReceived.findFirst("s ") >= 0) {
@@ -81,6 +81,4 @@ void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
 			player.xPos, player.yPos,
 			-(baseScale+(i*circleMult))
 		);
-	
-	canvas.drawString(0, 15, "FPS: "+jjFPS);
 }
