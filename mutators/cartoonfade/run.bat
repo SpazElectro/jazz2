@@ -12,6 +12,9 @@ copy "../../scripts/" "%GAME_DIRECTORY%" /y
 for %%i in (*.j2l *.j2t) do (
   copy "%%i" "%GAME_DIRECTORY%" /y
 )
+for %%i in (./assets/*.*) do (
+  copy ".\assets\%%i" "%GAME_DIRECTORY%\STVcartoonfade_%%i" /y
+)
 
 for %%i in (*.j2as *.mut *.asc) do (
   python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i" -P "STVcartoonfade"

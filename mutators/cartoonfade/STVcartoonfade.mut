@@ -1,84 +1,77 @@
 #pragma name "cartoonfade"
-#pragma require "STVutil.asc"
 
-#include "STVutil.asc"
+bool isFading = false;
+float delta = 0;
+int lastTime = jjGameTicks;
 
-bool fading = false;
-int blackMapping = 0;
+const float DEFAULT_SCALE = 0.0;
+const float SCALE_STEP = 0.05;
 
-// properties
-float baseScale = 1.0;
-float circleMult = 0.09;
-float circleCount = 96.0;
+float scale = DEFAULT_SCALE;
+
+void initFade() {
+	jjAnimSets[45].load(
+		jjPIXELMAP(
+			#asset "fade.png"
+		),
+		frameWidth: 500,
+		frameHeight: 500,
+		frameSpacingX: 0,
+		frameSpacingY: 0,
+		startY: 0,
+		firstAnimToOverwrite: jjAnimSets[45]
+	);
+}
+
+void updateFade() {
+	// calculate delta time
+	delta = (jjGameTicks - lastTime);
+	lastTime = jjGameTicks;
+
+	if (isFading) {
+		scale += SCALE_STEP * delta;
+
+		if (scale >= 4) {
+			scale = DEFAULT_SCALE;
+			isFading = false;
+			jjNxt(false, true);
+		}
+	}
+}
+
+void drawFade(jjPLAYER@ player, jjCANVAS@ canvas) {
+	canvas.drawResizedSprite(
+		int(player.xPos), int(player.yPos),
+		45, 0, 0,
+		scale, scale
+	);
+}
+
+void playerDrawFade(jjPLAYERDRAW& pd) {
+	pd.name = !isFading;
+}
+
+void onLevelLoad() {
+	initFade();
+}
+
+void onMain() {
+	updateFade();
+}
+
+void onDrawLayer3(jjPLAYER@ player, jjCANVAS@ canvas) {
+	drawFade(player, canvas);
+}
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
-	if (stringReceived.findFirst("s ") >= 0) {
-		float value = parseFloat(stringReceived.substr(2));
-		baseScale = value;
-	}
-	if (stringReceived.findFirst("m ") >= 0) {
-		float value = parseFloat(stringReceived.substr(2));
-		circleMult = value;
-	}
-	if (stringReceived.findFirst("c ") >= 0) {
-		float value = parseFloat(stringReceived.substr(2));
-		circleCount = value;
-	}
-	if (stringReceived.findFirst("fade") >= 0) {
-		fade();
+	if (stringReceived == "fade") {
+		isFading = true;
+		return true;
 	}
 
 	return false;
 }
 
-void onLevelLoad() {
-	jjAnimSets[45].load();
-
-	blackMapping = jjSpriteModeFirstFreeMapping();
-	if (blackMapping == -1) {
-		jjConsole("Could not find available mapping slot!");
-		return;
-	}
-}
-
-void onMain() {
-	if (fading) {
-		float decrease = 0.1;
-		baseScale += decrease;
-		circleCount -= decrease*10;
-
-		if (circleCount <= 0) {
-			// defaults
-			baseScale = 1.0;
-			circleCount = 93.0;
-			fading = false;
-		}
-	}
-}
-
-void fade() {
-	fading = true;
-}
-
-void drawCircle(jjCANVAS@ canvas, int x, int y, float scale) {
-	canvas.drawResizedSprite(
-		x, y, // xy pos
-		45, 0, 5, // anim
-		scale, scale, // xy scale
-		SPRITE::MAPPING, blackMapping
-	);
-}
-
-void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
-	/*
-	it's a black circle growing from the player until
-	the whole screen is black
-	*/
-
-	for (float i = 0; i < circleCount; i++)
-		drawCircle(
-			canvas,
-			player.xPos, player.yPos,
-			-(baseScale+(i*circleMult))
-		);
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+	playerDrawFade(pd);
 }
