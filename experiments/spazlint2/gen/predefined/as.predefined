@@ -1,0 +1,61 @@
+
+class ref{}
+funcdef bool less(const ?&in a, const ?&in b);
+class array<T>{
+	uint length() const;
+	void resize(uint);
+	void reverse();
+	void insertAt(uint index, const T& in value);
+	void insertAt(uint index, const array<T>& arr);
+	void insertLast(const T& in);
+	void removeAt(uint index);
+	void removeLast();
+	void removeRange(uint start, uint count);
+	void sortAsc();
+	void sortAsc(uint startAt, uint count);
+	void sortDesc();
+	void sortDesc(uint startAt, uint count);
+	void sort(const less &in compareFunc, uint startAt = 0, uint count = uint(-1));
+	int find(const T& in);
+	int find(uint startAt, const T& in);
+	int findByRef(const T& in);
+	int findByRef(uint startAt, const T& in);
+};
+class dictionary{
+	void set(const string &in key, ? &in value);
+	void set(const string &in key, int64 &in value);
+	void set(const string &in key, double &in value);
+	bool get(const string &in key, ? &out value) const;
+	bool get(const string &in key, int64 &out value) const;
+	bool get(const string &in key, double &out value) const;
+	array<string> @getKeys() const;
+	bool exists(const string &in key) const;
+	bool delete(const string &in key);
+	void deleteAll();
+	bool isEmpty() const;
+	uint getSize() const;
+}
+class dictionaryValue{}
+class string {
+    uint length() const;
+    void resize(uint new);
+    bool isEmpty() const;
+    string substr(uint start = 0, int count = -1) const;
+    void insert(uint pos, const string &in other);
+    void erase(uint pos, int count = -1);
+    int findFirst(const string &in str, uint start = 0) const;
+    int findLast(const string &in str, int start = -1) const;
+    int findFirstOf(const string &in chars, int start = 0) const;
+    int findFirstNotOf(const string &in chars, int start = 0) const;
+    int findLastOf(const string &in chars, int start = -1) const;
+    int findLastNotOf(const string &in chars, int start = -1) const;
+    array<string>@ split(const string &in delimiter) const;
+};
+
+string join(const array<string> &in arr, const string &in delimiter);
+int64 parseInt(const string &in str, uint base = 10, uint &out byteCount = 0);
+uint64 parseUInt(const string &in str, uint base = 10, uint &out byteCount = 0);
+double parseFloat(const string &in, uint &out byteCount = 0);
+string formatInt(int64 val, const string &in options = '', uint width = 0);
+string formatUInt(uint64 val, const string &in options = '', uint width = 0);
+string formatFloat(double val, const string &in options = '', uint width = 0, uint precision = 0);

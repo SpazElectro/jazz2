@@ -1,0 +1,3 @@
+void onGameStart();
+
+void jjAddParticlePixelExplosion(float xPixel, float yPixel, int curFrame, int direction, int mode);
