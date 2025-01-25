@@ -45,6 +45,23 @@ def process_full(full: str, attributes: List[dict]) -> str:
     full = full.replace("jjBEHAVIOR", "BEHAVIOR::Behavior")
     return full + ";"
 
+def better_description(description: str, tab_level: int) -> str:
+    words = description.split()
+    lines = []
+    current_line = ""
+    for word in words:
+        if len(current_line) + len(word) + 1 > 80:
+            lines.append(current_line.strip())
+            current_line = word
+        else:
+            if current_line:
+                current_line += " " + word
+            else:
+                current_line = word
+    if current_line:
+        lines.append(current_line.strip())
+    return ("\n" + "\t" * tab_level).join(lines) + ("\t" * tab_level)
+
 api_dump = open("jazzangel.json").read()
 api: APIDumps = json.loads(api_dump)
 output = f"// This file was automatically generated at {datetime.datetime.now()}\n\n#include 'jj2_additional.predefined' // REMOVE_LINE\n\n"
@@ -84,13 +101,15 @@ for dump in api.keys():
     ddump = []
     for itm in api[dump]:
         itm: APIDumpItem = itm
-        full = process_full(itm["full"], itm["attributes"])
+        desc = f"/*\n\t{better_description(itm['description'], 1)}\n\t*/\n\t"
+        processed = process_full(itm["full"], itm["attributes"])
+        full = desc + processed
 
         # stupid hacks
         if dump == "jjLAYERList" or dump == "jjPARTICLEList":
             # if the property is some weird type just make it an int
-            if len(full.split()) == 1:
-                full = f"int {full} // (unknown type)"
+            if len(itm["full"].split()) == 1:
+                full = f"{desc}int {processed} // (unknown type)"
         if dump == "jjSTREAMList":
             # if the itm name is "push" or "pop", inject different push methods because of T
             if itm["name"] == "push":
@@ -121,7 +140,7 @@ for dump in api.keys():
             if full in defined:
                 continue
             defined.append(full)
-            output += full + "\n"
+            output += f"/* {better_description(itm['description'], 0)}*/\n{full}\n"
 
 with open("predefined/jj2.predefined", "w") as f:
     f.write(output)
