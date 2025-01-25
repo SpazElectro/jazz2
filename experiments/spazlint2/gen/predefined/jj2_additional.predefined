@@ -1,0 +1,9 @@
+#include "jj2.predefined" // REMOVE_LINE
+
+// any T;
+// typedef jjBEHAVIOR = BEHAVIOR::BEHAVIOR;
+
+funcdef void jjVOIDFUNC();
+funcdef void jjVOIDFUNCPLAYER(jjPLAYER@ player);
+
+shared interface jjPUBLICINTERFACE {}

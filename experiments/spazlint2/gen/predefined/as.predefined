@@ -51,6 +51,25 @@ class string {
     int findLastNotOf(const string &in chars, int start = -1) const;
     array<string>@ split(const string &in delimiter) const;
 };
+class any{
+	//The default constructor creates an empty object, and the second initializes the object with the provided value.
+	//The int64 and double overloads make sure that all numbers are converted to 64bit before being stored in the object.
+	any();
+	any(? &in value);
+	any(int64 &in value);
+	any(double &in value);
+	//The assignment operator will copy the contained value from the other object.
+	any &opAssign(const any &in other);
+	//These methods sets the value in the object.
+	//The int64 and double overloads make sure that all numbers are converted to 64bit before being stored in the object.
+	void store(? &in value);
+	void store(int64 &in value);
+	void store(double &in value);
+	//These methods retrieve the value stored in the object. The methods will return true if the stored value is compatible with the requested type.
+	bool retrieve(? &out value) const;
+	bool retrieve(int64 &out value) const;
+	bool retrieve(double &out value) const;
+}
 
 string join(const array<string> &in arr, const string &in delimiter);
 int64 parseInt(const string &in str, uint base = 10, uint &out byteCount = 0);

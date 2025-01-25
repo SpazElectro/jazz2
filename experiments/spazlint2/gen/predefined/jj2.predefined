@@ -1,3 +1,3392 @@
-void onGameStart();
+// This file was automatically generated at 2025-01-25 15:24:40.619170
 
+#include 'jj2_additional.predefined' // REMOVE_LINE
+
+namespace CREATOR {
+    enum Type {
+        OBJECT,
+        LEVEL,
+        PLAYER,
+    };
+    // Aliases
+    const auto OBJECT = Type::OBJECT;
+    const auto LEVEL = Type::LEVEL;
+    const auto PLAYER = Type::PLAYER;
+};
+namespace PARTICLE {
+    enum Type {
+        INACTIVE,
+        FIRE,
+        FLOWER,
+        ICETRAIL,
+        LEAF,
+        PIXEL,
+        RAIN,
+        SMOKE,
+        SNOW,
+        SPARK,
+        STAR,
+        STRING,
+        TILE,
+    };
+    // Aliases
+    const auto INACTIVE = Type::INACTIVE;
+    const auto FIRE = Type::FIRE;
+    const auto FLOWER = Type::FLOWER;
+    const auto ICETRAIL = Type::ICETRAIL;
+    const auto LEAF = Type::LEAF;
+    const auto PIXEL = Type::PIXEL;
+    const auto RAIN = Type::RAIN;
+    const auto SMOKE = Type::SMOKE;
+    const auto SNOW = Type::SNOW;
+    const auto SPARK = Type::SPARK;
+    const auto STAR = Type::STAR;
+    const auto STRING = Type::STRING;
+    const auto TILE = Type::TILE;
+};
+namespace STRING {
+    enum Size {
+        SMALL,
+        MEDIUM,
+        LARGE,
+    };
+    enum SIZE {
+        SMALL,
+        MEDIUM,
+        LARGE,
+    };
+    enum Mode {
+        NORMAL,
+        DARK,
+        RIGHTALIGN,
+        BOUNCE,
+        SPIN,
+        PALSHIFT,
+    };
+    enum Alignment {
+        DEFAULT,
+        LEFT,
+        CENTER,
+        RIGHT,
+    };
+    enum SignTreatment {
+        HIDESIGN,
+        DISPLAYSIGN,
+        SPECIALSIGN,
+    };
+    // Aliases
+    const auto SMALL = Size::SMALL;
+    const auto MEDIUM = Size::MEDIUM;
+    const auto LARGE = Size::LARGE;
+    const auto NORMAL = Mode::NORMAL;
+    const auto DARK = Mode::DARK;
+    const auto RIGHTALIGN = Mode::RIGHTALIGN;
+    const auto BOUNCE = Mode::BOUNCE;
+    const auto SPIN = Mode::SPIN;
+    const auto PALSHIFT = Mode::PALSHIFT;
+    const auto DEFAULT = Alignment::DEFAULT;
+    const auto LEFT = Alignment::LEFT;
+    const auto CENTER = Alignment::CENTER;
+    const auto RIGHT = Alignment::RIGHT;
+    const auto HIDESIGN = SignTreatment::HIDESIGN;
+    const auto DISPLAYSIGN = SignTreatment::DISPLAYSIGN;
+    const auto SPECIALSIGN = SignTreatment::SPECIALSIGN;
+};
+namespace SPRITE {
+    enum Mode {
+        ALPHAMAP,
+        BLEND_NORMAL,
+        BLEND_DISSOLVE,
+        BLEND_DARKEN,
+        BLEND_MULTIPLY,
+        BLEND_BURN,
+        BLEND_LIGHTEN,
+        BLEND_SCREEN,
+        BLEND_DODGE,
+        BLEND_OVERLAY,
+        BLEND_SOFTLIGHT,
+        BLEND_HARDLIGHT,
+        BLEND_DIFFERENCE,
+        BLEND_EXCLUSION,
+        BLEND_COLOR,
+        BLEND_HUE,
+        BLEND_SATURATION,
+        BLEND_LUMINANCE,
+        BRIGHTNESS,
+        CHROMAKEY,
+        FROZEN,
+        GEM,
+        INVISIBLE,
+        MAPPING,
+        MENUPLAYER,
+        NEONGLOW,
+        NORMAL,
+        PALSHIFT,
+        PLAYER,
+        RESIZED,
+        SHADOW,
+        SINGLECOLOR,
+        SINGLEHUE,
+        TINTED,
+        TRANSLUCENT,
+        TRANSLUCENTCOLOR,
+        TRANSLUCENTMAPPING,
+        TRANSLUCENTPALSHIFT,
+        TRANSLUCENTPLAYER,
+        TRANSLUCENTSINGLEHUE,
+        TRANSLUCENTTILE,
+    };
+    enum Direction {
+        FLIPNONE,
+        FLIPH,
+        FLIPV,
+        FLIPHV,
+    };
+    // Aliases
+    const auto ALPHAMAP = Mode::ALPHAMAP;
+    const auto BLEND_NORMAL = Mode::BLEND_NORMAL;
+    const auto BLEND_DISSOLVE = Mode::BLEND_DISSOLVE;
+    const auto BLEND_DARKEN = Mode::BLEND_DARKEN;
+    const auto BLEND_MULTIPLY = Mode::BLEND_MULTIPLY;
+    const auto BLEND_BURN = Mode::BLEND_BURN;
+    const auto BLEND_LIGHTEN = Mode::BLEND_LIGHTEN;
+    const auto BLEND_SCREEN = Mode::BLEND_SCREEN;
+    const auto BLEND_DODGE = Mode::BLEND_DODGE;
+    const auto BLEND_OVERLAY = Mode::BLEND_OVERLAY;
+    const auto BLEND_SOFTLIGHT = Mode::BLEND_SOFTLIGHT;
+    const auto BLEND_HARDLIGHT = Mode::BLEND_HARDLIGHT;
+    const auto BLEND_DIFFERENCE = Mode::BLEND_DIFFERENCE;
+    const auto BLEND_EXCLUSION = Mode::BLEND_EXCLUSION;
+    const auto BLEND_COLOR = Mode::BLEND_COLOR;
+    const auto BLEND_HUE = Mode::BLEND_HUE;
+    const auto BLEND_SATURATION = Mode::BLEND_SATURATION;
+    const auto BLEND_LUMINANCE = Mode::BLEND_LUMINANCE;
+    const auto BRIGHTNESS = Mode::BRIGHTNESS;
+    const auto CHROMAKEY = Mode::CHROMAKEY;
+    const auto FROZEN = Mode::FROZEN;
+    const auto GEM = Mode::GEM;
+    const auto INVISIBLE = Mode::INVISIBLE;
+    const auto MAPPING = Mode::MAPPING;
+    const auto MENUPLAYER = Mode::MENUPLAYER;
+    const auto NEONGLOW = Mode::NEONGLOW;
+    const auto NORMAL = Mode::NORMAL;
+    const auto PALSHIFT = Mode::PALSHIFT;
+    const auto PLAYER = Mode::PLAYER;
+    const auto RESIZED = Mode::RESIZED;
+    const auto SHADOW = Mode::SHADOW;
+    const auto SINGLECOLOR = Mode::SINGLECOLOR;
+    const auto SINGLEHUE = Mode::SINGLEHUE;
+    const auto TINTED = Mode::TINTED;
+    const auto TRANSLUCENT = Mode::TRANSLUCENT;
+    const auto TRANSLUCENTCOLOR = Mode::TRANSLUCENTCOLOR;
+    const auto TRANSLUCENTMAPPING = Mode::TRANSLUCENTMAPPING;
+    const auto TRANSLUCENTPALSHIFT = Mode::TRANSLUCENTPALSHIFT;
+    const auto TRANSLUCENTPLAYER = Mode::TRANSLUCENTPLAYER;
+    const auto TRANSLUCENTSINGLEHUE = Mode::TRANSLUCENTSINGLEHUE;
+    const auto TRANSLUCENTTILE = Mode::TRANSLUCENTTILE;
+    const auto FLIPNONE = Direction::FLIPNONE;
+    const auto FLIPH = Direction::FLIPH;
+    const auto FLIPV = Direction::FLIPV;
+    const auto FLIPHV = Direction::FLIPHV;
+};
+namespace TILE {
+    enum Quadrant {
+        TOPLEFT,
+        TOPRIGHT,
+        BOTTOMLEFT,
+        BOTTOMRIGHT,
+        ALLQUADRANTS,
+    };
+    // Aliases
+    const auto TOPLEFT = Quadrant::TOPLEFT;
+    const auto TOPRIGHT = Quadrant::TOPRIGHT;
+    const auto BOTTOMLEFT = Quadrant::BOTTOMLEFT;
+    const auto BOTTOMRIGHT = Quadrant::BOTTOMRIGHT;
+    const auto ALLQUADRANTS = Quadrant::ALLQUADRANTS;
+};
+namespace SOUND {
+    enum Sample {
+        AMMO_BLUB1,
+        AMMO_BLUB2,
+        AMMO_BMP1,
+        AMMO_BMP2,
+        AMMO_BMP3,
+        AMMO_BMP4,
+        AMMO_BMP5,
+        AMMO_BMP6,
+        AMMO_BOEM1,
+        AMMO_BUL1,
+        AMMO_BULFL1,
+        AMMO_BULFL2,
+        AMMO_BULFL3,
+        AMMO_FIREGUN1A,
+        AMMO_FIREGUN2A,
+        AMMO_FUMP,
+        AMMO_GUN1,
+        AMMO_GUN2,
+        AMMO_GUN3PLOP,
+        AMMO_GUNFLP,
+        AMMO_GUNFLP1,
+        AMMO_GUNFLP2,
+        AMMO_GUNFLP3,
+        AMMO_GUNFLP4,
+        AMMO_GUNFLPL,
+        AMMO_GUNJAZZ,
+        AMMO_GUNVELOCITY,
+        AMMO_ICEGUN,
+        AMMO_ICEGUN2,
+        AMMO_ICEGUNPU,
+        AMMO_ICEPU1,
+        AMMO_ICEPU2,
+        AMMO_ICEPU3,
+        AMMO_ICEPU4,
+        AMMO_LASER,
+        AMMO_LASER2,
+        AMMO_LASER3,
+        AMMO_LAZRAYS,
+        AMMO_MISSILE,
+        AMMO_SPZBL1,
+        AMMO_SPZBL2,
+        AMMO_SPZBL3,
+        BAT_BATFLY1,
+        BILSBOSS_BILLAPPEAR,
+        BILSBOSS_FINGERSNAP,
+        BILSBOSS_FIRE,
+        BILSBOSS_FIRESTART,
+        BILSBOSS_SCARY3,
+        BILSBOSS_THUNDER,
+        BILSBOSS_ZIP,
+        BONUS_BONUS1,
+        BONUS_BONUSBLUB,
+        BUBBA_BUBBABOUNCE1,
+        BUBBA_BUBBABOUNCE2,
+        BUBBA_BUBBAEXPLO,
+        BUBBA_FROG2,
+        BUBBA_FROG3,
+        BUBBA_FROG4,
+        BUBBA_FROG5,
+        BUBBA_SNEEZE2,
+        BUBBA_TORNADOATTACK2,
+        BUMBEE_BEELOOP,
+        CATERPIL_RIDOE,
+        COMMON_AIRBOARD,
+        COMMON_AIRBTURN,
+        COMMON_AIRBTURN2,
+        COMMON_BASE1,
+        COMMON_BELL_FIRE,
+        COMMON_BELL_FIRE2,
+        COMMON_BENZIN1,
+        COMMON_BIRDFLY,
+        COMMON_BIRDFLY2,
+        COMMON_BLOKPLOP,
+        COMMON_BLUB1,
+        COMMON_BUBBLGN1,
+        COMMON_BURN,
+        COMMON_BURNIN,
+        COMMON_CANSPS,
+        COMMON_CLOCK,
+        COMMON_COIN,
+        COMMON_COLLAPS,
+        COMMON_CUP,
+        COMMON_DAMPED1,
+        COMMON_DOWN,
+        COMMON_DOWNFL2,
+        COMMON_DRINKSPAZZ1,
+        COMMON_DRINKSPAZZ2,
+        COMMON_DRINKSPAZZ3,
+        COMMON_DRINKSPAZZ4,
+        COMMON_EAT1,
+        COMMON_EAT2,
+        COMMON_EAT3,
+        COMMON_EAT4,
+        COMMON_ELECTRIC1,
+        COMMON_ELECTRIC2,
+        COMMON_ELECTRICHIT,
+        COMMON_EXPL_TNT,
+        COMMON_EXPSM1,
+        COMMON_FLAMER,
+        COMMON_FLAP,
+        COMMON_FOEW1,
+        COMMON_FOEW2,
+        COMMON_FOEW3,
+        COMMON_FOEW4,
+        COMMON_FOEW5,
+        COMMON_GEMSMSH1,
+        COMMON_GLASS2,
+        COMMON_GUNSM1,
+        COMMON_HARP1,
+        COMMON_HEAD,
+        COMMON_HELI1,
+        COMMON_HIBELL,
+        COMMON_HOLYFLUT,
+        COMMON_HORN1,
+        COMMON_ICECRUSH,
+        COMMON_IMPACT1,
+        COMMON_IMPACT2,
+        COMMON_IMPACT3,
+        COMMON_IMPACT4,
+        COMMON_IMPACT5,
+        COMMON_IMPACT6,
+        COMMON_IMPACT7,
+        COMMON_IMPACT8,
+        COMMON_IMPACT9,
+        COMMON_ITEMTRE,
+        COMMON_JUMP,
+        COMMON_JUMP2,
+        COMMON_LAND,
+        COMMON_LAND1,
+        COMMON_LAND2,
+        COMMON_LANDCAN1,
+        COMMON_LANDCAN2,
+        COMMON_LANDPOP,
+        COMMON_LOADJAZZ,
+        COMMON_LOADSPAZ,
+        COMMON_METALHIT,
+        COMMON_MONITOR,
+        COMMON_NOCOIN,
+        COMMON_PICKUP1,
+        COMMON_PICKUPW1,
+        COMMON_PISTOL1,
+        COMMON_PLOOP1,
+        COMMON_PLOP1,
+        COMMON_PLOP2,
+        COMMON_PLOP3,
+        COMMON_PLOP4,
+        COMMON_PLOPKORK,
+        COMMON_PREEXPL1,
+        COMMON_PREHELI,
+        COMMON_REVUP,
+        COMMON_RINGGUN,
+        COMMON_RINGGUN2,
+        COMMON_SHIELD1,
+        COMMON_SHIELD4,
+        COMMON_SHIELD_ELEC,
+        COMMON_SHLDOF3,
+        COMMON_SLIP,
+        COMMON_SMASH,
+        COMMON_SPLAT1,
+        COMMON_SPLAT2,
+        COMMON_SPLAT3,
+        COMMON_SPLAT4,
+        COMMON_SPLUT,
+        COMMON_SPRING1,
+        COMMON_STEAM,
+        COMMON_STEP,
+        COMMON_STRETCH,
+        COMMON_SWISH1,
+        COMMON_SWISH2,
+        COMMON_SWISH3,
+        COMMON_SWISH4,
+        COMMON_SWISH5,
+        COMMON_SWISH6,
+        COMMON_SWISH7,
+        COMMON_SWISH8,
+        COMMON_TELPORT1,
+        COMMON_TELPORT2,
+        COMMON_UP,
+        COMMON_WATER,
+        COMMON_WOOD1,
+        DEMON_RUN,
+        DEVILDEVAN_DRAGONFIRE,
+        DEVILDEVAN_FLAP,
+        DEVILDEVAN_FROG4,
+        DEVILDEVAN_JUMPUP,
+        DEVILDEVAN_LAUGH,
+        DEVILDEVAN_PHASER2,
+        DEVILDEVAN_STRECh3,
+        DEVILDEVAN_STRECHTAIL,
+        DEVILDEVAN_STRETCH1,
+        DEVILDEVAN_STRETCH3,
+        DEVILDEVAN_VANISH1,
+        DEVILDEVAN_WHISTLEDESCENDING2,
+        DEVILDEVAN_WINGSOUT,
+        DOG_AGRESSIV,
+        DOG_SNIF1,
+        DOG_WAF1,
+        DOG_WAF2,
+        DOG_WAF3,
+        DRAGFLY_BEELOOP,
+        ENDING_OHTHANK,
+        ENDTUNEJAZZ_TUNE,
+        ENDTUNELORI_CAKE,
+        ENDTUNESPAZ_TUNE,
+        EPICLOGO_EPIC1,
+        EPICLOGO_EPIC2,
+        EVA_KISS1,
+        EVA_KISS2,
+        EVA_KISS3,
+        EVA_KISS4,
+        FAN_FAN,
+        FATCHK_HIT1,
+        FATCHK_HIT2,
+        FATCHK_HIT3,
+        FENCER_FENCE1,
+        FROG_FROG,
+        FROG_FROG1,
+        FROG_FROG2,
+        FROG_FROG3,
+        FROG_FROG4,
+        FROG_FROG5,
+        FROG_JAZZ2FROG,
+        FROG_TONG,
+        GLOVE_HIT,
+        HATTER_CUP,
+        HATTER_HAT,
+        HATTER_PTOEI,
+        HATTER_SPLIN,
+        HATTER_SPLOUT,
+        INTRO_BLOW,
+        INTRO_BOEM1,
+        INTRO_BOEM2,
+        INTRO_BRAKE,
+        INTRO_END,
+        INTRO_GRAB,
+        INTRO_GREN1,
+        INTRO_GREN2,
+        INTRO_GREN3,
+        INTRO_GUNM0,
+        INTRO_GUNM1,
+        INTRO_GUNM2,
+        INTRO_HELI,
+        INTRO_HITSPAZ,
+        INTRO_HITTURT,
+        INTRO_IFEEL,
+        INTRO_INHALE,
+        INTRO_INSECT,
+        INTRO_KATROL,
+        INTRO_LAND,
+        INTRO_MONSTER,
+        INTRO_MONSTER2,
+        INTRO_ROCK,
+        INTRO_ROPE1,
+        INTRO_ROPE2,
+        INTRO_RUN,
+        INTRO_SHOT1,
+        INTRO_SHOTGRN,
+        INTRO_SKI,
+        INTRO_STRING,
+        INTRO_SWISH1,
+        INTRO_SWISH2,
+        INTRO_SWISH3,
+        INTRO_SWISH4,
+        INTRO_UHTURT,
+        INTRO_UP1,
+        INTRO_UP2,
+        INTRO_WIND_01,
+        JAZZSOUNDS_BALANCE,
+        JAZZSOUNDS_HEY1,
+        JAZZSOUNDS_HEY2,
+        JAZZSOUNDS_HEY3,
+        JAZZSOUNDS_HEY4,
+        JAZZSOUNDS_IDLE,
+        JAZZSOUNDS_JAZZV1,
+        JAZZSOUNDS_JAZZV2,
+        JAZZSOUNDS_JAZZV3,
+        JAZZSOUNDS_JAZZV4,
+        JAZZSOUNDS_JUMMY,
+        JAZZSOUNDS_PFOE,
+        LABRAT_BITE,
+        LABRAT_EYE2,
+        LABRAT_EYE3,
+        LABRAT_MOUSE1,
+        LABRAT_MOUSE2,
+        LABRAT_MOUSE3,
+        LIZARD_LIZ1,
+        LIZARD_LIZ2,
+        LIZARD_LIZ4,
+        LIZARD_LIZ6,
+        LORISOUNDS_DIE1,
+        LORISOUNDS_HURT0,
+        LORISOUNDS_HURT1,
+        LORISOUNDS_HURT2,
+        LORISOUNDS_HURT3,
+        LORISOUNDS_HURT4,
+        LORISOUNDS_HURT5,
+        LORISOUNDS_HURT6,
+        LORISOUNDS_HURT7,
+        LORISOUNDS_LORI1,
+        LORISOUNDS_LORI2,
+        LORISOUNDS_LORIBOOM,
+        LORISOUNDS_LORIFALL,
+        LORISOUNDS_LORIJUMP,
+        LORISOUNDS_LORIJUMP2,
+        LORISOUNDS_LORIJUMP3,
+        LORISOUNDS_LORIJUMP4,
+        LORISOUNDS_TOUCH,
+        LORISOUNDS_WEHOO,
+        MENUSOUNDS_SELECT0,
+        MENUSOUNDS_SELECT1,
+        MENUSOUNDS_SELECT2,
+        MENUSOUNDS_SELECT3,
+        MENUSOUNDS_SELECT4,
+        MENUSOUNDS_SELECT5,
+        MENUSOUNDS_SELECT6,
+        MENUSOUNDS_TYPE,
+        MENUSOUNDS_TYPEENTER,
+        MONKEY_SPLUT,
+        MONKEY_THROW,
+        MOTH_FLAPMOTH,
+        ORANGE_BOEML,
+        ORANGE_BOEMR,
+        ORANGE_BUBBELSL,
+        ORANGE_BUBBELSR,
+        ORANGE_GLAS1L,
+        ORANGE_GLAS1R,
+        ORANGE_GLAS2L,
+        ORANGE_GLAS2R,
+        ORANGE_MERGE,
+        ORANGE_SWEEP0L,
+        ORANGE_SWEEP0R,
+        ORANGE_SWEEP1L,
+        ORANGE_SWEEP1R,
+        ORANGE_SWEEP2L,
+        ORANGE_SWEEP2R,
+        P2_CRUNCH,
+        P2_FART,
+        P2_FOEW1,
+        P2_FOEW4,
+        P2_FOEW5,
+        P2_FROG1,
+        P2_FROG2,
+        P2_FROG3,
+        P2_FROG4,
+        P2_FROG5,
+        P2_KISS4,
+        P2_OPEN,
+        P2_PINCH1,
+        P2_PINCH2,
+        P2_PLOPSEQ1,
+        P2_PLOPSEQ2,
+        P2_PLOPSEQ3,
+        P2_PLOPSEQ4,
+        P2_POEP,
+        P2_PTOEI,
+        P2_SPLOUT,
+        P2_SPLUT,
+        P2_THROW,
+        P2_TONG,
+        PICKUPS_BOING_CHECK,
+        PICKUPS_HELI2,
+        PICKUPS_STRETCH1A,
+        PINBALL_BELL,
+        PINBALL_FLIP1,
+        PINBALL_FLIP2,
+        PINBALL_FLIP3,
+        PINBALL_FLIP4,
+        QUEEN_LADYUP,
+        QUEEN_SCREAM,
+        RAPIER_GOSTDIE,
+        RAPIER_GOSTLOOP,
+        RAPIER_GOSTOOOH,
+        RAPIER_GOSTRIP,
+        RAPIER_HITCHAR,
+        ROBOT_BIG1,
+        ROBOT_BIG2,
+        ROBOT_CAN1,
+        ROBOT_CAN2,
+        ROBOT_HYDRO,
+        ROBOT_HYDRO2,
+        ROBOT_HYDROFIL,
+        ROBOT_HYDROPUF,
+        ROBOT_IDLE1,
+        ROBOT_IDLE2,
+        ROBOT_JMPCAN1,
+        ROBOT_JMPCAN10,
+        ROBOT_JMPCAN2,
+        ROBOT_JMPCAN3,
+        ROBOT_JMPCAN4,
+        ROBOT_JMPCAN5,
+        ROBOT_JMPCAN6,
+        ROBOT_JMPCAN7,
+        ROBOT_JMPCAN8,
+        ROBOT_JMPCAN9,
+        ROBOT_METAL1,
+        ROBOT_METAL2,
+        ROBOT_METAL3,
+        ROBOT_METAL4,
+        ROBOT_METAL5,
+        ROBOT_OPEN,
+        ROBOT_OUT,
+        ROBOT_POEP,
+        ROBOT_POLE,
+        ROBOT_SHOOT,
+        ROBOT_STEP1,
+        ROBOT_STEP2,
+        ROBOT_STEP3,
+        ROCK_ROCK1,
+        RUSH_RUSH,
+        SCIENCE_PLOPKAOS,
+        SKELETON_BONE1,
+        SKELETON_BONE2,
+        SKELETON_BONE3,
+        SKELETON_BONE5,
+        SKELETON_BONE6,
+        SKELETON_BONE7,
+        SMALTREE_FALL,
+        SMALTREE_GROUND,
+        SMALTREE_HEAD,
+        SONCSHIP_METAL1,
+        SONCSHIP_MISSILE2,
+        SONCSHIP_SCRAPE,
+        SONCSHIP_SHIPLOOP,
+        SONCSHIP_TARGETLOCK,
+        SPAZSOUNDS_AUTSCH1,
+        SPAZSOUNDS_AUTSCH2,
+        SPAZSOUNDS_BIRDSIT,
+        SPAZSOUNDS_BURP,
+        SPAZSOUNDS_CHIRP,
+        SPAZSOUNDS_EATBIRD,
+        SPAZSOUNDS_HAHAHA,
+        SPAZSOUNDS_HAHAHA2,
+        SPAZSOUNDS_HAPPY,
+        SPAZSOUNDS_HIHI,
+        SPAZSOUNDS_HOHOHO1,
+        SPAZSOUNDS_HOOO,
+        SPAZSOUNDS_KARATE7,
+        SPAZSOUNDS_KARATE8,
+        SPAZSOUNDS_OHOH,
+        SPAZSOUNDS_OOOH,
+        SPAZSOUNDS_WOOHOO,
+        SPAZSOUNDS_YAHOO,
+        SPAZSOUNDS_YAHOO2,
+        SPRING_BOING_DOWN,
+        SPRING_SPRING1,
+        STEAM_STEAM,
+        STONED_STONED,
+        SUCKER_FART,
+        SUCKER_PINCH1,
+        SUCKER_PINCH2,
+        SUCKER_PINCH3,
+        SUCKER_PLOPSEQ1,
+        SUCKER_PLOPSEQ2,
+        SUCKER_PLOPSEQ3,
+        SUCKER_PLOPSEQ4,
+        SUCKER_UP,
+        TUFBOSS_CATCH,
+        TUFBOSS_RELEASE,
+        TUFBOSS_SWING,
+        TURTLE_BITE3,
+        TURTLE_HIDE,
+        TURTLE_HITSHELL,
+        TURTLE_IDLE1,
+        TURTLE_IDLE2,
+        TURTLE_NECK,
+        TURTLE_SPK1TURT,
+        TURTLE_SPK2TURT,
+        TURTLE_SPK3TURT,
+        TURTLE_SPK4TURT,
+        TURTLE_TURN,
+        UTERUS_CRABCLOSE,
+        UTERUS_CRABOPEN2,
+        UTERUS_SCISSORS1,
+        UTERUS_SCISSORS2,
+        UTERUS_SCISSORS3,
+        UTERUS_SCISSORS4,
+        UTERUS_SCISSORS5,
+        UTERUS_SCISSORS6,
+        UTERUS_SCISSORS7,
+        UTERUS_SCISSORS8,
+        UTERUS_SCREAM1,
+        UTERUS_STEP1,
+        UTERUS_STEP2,
+        WIND_WIND2A,
+        WITCH_LAUGH,
+        WITCH_MAGIC,
+        XBILSY_BILLAPPEAR,
+        XBILSY_FINGERSNAP,
+        XBILSY_FIRE,
+        XBILSY_FIRESTART,
+        XBILSY_SCARY3,
+        XBILSY_THUNDER,
+        XBILSY_ZIP,
+        XLIZARD_LIZ1,
+        XLIZARD_LIZ2,
+        XLIZARD_LIZ4,
+        XLIZARD_LIZ6,
+        XTURTLE_BITE3,
+        XTURTLE_HIDE,
+        XTURTLE_HITSHELL,
+        XTURTLE_IDLE1,
+        XTURTLE_IDLE2,
+        XTURTLE_NECK,
+        XTURTLE_SPK1TURT,
+        XTURTLE_SPK2TURT,
+        XTURTLE_SPK3TURT,
+        XTURTLE_SPK4TURT,
+        XTURTLE_TURN,
+        ZDOG_AGRESSIV,
+        ZDOG_SNIF1,
+        ZDOG_WAF1,
+        ZDOG_WAF2,
+        ZDOG_WAF3,
+    };
+    // Aliases
+    const auto AMMO_BLUB1 = Sample::AMMO_BLUB1;
+    const auto AMMO_BLUB2 = Sample::AMMO_BLUB2;
+    const auto AMMO_BMP1 = Sample::AMMO_BMP1;
+    const auto AMMO_BMP2 = Sample::AMMO_BMP2;
+    const auto AMMO_BMP3 = Sample::AMMO_BMP3;
+    const auto AMMO_BMP4 = Sample::AMMO_BMP4;
+    const auto AMMO_BMP5 = Sample::AMMO_BMP5;
+    const auto AMMO_BMP6 = Sample::AMMO_BMP6;
+    const auto AMMO_BOEM1 = Sample::AMMO_BOEM1;
+    const auto AMMO_BUL1 = Sample::AMMO_BUL1;
+    const auto AMMO_BULFL1 = Sample::AMMO_BULFL1;
+    const auto AMMO_BULFL2 = Sample::AMMO_BULFL2;
+    const auto AMMO_BULFL3 = Sample::AMMO_BULFL3;
+    const auto AMMO_FIREGUN1A = Sample::AMMO_FIREGUN1A;
+    const auto AMMO_FIREGUN2A = Sample::AMMO_FIREGUN2A;
+    const auto AMMO_FUMP = Sample::AMMO_FUMP;
+    const auto AMMO_GUN1 = Sample::AMMO_GUN1;
+    const auto AMMO_GUN2 = Sample::AMMO_GUN2;
+    const auto AMMO_GUN3PLOP = Sample::AMMO_GUN3PLOP;
+    const auto AMMO_GUNFLP = Sample::AMMO_GUNFLP;
+    const auto AMMO_GUNFLP1 = Sample::AMMO_GUNFLP1;
+    const auto AMMO_GUNFLP2 = Sample::AMMO_GUNFLP2;
+    const auto AMMO_GUNFLP3 = Sample::AMMO_GUNFLP3;
+    const auto AMMO_GUNFLP4 = Sample::AMMO_GUNFLP4;
+    const auto AMMO_GUNFLPL = Sample::AMMO_GUNFLPL;
+    const auto AMMO_GUNJAZZ = Sample::AMMO_GUNJAZZ;
+    const auto AMMO_GUNVELOCITY = Sample::AMMO_GUNVELOCITY;
+    const auto AMMO_ICEGUN = Sample::AMMO_ICEGUN;
+    const auto AMMO_ICEGUN2 = Sample::AMMO_ICEGUN2;
+    const auto AMMO_ICEGUNPU = Sample::AMMO_ICEGUNPU;
+    const auto AMMO_ICEPU1 = Sample::AMMO_ICEPU1;
+    const auto AMMO_ICEPU2 = Sample::AMMO_ICEPU2;
+    const auto AMMO_ICEPU3 = Sample::AMMO_ICEPU3;
+    const auto AMMO_ICEPU4 = Sample::AMMO_ICEPU4;
+    const auto AMMO_LASER = Sample::AMMO_LASER;
+    const auto AMMO_LASER2 = Sample::AMMO_LASER2;
+    const auto AMMO_LASER3 = Sample::AMMO_LASER3;
+    const auto AMMO_LAZRAYS = Sample::AMMO_LAZRAYS;
+    const auto AMMO_MISSILE = Sample::AMMO_MISSILE;
+    const auto AMMO_SPZBL1 = Sample::AMMO_SPZBL1;
+    const auto AMMO_SPZBL2 = Sample::AMMO_SPZBL2;
+    const auto AMMO_SPZBL3 = Sample::AMMO_SPZBL3;
+    const auto BAT_BATFLY1 = Sample::BAT_BATFLY1;
+    const auto BILSBOSS_BILLAPPEAR = Sample::BILSBOSS_BILLAPPEAR;
+    const auto BILSBOSS_FINGERSNAP = Sample::BILSBOSS_FINGERSNAP;
+    const auto BILSBOSS_FIRE = Sample::BILSBOSS_FIRE;
+    const auto BILSBOSS_FIRESTART = Sample::BILSBOSS_FIRESTART;
+    const auto BILSBOSS_SCARY3 = Sample::BILSBOSS_SCARY3;
+    const auto BILSBOSS_THUNDER = Sample::BILSBOSS_THUNDER;
+    const auto BILSBOSS_ZIP = Sample::BILSBOSS_ZIP;
+    const auto BONUS_BONUS1 = Sample::BONUS_BONUS1;
+    const auto BONUS_BONUSBLUB = Sample::BONUS_BONUSBLUB;
+    const auto BUBBA_BUBBABOUNCE1 = Sample::BUBBA_BUBBABOUNCE1;
+    const auto BUBBA_BUBBABOUNCE2 = Sample::BUBBA_BUBBABOUNCE2;
+    const auto BUBBA_BUBBAEXPLO = Sample::BUBBA_BUBBAEXPLO;
+    const auto BUBBA_FROG2 = Sample::BUBBA_FROG2;
+    const auto BUBBA_FROG3 = Sample::BUBBA_FROG3;
+    const auto BUBBA_FROG4 = Sample::BUBBA_FROG4;
+    const auto BUBBA_FROG5 = Sample::BUBBA_FROG5;
+    const auto BUBBA_SNEEZE2 = Sample::BUBBA_SNEEZE2;
+    const auto BUBBA_TORNADOATTACK2 = Sample::BUBBA_TORNADOATTACK2;
+    const auto BUMBEE_BEELOOP = Sample::BUMBEE_BEELOOP;
+    const auto CATERPIL_RIDOE = Sample::CATERPIL_RIDOE;
+    const auto COMMON_AIRBOARD = Sample::COMMON_AIRBOARD;
+    const auto COMMON_AIRBTURN = Sample::COMMON_AIRBTURN;
+    const auto COMMON_AIRBTURN2 = Sample::COMMON_AIRBTURN2;
+    const auto COMMON_BASE1 = Sample::COMMON_BASE1;
+    const auto COMMON_BELL_FIRE = Sample::COMMON_BELL_FIRE;
+    const auto COMMON_BELL_FIRE2 = Sample::COMMON_BELL_FIRE2;
+    const auto COMMON_BENZIN1 = Sample::COMMON_BENZIN1;
+    const auto COMMON_BIRDFLY = Sample::COMMON_BIRDFLY;
+    const auto COMMON_BIRDFLY2 = Sample::COMMON_BIRDFLY2;
+    const auto COMMON_BLOKPLOP = Sample::COMMON_BLOKPLOP;
+    const auto COMMON_BLUB1 = Sample::COMMON_BLUB1;
+    const auto COMMON_BUBBLGN1 = Sample::COMMON_BUBBLGN1;
+    const auto COMMON_BURN = Sample::COMMON_BURN;
+    const auto COMMON_BURNIN = Sample::COMMON_BURNIN;
+    const auto COMMON_CANSPS = Sample::COMMON_CANSPS;
+    const auto COMMON_CLOCK = Sample::COMMON_CLOCK;
+    const auto COMMON_COIN = Sample::COMMON_COIN;
+    const auto COMMON_COLLAPS = Sample::COMMON_COLLAPS;
+    const auto COMMON_CUP = Sample::COMMON_CUP;
+    const auto COMMON_DAMPED1 = Sample::COMMON_DAMPED1;
+    const auto COMMON_DOWN = Sample::COMMON_DOWN;
+    const auto COMMON_DOWNFL2 = Sample::COMMON_DOWNFL2;
+    const auto COMMON_DRINKSPAZZ1 = Sample::COMMON_DRINKSPAZZ1;
+    const auto COMMON_DRINKSPAZZ2 = Sample::COMMON_DRINKSPAZZ2;
+    const auto COMMON_DRINKSPAZZ3 = Sample::COMMON_DRINKSPAZZ3;
+    const auto COMMON_DRINKSPAZZ4 = Sample::COMMON_DRINKSPAZZ4;
+    const auto COMMON_EAT1 = Sample::COMMON_EAT1;
+    const auto COMMON_EAT2 = Sample::COMMON_EAT2;
+    const auto COMMON_EAT3 = Sample::COMMON_EAT3;
+    const auto COMMON_EAT4 = Sample::COMMON_EAT4;
+    const auto COMMON_ELECTRIC1 = Sample::COMMON_ELECTRIC1;
+    const auto COMMON_ELECTRIC2 = Sample::COMMON_ELECTRIC2;
+    const auto COMMON_ELECTRICHIT = Sample::COMMON_ELECTRICHIT;
+    const auto COMMON_EXPL_TNT = Sample::COMMON_EXPL_TNT;
+    const auto COMMON_EXPSM1 = Sample::COMMON_EXPSM1;
+    const auto COMMON_FLAMER = Sample::COMMON_FLAMER;
+    const auto COMMON_FLAP = Sample::COMMON_FLAP;
+    const auto COMMON_FOEW1 = Sample::COMMON_FOEW1;
+    const auto COMMON_FOEW2 = Sample::COMMON_FOEW2;
+    const auto COMMON_FOEW3 = Sample::COMMON_FOEW3;
+    const auto COMMON_FOEW4 = Sample::COMMON_FOEW4;
+    const auto COMMON_FOEW5 = Sample::COMMON_FOEW5;
+    const auto COMMON_GEMSMSH1 = Sample::COMMON_GEMSMSH1;
+    const auto COMMON_GLASS2 = Sample::COMMON_GLASS2;
+    const auto COMMON_GUNSM1 = Sample::COMMON_GUNSM1;
+    const auto COMMON_HARP1 = Sample::COMMON_HARP1;
+    const auto COMMON_HEAD = Sample::COMMON_HEAD;
+    const auto COMMON_HELI1 = Sample::COMMON_HELI1;
+    const auto COMMON_HIBELL = Sample::COMMON_HIBELL;
+    const auto COMMON_HOLYFLUT = Sample::COMMON_HOLYFLUT;
+    const auto COMMON_HORN1 = Sample::COMMON_HORN1;
+    const auto COMMON_ICECRUSH = Sample::COMMON_ICECRUSH;
+    const auto COMMON_IMPACT1 = Sample::COMMON_IMPACT1;
+    const auto COMMON_IMPACT2 = Sample::COMMON_IMPACT2;
+    const auto COMMON_IMPACT3 = Sample::COMMON_IMPACT3;
+    const auto COMMON_IMPACT4 = Sample::COMMON_IMPACT4;
+    const auto COMMON_IMPACT5 = Sample::COMMON_IMPACT5;
+    const auto COMMON_IMPACT6 = Sample::COMMON_IMPACT6;
+    const auto COMMON_IMPACT7 = Sample::COMMON_IMPACT7;
+    const auto COMMON_IMPACT8 = Sample::COMMON_IMPACT8;
+    const auto COMMON_IMPACT9 = Sample::COMMON_IMPACT9;
+    const auto COMMON_ITEMTRE = Sample::COMMON_ITEMTRE;
+    const auto COMMON_JUMP = Sample::COMMON_JUMP;
+    const auto COMMON_JUMP2 = Sample::COMMON_JUMP2;
+    const auto COMMON_LAND = Sample::COMMON_LAND;
+    const auto COMMON_LAND1 = Sample::COMMON_LAND1;
+    const auto COMMON_LAND2 = Sample::COMMON_LAND2;
+    const auto COMMON_LANDCAN1 = Sample::COMMON_LANDCAN1;
+    const auto COMMON_LANDCAN2 = Sample::COMMON_LANDCAN2;
+    const auto COMMON_LANDPOP = Sample::COMMON_LANDPOP;
+    const auto COMMON_LOADJAZZ = Sample::COMMON_LOADJAZZ;
+    const auto COMMON_LOADSPAZ = Sample::COMMON_LOADSPAZ;
+    const auto COMMON_METALHIT = Sample::COMMON_METALHIT;
+    const auto COMMON_MONITOR = Sample::COMMON_MONITOR;
+    const auto COMMON_NOCOIN = Sample::COMMON_NOCOIN;
+    const auto COMMON_PICKUP1 = Sample::COMMON_PICKUP1;
+    const auto COMMON_PICKUPW1 = Sample::COMMON_PICKUPW1;
+    const auto COMMON_PISTOL1 = Sample::COMMON_PISTOL1;
+    const auto COMMON_PLOOP1 = Sample::COMMON_PLOOP1;
+    const auto COMMON_PLOP1 = Sample::COMMON_PLOP1;
+    const auto COMMON_PLOP2 = Sample::COMMON_PLOP2;
+    const auto COMMON_PLOP3 = Sample::COMMON_PLOP3;
+    const auto COMMON_PLOP4 = Sample::COMMON_PLOP4;
+    const auto COMMON_PLOPKORK = Sample::COMMON_PLOPKORK;
+    const auto COMMON_PREEXPL1 = Sample::COMMON_PREEXPL1;
+    const auto COMMON_PREHELI = Sample::COMMON_PREHELI;
+    const auto COMMON_REVUP = Sample::COMMON_REVUP;
+    const auto COMMON_RINGGUN = Sample::COMMON_RINGGUN;
+    const auto COMMON_RINGGUN2 = Sample::COMMON_RINGGUN2;
+    const auto COMMON_SHIELD1 = Sample::COMMON_SHIELD1;
+    const auto COMMON_SHIELD4 = Sample::COMMON_SHIELD4;
+    const auto COMMON_SHIELD_ELEC = Sample::COMMON_SHIELD_ELEC;
+    const auto COMMON_SHLDOF3 = Sample::COMMON_SHLDOF3;
+    const auto COMMON_SLIP = Sample::COMMON_SLIP;
+    const auto COMMON_SMASH = Sample::COMMON_SMASH;
+    const auto COMMON_SPLAT1 = Sample::COMMON_SPLAT1;
+    const auto COMMON_SPLAT2 = Sample::COMMON_SPLAT2;
+    const auto COMMON_SPLAT3 = Sample::COMMON_SPLAT3;
+    const auto COMMON_SPLAT4 = Sample::COMMON_SPLAT4;
+    const auto COMMON_SPLUT = Sample::COMMON_SPLUT;
+    const auto COMMON_SPRING1 = Sample::COMMON_SPRING1;
+    const auto COMMON_STEAM = Sample::COMMON_STEAM;
+    const auto COMMON_STEP = Sample::COMMON_STEP;
+    const auto COMMON_STRETCH = Sample::COMMON_STRETCH;
+    const auto COMMON_SWISH1 = Sample::COMMON_SWISH1;
+    const auto COMMON_SWISH2 = Sample::COMMON_SWISH2;
+    const auto COMMON_SWISH3 = Sample::COMMON_SWISH3;
+    const auto COMMON_SWISH4 = Sample::COMMON_SWISH4;
+    const auto COMMON_SWISH5 = Sample::COMMON_SWISH5;
+    const auto COMMON_SWISH6 = Sample::COMMON_SWISH6;
+    const auto COMMON_SWISH7 = Sample::COMMON_SWISH7;
+    const auto COMMON_SWISH8 = Sample::COMMON_SWISH8;
+    const auto COMMON_TELPORT1 = Sample::COMMON_TELPORT1;
+    const auto COMMON_TELPORT2 = Sample::COMMON_TELPORT2;
+    const auto COMMON_UP = Sample::COMMON_UP;
+    const auto COMMON_WATER = Sample::COMMON_WATER;
+    const auto COMMON_WOOD1 = Sample::COMMON_WOOD1;
+    const auto DEMON_RUN = Sample::DEMON_RUN;
+    const auto DEVILDEVAN_DRAGONFIRE = Sample::DEVILDEVAN_DRAGONFIRE;
+    const auto DEVILDEVAN_FLAP = Sample::DEVILDEVAN_FLAP;
+    const auto DEVILDEVAN_FROG4 = Sample::DEVILDEVAN_FROG4;
+    const auto DEVILDEVAN_JUMPUP = Sample::DEVILDEVAN_JUMPUP;
+    const auto DEVILDEVAN_LAUGH = Sample::DEVILDEVAN_LAUGH;
+    const auto DEVILDEVAN_PHASER2 = Sample::DEVILDEVAN_PHASER2;
+    const auto DEVILDEVAN_STRECh3 = Sample::DEVILDEVAN_STRECh3;
+    const auto DEVILDEVAN_STRECHTAIL = Sample::DEVILDEVAN_STRECHTAIL;
+    const auto DEVILDEVAN_STRETCH1 = Sample::DEVILDEVAN_STRETCH1;
+    const auto DEVILDEVAN_STRETCH3 = Sample::DEVILDEVAN_STRETCH3;
+    const auto DEVILDEVAN_VANISH1 = Sample::DEVILDEVAN_VANISH1;
+    const auto DEVILDEVAN_WHISTLEDESCENDING2 = Sample::DEVILDEVAN_WHISTLEDESCENDING2;
+    const auto DEVILDEVAN_WINGSOUT = Sample::DEVILDEVAN_WINGSOUT;
+    const auto DOG_AGRESSIV = Sample::DOG_AGRESSIV;
+    const auto DOG_SNIF1 = Sample::DOG_SNIF1;
+    const auto DOG_WAF1 = Sample::DOG_WAF1;
+    const auto DOG_WAF2 = Sample::DOG_WAF2;
+    const auto DOG_WAF3 = Sample::DOG_WAF3;
+    const auto DRAGFLY_BEELOOP = Sample::DRAGFLY_BEELOOP;
+    const auto ENDING_OHTHANK = Sample::ENDING_OHTHANK;
+    const auto ENDTUNEJAZZ_TUNE = Sample::ENDTUNEJAZZ_TUNE;
+    const auto ENDTUNELORI_CAKE = Sample::ENDTUNELORI_CAKE;
+    const auto ENDTUNESPAZ_TUNE = Sample::ENDTUNESPAZ_TUNE;
+    const auto EPICLOGO_EPIC1 = Sample::EPICLOGO_EPIC1;
+    const auto EPICLOGO_EPIC2 = Sample::EPICLOGO_EPIC2;
+    const auto EVA_KISS1 = Sample::EVA_KISS1;
+    const auto EVA_KISS2 = Sample::EVA_KISS2;
+    const auto EVA_KISS3 = Sample::EVA_KISS3;
+    const auto EVA_KISS4 = Sample::EVA_KISS4;
+    const auto FAN_FAN = Sample::FAN_FAN;
+    const auto FATCHK_HIT1 = Sample::FATCHK_HIT1;
+    const auto FATCHK_HIT2 = Sample::FATCHK_HIT2;
+    const auto FATCHK_HIT3 = Sample::FATCHK_HIT3;
+    const auto FENCER_FENCE1 = Sample::FENCER_FENCE1;
+    const auto FROG_FROG = Sample::FROG_FROG;
+    const auto FROG_FROG1 = Sample::FROG_FROG1;
+    const auto FROG_FROG2 = Sample::FROG_FROG2;
+    const auto FROG_FROG3 = Sample::FROG_FROG3;
+    const auto FROG_FROG4 = Sample::FROG_FROG4;
+    const auto FROG_FROG5 = Sample::FROG_FROG5;
+    const auto FROG_JAZZ2FROG = Sample::FROG_JAZZ2FROG;
+    const auto FROG_TONG = Sample::FROG_TONG;
+    const auto GLOVE_HIT = Sample::GLOVE_HIT;
+    const auto HATTER_CUP = Sample::HATTER_CUP;
+    const auto HATTER_HAT = Sample::HATTER_HAT;
+    const auto HATTER_PTOEI = Sample::HATTER_PTOEI;
+    const auto HATTER_SPLIN = Sample::HATTER_SPLIN;
+    const auto HATTER_SPLOUT = Sample::HATTER_SPLOUT;
+    const auto INTRO_BLOW = Sample::INTRO_BLOW;
+    const auto INTRO_BOEM1 = Sample::INTRO_BOEM1;
+    const auto INTRO_BOEM2 = Sample::INTRO_BOEM2;
+    const auto INTRO_BRAKE = Sample::INTRO_BRAKE;
+    const auto INTRO_END = Sample::INTRO_END;
+    const auto INTRO_GRAB = Sample::INTRO_GRAB;
+    const auto INTRO_GREN1 = Sample::INTRO_GREN1;
+    const auto INTRO_GREN2 = Sample::INTRO_GREN2;
+    const auto INTRO_GREN3 = Sample::INTRO_GREN3;
+    const auto INTRO_GUNM0 = Sample::INTRO_GUNM0;
+    const auto INTRO_GUNM1 = Sample::INTRO_GUNM1;
+    const auto INTRO_GUNM2 = Sample::INTRO_GUNM2;
+    const auto INTRO_HELI = Sample::INTRO_HELI;
+    const auto INTRO_HITSPAZ = Sample::INTRO_HITSPAZ;
+    const auto INTRO_HITTURT = Sample::INTRO_HITTURT;
+    const auto INTRO_IFEEL = Sample::INTRO_IFEEL;
+    const auto INTRO_INHALE = Sample::INTRO_INHALE;
+    const auto INTRO_INSECT = Sample::INTRO_INSECT;
+    const auto INTRO_KATROL = Sample::INTRO_KATROL;
+    const auto INTRO_LAND = Sample::INTRO_LAND;
+    const auto INTRO_MONSTER = Sample::INTRO_MONSTER;
+    const auto INTRO_MONSTER2 = Sample::INTRO_MONSTER2;
+    const auto INTRO_ROCK = Sample::INTRO_ROCK;
+    const auto INTRO_ROPE1 = Sample::INTRO_ROPE1;
+    const auto INTRO_ROPE2 = Sample::INTRO_ROPE2;
+    const auto INTRO_RUN = Sample::INTRO_RUN;
+    const auto INTRO_SHOT1 = Sample::INTRO_SHOT1;
+    const auto INTRO_SHOTGRN = Sample::INTRO_SHOTGRN;
+    const auto INTRO_SKI = Sample::INTRO_SKI;
+    const auto INTRO_STRING = Sample::INTRO_STRING;
+    const auto INTRO_SWISH1 = Sample::INTRO_SWISH1;
+    const auto INTRO_SWISH2 = Sample::INTRO_SWISH2;
+    const auto INTRO_SWISH3 = Sample::INTRO_SWISH3;
+    const auto INTRO_SWISH4 = Sample::INTRO_SWISH4;
+    const auto INTRO_UHTURT = Sample::INTRO_UHTURT;
+    const auto INTRO_UP1 = Sample::INTRO_UP1;
+    const auto INTRO_UP2 = Sample::INTRO_UP2;
+    const auto INTRO_WIND_01 = Sample::INTRO_WIND_01;
+    const auto JAZZSOUNDS_BALANCE = Sample::JAZZSOUNDS_BALANCE;
+    const auto JAZZSOUNDS_HEY1 = Sample::JAZZSOUNDS_HEY1;
+    const auto JAZZSOUNDS_HEY2 = Sample::JAZZSOUNDS_HEY2;
+    const auto JAZZSOUNDS_HEY3 = Sample::JAZZSOUNDS_HEY3;
+    const auto JAZZSOUNDS_HEY4 = Sample::JAZZSOUNDS_HEY4;
+    const auto JAZZSOUNDS_IDLE = Sample::JAZZSOUNDS_IDLE;
+    const auto JAZZSOUNDS_JAZZV1 = Sample::JAZZSOUNDS_JAZZV1;
+    const auto JAZZSOUNDS_JAZZV2 = Sample::JAZZSOUNDS_JAZZV2;
+    const auto JAZZSOUNDS_JAZZV3 = Sample::JAZZSOUNDS_JAZZV3;
+    const auto JAZZSOUNDS_JAZZV4 = Sample::JAZZSOUNDS_JAZZV4;
+    const auto JAZZSOUNDS_JUMMY = Sample::JAZZSOUNDS_JUMMY;
+    const auto JAZZSOUNDS_PFOE = Sample::JAZZSOUNDS_PFOE;
+    const auto LABRAT_BITE = Sample::LABRAT_BITE;
+    const auto LABRAT_EYE2 = Sample::LABRAT_EYE2;
+    const auto LABRAT_EYE3 = Sample::LABRAT_EYE3;
+    const auto LABRAT_MOUSE1 = Sample::LABRAT_MOUSE1;
+    const auto LABRAT_MOUSE2 = Sample::LABRAT_MOUSE2;
+    const auto LABRAT_MOUSE3 = Sample::LABRAT_MOUSE3;
+    const auto LIZARD_LIZ1 = Sample::LIZARD_LIZ1;
+    const auto LIZARD_LIZ2 = Sample::LIZARD_LIZ2;
+    const auto LIZARD_LIZ4 = Sample::LIZARD_LIZ4;
+    const auto LIZARD_LIZ6 = Sample::LIZARD_LIZ6;
+    const auto LORISOUNDS_DIE1 = Sample::LORISOUNDS_DIE1;
+    const auto LORISOUNDS_HURT0 = Sample::LORISOUNDS_HURT0;
+    const auto LORISOUNDS_HURT1 = Sample::LORISOUNDS_HURT1;
+    const auto LORISOUNDS_HURT2 = Sample::LORISOUNDS_HURT2;
+    const auto LORISOUNDS_HURT3 = Sample::LORISOUNDS_HURT3;
+    const auto LORISOUNDS_HURT4 = Sample::LORISOUNDS_HURT4;
+    const auto LORISOUNDS_HURT5 = Sample::LORISOUNDS_HURT5;
+    const auto LORISOUNDS_HURT6 = Sample::LORISOUNDS_HURT6;
+    const auto LORISOUNDS_HURT7 = Sample::LORISOUNDS_HURT7;
+    const auto LORISOUNDS_LORI1 = Sample::LORISOUNDS_LORI1;
+    const auto LORISOUNDS_LORI2 = Sample::LORISOUNDS_LORI2;
+    const auto LORISOUNDS_LORIBOOM = Sample::LORISOUNDS_LORIBOOM;
+    const auto LORISOUNDS_LORIFALL = Sample::LORISOUNDS_LORIFALL;
+    const auto LORISOUNDS_LORIJUMP = Sample::LORISOUNDS_LORIJUMP;
+    const auto LORISOUNDS_LORIJUMP2 = Sample::LORISOUNDS_LORIJUMP2;
+    const auto LORISOUNDS_LORIJUMP3 = Sample::LORISOUNDS_LORIJUMP3;
+    const auto LORISOUNDS_LORIJUMP4 = Sample::LORISOUNDS_LORIJUMP4;
+    const auto LORISOUNDS_TOUCH = Sample::LORISOUNDS_TOUCH;
+    const auto LORISOUNDS_WEHOO = Sample::LORISOUNDS_WEHOO;
+    const auto MENUSOUNDS_SELECT0 = Sample::MENUSOUNDS_SELECT0;
+    const auto MENUSOUNDS_SELECT1 = Sample::MENUSOUNDS_SELECT1;
+    const auto MENUSOUNDS_SELECT2 = Sample::MENUSOUNDS_SELECT2;
+    const auto MENUSOUNDS_SELECT3 = Sample::MENUSOUNDS_SELECT3;
+    const auto MENUSOUNDS_SELECT4 = Sample::MENUSOUNDS_SELECT4;
+    const auto MENUSOUNDS_SELECT5 = Sample::MENUSOUNDS_SELECT5;
+    const auto MENUSOUNDS_SELECT6 = Sample::MENUSOUNDS_SELECT6;
+    const auto MENUSOUNDS_TYPE = Sample::MENUSOUNDS_TYPE;
+    const auto MENUSOUNDS_TYPEENTER = Sample::MENUSOUNDS_TYPEENTER;
+    const auto MONKEY_SPLUT = Sample::MONKEY_SPLUT;
+    const auto MONKEY_THROW = Sample::MONKEY_THROW;
+    const auto MOTH_FLAPMOTH = Sample::MOTH_FLAPMOTH;
+    const auto ORANGE_BOEML = Sample::ORANGE_BOEML;
+    const auto ORANGE_BOEMR = Sample::ORANGE_BOEMR;
+    const auto ORANGE_BUBBELSL = Sample::ORANGE_BUBBELSL;
+    const auto ORANGE_BUBBELSR = Sample::ORANGE_BUBBELSR;
+    const auto ORANGE_GLAS1L = Sample::ORANGE_GLAS1L;
+    const auto ORANGE_GLAS1R = Sample::ORANGE_GLAS1R;
+    const auto ORANGE_GLAS2L = Sample::ORANGE_GLAS2L;
+    const auto ORANGE_GLAS2R = Sample::ORANGE_GLAS2R;
+    const auto ORANGE_MERGE = Sample::ORANGE_MERGE;
+    const auto ORANGE_SWEEP0L = Sample::ORANGE_SWEEP0L;
+    const auto ORANGE_SWEEP0R = Sample::ORANGE_SWEEP0R;
+    const auto ORANGE_SWEEP1L = Sample::ORANGE_SWEEP1L;
+    const auto ORANGE_SWEEP1R = Sample::ORANGE_SWEEP1R;
+    const auto ORANGE_SWEEP2L = Sample::ORANGE_SWEEP2L;
+    const auto ORANGE_SWEEP2R = Sample::ORANGE_SWEEP2R;
+    const auto P2_CRUNCH = Sample::P2_CRUNCH;
+    const auto P2_FART = Sample::P2_FART;
+    const auto P2_FOEW1 = Sample::P2_FOEW1;
+    const auto P2_FOEW4 = Sample::P2_FOEW4;
+    const auto P2_FOEW5 = Sample::P2_FOEW5;
+    const auto P2_FROG1 = Sample::P2_FROG1;
+    const auto P2_FROG2 = Sample::P2_FROG2;
+    const auto P2_FROG3 = Sample::P2_FROG3;
+    const auto P2_FROG4 = Sample::P2_FROG4;
+    const auto P2_FROG5 = Sample::P2_FROG5;
+    const auto P2_KISS4 = Sample::P2_KISS4;
+    const auto P2_OPEN = Sample::P2_OPEN;
+    const auto P2_PINCH1 = Sample::P2_PINCH1;
+    const auto P2_PINCH2 = Sample::P2_PINCH2;
+    const auto P2_PLOPSEQ1 = Sample::P2_PLOPSEQ1;
+    const auto P2_PLOPSEQ2 = Sample::P2_PLOPSEQ2;
+    const auto P2_PLOPSEQ3 = Sample::P2_PLOPSEQ3;
+    const auto P2_PLOPSEQ4 = Sample::P2_PLOPSEQ4;
+    const auto P2_POEP = Sample::P2_POEP;
+    const auto P2_PTOEI = Sample::P2_PTOEI;
+    const auto P2_SPLOUT = Sample::P2_SPLOUT;
+    const auto P2_SPLUT = Sample::P2_SPLUT;
+    const auto P2_THROW = Sample::P2_THROW;
+    const auto P2_TONG = Sample::P2_TONG;
+    const auto PICKUPS_BOING_CHECK = Sample::PICKUPS_BOING_CHECK;
+    const auto PICKUPS_HELI2 = Sample::PICKUPS_HELI2;
+    const auto PICKUPS_STRETCH1A = Sample::PICKUPS_STRETCH1A;
+    const auto PINBALL_BELL = Sample::PINBALL_BELL;
+    const auto PINBALL_FLIP1 = Sample::PINBALL_FLIP1;
+    const auto PINBALL_FLIP2 = Sample::PINBALL_FLIP2;
+    const auto PINBALL_FLIP3 = Sample::PINBALL_FLIP3;
+    const auto PINBALL_FLIP4 = Sample::PINBALL_FLIP4;
+    const auto QUEEN_LADYUP = Sample::QUEEN_LADYUP;
+    const auto QUEEN_SCREAM = Sample::QUEEN_SCREAM;
+    const auto RAPIER_GOSTDIE = Sample::RAPIER_GOSTDIE;
+    const auto RAPIER_GOSTLOOP = Sample::RAPIER_GOSTLOOP;
+    const auto RAPIER_GOSTOOOH = Sample::RAPIER_GOSTOOOH;
+    const auto RAPIER_GOSTRIP = Sample::RAPIER_GOSTRIP;
+    const auto RAPIER_HITCHAR = Sample::RAPIER_HITCHAR;
+    const auto ROBOT_BIG1 = Sample::ROBOT_BIG1;
+    const auto ROBOT_BIG2 = Sample::ROBOT_BIG2;
+    const auto ROBOT_CAN1 = Sample::ROBOT_CAN1;
+    const auto ROBOT_CAN2 = Sample::ROBOT_CAN2;
+    const auto ROBOT_HYDRO = Sample::ROBOT_HYDRO;
+    const auto ROBOT_HYDRO2 = Sample::ROBOT_HYDRO2;
+    const auto ROBOT_HYDROFIL = Sample::ROBOT_HYDROFIL;
+    const auto ROBOT_HYDROPUF = Sample::ROBOT_HYDROPUF;
+    const auto ROBOT_IDLE1 = Sample::ROBOT_IDLE1;
+    const auto ROBOT_IDLE2 = Sample::ROBOT_IDLE2;
+    const auto ROBOT_JMPCAN1 = Sample::ROBOT_JMPCAN1;
+    const auto ROBOT_JMPCAN10 = Sample::ROBOT_JMPCAN10;
+    const auto ROBOT_JMPCAN2 = Sample::ROBOT_JMPCAN2;
+    const auto ROBOT_JMPCAN3 = Sample::ROBOT_JMPCAN3;
+    const auto ROBOT_JMPCAN4 = Sample::ROBOT_JMPCAN4;
+    const auto ROBOT_JMPCAN5 = Sample::ROBOT_JMPCAN5;
+    const auto ROBOT_JMPCAN6 = Sample::ROBOT_JMPCAN6;
+    const auto ROBOT_JMPCAN7 = Sample::ROBOT_JMPCAN7;
+    const auto ROBOT_JMPCAN8 = Sample::ROBOT_JMPCAN8;
+    const auto ROBOT_JMPCAN9 = Sample::ROBOT_JMPCAN9;
+    const auto ROBOT_METAL1 = Sample::ROBOT_METAL1;
+    const auto ROBOT_METAL2 = Sample::ROBOT_METAL2;
+    const auto ROBOT_METAL3 = Sample::ROBOT_METAL3;
+    const auto ROBOT_METAL4 = Sample::ROBOT_METAL4;
+    const auto ROBOT_METAL5 = Sample::ROBOT_METAL5;
+    const auto ROBOT_OPEN = Sample::ROBOT_OPEN;
+    const auto ROBOT_OUT = Sample::ROBOT_OUT;
+    const auto ROBOT_POEP = Sample::ROBOT_POEP;
+    const auto ROBOT_POLE = Sample::ROBOT_POLE;
+    const auto ROBOT_SHOOT = Sample::ROBOT_SHOOT;
+    const auto ROBOT_STEP1 = Sample::ROBOT_STEP1;
+    const auto ROBOT_STEP2 = Sample::ROBOT_STEP2;
+    const auto ROBOT_STEP3 = Sample::ROBOT_STEP3;
+    const auto ROCK_ROCK1 = Sample::ROCK_ROCK1;
+    const auto RUSH_RUSH = Sample::RUSH_RUSH;
+    const auto SCIENCE_PLOPKAOS = Sample::SCIENCE_PLOPKAOS;
+    const auto SKELETON_BONE1 = Sample::SKELETON_BONE1;
+    const auto SKELETON_BONE2 = Sample::SKELETON_BONE2;
+    const auto SKELETON_BONE3 = Sample::SKELETON_BONE3;
+    const auto SKELETON_BONE5 = Sample::SKELETON_BONE5;
+    const auto SKELETON_BONE6 = Sample::SKELETON_BONE6;
+    const auto SKELETON_BONE7 = Sample::SKELETON_BONE7;
+    const auto SMALTREE_FALL = Sample::SMALTREE_FALL;
+    const auto SMALTREE_GROUND = Sample::SMALTREE_GROUND;
+    const auto SMALTREE_HEAD = Sample::SMALTREE_HEAD;
+    const auto SONCSHIP_METAL1 = Sample::SONCSHIP_METAL1;
+    const auto SONCSHIP_MISSILE2 = Sample::SONCSHIP_MISSILE2;
+    const auto SONCSHIP_SCRAPE = Sample::SONCSHIP_SCRAPE;
+    const auto SONCSHIP_SHIPLOOP = Sample::SONCSHIP_SHIPLOOP;
+    const auto SONCSHIP_TARGETLOCK = Sample::SONCSHIP_TARGETLOCK;
+    const auto SPAZSOUNDS_AUTSCH1 = Sample::SPAZSOUNDS_AUTSCH1;
+    const auto SPAZSOUNDS_AUTSCH2 = Sample::SPAZSOUNDS_AUTSCH2;
+    const auto SPAZSOUNDS_BIRDSIT = Sample::SPAZSOUNDS_BIRDSIT;
+    const auto SPAZSOUNDS_BURP = Sample::SPAZSOUNDS_BURP;
+    const auto SPAZSOUNDS_CHIRP = Sample::SPAZSOUNDS_CHIRP;
+    const auto SPAZSOUNDS_EATBIRD = Sample::SPAZSOUNDS_EATBIRD;
+    const auto SPAZSOUNDS_HAHAHA = Sample::SPAZSOUNDS_HAHAHA;
+    const auto SPAZSOUNDS_HAHAHA2 = Sample::SPAZSOUNDS_HAHAHA2;
+    const auto SPAZSOUNDS_HAPPY = Sample::SPAZSOUNDS_HAPPY;
+    const auto SPAZSOUNDS_HIHI = Sample::SPAZSOUNDS_HIHI;
+    const auto SPAZSOUNDS_HOHOHO1 = Sample::SPAZSOUNDS_HOHOHO1;
+    const auto SPAZSOUNDS_HOOO = Sample::SPAZSOUNDS_HOOO;
+    const auto SPAZSOUNDS_KARATE7 = Sample::SPAZSOUNDS_KARATE7;
+    const auto SPAZSOUNDS_KARATE8 = Sample::SPAZSOUNDS_KARATE8;
+    const auto SPAZSOUNDS_OHOH = Sample::SPAZSOUNDS_OHOH;
+    const auto SPAZSOUNDS_OOOH = Sample::SPAZSOUNDS_OOOH;
+    const auto SPAZSOUNDS_WOOHOO = Sample::SPAZSOUNDS_WOOHOO;
+    const auto SPAZSOUNDS_YAHOO = Sample::SPAZSOUNDS_YAHOO;
+    const auto SPAZSOUNDS_YAHOO2 = Sample::SPAZSOUNDS_YAHOO2;
+    const auto SPRING_BOING_DOWN = Sample::SPRING_BOING_DOWN;
+    const auto SPRING_SPRING1 = Sample::SPRING_SPRING1;
+    const auto STEAM_STEAM = Sample::STEAM_STEAM;
+    const auto STONED_STONED = Sample::STONED_STONED;
+    const auto SUCKER_FART = Sample::SUCKER_FART;
+    const auto SUCKER_PINCH1 = Sample::SUCKER_PINCH1;
+    const auto SUCKER_PINCH2 = Sample::SUCKER_PINCH2;
+    const auto SUCKER_PINCH3 = Sample::SUCKER_PINCH3;
+    const auto SUCKER_PLOPSEQ1 = Sample::SUCKER_PLOPSEQ1;
+    const auto SUCKER_PLOPSEQ2 = Sample::SUCKER_PLOPSEQ2;
+    const auto SUCKER_PLOPSEQ3 = Sample::SUCKER_PLOPSEQ3;
+    const auto SUCKER_PLOPSEQ4 = Sample::SUCKER_PLOPSEQ4;
+    const auto SUCKER_UP = Sample::SUCKER_UP;
+    const auto TUFBOSS_CATCH = Sample::TUFBOSS_CATCH;
+    const auto TUFBOSS_RELEASE = Sample::TUFBOSS_RELEASE;
+    const auto TUFBOSS_SWING = Sample::TUFBOSS_SWING;
+    const auto TURTLE_BITE3 = Sample::TURTLE_BITE3;
+    const auto TURTLE_HIDE = Sample::TURTLE_HIDE;
+    const auto TURTLE_HITSHELL = Sample::TURTLE_HITSHELL;
+    const auto TURTLE_IDLE1 = Sample::TURTLE_IDLE1;
+    const auto TURTLE_IDLE2 = Sample::TURTLE_IDLE2;
+    const auto TURTLE_NECK = Sample::TURTLE_NECK;
+    const auto TURTLE_SPK1TURT = Sample::TURTLE_SPK1TURT;
+    const auto TURTLE_SPK2TURT = Sample::TURTLE_SPK2TURT;
+    const auto TURTLE_SPK3TURT = Sample::TURTLE_SPK3TURT;
+    const auto TURTLE_SPK4TURT = Sample::TURTLE_SPK4TURT;
+    const auto TURTLE_TURN = Sample::TURTLE_TURN;
+    const auto UTERUS_CRABCLOSE = Sample::UTERUS_CRABCLOSE;
+    const auto UTERUS_CRABOPEN2 = Sample::UTERUS_CRABOPEN2;
+    const auto UTERUS_SCISSORS1 = Sample::UTERUS_SCISSORS1;
+    const auto UTERUS_SCISSORS2 = Sample::UTERUS_SCISSORS2;
+    const auto UTERUS_SCISSORS3 = Sample::UTERUS_SCISSORS3;
+    const auto UTERUS_SCISSORS4 = Sample::UTERUS_SCISSORS4;
+    const auto UTERUS_SCISSORS5 = Sample::UTERUS_SCISSORS5;
+    const auto UTERUS_SCISSORS6 = Sample::UTERUS_SCISSORS6;
+    const auto UTERUS_SCISSORS7 = Sample::UTERUS_SCISSORS7;
+    const auto UTERUS_SCISSORS8 = Sample::UTERUS_SCISSORS8;
+    const auto UTERUS_SCREAM1 = Sample::UTERUS_SCREAM1;
+    const auto UTERUS_STEP1 = Sample::UTERUS_STEP1;
+    const auto UTERUS_STEP2 = Sample::UTERUS_STEP2;
+    const auto WIND_WIND2A = Sample::WIND_WIND2A;
+    const auto WITCH_LAUGH = Sample::WITCH_LAUGH;
+    const auto WITCH_MAGIC = Sample::WITCH_MAGIC;
+    const auto XBILSY_BILLAPPEAR = Sample::XBILSY_BILLAPPEAR;
+    const auto XBILSY_FINGERSNAP = Sample::XBILSY_FINGERSNAP;
+    const auto XBILSY_FIRE = Sample::XBILSY_FIRE;
+    const auto XBILSY_FIRESTART = Sample::XBILSY_FIRESTART;
+    const auto XBILSY_SCARY3 = Sample::XBILSY_SCARY3;
+    const auto XBILSY_THUNDER = Sample::XBILSY_THUNDER;
+    const auto XBILSY_ZIP = Sample::XBILSY_ZIP;
+    const auto XLIZARD_LIZ1 = Sample::XLIZARD_LIZ1;
+    const auto XLIZARD_LIZ2 = Sample::XLIZARD_LIZ2;
+    const auto XLIZARD_LIZ4 = Sample::XLIZARD_LIZ4;
+    const auto XLIZARD_LIZ6 = Sample::XLIZARD_LIZ6;
+    const auto XTURTLE_BITE3 = Sample::XTURTLE_BITE3;
+    const auto XTURTLE_HIDE = Sample::XTURTLE_HIDE;
+    const auto XTURTLE_HITSHELL = Sample::XTURTLE_HITSHELL;
+    const auto XTURTLE_IDLE1 = Sample::XTURTLE_IDLE1;
+    const auto XTURTLE_IDLE2 = Sample::XTURTLE_IDLE2;
+    const auto XTURTLE_NECK = Sample::XTURTLE_NECK;
+    const auto XTURTLE_SPK1TURT = Sample::XTURTLE_SPK1TURT;
+    const auto XTURTLE_SPK2TURT = Sample::XTURTLE_SPK2TURT;
+    const auto XTURTLE_SPK3TURT = Sample::XTURTLE_SPK3TURT;
+    const auto XTURTLE_SPK4TURT = Sample::XTURTLE_SPK4TURT;
+    const auto XTURTLE_TURN = Sample::XTURTLE_TURN;
+    const auto ZDOG_AGRESSIV = Sample::ZDOG_AGRESSIV;
+    const auto ZDOG_SNIF1 = Sample::ZDOG_SNIF1;
+    const auto ZDOG_WAF1 = Sample::ZDOG_WAF1;
+    const auto ZDOG_WAF2 = Sample::ZDOG_WAF2;
+    const auto ZDOG_WAF3 = Sample::ZDOG_WAF3;
+};
+namespace BEHAVIOR {
+    enum Behavior {
+        BULLET,
+        SEEKERBULLET,
+        RFBULLET,
+        TOASTERBULLET,
+        PEPPERBULLET,
+        ELECTROBULLET,
+        BUMP,
+        PADDLE,
+        BIGOBJECT,
+        WALKINGENEMY,
+        DESTRUCTSCENERY,
+        ROCKETTURTLE,
+        ROCKETTURTLEPLUS,
+        BOLLYTOP,
+        BOLLYBOTTOM,
+        PLATFORM,
+        SPRING,
+        AMMO15,
+        MONITOR,
+        CRATE,
+        PICKUP,
+        DIAMONDSAREFOREVER,
+        FLAG,
+        INACTIVE,
+        DEFAULT,
+        MONKEYBULLET,
+        BILSYBULLET,
+        BOLLYBULLET,
+        BOLLYSPIKEBALL,
+        WITCHBULLET,
+        TUFBOSSBULLET,
+        ROBOTSHARD,
+        BONE,
+        EXPLOSION2,
+        BURNING,
+        AIRBOARDFALL,
+        BIRDFEATHER,
+        UFO,
+        CORPSE,
+    };
+    // Aliases
+    const auto BULLET = Behavior::BULLET;
+    const auto SEEKERBULLET = Behavior::SEEKERBULLET;
+    const auto RFBULLET = Behavior::RFBULLET;
+    const auto TOASTERBULLET = Behavior::TOASTERBULLET;
+    const auto PEPPERBULLET = Behavior::PEPPERBULLET;
+    const auto ELECTROBULLET = Behavior::ELECTROBULLET;
+    const auto BUMP = Behavior::BUMP;
+    const auto PADDLE = Behavior::PADDLE;
+    const auto BIGOBJECT = Behavior::BIGOBJECT;
+    const auto WALKINGENEMY = Behavior::WALKINGENEMY;
+    const auto DESTRUCTSCENERY = Behavior::DESTRUCTSCENERY;
+    const auto ROCKETTURTLE = Behavior::ROCKETTURTLE;
+    const auto ROCKETTURTLEPLUS = Behavior::ROCKETTURTLEPLUS;
+    const auto BOLLYTOP = Behavior::BOLLYTOP;
+    const auto BOLLYBOTTOM = Behavior::BOLLYBOTTOM;
+    const auto PLATFORM = Behavior::PLATFORM;
+    const auto SPRING = Behavior::SPRING;
+    const auto AMMO15 = Behavior::AMMO15;
+    const auto MONITOR = Behavior::MONITOR;
+    const auto CRATE = Behavior::CRATE;
+    const auto PICKUP = Behavior::PICKUP;
+    const auto DIAMONDSAREFOREVER = Behavior::DIAMONDSAREFOREVER;
+    const auto FLAG = Behavior::FLAG;
+    const auto INACTIVE = Behavior::INACTIVE;
+    const auto DEFAULT = Behavior::DEFAULT;
+    const auto MONKEYBULLET = Behavior::MONKEYBULLET;
+    const auto BILSYBULLET = Behavior::BILSYBULLET;
+    const auto BOLLYBULLET = Behavior::BOLLYBULLET;
+    const auto BOLLYSPIKEBALL = Behavior::BOLLYSPIKEBALL;
+    const auto WITCHBULLET = Behavior::WITCHBULLET;
+    const auto TUFBOSSBULLET = Behavior::TUFBOSSBULLET;
+    const auto ROBOTSHARD = Behavior::ROBOTSHARD;
+    const auto BONE = Behavior::BONE;
+    const auto EXPLOSION2 = Behavior::EXPLOSION2;
+    const auto BURNING = Behavior::BURNING;
+    const auto AIRBOARDFALL = Behavior::AIRBOARDFALL;
+    const auto BIRDFEATHER = Behavior::BIRDFEATHER;
+    const auto UFO = Behavior::UFO;
+    const auto CORPSE = Behavior::CORPSE;
+};
+namespace DIRECTION {
+    enum Dir {
+        RIGHT,
+        LEFT,
+        UP,
+        CURRENT,
+    };
+    // Aliases
+    const auto RIGHT = Dir::RIGHT;
+    const auto LEFT = Dir::LEFT;
+    const auto UP = Dir::UP;
+    const auto CURRENT = Dir::CURRENT;
+};
+namespace CHAR {
+    enum Char {
+        JAZZ,
+        SPAZ,
+        LORI,
+        BIRD,
+        FROG,
+        BIRD2,
+    };
+    // Aliases
+    const auto JAZZ = Char::JAZZ;
+    const auto SPAZ = Char::SPAZ;
+    const auto LORI = Char::LORI;
+    const auto BIRD = Char::BIRD;
+    const auto FROG = Char::FROG;
+    const auto BIRD2 = Char::BIRD2;
+};
+namespace HANDLING {
+    enum Player {
+        ENEMY,
+        PLAYERBULLET,
+        ENEMYBULLET,
+        PARTICLE,
+        EXPLOSION,
+        PICKUP,
+        DELAYEDPICKUP,
+        HURT,
+        SPECIAL,
+        DYING,
+        SPECIALDONE,
+        SELFCOLLISION,
+    };
+    enum Bullet {
+        HURTBYBULLET,
+        IGNOREBULLET,
+        DESTROYBULLET,
+        DETECTBULLET,
+    };
+    // Aliases
+    const auto ENEMY = Player::ENEMY;
+    const auto PLAYERBULLET = Player::PLAYERBULLET;
+    const auto ENEMYBULLET = Player::ENEMYBULLET;
+    const auto PARTICLE = Player::PARTICLE;
+    const auto EXPLOSION = Player::EXPLOSION;
+    const auto PICKUP = Player::PICKUP;
+    const auto DELAYEDPICKUP = Player::DELAYEDPICKUP;
+    const auto HURT = Player::HURT;
+    const auto SPECIAL = Player::SPECIAL;
+    const auto DYING = Player::DYING;
+    const auto SPECIALDONE = Player::SPECIALDONE;
+    const auto SELFCOLLISION = Player::SELFCOLLISION;
+    const auto HURTBYBULLET = Bullet::HURTBYBULLET;
+    const auto IGNOREBULLET = Bullet::IGNOREBULLET;
+    const auto DESTROYBULLET = Bullet::DESTROYBULLET;
+    const auto DETECTBULLET = Bullet::DETECTBULLET;
+};
+namespace GEM {
+    enum Color {
+        RED,
+        GREEN,
+        BLUE,
+        PURPLE,
+    };
+    // Aliases
+    const auto RED = Color::RED;
+    const auto GREEN = Color::GREEN;
+    const auto BLUE = Color::BLUE;
+    const auto PURPLE = Color::PURPLE;
+};
+namespace CHAT {
+    enum Type {
+        NORMAL,
+        TEAMCHAT,
+        WHISPER,
+        ME,
+    };
+    // Aliases
+    const auto NORMAL = Type::NORMAL;
+    const auto TEAMCHAT = Type::TEAMCHAT;
+    const auto WHISPER = Type::WHISPER;
+    const auto ME = Type::ME;
+};
+namespace OBJECT {
+    enum Object {
+        BLASTERBULLET,
+        BOUNCERBULLET,
+        ICEBULLET,
+        SEEKERBULLET,
+        RFBULLET,
+        TOASTERBULLET,
+        FIREBALLBULLET,
+        ELECTROBULLET,
+        BLASTERBULLETPU,
+        BOUNCERBULLETPU,
+        ICEBULLETPU,
+        SEEKERBULLETPU,
+        RFBULLETPU,
+        TOASTERBULLETPU,
+        FIREBALLBULLETPU,
+        ELECTROBULLETPU,
+        FIRESHIELDBULLET,
+        WATERSHIELDBULLET,
+        BUBBLESHIELDBULLET,
+        LIGHTNINGSHIELDBULLET,
+        PLASMASHIELDBULLET,
+        BULLET,
+        SMOKERING,
+        SHARD,
+        EXPLOSION,
+        BOUNCEONCE,
+        FLICKERGEM,
+        LASER,
+        UTERUSSPIKEBALL,
+        BIRD,
+        BUBBLE,
+        ICEAMMO3,
+        BOUNCERAMMO3,
+        SEEKERAMMO3,
+        RFAMMO3,
+        TOASTERAMMO3,
+        TNTAMMO3,
+        GUN8AMMO3,
+        GUN9AMMO3,
+        TURTLESHELL,
+        SWINGINGVINE,
+        BOMB,
+        SILVERCOIN,
+        GOLDCOIN,
+        GUNCRATE,
+        CARROTCRATE,
+        ONEUPCRATE,
+        GEMBARREL,
+        CARROTBARREL,
+        ONEUPBARREL,
+        BOMBCRATE,
+        ICEAMMO15,
+        BOUNCERAMMO15,
+        SEEKERAMMO15,
+        RFAMMO15,
+        TOASTERAMMO15,
+        TNT,
+        AIRBOARDGENERATOR,
+        FROZENSPRING,
+        FASTFIRE,
+        SPRINGCRATE,
+        REDGEM,
+        GREENGEM,
+        BLUEGEM,
+        PURPLEGEM,
+        SUPERGEM,
+        BIRDCAGE,
+        GUNBARREL,
+        GEMCRATE,
+        MORPH,
+        CARROT,
+        FULLENERGY,
+        FIRESHIELD,
+        WATERSHIELD,
+        BUBBLESHIELD,
+        LIGHTNINGSHIELD,
+        PLASMASHIELD,
+        FASTFEET,
+        ONEUP,
+        EXTRALIFE,
+        EXTRALIVE,
+        EOLPOST,
+        SAVEPOST,
+        CHECKPOINT,
+        BONUSPOST,
+        REDSPRING,
+        GREENSPRING,
+        BLUESPRING,
+        INVINCIBILITY,
+        EXTRATIME,
+        FREEZER,
+        FREEZEENEMIES,
+        HORREDSPRING,
+        HORGREENSPRING,
+        HORBLUESPRING,
+        BIRDMORPH,
+        TRIGGERCRATE,
+        FLYCARROT,
+        RECTREDGEM,
+        RECTGREENGEM,
+        RECTBLUEGEM,
+        TUFTURT,
+        TUFBOSS,
+        LABRAT,
+        DRAGON,
+        LIZARD,
+        BEE,
+        BUMBEE,
+        RAPIER,
+        SPARK,
+        BAT,
+        SUCKER,
+        CATERPILLAR,
+        CHESHIRE1,
+        CHESHIRE2,
+        HATTER,
+        BILSY,
+        SKELETON,
+        DOGGYDOGG,
+        NORMTURTLE,
+        HELMUT,
+        DEMON,
+        DRAGONFLY,
+        MONKEY,
+        FATCHICK,
+        FENCER,
+        FISH,
+        MOTH,
+        STEAM,
+        ROTATINGROCK,
+        BLASTERPOWERUP,
+        BOUNCERPOWERUP,
+        ICEPOWERUP,
+        SEEKERPOWERUP,
+        RFPOWERUP,
+        TOASTERPOWERUP,
+        LEFTPADDLE,
+        RIGHTPADDLE,
+        FIVEHUNDREDBUMP,
+        CARROTBUMP,
+        APPLE,
+        BANANA,
+        CHERRY,
+        ORANGE,
+        PEAR,
+        PRETZEL,
+        STRAWBERRY,
+        STEADYLIGHT,
+        PULZELIGHT,
+        PULSELIGHT,
+        FLICKERLIGHT,
+        QUEEN,
+        FLOATSUCKER,
+        BRIDGE,
+        LEMON,
+        LIME,
+        THING,
+        WATERMELON,
+        PEACH,
+        GRAPES,
+        LETTUCE,
+        EGGPLANT,
+        CUCUMB,
+        CUCUMBER,
+        COKE,
+        SOFTDRINK,
+        PEPSI,
+        SODAPOP,
+        MILK,
+        PIE,
+        CAKE,
+        DONUT,
+        CUPCAKE,
+        CHIPS,
+        CANDY,
+        CHOCBAR,
+        CHOCOLATEBAR,
+        ICECREAM,
+        BURGER,
+        PIZZA,
+        FRIES,
+        CHICKENLEG,
+        SANDWICH,
+        TACO,
+        WEENIE,
+        HAM,
+        CHEESE,
+        FLOATLIZARD,
+        STANDMONKEY,
+        DESTRUCTSCENERY,
+        DESTRUCTSCENERYBOMB,
+        TNTDESTRUCTSCENERY,
+        COLLAPSESCENERY,
+        STOMPSCENERY,
+        GEMSTOMP,
+        RAVEN,
+        TUBETURTLE,
+        GEMRING,
+        SMALLTREE,
+        AMBIENTSOUND,
+        UTERUS,
+        CRAB,
+        WITCH,
+        ROCKETTURTLE,
+        BUBBA,
+        DEVILDEVAN,
+        DEVANROBOT,
+        ROBOT,
+        CARROTUSPOLE,
+        PSYCHPOLE,
+        DIAMONDUSPOLE,
+        FRUITPLATFORM,
+        BOLLPLATFORM,
+        GRASSPLATFORM,
+        PINKPLATFORM,
+        SONICPLATFORM,
+        SPIKEPLATFORM,
+        SPIKEBOLL,
+        GENERATOR,
+        EVA,
+        BUBBLER,
+        TNTPOWERUP,
+        GUN8POWERUP,
+        GUN9POWERUP,
+        SPIKEBOLL3D,
+        SPRINGCORD,
+        BEES,
+        COPTER,
+        LASERSHIELD,
+        STOPWATCH,
+        JUNGLEPOLE,
+        WARP,
+        BIGROCK,
+        BIGBOX,
+        TRIGGERSCENERY,
+        BOLLY,
+        BUTTERFLY,
+        BEEBOY,
+        SNOW,
+        TWEEDLEBOSS,
+        AIRBOARD,
+        CTFBASE,
+        XMASNORMTURTLE,
+        XMASLIZARD,
+        XMASFLOATLIZARD,
+        XMASBILSY,
+        CAT,
+        PACMANGHOST,
+    };
+    // Aliases
+    const auto BLASTERBULLET = Object::BLASTERBULLET;
+    const auto BOUNCERBULLET = Object::BOUNCERBULLET;
+    const auto ICEBULLET = Object::ICEBULLET;
+    const auto SEEKERBULLET = Object::SEEKERBULLET;
+    const auto RFBULLET = Object::RFBULLET;
+    const auto TOASTERBULLET = Object::TOASTERBULLET;
+    const auto FIREBALLBULLET = Object::FIREBALLBULLET;
+    const auto ELECTROBULLET = Object::ELECTROBULLET;
+    const auto BLASTERBULLETPU = Object::BLASTERBULLETPU;
+    const auto BOUNCERBULLETPU = Object::BOUNCERBULLETPU;
+    const auto ICEBULLETPU = Object::ICEBULLETPU;
+    const auto SEEKERBULLETPU = Object::SEEKERBULLETPU;
+    const auto RFBULLETPU = Object::RFBULLETPU;
+    const auto TOASTERBULLETPU = Object::TOASTERBULLETPU;
+    const auto FIREBALLBULLETPU = Object::FIREBALLBULLETPU;
+    const auto ELECTROBULLETPU = Object::ELECTROBULLETPU;
+    const auto FIRESHIELDBULLET = Object::FIRESHIELDBULLET;
+    const auto WATERSHIELDBULLET = Object::WATERSHIELDBULLET;
+    const auto BUBBLESHIELDBULLET = Object::BUBBLESHIELDBULLET;
+    const auto LIGHTNINGSHIELDBULLET = Object::LIGHTNINGSHIELDBULLET;
+    const auto PLASMASHIELDBULLET = Object::PLASMASHIELDBULLET;
+    const auto BULLET = Object::BULLET;
+    const auto SMOKERING = Object::SMOKERING;
+    const auto SHARD = Object::SHARD;
+    const auto EXPLOSION = Object::EXPLOSION;
+    const auto BOUNCEONCE = Object::BOUNCEONCE;
+    const auto FLICKERGEM = Object::FLICKERGEM;
+    const auto LASER = Object::LASER;
+    const auto UTERUSSPIKEBALL = Object::UTERUSSPIKEBALL;
+    const auto BIRD = Object::BIRD;
+    const auto BUBBLE = Object::BUBBLE;
+    const auto ICEAMMO3 = Object::ICEAMMO3;
+    const auto BOUNCERAMMO3 = Object::BOUNCERAMMO3;
+    const auto SEEKERAMMO3 = Object::SEEKERAMMO3;
+    const auto RFAMMO3 = Object::RFAMMO3;
+    const auto TOASTERAMMO3 = Object::TOASTERAMMO3;
+    const auto TNTAMMO3 = Object::TNTAMMO3;
+    const auto GUN8AMMO3 = Object::GUN8AMMO3;
+    const auto GUN9AMMO3 = Object::GUN9AMMO3;
+    const auto TURTLESHELL = Object::TURTLESHELL;
+    const auto SWINGINGVINE = Object::SWINGINGVINE;
+    const auto BOMB = Object::BOMB;
+    const auto SILVERCOIN = Object::SILVERCOIN;
+    const auto GOLDCOIN = Object::GOLDCOIN;
+    const auto GUNCRATE = Object::GUNCRATE;
+    const auto CARROTCRATE = Object::CARROTCRATE;
+    const auto ONEUPCRATE = Object::ONEUPCRATE;
+    const auto GEMBARREL = Object::GEMBARREL;
+    const auto CARROTBARREL = Object::CARROTBARREL;
+    const auto ONEUPBARREL = Object::ONEUPBARREL;
+    const auto BOMBCRATE = Object::BOMBCRATE;
+    const auto ICEAMMO15 = Object::ICEAMMO15;
+    const auto BOUNCERAMMO15 = Object::BOUNCERAMMO15;
+    const auto SEEKERAMMO15 = Object::SEEKERAMMO15;
+    const auto RFAMMO15 = Object::RFAMMO15;
+    const auto TOASTERAMMO15 = Object::TOASTERAMMO15;
+    const auto TNT = Object::TNT;
+    const auto AIRBOARDGENERATOR = Object::AIRBOARDGENERATOR;
+    const auto FROZENSPRING = Object::FROZENSPRING;
+    const auto FASTFIRE = Object::FASTFIRE;
+    const auto SPRINGCRATE = Object::SPRINGCRATE;
+    const auto REDGEM = Object::REDGEM;
+    const auto GREENGEM = Object::GREENGEM;
+    const auto BLUEGEM = Object::BLUEGEM;
+    const auto PURPLEGEM = Object::PURPLEGEM;
+    const auto SUPERGEM = Object::SUPERGEM;
+    const auto BIRDCAGE = Object::BIRDCAGE;
+    const auto GUNBARREL = Object::GUNBARREL;
+    const auto GEMCRATE = Object::GEMCRATE;
+    const auto MORPH = Object::MORPH;
+    const auto CARROT = Object::CARROT;
+    const auto FULLENERGY = Object::FULLENERGY;
+    const auto FIRESHIELD = Object::FIRESHIELD;
+    const auto WATERSHIELD = Object::WATERSHIELD;
+    const auto BUBBLESHIELD = Object::BUBBLESHIELD;
+    const auto LIGHTNINGSHIELD = Object::LIGHTNINGSHIELD;
+    const auto PLASMASHIELD = Object::PLASMASHIELD;
+    const auto FASTFEET = Object::FASTFEET;
+    const auto ONEUP = Object::ONEUP;
+    const auto EXTRALIFE = Object::EXTRALIFE;
+    const auto EXTRALIVE = Object::EXTRALIVE;
+    const auto EOLPOST = Object::EOLPOST;
+    const auto SAVEPOST = Object::SAVEPOST;
+    const auto CHECKPOINT = Object::CHECKPOINT;
+    const auto BONUSPOST = Object::BONUSPOST;
+    const auto REDSPRING = Object::REDSPRING;
+    const auto GREENSPRING = Object::GREENSPRING;
+    const auto BLUESPRING = Object::BLUESPRING;
+    const auto INVINCIBILITY = Object::INVINCIBILITY;
+    const auto EXTRATIME = Object::EXTRATIME;
+    const auto FREEZER = Object::FREEZER;
+    const auto FREEZEENEMIES = Object::FREEZEENEMIES;
+    const auto HORREDSPRING = Object::HORREDSPRING;
+    const auto HORGREENSPRING = Object::HORGREENSPRING;
+    const auto HORBLUESPRING = Object::HORBLUESPRING;
+    const auto BIRDMORPH = Object::BIRDMORPH;
+    const auto TRIGGERCRATE = Object::TRIGGERCRATE;
+    const auto FLYCARROT = Object::FLYCARROT;
+    const auto RECTREDGEM = Object::RECTREDGEM;
+    const auto RECTGREENGEM = Object::RECTGREENGEM;
+    const auto RECTBLUEGEM = Object::RECTBLUEGEM;
+    const auto TUFTURT = Object::TUFTURT;
+    const auto TUFBOSS = Object::TUFBOSS;
+    const auto LABRAT = Object::LABRAT;
+    const auto DRAGON = Object::DRAGON;
+    const auto LIZARD = Object::LIZARD;
+    const auto BEE = Object::BEE;
+    const auto BUMBEE = Object::BUMBEE;
+    const auto RAPIER = Object::RAPIER;
+    const auto SPARK = Object::SPARK;
+    const auto BAT = Object::BAT;
+    const auto SUCKER = Object::SUCKER;
+    const auto CATERPILLAR = Object::CATERPILLAR;
+    const auto CHESHIRE1 = Object::CHESHIRE1;
+    const auto CHESHIRE2 = Object::CHESHIRE2;
+    const auto HATTER = Object::HATTER;
+    const auto BILSY = Object::BILSY;
+    const auto SKELETON = Object::SKELETON;
+    const auto DOGGYDOGG = Object::DOGGYDOGG;
+    const auto NORMTURTLE = Object::NORMTURTLE;
+    const auto HELMUT = Object::HELMUT;
+    const auto DEMON = Object::DEMON;
+    const auto DRAGONFLY = Object::DRAGONFLY;
+    const auto MONKEY = Object::MONKEY;
+    const auto FATCHICK = Object::FATCHICK;
+    const auto FENCER = Object::FENCER;
+    const auto FISH = Object::FISH;
+    const auto MOTH = Object::MOTH;
+    const auto STEAM = Object::STEAM;
+    const auto ROTATINGROCK = Object::ROTATINGROCK;
+    const auto BLASTERPOWERUP = Object::BLASTERPOWERUP;
+    const auto BOUNCERPOWERUP = Object::BOUNCERPOWERUP;
+    const auto ICEPOWERUP = Object::ICEPOWERUP;
+    const auto SEEKERPOWERUP = Object::SEEKERPOWERUP;
+    const auto RFPOWERUP = Object::RFPOWERUP;
+    const auto TOASTERPOWERUP = Object::TOASTERPOWERUP;
+    const auto LEFTPADDLE = Object::LEFTPADDLE;
+    const auto RIGHTPADDLE = Object::RIGHTPADDLE;
+    const auto FIVEHUNDREDBUMP = Object::FIVEHUNDREDBUMP;
+    const auto CARROTBUMP = Object::CARROTBUMP;
+    const auto APPLE = Object::APPLE;
+    const auto BANANA = Object::BANANA;
+    const auto CHERRY = Object::CHERRY;
+    const auto ORANGE = Object::ORANGE;
+    const auto PEAR = Object::PEAR;
+    const auto PRETZEL = Object::PRETZEL;
+    const auto STRAWBERRY = Object::STRAWBERRY;
+    const auto STEADYLIGHT = Object::STEADYLIGHT;
+    const auto PULZELIGHT = Object::PULZELIGHT;
+    const auto PULSELIGHT = Object::PULSELIGHT;
+    const auto FLICKERLIGHT = Object::FLICKERLIGHT;
+    const auto QUEEN = Object::QUEEN;
+    const auto FLOATSUCKER = Object::FLOATSUCKER;
+    const auto BRIDGE = Object::BRIDGE;
+    const auto LEMON = Object::LEMON;
+    const auto LIME = Object::LIME;
+    const auto THING = Object::THING;
+    const auto WATERMELON = Object::WATERMELON;
+    const auto PEACH = Object::PEACH;
+    const auto GRAPES = Object::GRAPES;
+    const auto LETTUCE = Object::LETTUCE;
+    const auto EGGPLANT = Object::EGGPLANT;
+    const auto CUCUMB = Object::CUCUMB;
+    const auto CUCUMBER = Object::CUCUMBER;
+    const auto COKE = Object::COKE;
+    const auto SOFTDRINK = Object::SOFTDRINK;
+    const auto PEPSI = Object::PEPSI;
+    const auto SODAPOP = Object::SODAPOP;
+    const auto MILK = Object::MILK;
+    const auto PIE = Object::PIE;
+    const auto CAKE = Object::CAKE;
+    const auto DONUT = Object::DONUT;
+    const auto CUPCAKE = Object::CUPCAKE;
+    const auto CHIPS = Object::CHIPS;
+    const auto CANDY = Object::CANDY;
+    const auto CHOCBAR = Object::CHOCBAR;
+    const auto CHOCOLATEBAR = Object::CHOCOLATEBAR;
+    const auto ICECREAM = Object::ICECREAM;
+    const auto BURGER = Object::BURGER;
+    const auto PIZZA = Object::PIZZA;
+    const auto FRIES = Object::FRIES;
+    const auto CHICKENLEG = Object::CHICKENLEG;
+    const auto SANDWICH = Object::SANDWICH;
+    const auto TACO = Object::TACO;
+    const auto WEENIE = Object::WEENIE;
+    const auto HAM = Object::HAM;
+    const auto CHEESE = Object::CHEESE;
+    const auto FLOATLIZARD = Object::FLOATLIZARD;
+    const auto STANDMONKEY = Object::STANDMONKEY;
+    const auto DESTRUCTSCENERY = Object::DESTRUCTSCENERY;
+    const auto DESTRUCTSCENERYBOMB = Object::DESTRUCTSCENERYBOMB;
+    const auto TNTDESTRUCTSCENERY = Object::TNTDESTRUCTSCENERY;
+    const auto COLLAPSESCENERY = Object::COLLAPSESCENERY;
+    const auto STOMPSCENERY = Object::STOMPSCENERY;
+    const auto GEMSTOMP = Object::GEMSTOMP;
+    const auto RAVEN = Object::RAVEN;
+    const auto TUBETURTLE = Object::TUBETURTLE;
+    const auto GEMRING = Object::GEMRING;
+    const auto SMALLTREE = Object::SMALLTREE;
+    const auto AMBIENTSOUND = Object::AMBIENTSOUND;
+    const auto UTERUS = Object::UTERUS;
+    const auto CRAB = Object::CRAB;
+    const auto WITCH = Object::WITCH;
+    const auto ROCKETTURTLE = Object::ROCKETTURTLE;
+    const auto BUBBA = Object::BUBBA;
+    const auto DEVILDEVAN = Object::DEVILDEVAN;
+    const auto DEVANROBOT = Object::DEVANROBOT;
+    const auto ROBOT = Object::ROBOT;
+    const auto CARROTUSPOLE = Object::CARROTUSPOLE;
+    const auto PSYCHPOLE = Object::PSYCHPOLE;
+    const auto DIAMONDUSPOLE = Object::DIAMONDUSPOLE;
+    const auto FRUITPLATFORM = Object::FRUITPLATFORM;
+    const auto BOLLPLATFORM = Object::BOLLPLATFORM;
+    const auto GRASSPLATFORM = Object::GRASSPLATFORM;
+    const auto PINKPLATFORM = Object::PINKPLATFORM;
+    const auto SONICPLATFORM = Object::SONICPLATFORM;
+    const auto SPIKEPLATFORM = Object::SPIKEPLATFORM;
+    const auto SPIKEBOLL = Object::SPIKEBOLL;
+    const auto GENERATOR = Object::GENERATOR;
+    const auto EVA = Object::EVA;
+    const auto BUBBLER = Object::BUBBLER;
+    const auto TNTPOWERUP = Object::TNTPOWERUP;
+    const auto GUN8POWERUP = Object::GUN8POWERUP;
+    const auto GUN9POWERUP = Object::GUN9POWERUP;
+    const auto SPIKEBOLL3D = Object::SPIKEBOLL3D;
+    const auto SPRINGCORD = Object::SPRINGCORD;
+    const auto BEES = Object::BEES;
+    const auto COPTER = Object::COPTER;
+    const auto LASERSHIELD = Object::LASERSHIELD;
+    const auto STOPWATCH = Object::STOPWATCH;
+    const auto JUNGLEPOLE = Object::JUNGLEPOLE;
+    const auto WARP = Object::WARP;
+    const auto BIGROCK = Object::BIGROCK;
+    const auto BIGBOX = Object::BIGBOX;
+    const auto TRIGGERSCENERY = Object::TRIGGERSCENERY;
+    const auto BOLLY = Object::BOLLY;
+    const auto BUTTERFLY = Object::BUTTERFLY;
+    const auto BEEBOY = Object::BEEBOY;
+    const auto SNOW = Object::SNOW;
+    const auto TWEEDLEBOSS = Object::TWEEDLEBOSS;
+    const auto AIRBOARD = Object::AIRBOARD;
+    const auto CTFBASE = Object::CTFBASE;
+    const auto XMASNORMTURTLE = Object::XMASNORMTURTLE;
+    const auto XMASLIZARD = Object::XMASLIZARD;
+    const auto XMASFLOATLIZARD = Object::XMASFLOATLIZARD;
+    const auto XMASBILSY = Object::XMASBILSY;
+    const auto CAT = Object::CAT;
+    const auto PACMANGHOST = Object::PACMANGHOST;
+};
+namespace AREA {
+    enum Area {
+        ONEWAY,
+        HURT,
+        VINE,
+        HOOK,
+        SLIDE,
+        HPOLE,
+        VPOLE,
+        FLYOFF,
+        RICOCHET,
+        BELTRIGHT,
+        BELTLEFT,
+        ACCBELTRIGHT,
+        ACCBELTLEFT,
+        STOPENEMY,
+        WINDLEFT,
+        WINDRIGHT,
+        EOL,
+        WARPEOL,
+        REVERTMORPH,
+        FLOATUP,
+        TRIGGERROCK,
+        DIMLIGHT,
+        SETLIGHT,
+        LIMITXSCROLL,
+        RESETLIGHT,
+        WARPSECRET,
+        ECHO,
+        ACTIVATEBOSS,
+        JAZZLEVELSTART,
+        JAZZSTART,
+        SPAZLEVELSTART,
+        SPAZSTART,
+        MPLEVELSTART,
+        MPSTART,
+        LORILEVELSTART,
+        LORISTART,
+        WARP,
+        WARPTARGET,
+        PATH,
+        AREAID,
+        NOFIREZONE,
+        TRIGGERZONE,
+        SUCKERTUBE,
+        TEXT,
+        WATERLEVEL,
+        MORPHFROG,
+        WATERBLOCK,
+    };
+    // Aliases
+    const auto ONEWAY = Area::ONEWAY;
+    const auto HURT = Area::HURT;
+    const auto VINE = Area::VINE;
+    const auto HOOK = Area::HOOK;
+    const auto SLIDE = Area::SLIDE;
+    const auto HPOLE = Area::HPOLE;
+    const auto VPOLE = Area::VPOLE;
+    const auto FLYOFF = Area::FLYOFF;
+    const auto RICOCHET = Area::RICOCHET;
+    const auto BELTRIGHT = Area::BELTRIGHT;
+    const auto BELTLEFT = Area::BELTLEFT;
+    const auto ACCBELTRIGHT = Area::ACCBELTRIGHT;
+    const auto ACCBELTLEFT = Area::ACCBELTLEFT;
+    const auto STOPENEMY = Area::STOPENEMY;
+    const auto WINDLEFT = Area::WINDLEFT;
+    const auto WINDRIGHT = Area::WINDRIGHT;
+    const auto EOL = Area::EOL;
+    const auto WARPEOL = Area::WARPEOL;
+    const auto REVERTMORPH = Area::REVERTMORPH;
+    const auto FLOATUP = Area::FLOATUP;
+    const auto TRIGGERROCK = Area::TRIGGERROCK;
+    const auto DIMLIGHT = Area::DIMLIGHT;
+    const auto SETLIGHT = Area::SETLIGHT;
+    const auto LIMITXSCROLL = Area::LIMITXSCROLL;
+    const auto RESETLIGHT = Area::RESETLIGHT;
+    const auto WARPSECRET = Area::WARPSECRET;
+    const auto ECHO = Area::ECHO;
+    const auto ACTIVATEBOSS = Area::ACTIVATEBOSS;
+    const auto JAZZLEVELSTART = Area::JAZZLEVELSTART;
+    const auto JAZZSTART = Area::JAZZSTART;
+    const auto SPAZLEVELSTART = Area::SPAZLEVELSTART;
+    const auto SPAZSTART = Area::SPAZSTART;
+    const auto MPLEVELSTART = Area::MPLEVELSTART;
+    const auto MPSTART = Area::MPSTART;
+    const auto LORILEVELSTART = Area::LORILEVELSTART;
+    const auto LORISTART = Area::LORISTART;
+    const auto WARP = Area::WARP;
+    const auto WARPTARGET = Area::WARPTARGET;
+    const auto PATH = Area::PATH;
+    const auto AREAID = Area::AREAID;
+    const auto NOFIREZONE = Area::NOFIREZONE;
+    const auto TRIGGERZONE = Area::TRIGGERZONE;
+    const auto SUCKERTUBE = Area::SUCKERTUBE;
+    const auto TEXT = Area::TEXT;
+    const auto WATERLEVEL = Area::WATERLEVEL;
+    const auto MORPHFROG = Area::MORPHFROG;
+    const auto WATERBLOCK = Area::WATERBLOCK;
+};
+namespace ANIM {
+    enum Set {
+        AMMO,
+        BAT,
+        BEEBOY,
+        BEES,
+        BIGBOX,
+        BIGROCK,
+        BIGTREE,
+        BILSBOSS,
+        BIRD,
+        BIRD3D,
+        BOLLPLAT,
+        BONUS,
+        BOSS,
+        BRIDGE,
+        BUBBA,
+        BUMBEE,
+        BUTTERFLY,
+        CARROTPOLE,
+        CAT,
+        CAT2,
+        CATERPIL,
+        CHUCK,
+        COMMON,
+        CONTINUE,
+        DEMON,
+        DESTSCEN,
+        DEVAN,
+        DEVILDEVAN,
+        DIAMPOLE,
+        DOG,
+        DOOR,
+        DRAGFLY,
+        DRAGON,
+        EVA,
+        FACES,
+        FATCHK,
+        FENCER,
+        FISH,
+        FLAG,
+        FLARE,
+        FONT,
+        FROG,
+        FRUITPLAT,
+        GEMRING,
+        GLOVE,
+        GRASSPLAT,
+        HATTER,
+        HELMUT,
+        JAZZ,
+        JAZZ3D,
+        JUNGLEPOLE,
+        LABRAT,
+        LIZARD,
+        LORI,
+        LORI2,
+        MENU,
+        MENUFONT,
+        MONKEY,
+        MOTH,
+        PICKUPS,
+        PINBALL,
+        PINKPLAT,
+        PSYCHPOLE,
+        QUEEN,
+        RAPIER,
+        RAVEN,
+        ROBOT,
+        ROCK,
+        ROCKTURT,
+        SKELETON,
+        SMALTREE,
+        SNOW,
+        SONCSHIP,
+        SONICPLAT,
+        SPARK,
+        SPAZ,
+        SPAZ2,
+        SPAZ3D,
+        SPIKEBOLL,
+        SPIKEBOLL3D,
+        SPIKEPLAT,
+        SPRING,
+        STEAM,
+        SUCKER,
+        TUBETURT,
+        TUFBOSS,
+        TUFTUR,
+        TURTLE,
+        TWEEDLE,
+        UTERUS,
+        VINE,
+        WARP10,
+        WARP100,
+        WARP20,
+        WARP50,
+        WITCH,
+        XBILSY,
+        XLIZARD,
+        XTURTLE,
+        ZDOG,
+        ZSPARK,
+    };
+    // Aliases
+    const auto AMMO = Set::AMMO;
+    const auto BAT = Set::BAT;
+    const auto BEEBOY = Set::BEEBOY;
+    const auto BEES = Set::BEES;
+    const auto BIGBOX = Set::BIGBOX;
+    const auto BIGROCK = Set::BIGROCK;
+    const auto BIGTREE = Set::BIGTREE;
+    const auto BILSBOSS = Set::BILSBOSS;
+    const auto BIRD = Set::BIRD;
+    const auto BIRD3D = Set::BIRD3D;
+    const auto BOLLPLAT = Set::BOLLPLAT;
+    const auto BONUS = Set::BONUS;
+    const auto BOSS = Set::BOSS;
+    const auto BRIDGE = Set::BRIDGE;
+    const auto BUBBA = Set::BUBBA;
+    const auto BUMBEE = Set::BUMBEE;
+    const auto BUTTERFLY = Set::BUTTERFLY;
+    const auto CARROTPOLE = Set::CARROTPOLE;
+    const auto CAT = Set::CAT;
+    const auto CAT2 = Set::CAT2;
+    const auto CATERPIL = Set::CATERPIL;
+    const auto CHUCK = Set::CHUCK;
+    const auto COMMON = Set::COMMON;
+    const auto CONTINUE = Set::CONTINUE;
+    const auto DEMON = Set::DEMON;
+    const auto DESTSCEN = Set::DESTSCEN;
+    const auto DEVAN = Set::DEVAN;
+    const auto DEVILDEVAN = Set::DEVILDEVAN;
+    const auto DIAMPOLE = Set::DIAMPOLE;
+    const auto DOG = Set::DOG;
+    const auto DOOR = Set::DOOR;
+    const auto DRAGFLY = Set::DRAGFLY;
+    const auto DRAGON = Set::DRAGON;
+    const auto EVA = Set::EVA;
+    const auto FACES = Set::FACES;
+    const auto FATCHK = Set::FATCHK;
+    const auto FENCER = Set::FENCER;
+    const auto FISH = Set::FISH;
+    const auto FLAG = Set::FLAG;
+    const auto FLARE = Set::FLARE;
+    const auto FONT = Set::FONT;
+    const auto FROG = Set::FROG;
+    const auto FRUITPLAT = Set::FRUITPLAT;
+    const auto GEMRING = Set::GEMRING;
+    const auto GLOVE = Set::GLOVE;
+    const auto GRASSPLAT = Set::GRASSPLAT;
+    const auto HATTER = Set::HATTER;
+    const auto HELMUT = Set::HELMUT;
+    const auto JAZZ = Set::JAZZ;
+    const auto JAZZ3D = Set::JAZZ3D;
+    const auto JUNGLEPOLE = Set::JUNGLEPOLE;
+    const auto LABRAT = Set::LABRAT;
+    const auto LIZARD = Set::LIZARD;
+    const auto LORI = Set::LORI;
+    const auto LORI2 = Set::LORI2;
+    const auto MENU = Set::MENU;
+    const auto MENUFONT = Set::MENUFONT;
+    const auto MONKEY = Set::MONKEY;
+    const auto MOTH = Set::MOTH;
+    const auto PICKUPS = Set::PICKUPS;
+    const auto PINBALL = Set::PINBALL;
+    const auto PINKPLAT = Set::PINKPLAT;
+    const auto PSYCHPOLE = Set::PSYCHPOLE;
+    const auto QUEEN = Set::QUEEN;
+    const auto RAPIER = Set::RAPIER;
+    const auto RAVEN = Set::RAVEN;
+    const auto ROBOT = Set::ROBOT;
+    const auto ROCK = Set::ROCK;
+    const auto ROCKTURT = Set::ROCKTURT;
+    const auto SKELETON = Set::SKELETON;
+    const auto SMALTREE = Set::SMALTREE;
+    const auto SNOW = Set::SNOW;
+    const auto SONCSHIP = Set::SONCSHIP;
+    const auto SONICPLAT = Set::SONICPLAT;
+    const auto SPARK = Set::SPARK;
+    const auto SPAZ = Set::SPAZ;
+    const auto SPAZ2 = Set::SPAZ2;
+    const auto SPAZ3D = Set::SPAZ3D;
+    const auto SPIKEBOLL = Set::SPIKEBOLL;
+    const auto SPIKEBOLL3D = Set::SPIKEBOLL3D;
+    const auto SPIKEPLAT = Set::SPIKEPLAT;
+    const auto SPRING = Set::SPRING;
+    const auto STEAM = Set::STEAM;
+    const auto SUCKER = Set::SUCKER;
+    const auto TUBETURT = Set::TUBETURT;
+    const auto TUFBOSS = Set::TUFBOSS;
+    const auto TUFTUR = Set::TUFTUR;
+    const auto TURTLE = Set::TURTLE;
+    const auto TWEEDLE = Set::TWEEDLE;
+    const auto UTERUS = Set::UTERUS;
+    const auto VINE = Set::VINE;
+    const auto WARP10 = Set::WARP10;
+    const auto WARP100 = Set::WARP100;
+    const auto WARP20 = Set::WARP20;
+    const auto WARP50 = Set::WARP50;
+    const auto WITCH = Set::WITCH;
+    const auto XBILSY = Set::XBILSY;
+    const auto XLIZARD = Set::XLIZARD;
+    const auto XTURTLE = Set::XTURTLE;
+    const auto ZDOG = Set::ZDOG;
+    const auto ZSPARK = Set::ZSPARK;
+};
+namespace COLOR {
+    enum Component {
+        RED,
+        GREEN,
+        BLUE,
+    };
+    // Aliases
+    const auto RED = Component::RED;
+    const auto GREEN = Component::GREEN;
+    const auto BLUE = Component::BLUE;
+};
+namespace TEXTURE {
+    enum Texture {
+        BLADE,
+        CORRUPTEDSANCTUARY,
+        DESOLATION,
+        DIAMONDUSBETA,
+        ICTUBELECTRIC,
+        MEDIVO,
+        MEZ02,
+        MUCKAMOKNIGHT,
+        NORMAL,
+        PSYCH,
+        RANEFORUSV,
+        WINDSTORMFORTRESS,
+        WISETYNESS,
+        WTF,
+        XARGON,
+    };
+    enum Style {
+        CYLINDER,
+        MENU,
+        REFLECTION,
+        TILEMENU,
+        TUNNEL,
+        WAVE,
+        WARPHORIZON,
+    };
+    // Aliases
+    const auto BLADE = Texture::BLADE;
+    const auto CORRUPTEDSANCTUARY = Texture::CORRUPTEDSANCTUARY;
+    const auto DESOLATION = Texture::DESOLATION;
+    const auto DIAMONDUSBETA = Texture::DIAMONDUSBETA;
+    const auto ICTUBELECTRIC = Texture::ICTUBELECTRIC;
+    const auto MEDIVO = Texture::MEDIVO;
+    const auto MEZ02 = Texture::MEZ02;
+    const auto MUCKAMOKNIGHT = Texture::MUCKAMOKNIGHT;
+    const auto NORMAL = Texture::NORMAL;
+    const auto PSYCH = Texture::PSYCH;
+    const auto RANEFORUSV = Texture::RANEFORUSV;
+    const auto WINDSTORMFORTRESS = Texture::WINDSTORMFORTRESS;
+    const auto WISETYNESS = Texture::WISETYNESS;
+    const auto WTF = Texture::WTF;
+    const auto XARGON = Texture::XARGON;
+    const auto CYLINDER = Style::CYLINDER;
+    const auto MENU = Style::MENU;
+    const auto REFLECTION = Style::REFLECTION;
+    const auto TILEMENU = Style::TILEMENU;
+    const auto TUNNEL = Style::TUNNEL;
+    const auto WAVE = Style::WAVE;
+    const auto WARPHORIZON = Style::WARPHORIZON;
+};
+namespace SURFACE {
+    enum Surface {
+        UNTEXTURED,
+        LEGACY,
+        FULLSREEN,
+        INNERWINDOW,
+        INNERLAYER,
+    };
+    // Aliases
+    const auto UNTEXTURED = Surface::UNTEXTURED;
+    const auto LEGACY = Surface::LEGACY;
+    const auto FULLSREEN = Surface::FULLSREEN;
+    const auto INNERWINDOW = Surface::INNERWINDOW;
+    const auto INNERLAYER = Surface::INNERLAYER;
+};
+namespace LAYERSPEEDMODEL {
+    enum LayerSpeedModel {
+        NORMAL,
+        LAYER8,
+        BOTHSPEEDS,
+        FROMSTART,
+        FITLEVEL,
+        SPEEDMULTIPLIERS,
+    };
+    // Aliases
+    const auto NORMAL = LayerSpeedModel::NORMAL;
+    const auto LAYER8 = LayerSpeedModel::LAYER8;
+    const auto BOTHSPEEDS = LayerSpeedModel::BOTHSPEEDS;
+    const auto FROMSTART = LayerSpeedModel::FROMSTART;
+    const auto FITLEVEL = LayerSpeedModel::FITLEVEL;
+    const auto SPEEDMULTIPLIERS = LayerSpeedModel::SPEEDMULTIPLIERS;
+};
+namespace LIGHT {
+    enum Enforce {
+        OPTIONAL,
+        BASIC,
+        COMPLETE,
+    };
+    enum Type {
+        NONE,
+        NORMAL,
+        POINT,
+        POINT2,
+        FLICKER,
+        BRIGHT,
+        LASERBEAM,
+        LASER,
+        RING,
+        RING2,
+        PLAYER,
+    };
+    // Aliases
+    const auto OPTIONAL = Enforce::OPTIONAL;
+    const auto BASIC = Enforce::BASIC;
+    const auto COMPLETE = Enforce::COMPLETE;
+    const auto NONE = Type::NONE;
+    const auto NORMAL = Type::NORMAL;
+    const auto POINT = Type::POINT;
+    const auto POINT2 = Type::POINT2;
+    const auto FLICKER = Type::FLICKER;
+    const auto BRIGHT = Type::BRIGHT;
+    const auto LASERBEAM = Type::LASERBEAM;
+    const auto LASER = Type::LASER;
+    const auto RING = Type::RING;
+    const auto RING2 = Type::RING2;
+    const auto PLAYER = Type::PLAYER;
+};
+namespace SNOWING {
+    enum Type {
+        SNOW,
+        FLOWER,
+        RAIN,
+        LEAF,
+    };
+    // Aliases
+    const auto SNOW = Type::SNOW;
+    const auto FLOWER = Type::FLOWER;
+    const auto RAIN = Type::RAIN;
+    const auto LEAF = Type::LEAF;
+};
+namespace WATERINTERACTION {
+    enum WaterInteraction {
+        SWIM,
+        LOWGRAVITY,
+        POSITIONBASED,
+    };
+    // Aliases
+    const auto SWIM = WaterInteraction::SWIM;
+    const auto LOWGRAVITY = WaterInteraction::LOWGRAVITY;
+    const auto POSITIONBASED = WaterInteraction::POSITIONBASED;
+};
+namespace WATERLIGHT {
+    enum wl {
+        NONE,
+        GLOBAL,
+        LAGUNICUS,
+    };
+    // Aliases
+    const auto NONE = wl::NONE;
+    const auto GLOBAL = wl::GLOBAL;
+    const auto LAGUNICUS = wl::LAGUNICUS;
+};
+namespace STATE {
+    enum State {
+        START,
+        SLEEP,
+        WAKE,
+        KILL,
+        DEACTIVATE,
+        WALK,
+        JUMP,
+        FIRE,
+        FLY,
+        BOUNCE,
+        EXPLODE,
+        ROCKETFLY,
+        STILL,
+        FLOAT,
+        HIT,
+        SPRING,
+        ACTION,
+        DONE,
+        PUSH,
+        FALL,
+        FLOATFALL,
+        CIRCLE,
+        ATTACK,
+        FREEZE,
+        FADEIN,
+        FADEOUT,
+        HIDE,
+        TURN,
+        IDLE,
+        EXTRA,
+        STOP,
+        WAIT,
+        LAND,
+        DELAYEDSTART,
+        ROTATE,
+        DUCK,
+    };
+    // Aliases
+    const auto START = State::START;
+    const auto SLEEP = State::SLEEP;
+    const auto WAKE = State::WAKE;
+    const auto KILL = State::KILL;
+    const auto DEACTIVATE = State::DEACTIVATE;
+    const auto WALK = State::WALK;
+    const auto JUMP = State::JUMP;
+    const auto FIRE = State::FIRE;
+    const auto FLY = State::FLY;
+    const auto BOUNCE = State::BOUNCE;
+    const auto EXPLODE = State::EXPLODE;
+    const auto ROCKETFLY = State::ROCKETFLY;
+    const auto STILL = State::STILL;
+    const auto FLOAT = State::FLOAT;
+    const auto HIT = State::HIT;
+    const auto SPRING = State::SPRING;
+    const auto ACTION = State::ACTION;
+    const auto DONE = State::DONE;
+    const auto PUSH = State::PUSH;
+    const auto FALL = State::FALL;
+    const auto FLOATFALL = State::FLOATFALL;
+    const auto CIRCLE = State::CIRCLE;
+    const auto ATTACK = State::ATTACK;
+    const auto FREEZE = State::FREEZE;
+    const auto FADEIN = State::FADEIN;
+    const auto FADEOUT = State::FADEOUT;
+    const auto HIDE = State::HIDE;
+    const auto TURN = State::TURN;
+    const auto IDLE = State::IDLE;
+    const auto EXTRA = State::EXTRA;
+    const auto STOP = State::STOP;
+    const auto WAIT = State::WAIT;
+    const auto LAND = State::LAND;
+    const auto DELAYEDSTART = State::DELAYEDSTART;
+    const auto ROTATE = State::ROTATE;
+    const auto DUCK = State::DUCK;
+};
+namespace SPREAD {
+    enum Spread {
+        NORMAL,
+        ICEPU,
+        ICE,
+        RFNORMAL,
+        RFPU,
+        RF,
+        TOASTER,
+        PEPPERSPRAY,
+        GUN8,
+    };
+    // Aliases
+    const auto NORMAL = Spread::NORMAL;
+    const auto ICEPU = Spread::ICEPU;
+    const auto ICE = Spread::ICE;
+    const auto RFNORMAL = Spread::RFNORMAL;
+    const auto RFPU = Spread::RFPU;
+    const auto RF = Spread::RF;
+    const auto TOASTER = Spread::TOASTER;
+    const auto PEPPERSPRAY = Spread::PEPPERSPRAY;
+    const auto GUN8 = Spread::GUN8;
+};
+namespace WEAPON {
+    enum Style {
+        NORMAL,
+        MISSILE,
+        POPCORN,
+        CAPPED,
+    };
+    enum Weapon {
+        BLASTER,
+        BOUNCER,
+        ICE,
+        SEEKER,
+        RF,
+        TOASTER,
+        TNT,
+        GUN8,
+        GUN9,
+        CURRENT,
+    };
+    // Aliases
+    const auto NORMAL = Style::NORMAL;
+    const auto MISSILE = Style::MISSILE;
+    const auto POPCORN = Style::POPCORN;
+    const auto CAPPED = Style::CAPPED;
+    const auto BLASTER = Weapon::BLASTER;
+    const auto BOUNCER = Weapon::BOUNCER;
+    const auto ICE = Weapon::ICE;
+    const auto SEEKER = Weapon::SEEKER;
+    const auto RF = Weapon::RF;
+    const auto TOASTER = Weapon::TOASTER;
+    const auto TNT = Weapon::TNT;
+    const auto GUN8 = Weapon::GUN8;
+    const auto GUN9 = Weapon::GUN9;
+    const auto CURRENT = Weapon::CURRENT;
+};
+namespace TEAM {
+    enum COLOR {
+        NEUTRAL,
+        BLUE,
+        RED,
+        GREEN,
+        YELLOW,
+    };
+    enum Color {
+        NEUTRAL,
+        BLUE,
+        RED,
+        GREEN,
+        YELLOW,
+    };
+    // Aliases
+    const auto NEUTRAL = COLOR::NEUTRAL;
+    const auto BLUE = COLOR::BLUE;
+    const auto RED = COLOR::RED;
+    const auto GREEN = COLOR::GREEN;
+    const auto YELLOW = COLOR::YELLOW;
+};
+namespace AIR {
+    enum Jump {
+        NONE,
+        HELICOPTER,
+        DOUBLEJUMP,
+    };
+    // Aliases
+    const auto NONE = Jump::NONE;
+    const auto HELICOPTER = Jump::HELICOPTER;
+    const auto DOUBLEJUMP = Jump::DOUBLEJUMP;
+};
+namespace GROUND {
+    enum Jump {
+        JAZZ,
+        SPAZ,
+        LORI,
+        CROUCH,
+        JUMP,
+    };
+    // Aliases
+    const auto JAZZ = Jump::JAZZ;
+    const auto SPAZ = Jump::SPAZ;
+    const auto LORI = Jump::LORI;
+    const auto CROUCH = Jump::CROUCH;
+    const auto JUMP = Jump::JUMP;
+};
+namespace TIMER {
+    enum State {
+        STOPPED,
+        STARTED,
+        PAUSED,
+    };
+    // Aliases
+    const auto STOPPED = State::STOPPED;
+    const auto STARTED = State::STARTED;
+    const auto PAUSED = State::PAUSED;
+};
+namespace GAME {
+    enum Connection {
+        LOCAL,
+        ONLINE,
+        LAN,
+    };
+    enum Custom {
+        NOCUSTOM,
+        RT,
+        LRS,
+        XLRS,
+        PEST,
+        TB,
+        JB,
+        DCTF,
+        FR,
+        TLRS,
+        DOM,
+        HEAD,
+    };
+    enum Mode {
+        SP,
+        COOP,
+        BATTLE,
+        CTF,
+        TREASURE,
+        RACE,
+    };
+    enum State {
+        STOPPED,
+        STARTED,
+        PAUSED,
+        PREGAME,
+        OVERTIME,
+    };
+    // Aliases
+    const auto LOCAL = Connection::LOCAL;
+    const auto ONLINE = Connection::ONLINE;
+    const auto LAN = Connection::LAN;
+    const auto NOCUSTOM = Custom::NOCUSTOM;
+    const auto RT = Custom::RT;
+    const auto LRS = Custom::LRS;
+    const auto XLRS = Custom::XLRS;
+    const auto PEST = Custom::PEST;
+    const auto TB = Custom::TB;
+    const auto JB = Custom::JB;
+    const auto DCTF = Custom::DCTF;
+    const auto FR = Custom::FR;
+    const auto TLRS = Custom::TLRS;
+    const auto DOM = Custom::DOM;
+    const auto HEAD = Custom::HEAD;
+    const auto SP = Mode::SP;
+    const auto COOP = Mode::COOP;
+    const auto BATTLE = Mode::BATTLE;
+    const auto CTF = Mode::CTF;
+    const auto TREASURE = Mode::TREASURE;
+    const auto RACE = Mode::RACE;
+    const auto STOPPED = State::STOPPED;
+    const auto STARTED = State::STARTED;
+    const auto PAUSED = State::PAUSED;
+    const auto PREGAME = State::PREGAME;
+    const auto OVERTIME = State::OVERTIME;
+};
+
+class jjPLAYER {
+    bool alreadyDoubleJumped;
+    array<int> ammo;
+    bool antiGrav;
+    int ballTime;
+    int blink;
+    int boss;
+    bool bossActivated;
+    int buttstomp;
+    const float cameraX;
+    const float cameraY;
+    const CHAR::Char charCurr;
+    CHAR::Char charOrig;
+    const int clientID;
+    int coins;
+    const uint16 curAnim;
+    const uint curFrame;
+    const int currTile;
+    uint8 currWeapon;
+    const int deaths;
+    int8 direction;
+    int doubleJumpCount;
+    int fastfire;
+    const int flag;
+    int fly;
+    int food;
+    const uint8 frameID;
+    int8 frozen;
+    uint32 fur;
+    array<int> gems;
+    uint8 health;
+    int helicopter;
+    int helicopterElapsed;
+    int idle;
+    int invincibility;
+    bool invisibility;
+    const bool isActive;
+    const bool isAdmin;
+    const bool isConnecting;
+    const bool isIdle;
+    const bool isInGame;
+    const bool isJailed;
+    const bool isLocal;
+    const bool isOut;
+    const bool isSpectating;
+    const bool isZombie;
+    float jumpStrength;
+    bool keyDown;
+    bool keyFire;
+    bool keyJump;
+    bool keyLeft;
+    bool keyRight;
+    bool keyRun;
+    bool keySelect;
+    bool keyUp;
+    const int laps;
+    const int lapTimeBest;
+    const int lapTimeCurrent;
+    const array<int> lapTimes;
+    int8 light;
+    uint8 lighting;
+    LIGHT::Type lightType;
+    int lives;
+    const int localPlayerID;
+    const int lrsLives;
+    const string name;
+    const string nameUnformatted;
+    bool noclipMode;
+    bool noFire;
+    int platform;
+    const int8 playerID;
+    array<bool> powerup;
+    const int roasts;
+    bool running;
+    int score;
+    int scoreDisplayed;
+    const ANIM::Set setID;
+    int shieldTime;
+    int shieldType;
+    int specialMove;
+    SPRITE::Mode spriteMode;
+    uint8 spriteParam;
+    int stoned;
+    const int subscreenX;
+    const int subscreenY;
+    const TEAM::Color team;
+    const bool teamRed;
+    bool timerPersists;
+    const TIMER::State timerState;
+    int timerTime;
+    const int warpID;
+    float xAcc;
+    float xOrg;
+    float xPos;
+    float xSpeed;
+    float yAcc;
+    float yOrg;
+    float yPos;
+    float ySpeed;
+    void activateBoss(bool activate = true);
+    void cameraFreeze(float xPixel, float yPixel, bool centered, bool instant);
+    void cameraFreeze(bool xUnfreeze, float yPixel, bool centered, bool instant);
+    void cameraFreeze(float xPixel, bool yUnfreeze, bool centered, bool instant);
+    void cameraFreeze(bool xUnfreeze, bool yUnfreeze, bool centered, bool instant);
+    void cameraUnfreeze(bool instant = true);
+    bool doesCollide(const jjOBJ@ object, bool always = false) const;
+    int extendInvincibility(int duration);
+    int fireBullet(uint8 gun = WEAPON::CURRENT, bool depleteAmmo = true, bool requireAmmo = true, DIRECTION::Dir direction = DIRECTION::CURRENT);
+    int fireBullet(uint8 gun, bool depleteAmmo, bool requireAmmo, float angle);
+    void freeze(bool frozen = true);
+    void furGet(uint8 a, uint8 b, uint8 c, uint8 d) const;
+    void furSet(uint8 a, uint8 b, uint8 c, uint8 d);
+    int getObjectHitForce(const jjOBJ@ target = null) const;
+    bool hasPrivilege(const string privilege, uint moduleID = jjScriptModuleID) const;
+    bool hurt(int8 damage = 1, bool forceHurt = false, jjPLAYER@ attacker = null);
+    bool isEnemy(const jjPLAYER victim) const;
+    void kill();
+    void limitXScroll(uint16 left, uint16 width);
+    CHAR::Char morph(bool rabbitsOnly = false, bool morphEffect = true);
+    CHAR::Char morphTo(CHAR::Char charNew, bool morphEffect = true);
+    bool objectHit(jjOBJ@ target, int force, HANDLING::Player playerHandling);
+    bool offsetPosition(int xPixels, int yPixels);
+    void poleSpin(float xSpeed, float ySpeed, uint delay = 70);
+    uint8 resetLight();
+    CHAR::Char revertMorph(bool morphEffect = true);
+    bool setName(const string name);
+    int setScore(int score);
+    void showText(uint8 textID, uint8 offset, STRING::Size size = STRING::SMALL);
+    void showText(string text, STRING::Size size = STRING::SMALL);
+    void spring(float xSpeed, float ySpeed, bool keepZeroSpeeds, bool sample);
+    bool startSugarRush(int time = 1400);
+    void suckerTube(int xSpeed, int ySpeed, bool center, bool noclip = false, bool trigSample = false);
+    bool testForCoins(int numberOfCoins);
+    bool testForGems(int numberOfGems, GEM::Color type);
+    void timerFunction(string functionName);
+    void timerFunction(jjVOIDFUNC@ function);
+    void timerFunction(jjVOIDFUNCPLAYER@ function);
+    TIMER::State timerPause();
+    TIMER::State timerResume();
+    TIMER::State timerStart(int ticks, bool startPaused = false);
+    TIMER::State timerStop();
+    bool warpToID(uint8 warpID, bool fast = false);
+    bool warpToTile(int xTile, int yTile, bool fast = false);
+};
+
+class jjOBJ {
+    int age;
+    int animSpeed;
+    BEHAVIOR::Behavior behavior;
+    HANDLING::Bullet bulletHandling;
+    bool causesRicochet;
+    int counter;
+    uint8 counterEnd;
+    int creator;
+    int creatorID;
+    CREATOR::Type creatorType;
+    int16 curAnim;
+    uint curFrame;
+    bool deactivates;
+    int8 direction;
+    uint8 doesHurt;
+    int8 energy;
+    uint8 eventID;
+    int8 frameID;
+    uint8 freeze;
+    const bool isActive;
+    bool isBlastable;
+    bool isFreezable;
+    bool isTarget;
+    uint8 justHit;
+    int16 killAnim;
+    int8 light;
+    LIGHT::Type lightType;
+    STATE::State oldState;
+    HANDLING::Player playerHandling;
+    uint16 points;
+    int8 noHit;
+    const uint16 objectID;
+    uint8 objType;
+    bool scriptedCollisions;
+    int special;
+    STATE::State state;
+    bool triggersTNT;
+    array<int> var;
+    float xAcc;
+    float xOrg;
+    float xPos;
+    float xSpeed;
+    float yAcc;
+    float yPos;
+    float yOrg;
+    float ySpeed;
+    void behave(BEHAVIOR::Behavior behavior = BEHAVIOR::DEFAULT, bool draw = true);
+    void bePlatform(float xOld, float yOld, int width = 0, int height = 0);
+    int beSolid(bool shouldCheckForStompingLocalPlayers = false);
+    void blast(int maxDistance, bool blastObjects);
+    void clearPlatform();
+    void deactivate();
+    void delete();
+    int16 determineCurAnim(uint8 setID, uint8 animation, bool change = true);
+    int16 determineCurAnim(ANIM::Set setID, uint8 animation, bool change = true);
+    uint determineCurFrame(bool change = true);
+    bool doesCollide(const jjOBJ@ object, bool always = false) const;
+    bool doesCollide(const jjPLAYER@ player, bool always = false) const;
+    int draw();
+    int findNearestPlayer(int maxDistance) const;
+    int findNearestPlayer(int maxDistance, int foundDistance) const;
+    int fireBullet(OBJECT::Object eventID) const;
+    void grantPickup(jjPLAYER@ player, int frequency) const;
+    void objectHit(jjOBJ@ target, HANDLING::Player playerHandling);
+    void particlePixelExplosion(int style) const;
+    void pathMovement();
+    void putOnGround(bool precise = false);
+    bool ricochet();
+    int unfreeze(int style);
+};
+
+class jjPARTICLE {
+    bool isActive;
+    PARTICLE::Type type;
+    float xPos;
+    float xSpeed;
+    float yPos;
+    float ySpeed;
+    int fire; // (unknown type)
+    int flower; // (unknown type)
+    int icetrail; // (unknown type)
+    int leaf; // (unknown type)
+    int pixel; // (unknown type)
+    int rain; // (unknown type)
+    int smoke; // (unknown type)
+    int snow; // (unknown type)
+    int spark; // (unknown type)
+    int star; // (unknown type)
+    int string; // (unknown type)
+    int tile; // (unknown type)
+};
+
+class jjCONTROLPOINT {
+    const TEAM::Color controlTeam;
+    const int direction;
+    const string name;
+    const float xPos;
+    const int xTile;
+    const float yPos;
+    const int yTile;
+};
+
+class jjCHARACTER {
+    AIR::Jump airJump;
+    bool canHurt;
+    bool canRun;
+    int doubleJumpCountMax;
+    float doubleJumpXSpeed;
+    float doubleJumpYSpeed;
+    int helicopterDurationMax;
+    float helicopterXSpeed;
+    float helicopterYSpeed;
+    GROUND::Jump groundJump;
+    bool morphBoxCycle;
+};
+
+class jjWEAPON {
+    bool allowed;
+    bool allowedPowerup;
+    bool comesFromBirds;
+    bool comesFromBirdsPowerup;
+    bool comesFromGunCrates;
+    bool defaultSample;
+    int gemsLost;
+    int gemsLostPowerup;
+    bool gradualAim;
+    bool infinite;
+    int maximum;
+    int multiplier;
+    bool replacedByBubbles;
+    bool replacedByShield;
+    bool replenishes;
+    SPREAD::Spread spread;
+    WEAPON::Style style;
+};
+
+class jjSTREAM {
+    void clear();
+    bool discard(uint count);
+    bool get(const string value, uint count = 1);
+    bool get(const jjSTREAM value, uint count = 1);
+    bool getLine(string value, const string delim = '\n');
+    uint getSize() const;
+    bool isEmpty() const;
+    int pop();
+	float pop();
+	string pop();
+    void push(int value);
+	void push(float value);
+	void push(string& value);
+    bool save(const string filename) const;
+    bool write(const string value);
+    bool write(const jjSTREAM value);
+};
+
+class jjRNG {
+    void seed(uint64 value = 5489);
+    void discard(uint64 count = 1);
+};
+
+class jjPAL {
+    array<jjPALCOLOR> color;
+    void apply() const;
+    void copyFrom(uint8 start, uint8 length, uint8 start2, const jjPAL source, float opacity);
+    void fill(uint8 red, uint8 green, uint8 blue, uint8 start, uint8 length, float opacity = 1.0);
+    void fill(uint8 red, uint8 green, uint8 blue, float opacity = 1.0);
+    void fill(jjPALCOLOR color, uint8 start, uint8 length, float opacity = 1.0);
+    void fill(jjPALCOLOR color, float opacity = 1.0);
+    uint8 findNearestColor(jjPALCOLOR color) const;
+    void gradient(uint8 red1, uint8 green1, uint8 blue1, uint8 red2, uint8 green2, uint8 blue2, uint8 start = 176, uint8 length = 32, float opacity = 1.0, bool inclusive = false);
+    void gradient(jjPALCOLOR color1, jjPALCOLOR color2, uint8 start = 176, uint8 length = 32, float opacity = 1.0, bool inclusive = false);
+    bool load(string& filename);
+    void reset();
+};
+
+class jjPALCOLOR {
+    uint8 red;
+    uint8 green;
+    uint8 blue;
+    uint8 getHue() const;
+    uint8 getSat() const;
+    uint8 getLight() const;
+    void setHSL(int hue, uint8 sat, uint8 light);
+    void swizzle(COLOR::Component red, COLOR::Component green, COLOR::Component blue);
+	jjPALCOLOR(int r, int g, int b);
+};
+
+class jjCANVAS {
+    void drawSprite(int xPixel, int yPixel, int setID, uint8 animation, uint8 frame, int8 direction = 0, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawSpriteFromCurFrame(int xPixel, int yPixel, uint sprite, int8 direction = 0, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawResizedSprite(int xPixel, int yPixel, int setID, uint8 animation, uint8 frame, float xScale, float yScale, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawResizedSpriteFromCurFrame(int xPixel, int yPixel, uint sprite, float xScale, float yScale, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawRotatedSprite(int xPixel, int yPixel, int setID, uint8 animation, uint8 frame, int angle, float xScale = 1, float yScale = 1, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawRotatedSpriteFromCurFrame(int xPixel, int yPixel, uint sprite, int angle, float xScale = 1, float yScale = 1, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawSwingingVineSpriteFromCurFrame(int xPixel, int yPixel, int sprite, int length, int curvature, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawPixel(int xPixel, int yPixel, uint8 color, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawRectangle(int xPixel, int yPixel, int width, int height, uint8 color, SPRITE::Mode mode = SPRITE::NORMAL, uint8 param = 0);
+    void drawString(int xPixel, int yPixel, const string text, STRING::Size size = STRING::SMALL,STRING::Mode mode = STRING::NORMAL, uint8 param = 0);
+    void drawString(int xPixel, int yPixel, const string text, const jjANIMATION animation, STRING::Mode mode = STRING::NORMAL, uint8 param = 0);
+    void drawString(int xPixel, int yPixel, const string text, STRING::Size size, const jjTEXTAPPEARANCE appearance, uint8 param1 = 0, SPRITE::Mode spriteMode = SPRITE::PALSHIFT, uint8 param2 = 0);
+    void drawString(int xPixel, int yPixel, const string text, const jjANIMATION animation, const jjTEXTAPPEARANCE appearance, uint8 param1 = 0, SPRITE::Mode spriteMode = SPRITE::PALSHIFT, uint8 param2 = 0);
+    void drawTile(int xPixel, int yPixel, uint16 tile, TILE::Quadrant tileQuadrant = TILE::ALLQUADRANTS);
+};
+
+class jjLAYER {
+    int cylinder; // (unknown type)
+    const bool hasTileMap;
+    bool hasTiles;
+    const int height;
+    bool limitVisibleRegion;
+    int menu; // (unknown type)
+    int reflection; // (unknown type)
+    int rotationAngle;
+    int rotationRadiusMultiplier;
+    SPRITE::Mode spriteMode;
+    uint8 spriteParam;
+    TEXTURE::Texture texture;
+    SURFACE::Surface textureSurface;
+    TEXTURE::Style textureStyle;
+    bool tileHeight;
+    bool tileWidth;
+    int tileMenu; // (unknown type)
+    int tunnel; // (unknown type)
+    int warpHorizon; // (unknown type)
+    int wave; // (unknown type)
+    const int width;
+    const int widthReal;
+    const int widthRounded;
+    float xAutoSpeed;
+    float yAutoSpeed;
+    float xInnerAutoSpeed;
+    float yInnerAutoSpeed;
+    float xInnerSpeed;
+    float yInnerSpeed;
+    float xOffset;
+    float yOffset;
+    float xSpeed;
+    float ySpeed;
+    LAYERSPEEDMODEL::LayerSpeedModel xSpeedModel;
+    LAYERSPEEDMODEL::LayerSpeedModel ySpeedModel;
+    void generateSettableTileArea();
+    void generateSettableTileArea(int xTile, int yTile, int width, int height);
+    float getXPosition(const jjPLAYER play) const;
+    float getYPosition(const jjPLAYER play) const;
+    bool maskedHLine(int xPixel, int lineLength, int yPixel) const;
+    bool maskedPixel(int xPixel, int yPixel) const;
+    int maskedTopVLine(int xPixel, int yPixel, int lineLength) const;
+    bool maskedVLine(int xPixel, int yPixel, int lineLength) const;
+    void setXSpeed(float newspeed, bool newSpeedIsAnAutoSpeed);
+    void setYSpeed(float newspeed, bool newSpeedIsAnAutoSpeed);
+    uint16 tileGet(int xTile, int yTile) const;
+    uint16 tileSet(int xTile, int yTile, uint16 newTile);
+};
+
+class jjTEXTAPPEARANCE {
+    STRING::Alignment align;
+    STRING::SignTreatment at;
+    STRING::SignTreatment caret;
+    STRING::SignTreatment hash;
+    bool monospace;
+    STRING::SignTreatment newline;
+    STRING::SignTreatment pipe;
+    STRING::SignTreatment section;
+    bool skipInitialHash;
+    int spacing;
+    STRING::SignTreatment tilde;
+    int xAmp;
+    int yAmp;
+};
+
+class jjPLAYERDRAW {
+    bool airboardBouncingMotion;
+    bool airboardPuff;
+    int angle;
+    uint curFrame;
+    TEAM::COLOR flag;
+    bool gunFlash;
+    bool invincibility;
+    int layer;
+    int8 light;
+    LIGHT::Type lightType;
+    bool name;
+    jjPLAYER@ player;
+    array<bool> shield;
+    bool sprite;
+    SPRITE::Mode spriteMode;
+    uint8 spriteParam;
+    bool sugarRush;
+    bool trail;
+    float xOffset;
+    float yOffset;
+    float xScale;
+    float yScale;
+};
+
+class jjANIMSET {
+    uint firstAnim;
+    jjANIMSET@ allocate(const array<uint> frameCounts);
+    jjANIMSET@ load(uint fileSetID = 2048, const string filename = "", int firstAnimToOverwrite = -1, int firstFrameToOverwrite = -1);
+    jjANIMSET@ load(const jjPIXELMAP spriteSheet, uint frameWidth, uint frameHeight, uint frameSpacingX = 0, uint frameSpacingY = 0, uint startX = 0, uint startY = 0, const array<int> coldSpotYOffsets = array<int>(), int firstAnimToOverwrite = -1, int firstFrameToOverwrite = -1);
+};
+
+class jjANIMATION {
+    uint firstFrame;
+    int16 fps;
+    uint16 frameCount;
+    bool save(const string filename, const jjPAL palette = jjPalette) const;
+    bool load(const string filename, int hotSpotX, int hotSpotY, int coldSpotYOffset = 0, int firstFrameToOverwrite = -1);
+};
+
+class jjANIMFRAME {
+    int16 coldSpotX;
+    int16 coldSpotY;
+    int16 gunSpotX;
+    int16 gunSpotY;
+    const uint16 height;
+    int16 hotSpotX;
+    int16 hotSpotY;
+    bool transparent;
+    const uint16 width;
+    bool doesCollide(int xPos, int yPos, int direction, const jjANIMFRAME@ frame2, int xPos2, int yPos2, int direction2, bool always = false) const;
+};
+
+class jjTILE {
+    uint8 fps;
+    const uint16 tileID;
+    array<uint16>@ getFrames() const;
+    bool setFrames(const array<uint16> frames, bool pingPong = false, uint16 wait = 0, uint16 randomWait = 0, uint16 pingPongWait = 0);
+};
+
+class jjPIXELMAP {
+    const uint height;
+    const uint width;
+    jjPIXELMAP& addBorders(int left, int top, int right, int bottom, uint8 borderColor = 0);
+    jjPIXELMAP& crop(uint left, uint top, uint width, uint height);
+    jjPIXELMAP& flip(SPRITE::Direction directions);
+    bool makeTexture(jjLAYER@ layer = null);
+    jjPIXELMAP& recolor(const array<uint8> colorMapping);
+    jjPIXELMAP& resize(uint width, uint height);
+    jjPIXELMAP& rotate();
+    bool save(uint16 tileID, bool hFlip = false) const;
+    bool save(jjANIMFRAME@ frame) const;
+    bool save(const string filename, const jjPAL palette = jjPalette) const;
+    jjPIXELMAP& trim(uint8 trimColor = 0);
+    jjPIXELMAP& trim(uint left, uint top, uint right, uint bottom, uint8 trimColor = 0);
+};
+
+class jjMASKMAP {
+    bool save(uint16 tileID, bool hFlip = false) const;
+};
+void onChat(int clientID, string stringReceived, CHAT::Type chatType);
+bool onLocalChat(string stringReceived, CHAT::Type chatType);
+bool onCheat(string cheat);
+void onLevelLoad();
+void onLevelBegin();
+void onGameStart();
+void onGameStart(bool firstTime);
+void onGameStop();
+void onGameStop(bool firstTime);
+void onLevelReload();
+void onMain();
+void onPlayer(jjPLAYER@ play);
+void onPlayerInput(jjPLAYER@ play);
+void onPlayerTimerEnd(jjPLAYER@ play);
+void onRoast(jjPLAYER@ victim, jjPLAYER@ killer);
+const uint jjActiveGameTicks;
+const bool jjAllowsFireball;
+const bool jjAllowsMouseAim;
+const bool jjAllowsReady;
+const bool jjAllowsWalljump;
+const bool jjAlwaysRunning;
+array<jjTILE@> jjAnimatedTiles;
+array<jjANIMATION@> jjAnimations;
+array<jjANIMFRAME@> jjAnimFrames;
+array<jjANIMSET@> jjAnimSets;
+const bool jjAutoWeaponChange;
+const jjPAL jjBackupPalette;
+const int jjBorderHeight;
+const int jjBorderWidth;
+jjPLAYER@ jjBottomFeeder;
+array<jjCHARACTER@> jjCharacters;
+const int jjColorDepth;
+const array<jjCONTROLPOINT@> jjControlPoints;
+const bool jjDeactivatingBecauseOfDeath;
+const bool jjDebugF10;
+bool jjDelayGeneratedCrateOrigins;
+int jjDifficulty;
+int jjDifficultyNext;
+const int jjDifficultyOrig;
+const bool jjDoZombiesAlreadyExist;
+int jjEcho;
+array<bool> jjEnabledASFunctions;
+const array<bool> jjEnabledTeams;
+LIGHT::Enforce jjEnforceLighting;
+uint8 jjEventAtLastMaskedPixel;
+const int jjFPS;
+const bool jjFriendlyFire;
+const GAME::Connection jjGameConnection;
+const GAME::Custom jjGameCustom;
+const GAME::Mode jjGameMode;
+const GAME::State jjGameState;
+const int jjGameTicks;
+array<string> jjHelpStrings;
+const bool jjIsAdmin;
+const bool jjIsServer;
+bool jjIsSnowing;
+bool jjIsSnowingOutdoorsOnly;
+const bool jjIsTSF;
+const array<bool> jjKey;
+uint8 jjKeyChat;
+array<bool> jjLayerHasTiles;
+const array<int> jjLayerHeight;
+array<bool> jjLayerLimitVisibleRegion;
+array<bool> jjLayerTileHeight;
+array<bool> jjLayerTileWidth;
+const array<int> jjLayerWidth;
+const array<int> jjLayerWidthReal;
+const array<int> jjLayerWidthRounded;
+array<float> jjLayerXAutoSpeed;
+array<float> jjLayerYAutoSpeed;
+array<float> jjLayerXOffset;
+array<float> jjLayerYOffset;
+array<float> jjLayerXSpeed;
+array<float> jjLayerYSpeed;
+array<jjLAYER@> jjLayers;
+const string jjLevelFileName;
+string jjLevelName;
+const int jjLocalPlayerCount;
+const array<jjPLAYER@> jjLocalPlayers;
+const bool jjLowDetail;
+const int jjMaxHealth;
+const int jjMaxScore;
+const bool jjMouseAim;
+const int jjMouseX;
+const int jjMouseY;
+const bool jjMusicActive;
+const string jjMusicFileName;
+const int jjMusicVolume;
+const bool jjNoBlink;
+const bool jjNoMovement;
+const int jjObjectCount;
+const int jjObjectMax;
+array<jjOBJ@> jjObjectPresets;
+array<jjOBJ@> jjObjects;
+jjPLAYER@ jjP;
+jjPAL jjPalette;
+array<jjPARTICLE@> jjParticles;
+const int jjPlayerCount;
+const array<jjPLAYER@> jjPlayers;
+const bool jjQuirks;
+const int jjRenderFrame;
+const int jjResolutionHeight;
+const int jjResolutionWidth;
+const int jjResolutionMaxHeight;
+const int jjResolutionMaxWidth;
+const uint jjScriptModuleID;
+const bool jjShowMaxHealth;
+uint8 jjSnowingIntensity;
+SNOWING::Type jjSnowingType;
+const bool jjSoundEnabled;
+const bool jjSoundFXActive;
+const int jjSoundFXVolume;
+const int jjStartHealth;
+const bool jjStrongPowerups;
+const int jjSubscreenHeight;
+const int jjSubscreenWidth;
+bool jjSugarRushAllowed;
+const array<int> jjTeamScore;
+float jjTexturedBGFadePositionX;
+float jjTexturedBGFadePositionY;
+bool jjTexturedBGStars;
+TEXTURE::Style jjTexturedBGStyle;
+TEXTURE::Texture jjTexturedBGTexture;
+bool jjTexturedBGUsed;
+const uint jjTileCount;
+const array<jjTILE@> jjTiles;
+const string jjTilesetFileName;
+array<uint8> jjTileType;
+array<bool> jjTriggers;
+jjPLAYER@ jjTokenOwner;
+bool jjUseLayer8Speeds;
+bool jjVerticalSplitscreen;
+bool jjWarpsTransmuteCoins;
+float jjWaterChangeSpeed;
+WATERINTERACTION::WaterInteraction jjWaterInteraction;
+int jjWaterLayer;
+const float jjWaterLevel;
+WATERLIGHT::wl jjWaterLighting;
+const float jjWaterTarget;
+array<jjWEAPON> jjWeapons;
+jjPLAYER@ p;
+int jjAddObject(uint8 eventID, float xPixel, float yPixel, uint16 creatorID = 0, CREATOR::Type creatorType = CREATOR::OBJECT, BEHAVIOR::Behavior behavior = BEHAVIOR::DEFAULT);
+jjPARTICLE@ jjAddParticle(PARTICLE::Type type);
 void jjAddParticlePixelExplosion(float xPixel, float yPixel, int curFrame, int direction, int mode);
+void jjAddParticleTileExplosion(uint16 xTile, uint16 yTile, uint16 tile, bool collapseSceneryStyle);
+void jjAlert(const string text, bool sendToAll = false, STRING::Size size = STRING::SMALL);
+void jjChat(const string text, bool teamchat = false);
+void jjConsole(const string text, bool sendToAll = false);
+float jjCos(uint angle);
+uint jjCRC32(const jjSTREAM input, uint crc = 0);
+void jjDebug(const string text, bool timestamp = false);
+void jjDeleteObject(int objectID);
+void jjDrawPixel(float xPixel, float yPixel, uint8 color, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawRectangle(float xPixel, float yPixel, int width, int height, uint8 color, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawResizedSprite(float xPixel, float yPixel, int setID, uint8 animation, uint8 frame, float xScale, float yScale, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawResizedSpriteFromCurFrame(float xPixel, float yPixel, uint sprite, float xScale, float yScale, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawRotatedSprite(float xPixel, float yPixel, int setID, uint8 animation, uint8 frame, int angle, float xScale = 1, float yScale = 1, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawRotatedSpriteFromCurFrame(float xPixel, float yPixel, uint sprite, int angle, float xScale = 1, float yScale = 1, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawSprite(float xPixel, float yPixel, int setID, uint8 animation, uint8 frame, int direction = 0, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawSpriteFromCurFrame(float xPixel, float yPixel, uint sprite, int direction = 0, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawString(float xPixel, float yPixel, const string text, STRING::SIZE size = STRING::SMALL, STRING::Mode mode = STRING::NORMAL, uint8 param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawString(float xPixel, float yPixel, const string text, const jjANIMATION animation, STRING::Mode mode = STRING::NORMAL, uint8 param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawString(float xPixel, float yPixel, const string text, STRING::SIZE size, const jjTEXTAPPEARANCE appearance, uint8 param1 = 0, SPRITE::Mode spriteMode = SPRITE::PALSHIFT, uint8 param2 = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawString(float xPixel, float yPixel, const string text, const jjANIMATION animation, const jjTEXTAPPEARANCE appearance, uint8 param1 = 0, SPRITE::Mode spriteMode = SPRITE::PALSHIFT, uint8 param2 = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawSwingingVineSpriteFromCurFrame(float xPixel, float yPixel, uint sprite, int length, int curvature, SPRITE::Mode mode = SPRITE::NORMAL, int param = 0, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjDrawTile(float xPixel, float yPixel, uint16 tile, TILE::Quadrant tileQuadrant = TILE::ALLQUADRANTS, int8 layerZ = 4, uint8 layerXY = 4, int8 playerID = -1);
+void jjEnableEachASFunction();
+int jjEventGet(uint16 xTile, uint16 yTile);
+void jjEventSet(uint16 xTile, uint16 yTile, uint8 newEventID);
+void jjEventSet(uint16 xTile, uint16 yTile, OBJECT::Object newEventID);
+void jjEventSet(uint16 xTile, uint16 yTile, AREA::Area newEventID);
+void jjGenerateSettableTileArea(uint8 layer, int xTile, int yTile, int width, int height);
+jjPALCOLOR jjGetFadeColors();
+int jjGetModOrder();
+int jjGetModRow();
+int jjGetModSpeed();
+int jjGetModTempo();
+jjPUBLICINTERFACE@ jjGetPublicInterface(const string moduleName);
+uint16 jjGetStaticTile(uint16 tileID);
+int jjGetStringWidth(const string text, STRING::Size size, const jjTEXTAPPEARANCE style);
+int jjGetStringWidth(const string text, const jjANIMATION animation, const jjTEXTAPPEARANCE style);
+bool jjIsValidCheat(const string text);
+void jjKillObject(int objectID);
+array<jjLAYER@>@ jjLayerOrderGet();
+bool jjLayerOrderSet(const array<jjLAYER@>& in order);
+array<jjLAYER@>@ jjLayersFromLevel(const string filename, const array<uint> layerIDs, int tileIDAdjustmentFactor = 0);
+bool jjMaskedHLine(int xPixel, int lineLength, int yPixel);
+bool jjMaskedPixel(int xPixel, int yPixel);
+int jjMaskedTopVLine(int xPixel, int yPixel, int lineLength);
+bool jjMaskedVLine(int xPixel, int yPixel, int lineLength);
+bool jjMaskedHLine(int xPixel, int lineLength, int yPixel, uint8 layer);
+bool jjMaskedPixel(int xPixel, int yPixel, uint8 layer);
+int jjMaskedTopVLine(int xPixel, int yPixel, int lineLength, uint8 layer);
+bool jjMaskedVLine(int xPixel, int yPixel, int lineLength, uint8 layer);
+bool jjMusicLoad(string filename, bool forceReload = false, bool temporary = false);
+void jjMusicPause();
+void jjMusicPlay();
+void jjMusicResume();
+void jjMusicStop();
+void jjNxt(bool warp = false, bool fast = false);
+void jjNxt(const string& filename = "", bool warp = false, bool fast = false);
+int jjParameterGet(uint16 xTile, uint16 yTile, int8 offset, int8 length);
+void jjParameterSet(uint16 xTile, uint16 yTile, int8 offset, int8 length, int newValue);
+array<jjPLAYER@>@ jjPlayersWithClientID(int clientID);
+void jjPrint(const string text, bool timestamp = false);
+uint jjRandom();
+bool jjRegexIsValid(const string expression);
+bool jjRegexMatch(const string text, const string expression, bool ignoreCase = false);
+bool jjRegexMatch(const string text, const string expression, array<string> results, bool ignoreCase = false);
+string jjRegexReplace(const string text, const string expression, const string replacement, bool ignoreCase = false);
+bool jjRegexSearch(const string text, const string expression, bool ignoreCase = false);
+bool jjRegexSearch(const string text, const string expression, array<string> results, bool ignoreCase = false);
+void jjResetWaterGradient();
+void jjSample(float xPixel, float yPixel, SOUND::Sample sample, int volume = 63, int frequency = 0);
+bool jjSampleIsLoaded(SOUND::Sample sample);
+bool jjSampleLoad(SOUND::Sample sample, string filename);
+int jjSampleLooped(float xPixel, float yPixel, SOUND::Sample sample, int channel, int volume = 63, int frequency = 0);
+void jjSamplePriority(SOUND::Sample sample);
+bool jjSendPacket(jjSTREAM packet, int toClientID = 0, uint toScriptModuleID = jjScriptModuleID);
+void jjSetDarknessColor(jjPALCOLOR color = jjPALCOLOR(0, 0, 0));
+void jjSetFadeColors(uint8 red, uint8 green, uint8 blue);
+void jjSetFadeColors(jjPALCOLOR color);
+void jjSetFadeColors(uint8 paletteColorID = 207);
+void jjSetLayerXSpeed(uint8 layerID, float newspeed, bool newSpeedIsAnAutoSpeed);
+void jjSetLayerYSpeed(uint8 layerID, float newspeed, bool newSpeedIsAnAutoSpeed);
+void jjSetModPosition(int order, int row, bool reset);
+void jjSetModSpeed(uint8 speed);
+void jjSetModTempo(uint8 tempo);
+void jjSetWaterGradient(uint8 red1, uint8 green1, uint8 blue1, uint8 red2, uint8 green2, uint8 blue2);
+void jjSetWaterGradient(jjPALCOLOR color1, jjPALCOLOR color2);
+void jjSetWaterGradient();
+void jjSetWaterLevel(float yPixel, bool instant);
+float jjSin(uint angle);
+void jjSlideModChannelVolume(int channel, float volume, int milliseconds);
+int jjSpriteModeFirstFreeMapping();
+jjPAL@ jjSpriteModeGetColorMapping(uint8 index);
+array<uint8>@ jjSpriteModeGetIndexMapping(uint8 index);
+bool jjSpriteModeIsMappingUsed(uint8 index);
+void jjSpriteModeSetMapping(uint8 index, const array<uint8> indexMapping, const jjPAL rgbMapping);
+void jjSpriteModeSetMapping(uint8 index, const array<uint8> indexMapping);
+void jjSpy(const string text);
+bool jjSwitchTrigger(uint8 id);
+bool jjTakeScreenshot(const string filename = "");
+uint16 jjTileGet(uint8 layer, int xTile, int yTile);
+uint16 jjTileSet(uint8 layer, int xTile, int yTile, uint16 newTile);
+bool jjTilesFromTileset(const string filename, uint firstTileID, uint tileCount, const array<uint8>@ paletteColorMapping = null);
+void jjTriggerRock(uint8 id);
+uint64 jjUnixTimeMs();
+uint64 jjUnixTimeSec();
+void jjUpdateTexturedBG();
+bool jjZlibCompress(const jjSTREAM input, jjSTREAM output);
+bool jjZlibUncompress(const jjSTREAM input, jjSTREAM output, uint size);

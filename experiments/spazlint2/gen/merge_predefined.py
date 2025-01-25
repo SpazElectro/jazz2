@@ -4,10 +4,12 @@ import datetime
 first_file = "predefined/as.predefined"
 output_file = "../include/as.predefined"
 
-other_files = ["predefined/jj2.predefined"]
+other_files = ["predefined/jj2.predefined", "predefined/jj2_additional.predefined"]
 
 with open(first_file, "r") as f:
     lines = f.readlines()
+    # remove all lines that end with "// REMOVE_LINE"
+    lines = [line for line in lines if not line.strip().endswith("// REMOVE_LINE")]
 
 for other_file in other_files:
     with open(other_file, "r") as f:

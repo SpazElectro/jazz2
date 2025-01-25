@@ -12,7 +12,7 @@ var ENUM_ARRAY = {
     "BEHAVIOR::Behavior": ["BULLET", "SEEKERBULLET", "RFBULLET", "TOASTERBULLET", "PEPPERBULLET", "ELECTROBULLET", "BUMP", "PADDLE", "BIGOBJECT", "WALKINGENEMY", "DESTRUCTSCENERY", "ROCKETTURTLE", "ROCKETTURTLEPLUS", "BOLLYTOP", "BOLLYBOTTOM", "PLATFORM", "SPRING", "AMMO15", "MONITOR", "CRATE", "PICKUP", "DIAMONDSAREFOREVER", "FLAG", "INACTIVE", "DEFAULT", "MONKEYBULLET", "BILSYBULLET", "BOLLYBULLET", "BOLLYSPIKEBALL", "WITCHBULLET", "TUFBOSSBULLET", "ROBOTSHARD", "BONE", "EXPLOSION2", "BURNING", "AIRBOARDFALL", "BIRDFEATHER", "UFO", "CORPSE"],
     "DIRECTION::Dir": ["RIGHT", "LEFT", "UP", "CURRENT"],
     "CHAR::Char": ["JAZZ", "SPAZ", "LORI", "BIRD", "FROG", "BIRD2"],
-    "HANDLING::Player": ["PICKUP", "ENEMY", "SPECIAL", "PICKUP", "ENEMYBULLET", "PLAYERBULLET"],
+    "HANDLING::Player": ["ENEMY", "PLAYERBULLET", "ENEMYBULLET", "PARTICLE", "EXPLOSION", "PICKUP", "DELAYEDPICKUP", "HURT", "SPECIAL", "DYING", "SPECIALDONE", "SELFCOLLISION"],
     "GEM::Color": ["RED", "GREEN", "BLUE", "PURPLE"],
     "STRING::Mode": ["NORMAL", "DARK", "RIGHTALIGN", "BOUNCE", "SPIN", "PALSHIFT"],
     "CHAT::Type": ["NORMAL", "TEAMCHAT", "WHISPER", "ME"],
@@ -33,11 +33,19 @@ var ENUM_ARRAY = {
     "STATE::State": ["START", "SLEEP", "WAKE", "KILL", "DEACTIVATE", "WALK", "JUMP", "FIRE", "FLY", "BOUNCE", "EXPLODE", "ROCKETFLY", "STILL", "FLOAT", "HIT", "SPRING", "ACTION", "DONE", "PUSH", "FALL", "FLOATFALL", "CIRCLE", "ATTACK", "FREEZE", "FADEIN", "FADEOUT", "HIDE", "TURN", "IDLE", "EXTRA", "STOP", "WAIT", "LAND", "DELAYEDSTART", "ROTATE", "DUCK"],
     "SPREAD::Spread": ["NORMAL", "ICEPU", "ICE", "RFNORMAL", "RFPU", "RF", "TOASTER", "PEPPERSPRAY", "GUN8"],
     "WEAPON::Style": ["NORMAL", "MISSILE", "POPCORN", "CAPPED"],
+    "WEAPON::Weapon": ["BLASTER", "BOUNCER", "ICE", "SEEKER", "RF", "TOASTER", "TNT", "GUN8", "GUN9", "CURRENT"],
     "STRING::Alignment": ["DEFAULT", "LEFT", "CENTER", "RIGHT"],
     "STRING::SignTreatment": ["HIDESIGN", "DISPLAYSIGN", "SPECIALSIGN"],
     "TEAM::COLOR": ["NEUTRAL", "BLUE", "RED", "GREEN", "YELLOW"],
+    "TEAM::Color": ["NEUTRAL", "BLUE", "RED", "GREEN", "YELLOW"],
     "AIR::Jump": ["NONE", "HELICOPTER", "DOUBLEJUMP"],
-    "GROUND::Jump": ["JAZZ", "SPAZ", "LORI", "CROUCH", "JUMP"]
+    "GROUND::Jump": ["JAZZ", "SPAZ", "LORI", "CROUCH", "JUMP"],
+    "TIMER::State": ["STOPPED", "STARTED", "PAUSED"],
+    "SPRITE::Direction": ["FLIPNONE", "FLIPH", "FLIPV", "FLIPHV"],
+    "GAME::Connection": ["LOCAL", "ONLINE", "LAN"],
+    "GAME::Custom": ["NOCUSTOM", "RT", "LRS", "XLRS", "PEST", "TB", "JB", "DCTF", "FR", "TLRS", "DOM", "HEAD"],
+    "GAME::Mode": ["SP", "COOP", "BATTLE", "CTF", "TREASURE", "RACE"],
+    "GAME::State": ["STOPPED", "STARTED", "PAUSED", "PREGAME", "OVERTIME"],
 }
 
 function findNextDD(element, startIndex) {
@@ -172,6 +180,7 @@ function getItems(rootTableElement) {
 let output = {}
 
 rootTables.forEach(x => output[x] = getItems(document.getElementById(x)));
+output["enums"] = ENUM_ARRAY;
 
 function createAndDownloadJSON() {
     const jsonData = JSON.stringify(output, null, 4);
