@@ -12179,6 +12179,14 @@
             "PAUSED",
             "PREGAME",
             "OVERTIME"
+        ],
+        "SHIELD::Shield": [
+            "FIRE",
+            "BUBBLE",
+            "WATER",
+            "LIGHTNING",
+            "PLASMA",
+            "LASER"
         ]
     }
 }

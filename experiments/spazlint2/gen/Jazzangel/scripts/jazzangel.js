@@ -46,6 +46,7 @@ var ENUM_ARRAY = {
     "GAME::Custom": ["NOCUSTOM", "RT", "LRS", "XLRS", "PEST", "TB", "JB", "DCTF", "FR", "TLRS", "DOM", "HEAD"],
     "GAME::Mode": ["SP", "COOP", "BATTLE", "CTF", "TREASURE", "RACE"],
     "GAME::State": ["STOPPED", "STARTED", "PAUSED", "PREGAME", "OVERTIME"],
+    "SHIELD::Shield": ["FIRE", "BUBBLE", "WATER", "LIGHTNING", "PLASMA", "LASER"],
 }
 
 function findNextDD(element, startIndex) {

@@ -4,6 +4,7 @@
 #pragma name "Custom HUD"
 #pragma require "STVutil.asc"
 
+#include "../../experiments/spazlint2/include/as.predefined"
 #include "STVutil.asc"
 #include "STVmenu.asc"
 

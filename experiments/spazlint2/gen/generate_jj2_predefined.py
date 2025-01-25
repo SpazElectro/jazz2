@@ -38,9 +38,26 @@ def process_full(full: str, attributes: List[dict]) -> str:
         rtype = full.split(" ")[0]
         if rtype == "const":
             rtype = full.split(" ")[1]
-        # rtype somevar[] -> array<rtype> somevar
-        full = full.replace(f"{rtype} ", f"array<{rtype}> ")
-        full = full.split("[")[0]
+        # rtype somevar[length-or-indexing-type] -> fakearray<returns, indexing> somevar
+        
+        indextype = full.split("[")[1].split("]")[0]
+        if indextype.startswith("0x"):
+            indextype = "length"
+        # if indextype can be parsed into an int, then this is length!
+        try:
+            int(indextype)
+            indextype = "length"
+        except ValueError:
+            pass
+        if indextype == "length":
+            # should turn into array<jjOBJ@> jjObjects = array<int>(length)
+            # instead of array<jjOBJ@> jjObjects(4096)
+            full = full.replace(f"{rtype} ", f"array<{rtype}> ")
+            full = full.split("[")[0] + f" = array<{rtype}>({full.split('[')[1].split(']')[0]})"
+        else:
+            full = full.replace(f"{rtype} ", f"fakearray<{rtype}, {indextype}> ")
+            full = full.split("[")[0]
+        
     full = full.replace(" &in", "").replace(" &out", "")
     full = full.replace("jjBEHAVIOR", "BEHAVIOR::Behavior")
     return full + ";"
@@ -111,24 +128,24 @@ for dump in api.keys():
             if len(itm["full"].split()) == 1:
                 full = f"{desc}int {processed} // (unknown type)"
         if dump == "jjSTREAMList":
-            # if the itm name is "push" or "pop", inject different push methods because of T
-            if itm["name"] == "push":
-                full = "void push(int value);\n"
-                full += "\tvoid push(float value);\n"
-                full += "\tvoid push(string& value);"
-            if itm["name"] == "pop":
-                full = "int pop();\n"
-                full += "\tfloat pop();\n"
-                full += "\tstring pop();"
-        
-        if full in ddump:
-            continue
-        ddump.append(full)
+            if itm["name"] == "push" or itm["name"] == "pop":
+                # if the itm name is "push" or "pop", inject different push methods because of T
+                data_types = ["int", "float", "string", "bool"]
+
+                full = f"void {itm['name']}({data_types[0]} value);\n"
+                for dt in data_types[1:]:
+                    full += f"\tvoid {itm['name']}({dt} value);\n"
+        if itm["type"] == "property":
+            if itm["name"] in ddump:
+                continue
+            ddump.append(itm["name"])
         output += f"    {full}\n"
     
     # more stupid hacks
     if dump == "jjPALCOLORList":
         output += f"\tjjPALCOLOR(int r, int g, int b);\n"
+    elif dump == "jjSTREAMList":
+        output += f"\tjjSTREAM();\n\tjjSTREAM(const string &in filename);\n"
 
     output += f"}};\n"
 
@@ -137,9 +154,13 @@ for dump in api.keys():
     if dump == "eventsList" or dump == "globalpropertiesList" or dump == "globalfunctionsList":
         for itm in api[dump]:
             full = process_full(itm["full"], itm["attributes"])
-            if full in defined:
-                continue
-            defined.append(full)
+            if itm["type"] == "property":
+                if itm["name"] in defined:
+                    continue
+                defined.append(itm["name"])
+            if itm["name"] == "jjObjects":
+                # hack to manuever "jjObjectMax is not a type"
+                full = f"array<jjOBJ@> jjObjects = array<jjOBJ@>(4096);"
             output += f"/* {better_description(itm['description'], 0)}*/\n{full}\n"
 
 with open("predefined/jj2.predefined", "w") as f:

@@ -20,6 +20,9 @@ class array<T>{
 	int find(uint startAt, const T& in);
 	int findByRef(const T& in);
 	int findByRef(uint startAt, const T& in);
+	
+	array();
+	array(uint size);
 };
 class dictionary{
 	void set(const string &in key, ? &in value);
@@ -34,6 +37,11 @@ class dictionary{
 	void deleteAll();
 	bool isEmpty() const;
 	uint getSize() const;
+
+	dictionaryValue@ opIndex(const string &in key) const;
+	void opIndexAssign(const string &in key, const dictionaryValue &in value);
+
+	dictionary();
 }
 class dictionaryValue{}
 class string {
@@ -50,22 +58,21 @@ class string {
     int findLastOf(const string &in chars, int start = -1) const;
     int findLastNotOf(const string &in chars, int start = -1) const;
     array<string>@ split(const string &in delimiter) const;
+
+	string& opAddAssign(int);
+	string& opAddAssign(double);
+	string& opAddAssign(float);
+	string& opAddAssign(string);
 };
-class any{
-	//The default constructor creates an empty object, and the second initializes the object with the provided value.
-	//The int64 and double overloads make sure that all numbers are converted to 64bit before being stored in the object.
+class any {
 	any();
 	any(? &in value);
 	any(int64 &in value);
 	any(double &in value);
-	//The assignment operator will copy the contained value from the other object.
 	any &opAssign(const any &in other);
-	//These methods sets the value in the object.
-	//The int64 and double overloads make sure that all numbers are converted to 64bit before being stored in the object.
 	void store(? &in value);
 	void store(int64 &in value);
 	void store(double &in value);
-	//These methods retrieve the value stored in the object. The methods will return true if the stored value is compatible with the requested type.
 	bool retrieve(? &out value) const;
 	bool retrieve(int64 &out value) const;
 	bool retrieve(double &out value) const;
@@ -78,3 +85,24 @@ double parseFloat(const string &in, uint &out byteCount = 0);
 string formatInt(int64 val, const string &in options = '', uint width = 0);
 string formatUInt(uint64 val, const string &in options = '', uint width = 0);
 string formatFloat(double val, const string &in options = '', uint width = 0, uint precision = 0);
+
+class fakearray<P, V> {
+	V opIndex(P index) const;
+	void opIndexAssign(V index, P value);
+	
+	// We can't use V because the parser is broken
+	void opAssign(V b);
+
+	void opAssign(string b);
+	void opAssign(int b);
+	void opAssign(float b);
+};
+
+// int ammo[WEAPON::Weapon]
+fakearray<int, string> ammo;
+void main() {
+	ammo[2] = "hello";
+	
+	string v = ammo[2];
+
+}

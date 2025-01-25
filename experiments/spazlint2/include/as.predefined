@@ -1,4 +1,4 @@
-// Generated on 2025-01-25 15:38:42.997399
+// Generated on 2025-01-25 16:48:40.059368
 
 class ref{}
 funcdef bool less(const ?&in a, const ?&in b);
@@ -21,6 +21,9 @@ class array<T>{
 	int find(uint startAt, const T& in);
 	int findByRef(const T& in);
 	int findByRef(uint startAt, const T& in);
+	
+	array();
+	array(uint size);
 };
 class dictionary{
 	void set(const string &in key, ? &in value);
@@ -35,6 +38,11 @@ class dictionary{
 	void deleteAll();
 	bool isEmpty() const;
 	uint getSize() const;
+
+	dictionaryValue@ opIndex(const string &in key) const;
+	void opIndexAssign(const string &in key, const dictionaryValue &in value);
+
+	dictionary();
 }
 class dictionaryValue{}
 class string {
@@ -51,22 +59,21 @@ class string {
     int findLastOf(const string &in chars, int start = -1) const;
     int findLastNotOf(const string &in chars, int start = -1) const;
     array<string>@ split(const string &in delimiter) const;
+
+	string& opAddAssign(int);
+	string& opAddAssign(double);
+	string& opAddAssign(float);
+	string& opAddAssign(string);
 };
-class any{
-	//The default constructor creates an empty object, and the second initializes the object with the provided value.
-	//The int64 and double overloads make sure that all numbers are converted to 64bit before being stored in the object.
+class any {
 	any();
 	any(? &in value);
 	any(int64 &in value);
 	any(double &in value);
-	//The assignment operator will copy the contained value from the other object.
 	any &opAssign(const any &in other);
-	//These methods sets the value in the object.
-	//The int64 and double overloads make sure that all numbers are converted to 64bit before being stored in the object.
 	void store(? &in value);
 	void store(int64 &in value);
 	void store(double &in value);
-	//These methods retrieve the value stored in the object. The methods will return true if the stored value is compatible with the requested type.
 	bool retrieve(? &out value) const;
 	bool retrieve(int64 &out value) const;
 	bool retrieve(double &out value) const;
@@ -80,6 +87,26 @@ string formatInt(int64 val, const string &in options = '', uint width = 0);
 string formatUInt(uint64 val, const string &in options = '', uint width = 0);
 string formatFloat(double val, const string &in options = '', uint width = 0, uint precision = 0);
 
+class fakearray<P, V> {
+	V opIndex(P index) const;
+	void opIndexAssign(V index, P value);
+	
+	// We can't use V because the parser is broken
+	void opAssign(V b);
+
+	void opAssign(string b);
+	void opAssign(int b);
+	void opAssign(float b);
+};
+
+// int ammo[WEAPON::Weapon]
+fakearray<int, string> ammo;
+void main() {
+	ammo[2] = "hello";
+	
+	string v = ammo[2];
+
+}
 // any T;
 // typedef jjBEHAVIOR = BEHAVIOR::BEHAVIOR;
 
@@ -87,7 +114,7 @@ funcdef void jjVOIDFUNC();
 funcdef void jjVOIDFUNCPLAYER(jjPLAYER@ player);
 
 shared interface jjPUBLICINTERFACE {}
-// This file was automatically generated at 2025-01-25 15:37:46.945119
+// This file was automatically generated at 2025-01-25 16:48:39.470301
 
 
 namespace CREATOR {
@@ -2729,6 +2756,23 @@ namespace GAME {
     const auto PREGAME = State::PREGAME;
     const auto OVERTIME = State::OVERTIME;
 };
+namespace SHIELD {
+    enum Shield {
+        FIRE,
+        BUBBLE,
+        WATER,
+        LIGHTNING,
+        PLASMA,
+        LASER,
+    };
+    // Aliases
+    const auto FIRE = Shield::FIRE;
+    const auto BUBBLE = Shield::BUBBLE;
+    const auto WATER = Shield::WATER;
+    const auto LIGHTNING = Shield::LIGHTNING;
+    const auto PLASMA = Shield::PLASMA;
+    const auto LASER = Shield::LASER;
+};
 
 class jjPLAYER {
     /*
@@ -2745,7 +2789,7 @@ class jjPLAYER {
 	online servers. To remedy this, hide some such ammo-providing event somewhere in
 	the level, or else set their allowed properties to true in the jjWeapons array.	
 	*/
-	array<int> ammo;
+	fakearray<int, WEAPON::Weapon> ammo;
     /*
 	Whether the player falls up (true) or down (false). Also causes the player to be
 	drawn upside-down. (For the record, this mode is still a work-in-progress. A
@@ -2915,7 +2959,7 @@ class jjPLAYER {
 	How many gems the player has collected. Possible values of GEM::Color are
 	GEM::RED, GEM::GREEN, GEM::BLUE, and GEM::PURPLE.	
 	*/
-	array<int> gems;
+	fakearray<int, GEM::Color> gems;
     /*
 	How many hearts the player has remaining. If you set this in an online server,
 	all other players will be notified of the change.	
@@ -3082,7 +3126,7 @@ class jjPLAYER {
 	lapsï¿½the value will be -1. Undefined for other modes or for players for
 	whom isLocal is false.	
 	*/
-	const array<int> lapTimes;
+	const array<int> lapTimes = array<int>(5);
     /*
 	The intensity of light emitted by the player. Changes to this setting are
 	automatically shared between all clients in the server.	
@@ -3157,7 +3201,7 @@ class jjPLAYER {
 	online servers. To remedy this, hide powerup events somewhere in the level, or
 	else set their allowedPowerup properties to true in the jjWeapons array.	
 	*/
-	array<bool> powerup;
+	fakearray<bool, WEAPON::Weapon> powerup;
     /*
 	In competitive game modes, how many kills the player made or a negative value if
 	unknown (this is currently the case when the property is checked by clients in
@@ -4013,7 +4057,7 @@ class jjOBJ {
 	constantly increment it, and a bullet cannot ricochet if the value is less than
 	8.	
 	*/
-	array<int> var;
+	array<int> var = array<int>(11);
     /*
 	Horizontal acceleration in pixels per game tick squared, positive or negative.	
 	*/
@@ -4781,12 +4825,26 @@ class jjSTREAM {
 	Returns whether the stream is empty, i.e. whether getSize() == 0.	
 	*/
 	bool isEmpty() const;
-    int pop();
-	float pop();
-	string pop();
+    void pop(int value);
+	void pop(float value);
+	void pop(string value);
+	void pop(bool value);
+
     void push(int value);
 	void push(float value);
-	void push(string& value);
+	void push(string value);
+	void push(bool value);
+
+    void push(int value);
+	void push(float value);
+	void push(string value);
+	void push(bool value);
+
+    void push(int value);
+	void push(float value);
+	void push(string value);
+	void push(bool value);
+
     /*
 	Saves contents of the stream to file filename and returns whether successful.
 	There are several limits to this method. The file cannot be saved in any
@@ -4815,6 +4873,8 @@ class jjSTREAM {
 	is always true.	
 	*/
 	bool write(const jjSTREAM value);
+	jjSTREAM();
+	jjSTREAM(const string &in filename);
 };
 
 class jjRNG {
@@ -4839,7 +4899,7 @@ class jjPAL {
 	are listed below this section, though most basically you just use their
 	properties red, green, and blue.	
 	*/
-	array<jjPALCOLOR> color;
+	array<jjPALCOLOR> color = array<jjPALCOLOR>(256);
     /*
 	Causes the contents of this jjPAL object to be the current colors in use by the
 	game, and by extension jjPalette. Note that this function does a fair bit of
@@ -6024,7 +6084,7 @@ class jjPLAYERDRAW {
 	jjPLAYER::shieldType, the player is non-local or jjPLAYER::shieldTime is greater
 	than -128, and jjPLAYER::frozen is 0.	
 	*/
-	array<bool> shield;
+	fakearray<bool, SHIELD::Shield> shield;
     /*
 	Determines whether the player sprite should be drawn at all. By default, usually
 	true but sometimes false when the player is flashing from being hurt or from
@@ -6596,14 +6656,14 @@ const bool jjAllowsWalljump;
 const bool jjAlwaysRunning;
 /* Animated tiles defined by the level. For every tileID,jjAnimatedTiles[tileID] is
 jjTiles[tileID | TILE::ANIMATED]. See also jjTiles.*/
-array<jjTILE@> jjAnimatedTiles;
+array<jjTILE@> jjAnimatedTiles = array<jjTILE@>(0x10000);
 /* Loaded animations. See the jjANIMATION class description for more information.*/
-array<jjANIMATION@> jjAnimations;
+array<jjANIMATION@> jjAnimations = array<jjANIMATION@>(1500);
 /* Loaded animation frames. See the jjANIMFRAME class description for more
 information.*/
-array<jjANIMFRAME@> jjAnimFrames;
+array<jjANIMFRAME@> jjAnimFrames = array<jjANIMFRAME@>(15000);
 /* Loaded animation sets. See the jjANIMSET class description for more information.*/
-array<jjANIMSET@> jjAnimSets;
+fakearray<jjANIMSET@, ANIM::Set> jjAnimSets;
 /* Whether automatic weapon change is locally enabled, as set by the /weaponchange
 command.*/
 const bool jjAutoWeaponChange;
@@ -6634,12 +6694,12 @@ jjPLAYER@ jjBottomFeeder;
 /* Character profiles. Use either CHAR::JAZZ, CHAR::SPAZ, CHAR::LORI, CHAR::BIRD,
 CHAR::FROG or CHAR::BIRD2 as an index. Refer to the jjCHARACTER section for more
 information.*/
-array<jjCHARACTER@> jjCharacters;
+fakearray<jjCHARACTER@, CHAR::Char> jjCharacters;
 /* Color depth in bits per pixel. Either 8 or 16.*/
 const int jjColorDepth;
 /* An array containing all Domination control points in the level. See the
 jjCONTROLPOINT section for further details.*/
-const array<jjCONTROLPOINT@> jjControlPoints;
+const array<jjCONTROLPOINT@> jjControlPoints = array<jjCONTROLPOINT@>(16);
 /* When the player dies in Single Player mode, this property is set to true before
 all jjOBJs have their state property set to DEACTIVATE. Since DEACTIVATE is also
 used for when an object goes too far off-screen, this property is how to
@@ -6688,10 +6748,10 @@ int jjEcho;
 jjEnabledASFunctions[#] bool for that Text event's TextID value will be set to
 false and the corresponding onFunction# will be uncallable by other Text events
 until the bool is set to true again.*/
-array<bool> jjEnabledASFunctions;
+array<bool> jjEnabledASFunctions = array<bool>(256);
 /* Currently enabled teams. Possible indices are TEAM::BLUE, TEAM::RED,
 TEAM::GREEN, and TEAM::YELLOW.*/
-const array<bool> jjEnabledTeams;
+const fakearray<bool, TEAM::Color> jjEnabledTeams;
 /* This setting defines the minimal ambient lighting options required from the
 game. It will not change game settings if they don't fulfill the requirements
 but it will display lights as if the settings were changed. Allowed values are:
@@ -6733,7 +6793,7 @@ const int jjGameTicks;
 These can be modified but are limited to 511 characters each, so longer strings
 will be truncated. For the standard function to display these strings, see
 showText.*/
-array<string> jjHelpStrings;
+array<string> jjHelpStrings = array<string>(16);
 /* Whether the current game executable is logged in as a Remote Admin in the
 current online server. To check this property for any client in the server, use
 jjPLAYER property isAdmin instead.*/
@@ -6753,7 +6813,7 @@ const bool jjIsTSF;
 to check it, including the left and right mouse buttons. Uses virtual key codes
 for indexation. Note that jjKey[1] and jjKey[2] refer to the primary and
 secondary mouse buttons respectively, rather than left and right.*/
-const array<bool> jjKey;
+const array<bool> jjKey = array<bool>(256);
 /* The current virtual key used to open the chat prompt in a multiplayer game,
 default value 0x54 ('T'). No matter the key (or mouse button), pressing the
 Shift key at the same time will open the chat prompt in Team Chat mode (in CTF
@@ -6762,48 +6822,48 @@ pressing Ctrl+T will always open the chat prompt, even if jjKeyChat is set to 0
 or something similarly inaccessible.*/
 uint8 jjKeyChat;
 /* */
-array<bool> jjLayerHasTiles;
+array<bool> jjLayerHasTiles = array<bool>(8);
 /* */
-const array<int> jjLayerHeight;
+const array<int> jjLayerHeight = array<int>(8);
 /* */
-array<bool> jjLayerLimitVisibleRegion;
+array<bool> jjLayerLimitVisibleRegion = array<bool>(8);
 /* */
-array<bool> jjLayerTileHeight;
+array<bool> jjLayerTileHeight = array<bool>(8);
 /* */
-array<bool> jjLayerTileWidth;
+array<bool> jjLayerTileWidth = array<bool>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-const array<int> jjLayerWidth;
+const array<int> jjLayerWidth = array<int>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-const array<int> jjLayerWidthReal;
+const array<int> jjLayerWidthReal = array<int>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-const array<int> jjLayerWidthRounded;
+const array<int> jjLayerWidthRounded = array<int>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-array<float> jjLayerXAutoSpeed;
+array<float> jjLayerXAutoSpeed = array<float>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-array<float> jjLayerYAutoSpeed;
+array<float> jjLayerYAutoSpeed = array<float>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-array<float> jjLayerXOffset;
+array<float> jjLayerXOffset = array<float>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-array<float> jjLayerYOffset;
+array<float> jjLayerYOffset = array<float>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-array<float> jjLayerXSpeed;
+array<float> jjLayerXSpeed = array<float>(8);
 /* Shortcut global properties for the same-named jjLAYER properties on the
 same-indexed jjLayers objects.*/
-array<float> jjLayerYSpeed;
+array<float> jjLayerYSpeed = array<float>(8);
 /* The original eight layers placed in this level (i.e. jjLevelFileName) in JCS or
 some other level editor, 1-indexed to match the JCS numbers, e.g. jjLayers[4]
 for the main sprite layer or jjLayers[8] for the final background layer,
 regardless of what other code may have done to create new layers or alter their
 order. See the jjLAYER documentation above for further details.*/
-array<jjLAYER@> jjLayers;
+array<jjLAYER@> jjLayers = array<jjLAYER@>(8);
 /* File name of the current level, e.g. castle1.j2l, all lowercase. The file
 extension (.j2l) will be included, but not the folder structure.*/
 const string jjLevelFileName;
@@ -6812,7 +6872,7 @@ string jjLevelName;
 /* The number of local players.*/
 const int jjLocalPlayerCount;
 /* The local players.*/
-const array<jjPLAYER@> jjLocalPlayers;
+const array<jjPLAYER@> jjLocalPlayers = array<jjPLAYER@>(4);
 /* Whether the Low Detail video setting is enabled. When true, only jjLayers[8] and
 layers whose xSpeed/ySpeed both equal exactly 1 and whose
 xSpeedModel/ySpeedModel both equal LAYERSPEEDMODEL::NORMAL will be drawn, and
@@ -6861,20 +6921,20 @@ const int jjObjectMax;
 /* The templates from which each object is built. Tends to contain default xSpeed,
 ySpeed, points, curAnim, and so on. Make changes here in onLevelLoad for maximum
 efficiency.*/
-array<jjOBJ@> jjObjectPresets;
+array<jjOBJ@> jjObjectPresets = array<jjOBJ@>(256);
 /* All the objects currently in memory.*/
-array<jjOBJ@> jjObjects;
+array<jjOBJ@> jjObjects = array<jjOBJ@>(4096);
 /* The current player.*/
 jjPLAYER@ jjP;
 /* The current palette. See the jjPAL documentation above for further details.*/
 jjPAL jjPalette;
 /* All the particles currently in memory. See the jjPARTICLE documentation above
 for further details.*/
-array<jjPARTICLE@> jjParticles;
+array<jjPARTICLE@> jjParticles = array<jjPARTICLE@>(1024);
 /* Doesn't work! Check back later.*/
 const int jjPlayerCount;
 /* All the players in the game, local or otherwise.*/
-const array<jjPLAYER@> jjPlayers;
+const array<jjPLAYER@> jjPlayers = array<jjPLAYER@>(32);
 /* Whether the quirks mode is enabled, as set by the /quirks command.*/
 const bool jjQuirks;
 /* How long the game has been running. Unlike jjGameTicks, jjRenderFrame updates
@@ -6936,7 +6996,7 @@ technical details, but as applied to the list of food events instead.)*/
 bool jjSugarRushAllowed;
 /* Each team's current score in team-based game modes and undefined value in other
 modes. Available indexes are BLUE, RED, GREEN and YELLOW.*/
-const array<int> jjTeamScore;
+const fakearray<int, TEAM::Color> jjTeamScore;
 /* Shortcut global properties for corresponding jjLAYER or jjLAYER::warpHorizon
 properties of the background layer, i.e. jjLayers[8].*/
 float jjTexturedBGFadePositionX;
@@ -6960,16 +7020,16 @@ bool jjTexturedBGUsed;
 usually a multiple of 10. Can be increased using jjTilesFromTileset.*/
 const uint jjTileCount;
 /* Static and animated tiles corresponding to tile IDs. See also jjAnimatedTiles.*/
-const array<jjTILE@> jjTiles;
+const array<jjTILE@> jjTiles = array<jjTILE@>(0x10000);
 /* File name of the tileset used by the current level, e.g. castle1.j2t, all
 lowercase. The file extension (.j2t) will be included, but not the folder
 structure.*/
 const string jjTilesetFileName;
 /* Each tile's tile type: 0 for normal, 1 for translucent, 3 for invisible, and so
 on. Refer to your JCS.ini for the full list.*/
-array<uint8> jjTileType;
+array<uint8> jjTileType = array<uint8>(4096);
 /* The triggers, as set by the Trigger Zone and Trigger Crate events.*/
-array<bool> jjTriggers;
+array<bool> jjTriggers = array<bool>(32);
 /* In Roast Tag game mode, the player who is currently "it" or null if none. For
 the other special role in Roast Tag, see jjBottomFeeder.*/
 jjPLAYER@ jjTokenOwner;
@@ -7028,7 +7088,7 @@ const float jjWaterTarget;
 /* Various properties of the nine different weapons available to a player; see the
 jjWEAPON section. Possible constants appear in the appendix below, or you may
 use simple 1-indexed numbers instead.*/
-array<jjWEAPON> jjWeapons;
+fakearray<jjWEAPON, WEAPON::Weapon> jjWeapons;
 /* The current player; an alias of jjP, and the only property not to begin with the
 jj prefix, provided solely for convenience value.*/
 jjPLAYER@ p;
