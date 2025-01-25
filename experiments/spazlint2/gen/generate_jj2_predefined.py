@@ -2,7 +2,12 @@ import datetime
 import json
 from typing import TypedDict
 from typing import List
-from pprint import pprint as print
+from pprint import pprint
+
+# if the first argument is a string, print it
+# else, use pprint
+oprint = print
+print = lambda *args, **kwargs: oprint(*args, **kwargs) if isinstance(args[0], str) else pprint(*args, **kwargs)
 
 type APIDumpEnums = dict[str, List[str]]
 class APIDumpArgument(TypedDict):
