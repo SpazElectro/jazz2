@@ -1,5 +1,6 @@
+#include "../../experiments/spazlint2/include/as.predefined"
+
 #define DEBUG testmode
-// Built in a $DEBUG$ release
 
 #ifdef DEBUG
 // DEBUG is defined!
@@ -8,19 +9,21 @@ int x = 5;
 
 #ifndef DEBUG
 // DEBUG is not defined!
-int x = 2;
+int xv = 2;
 #endif
 
 #defmacro gaming amount_of_gaming epics
 // this is the gaming macro
-int xy = %amount_of_gaming%; // this has %epics% epics!!!!!!
+int xy = $amount_of_gaming$; // this has $epics$ epics!!!!!!
 int yp = xy*3;
 #enddef
 
 #macro gaming 4 6
 #macro gaming "testing_string" yah 
 
-jjConsole("$DEBUG$");
+void main() {
+    jjConsole("$DEBUG$");
+}
 
 #undef DEBUG
 

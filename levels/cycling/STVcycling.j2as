@@ -72,8 +72,8 @@ void onLevelLoad() {
 	array<uint8> indexMapping;
 
 #defmacro define_color index r g b
-	gamePalette.color[%index%] = jjPALCOLOR(%r%, %g%, %b%);
-	indexMapping.insertLast(%index%);
+	gamePalette.color[$index$] = jjPALCOLOR($r$, $g$, $b$);
+	indexMapping.insertLast($index$);
 #enddef
 
 	// grass

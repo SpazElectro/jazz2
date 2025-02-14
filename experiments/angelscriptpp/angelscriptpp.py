@@ -6,7 +6,7 @@ ANGELSCRIPTPP_VERSION = 1_1_0
 # ```cpp
 # #define awesome void onMain() { jjConsole("OK"); }
 # #{awesome} // turns into `void onMain() { jjConsole("OK"); }`
-# %{awesome} // turns into `"void onMain() { jjConsole("OK"); }"` (quotes)
+# ##{awesome} // turns into `"void onMain() { jjConsole("OK"); }"` (quotes)
 # #asset "theasset.png" // turns into "projectname_theasset.png"
 # ```
 preprocessors = [
@@ -49,6 +49,10 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
         split = line.split(" ")
         preprocessor = split[0]
 
+        if preprocessor == "#include":
+            if line.endswith(".predefined\""):
+                if not optimize_newlines: output += "//\n"
+                continue
         # conditionals
         if preprocessor == "#pragma":
             if split[1] == "region" or split[1] == "endregion":
@@ -116,9 +120,10 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
             assert macros.get(split[1]) != None, "Macro doesn't exist!"
             # assert len(split[2:]) == len(macros[split[1]]["args"]), "Incorrect number of arguments for macro!"
 
+            symbol = "$"
             macro_code: str = macros[split[1]]["code"]
             for i, arg in enumerate(macros[split[1]]["args"]):
-                macro_code = macro_code.replace(f"%{arg}%", split[2:][i])
+                macro_code = macro_code.replace(f"{symbol}{arg}{symbol}", split[2:][i])
             output += macro_code
             if not optimize_newlines: output += "//\n"
             continue
@@ -157,9 +162,10 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
             
             continue
 		# #{__LINE__} for plain text, ${__LINE__} for strings
-        if preprocessor.startswith("#{") or preprocessor.startswith("%{"):
+        if preprocessor.startswith("#{") or preprocessor.startswith("##{"):
             assert "}" in preprocessor, "Not enough arguments!"
-            start_delim = preprocessor[0]
+            # start_delim = preprocessor[0]
+            start_delim = preprocessor[1]
             s = preprocessor.split("{")[1].split("}")[0]
             if s == "__LINE__":
                 defn = str(line_index + 1)
@@ -167,9 +173,9 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
                 defn = definitions.get(s)
             assert defn is not None, f"Definition was not found! definition: {s}"
             remaining = "}".join(line.split("}")[1:])
-            if start_delim == "#":
+            if start_delim == "{":
                 output += f"{defn}{remaining}\n"
-            elif start_delim == "%":
+            elif start_delim == "#":
                 output += f"\"{defn}\"{remaining}\n"
             continue
         # "#error", "#warn", "#info"

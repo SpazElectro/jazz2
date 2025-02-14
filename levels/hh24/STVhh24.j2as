@@ -34,16 +34,16 @@ const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
 #endif
 
 string compiledate = 
-	%{__DATE__};
+	##{__DATE__};
 string compiletime =
-	%{__TIME__};
+	##{__TIME__};
 string compileversion =
-	%{__VERSION__};
+	##{__VERSION__};
 
 jjPIXELMAP@ screen = jjPIXELMAP(1, 1);
 
 #defmacro removeSound the_sound
-jjSampleLoad(SOUND::%the_sound%, "empty.wav");
+jjSampleLoad(SOUND::$the_sound$, "empty.wav");
 #enddef
 
 void onLevelBegin() {
