@@ -55,7 +55,14 @@ def process_full(full: str, attributes: List[dict]) -> str:
             full = full.replace(f"{rtype} ", f"array<{rtype}> ")
             full = full.split("[")[0] + f" = array<{rtype}>({full.split('[')[1].split(']')[0]})"
         else:
-            full = full.replace(f"{rtype} ", f"fakearray<{rtype}, {indextype}> ")
+            othertype = ""
+            prop = full.split("[")[0].split(" ")[1]
+            # TODO don't hardcode this
+            if prop == "powerup" or prop == "ammo":
+                othertype = "uint"
+            if othertype != "":
+                othertype = f", {othertype}"
+            full = full.replace(f"{rtype} ", f"fakearray<{indextype}, {rtype}{othertype}> ")
             full = full.split("[")[0]
         
     full = full.replace(" &in", "").replace(" &out", "")
@@ -132,9 +139,14 @@ for dump in api.keys():
                 # if the itm name is "push" or "pop", inject different push methods because of T
                 data_types = ["int", "float", "string", "bool"]
 
-                full = f"void {itm['name']}({data_types[0]} value);\n"
+                full = f"bool {itm['name']}({data_types[0]} value);\n"
                 for dt in data_types[1:]:
-                    full += f"\tvoid {itm['name']}({dt} value);\n"
+                    full += f"\tbool {itm['name']}({dt} value);\n"
+        if dump == "jjPIXELMAPList":
+            if itm["name"] == "height":
+                # uint8& operator [] (uint x, uint y)
+                # const uint8& operator [] (uint x, uint y) const
+                full = f"uint8& opIndex(uint x, uint y);\n\tconst uint8& opIndex(uint x, uint y);\n\t{full}"
         if itm["type"] == "property":
             if itm["name"] in ddump:
                 continue

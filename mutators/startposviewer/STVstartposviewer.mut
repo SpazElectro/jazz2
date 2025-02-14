@@ -1,4 +1,5 @@
 #pragma name "Startpos Viewer"
+#include "../../experiments/spazlint2/include/as.predefined"
 
 class StartPos
 {

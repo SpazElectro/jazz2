@@ -83,7 +83,9 @@ int snap(int spot) {
     return (spot + gridSize / 2) / gridSize * gridSize;
 }
 
-bool upgraded(jjPLAYER @player, int id) { return player.powerup[id]; }
+bool upgraded(jjPLAYER @player, int id) {
+    return player.powerup[id];
+}
 
 int idToSprite(jjPLAYER@ player, int id)
 {
@@ -511,7 +513,7 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
 
         gridSize = snapping;
 
-        jjConsole("[CH] Grid size has been set to " + snapping + "!");
+        jjConsole("[CH] Grid size has been set to " + formatInt(snapping) + "!");
         
         saveSettings();
 
@@ -591,7 +593,8 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         int xRatio = (jjResolutionWidth / 2) - snap(jjMouseX);
         int yRatio = jjResolutionHeight - snap(jjMouseY);
 
-        if(x + jjGetStringWidth("Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
+        
+        if(x + jjGetStringWidth("Bottom center ratio: " + formatInt(xRatio) + "x" + yRatio, STRING::SMALL, normalTextAppearance) >= jjResolutionWidth) {
             x -= 200;
         }
 
@@ -599,15 +602,15 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
             y += 80;
         }
 
-        canvas.drawString(x, y - 10, "" + snap(jjMouseX) + " - " + snap(jjMouseY), STRING::SMALL);
-        canvas.drawString(x, y - 20, "Ratio: " + (jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
-        canvas.drawString(x, y - 30, "Center ratio: " + xRatio + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
-        canvas.drawString(x, y - 40, "Bottom center ratio: " + xRatio + "x" + yRatio, STRING::SMALL);
+        canvas.drawString(x, y - 10, "" + formatInt(snap(jjMouseX)) + " - " + snap(jjMouseY), STRING::SMALL);
+        canvas.drawString(x, y - 20, "Ratio: " + formatInt(jjResolutionWidth - snap(jjMouseX)) + "x" + (jjResolutionHeight - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 30, "Center ratio: " + formatInt(xRatio) + "x" + ((jjResolutionHeight / 2) - snap(jjMouseY)), STRING::SMALL);
+        canvas.drawString(x, y - 40, "Bottom center ratio: " + formatInt(xRatio) + "x" + yRatio, STRING::SMALL);
     }
 
     if(toggled_on) {
         if(ammoEnabled || locatingItem) {
-            string ammo = player.currWeapon == 1 ? "^" : "" + player.ammo[player.currWeapon];
+            string ammo = player.currWeapon == 1 ? "^" : "" + formatInt(player.ammo[player.currWeapon]);
 
             if((
                 // @ignore-semicolons

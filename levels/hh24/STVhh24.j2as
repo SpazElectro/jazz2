@@ -23,6 +23,8 @@ const bool MLLESetupSuccessful = MLLE::Setup(); ///@MLLE-Generated
 		Space invaders but with Jazz Jackrabbit 2
 		
 */
+#include "../../experiments/spazlint2/include/as.predefined"
+
 #pragma require "STVutil.asc"
 
 #include "STVutil.asc"

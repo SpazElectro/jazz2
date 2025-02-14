@@ -1,4 +1,4 @@
-// This file was automatically generated at 2025-01-25 16:48:39.470301
+// This file was automatically generated at 2025-02-14 13:04:39.542975
 
 #include 'jj2_additional.predefined' // REMOVE_LINE
 
@@ -2116,6 +2116,17 @@ namespace ANIM {
         XTURTLE,
         ZDOG,
         ZSPARK,
+        PLUS_AMMO,
+        PLUS_BETA,
+        PLUS_COMMON,
+        PLUS_CONTINUE,
+        PLUS_FONT,
+        PLUS_MENUFONT,
+        PLUS_REPLACEMENTS,
+        PLUS_RETICLES,
+        PLUS_SCENERY,
+        PLUS_WARP,
+        CUSTOM,
     };
     // Aliases
     const auto AMMO = Set::AMMO;
@@ -2219,6 +2230,17 @@ namespace ANIM {
     const auto XTURTLE = Set::XTURTLE;
     const auto ZDOG = Set::ZDOG;
     const auto ZSPARK = Set::ZSPARK;
+    const auto PLUS_AMMO = Set::PLUS_AMMO;
+    const auto PLUS_BETA = Set::PLUS_BETA;
+    const auto PLUS_COMMON = Set::PLUS_COMMON;
+    const auto PLUS_CONTINUE = Set::PLUS_CONTINUE;
+    const auto PLUS_FONT = Set::PLUS_FONT;
+    const auto PLUS_MENUFONT = Set::PLUS_MENUFONT;
+    const auto PLUS_REPLACEMENTS = Set::PLUS_REPLACEMENTS;
+    const auto PLUS_RETICLES = Set::PLUS_RETICLES;
+    const auto PLUS_SCENERY = Set::PLUS_SCENERY;
+    const auto PLUS_WARP = Set::PLUS_WARP;
+    const auto CUSTOM = Set::CUSTOM;
 };
 namespace COLOR {
     enum Component {
@@ -2658,6 +2680,167 @@ namespace SHIELD {
     const auto PLASMA = Shield::PLASMA;
     const auto LASER = Shield::LASER;
 };
+namespace RABBIT {
+    enum Anim {
+        AIRBOARD,
+        AIRBOARDTURN,
+        BUTTSTOMPLAND,
+        CORPSE,
+        DIE,
+        DIVE,
+        DIVEFIREQUIT,
+        DIVEFIRERIGHT,
+        DIVEUP,
+        EARBRACHIATE,
+        ENDOFLEVEL,
+        FALL,
+        FALLBUTTSTOMP,
+        FALLLAND,
+        FIRE,
+        FIREUP,
+        FIREUPQUIT,
+        FROG,
+        HANGFIREQUIT,
+        HANGFIREREST,
+        HANGFIREUP,
+        HANGIDLE1,
+        HANGIDLE2,
+        HANGINGFIREQUIT,
+        HANGINGFIRERIGHT,
+        HELICOPTER,
+        HELICOPTERFIREQUIT,
+        HELICOPTERFIRERIGHT,
+        HPOLE,
+        HURT,
+        IDLE1,
+        IDLE2,
+        IDLE3,
+        IDLE4,
+        IDLE5,
+        JUMPFIREQUIT,
+        JUMPFIRERIGHT,
+        JUMPING1,
+        JUMPING2,
+        JUMPING3,
+        LEDGEWIGGLE,
+        LIFT,
+        LIFTJUMP,
+        LIFTLAND,
+        LOOKUP,
+        LOOPY,
+        PUSH,
+        QUIT,
+        REV1,
+        REV2,
+        REV3,
+        RIGHTFALL,
+        RIGHTJUMP,
+        ROLLING,
+        RUN1,
+        RUN2,
+        RUN3,
+        SKID1,
+        SKID2,
+        SKID3,
+        SPRING,
+        STAND,
+        STATIONARYJUMP,
+        STATIONARYJUMPEND,
+        STATIONARYJUMPSTART,
+        STONED,
+        SWIMDOWN,
+        SWIMRIGHT,
+        SWIMTURN1,
+        SWIMTURN2,
+        SWIMUP,
+        SWINGINGVINE,
+        TELEPORT,
+        TELEPORTFALL,
+        TELEPORTFALLING,
+        TELEPORTFALLTELEPORT,
+        TELEPORTSTAND,
+        VPOLE,
+    };
+    // Aliases
+    const auto AIRBOARD = Anim::AIRBOARD;
+    const auto AIRBOARDTURN = Anim::AIRBOARDTURN;
+    const auto BUTTSTOMPLAND = Anim::BUTTSTOMPLAND;
+    const auto CORPSE = Anim::CORPSE;
+    const auto DIE = Anim::DIE;
+    const auto DIVE = Anim::DIVE;
+    const auto DIVEFIREQUIT = Anim::DIVEFIREQUIT;
+    const auto DIVEFIRERIGHT = Anim::DIVEFIRERIGHT;
+    const auto DIVEUP = Anim::DIVEUP;
+    const auto EARBRACHIATE = Anim::EARBRACHIATE;
+    const auto ENDOFLEVEL = Anim::ENDOFLEVEL;
+    const auto FALL = Anim::FALL;
+    const auto FALLBUTTSTOMP = Anim::FALLBUTTSTOMP;
+    const auto FALLLAND = Anim::FALLLAND;
+    const auto FIRE = Anim::FIRE;
+    const auto FIREUP = Anim::FIREUP;
+    const auto FIREUPQUIT = Anim::FIREUPQUIT;
+    const auto FROG = Anim::FROG;
+    const auto HANGFIREQUIT = Anim::HANGFIREQUIT;
+    const auto HANGFIREREST = Anim::HANGFIREREST;
+    const auto HANGFIREUP = Anim::HANGFIREUP;
+    const auto HANGIDLE1 = Anim::HANGIDLE1;
+    const auto HANGIDLE2 = Anim::HANGIDLE2;
+    const auto HANGINGFIREQUIT = Anim::HANGINGFIREQUIT;
+    const auto HANGINGFIRERIGHT = Anim::HANGINGFIRERIGHT;
+    const auto HELICOPTER = Anim::HELICOPTER;
+    const auto HELICOPTERFIREQUIT = Anim::HELICOPTERFIREQUIT;
+    const auto HELICOPTERFIRERIGHT = Anim::HELICOPTERFIRERIGHT;
+    const auto HPOLE = Anim::HPOLE;
+    const auto HURT = Anim::HURT;
+    const auto IDLE1 = Anim::IDLE1;
+    const auto IDLE2 = Anim::IDLE2;
+    const auto IDLE3 = Anim::IDLE3;
+    const auto IDLE4 = Anim::IDLE4;
+    const auto IDLE5 = Anim::IDLE5;
+    const auto JUMPFIREQUIT = Anim::JUMPFIREQUIT;
+    const auto JUMPFIRERIGHT = Anim::JUMPFIRERIGHT;
+    const auto JUMPING1 = Anim::JUMPING1;
+    const auto JUMPING2 = Anim::JUMPING2;
+    const auto JUMPING3 = Anim::JUMPING3;
+    const auto LEDGEWIGGLE = Anim::LEDGEWIGGLE;
+    const auto LIFT = Anim::LIFT;
+    const auto LIFTJUMP = Anim::LIFTJUMP;
+    const auto LIFTLAND = Anim::LIFTLAND;
+    const auto LOOKUP = Anim::LOOKUP;
+    const auto LOOPY = Anim::LOOPY;
+    const auto PUSH = Anim::PUSH;
+    const auto QUIT = Anim::QUIT;
+    const auto REV1 = Anim::REV1;
+    const auto REV2 = Anim::REV2;
+    const auto REV3 = Anim::REV3;
+    const auto RIGHTFALL = Anim::RIGHTFALL;
+    const auto RIGHTJUMP = Anim::RIGHTJUMP;
+    const auto ROLLING = Anim::ROLLING;
+    const auto RUN1 = Anim::RUN1;
+    const auto RUN2 = Anim::RUN2;
+    const auto RUN3 = Anim::RUN3;
+    const auto SKID1 = Anim::SKID1;
+    const auto SKID2 = Anim::SKID2;
+    const auto SKID3 = Anim::SKID3;
+    const auto SPRING = Anim::SPRING;
+    const auto STAND = Anim::STAND;
+    const auto STATIONARYJUMP = Anim::STATIONARYJUMP;
+    const auto STATIONARYJUMPEND = Anim::STATIONARYJUMPEND;
+    const auto STATIONARYJUMPSTART = Anim::STATIONARYJUMPSTART;
+    const auto STONED = Anim::STONED;
+    const auto SWIMDOWN = Anim::SWIMDOWN;
+    const auto SWIMRIGHT = Anim::SWIMRIGHT;
+    const auto SWIMTURN1 = Anim::SWIMTURN1;
+    const auto SWIMTURN2 = Anim::SWIMTURN2;
+    const auto SWIMUP = Anim::SWIMUP;
+    const auto SWINGINGVINE = Anim::SWINGINGVINE;
+    const auto TELEPORT = Anim::TELEPORT;
+    const auto TELEPORTFALL = Anim::TELEPORTFALL;
+    const auto TELEPORTFALLING = Anim::TELEPORTFALLING;
+    const auto TELEPORTFALLTELEPORT = Anim::TELEPORTFALLTELEPORT;
+    const auto TELEPORTSTAND = Anim::TELEPORTSTAND;
+    const auto VPOLE = Anim::VPOLE;
+};
 
 class jjPLAYER {
     /*
@@ -2674,7 +2857,7 @@ class jjPLAYER {
 	online servers. To remedy this, hide some such ammo-providing event somewhere in
 	the level, or else set their allowed properties to true in the jjWeapons array.	
 	*/
-	fakearray<int, WEAPON::Weapon> ammo;
+	fakearray<WEAPON::Weapon, int, uint> ammo;
     /*
 	Whether the player falls up (true) or down (false). Also causes the player to be
 	drawn upside-down. (For the record, this mode is still a work-in-progress. A
@@ -2844,7 +3027,7 @@ class jjPLAYER {
 	How many gems the player has collected. Possible values of GEM::Color are
 	GEM::RED, GEM::GREEN, GEM::BLUE, and GEM::PURPLE.	
 	*/
-	fakearray<int, GEM::Color> gems;
+	fakearray<GEM::Color, int> gems;
     /*
 	How many hearts the player has remaining. If you set this in an online server,
 	all other players will be notified of the change.	
@@ -3086,7 +3269,7 @@ class jjPLAYER {
 	online servers. To remedy this, hide powerup events somewhere in the level, or
 	else set their allowedPowerup properties to true in the jjWeapons array.	
 	*/
-	fakearray<bool, WEAPON::Weapon> powerup;
+	fakearray<WEAPON::Weapon, bool, uint> powerup;
     /*
 	In competitive game modes, how many kills the player made or a negative value if
 	unknown (this is currently the case when the property is checked by clients in
@@ -4710,25 +4893,25 @@ class jjSTREAM {
 	Returns whether the stream is empty, i.e. whether getSize() == 0.	
 	*/
 	bool isEmpty() const;
-    void pop(int value);
-	void pop(float value);
-	void pop(string value);
-	void pop(bool value);
+    bool pop(int value);
+	bool pop(float value);
+	bool pop(string value);
+	bool pop(bool value);
 
-    void push(int value);
-	void push(float value);
-	void push(string value);
-	void push(bool value);
+    bool push(int value);
+	bool push(float value);
+	bool push(string value);
+	bool push(bool value);
 
-    void push(int value);
-	void push(float value);
-	void push(string value);
-	void push(bool value);
+    bool push(int value);
+	bool push(float value);
+	bool push(string value);
+	bool push(bool value);
 
-    void push(int value);
-	void push(float value);
-	void push(string value);
-	void push(bool value);
+    bool push(int value);
+	bool push(float value);
+	bool push(string value);
+	bool push(bool value);
 
     /*
 	Saves contents of the stream to file filename and returns whether successful.
@@ -5969,7 +6152,7 @@ class jjPLAYERDRAW {
 	jjPLAYER::shieldType, the player is non-local or jjPLAYER::shieldTime is greater
 	than -128, and jjPLAYER::frozen is 0.	
 	*/
-	fakearray<bool, SHIELD::Shield> shield;
+	fakearray<SHIELD::Shield, bool> shield;
     /*
 	Determines whether the player sprite should be drawn at all. By default, usually
 	true but sometimes false when the player is flashing from being hurt or from
@@ -6264,7 +6447,9 @@ class jjTILE {
 };
 
 class jjPIXELMAP {
-    /*
+    uint8& opIndex(uint x, uint y);
+	const uint8& opIndex(uint x, uint y);
+	/*
 	Dimensions of the map in pixels, set by the map's constructor. These properties
 	are read-only but may be modified using the addBorders, crop, resize, or trim
 	methods, or swapped using the rotate method.	
@@ -6548,7 +6733,7 @@ array<jjANIMATION@> jjAnimations = array<jjANIMATION@>(1500);
 information.*/
 array<jjANIMFRAME@> jjAnimFrames = array<jjANIMFRAME@>(15000);
 /* Loaded animation sets. See the jjANIMSET class description for more information.*/
-fakearray<jjANIMSET@, ANIM::Set> jjAnimSets;
+fakearray<ANIM::Set, jjANIMSET@> jjAnimSets;
 /* Whether automatic weapon change is locally enabled, as set by the /weaponchange
 command.*/
 const bool jjAutoWeaponChange;
@@ -6579,7 +6764,7 @@ jjPLAYER@ jjBottomFeeder;
 /* Character profiles. Use either CHAR::JAZZ, CHAR::SPAZ, CHAR::LORI, CHAR::BIRD,
 CHAR::FROG or CHAR::BIRD2 as an index. Refer to the jjCHARACTER section for more
 information.*/
-fakearray<jjCHARACTER@, CHAR::Char> jjCharacters;
+fakearray<CHAR::Char, jjCHARACTER@> jjCharacters;
 /* Color depth in bits per pixel. Either 8 or 16.*/
 const int jjColorDepth;
 /* An array containing all Domination control points in the level. See the
@@ -6636,7 +6821,7 @@ until the bool is set to true again.*/
 array<bool> jjEnabledASFunctions = array<bool>(256);
 /* Currently enabled teams. Possible indices are TEAM::BLUE, TEAM::RED,
 TEAM::GREEN, and TEAM::YELLOW.*/
-const fakearray<bool, TEAM::Color> jjEnabledTeams;
+const fakearray<TEAM::Color, bool> jjEnabledTeams;
 /* This setting defines the minimal ambient lighting options required from the
 game. It will not change game settings if they don't fulfill the requirements
 but it will display lights as if the settings were changed. Allowed values are:
@@ -6881,7 +7066,7 @@ technical details, but as applied to the list of food events instead.)*/
 bool jjSugarRushAllowed;
 /* Each team's current score in team-based game modes and undefined value in other
 modes. Available indexes are BLUE, RED, GREEN and YELLOW.*/
-const fakearray<int, TEAM::Color> jjTeamScore;
+const fakearray<TEAM::Color, int> jjTeamScore;
 /* Shortcut global properties for corresponding jjLAYER or jjLAYER::warpHorizon
 properties of the background layer, i.e. jjLayers[8].*/
 float jjTexturedBGFadePositionX;
@@ -6973,7 +7158,7 @@ const float jjWaterTarget;
 /* Various properties of the nine different weapons available to a player; see the
 jjWEAPON section. Possible constants appear in the appendix below, or you may
 use simple 1-indexed numbers instead.*/
-fakearray<jjWEAPON, WEAPON::Weapon> jjWeapons;
+fakearray<WEAPON::Weapon, jjWEAPON> jjWeapons;
 /* The current player; an alias of jjP, and the only property not to begin with the
 jj prefix, provided solely for convenience value.*/
 jjPLAYER@ p;

@@ -21,6 +21,8 @@ class array<T>{
 	int findByRef(const T& in);
 	int findByRef(uint startAt, const T& in);
 	
+	T opIndex(uint index) const;
+
 	array();
 	array(uint size);
 };
@@ -63,6 +65,14 @@ class string {
 	string& opAddAssign(double);
 	string& opAddAssign(float);
 	string& opAddAssign(string);
+	string& opAdd_r(int);
+	string& opAdd_r(double);
+	string& opAdd_r(float);
+	string& opAdd_r(string);
+	string& opAdd(int);
+	string& opAdd(double);
+	string& opAdd(float);
+	string& opAdd(string);
 };
 class any {
 	any();
@@ -86,8 +96,10 @@ string formatInt(int64 val, const string &in options = '', uint width = 0);
 string formatUInt(uint64 val, const string &in options = '', uint width = 0);
 string formatFloat(double val, const string &in options = '', uint width = 0, uint precision = 0);
 
-class fakearray<P, V> {
+// P = index type, V = value type
+class fakearray<P, V, T> {
 	V opIndex(P index) const;
+	V opIndex(T index) const;
 	void opIndexAssign(V index, P value);
 	
 	// We can't use V because the parser is broken
@@ -100,9 +112,12 @@ class fakearray<P, V> {
 
 // int ammo[WEAPON::Weapon]
 fakearray<int, string> ammo;
+fakearray<string, bool> powerup;
 void main() {
 	ammo[2] = "hello";
 	
 	string v = ammo[2];
+	
+	powerup["ga"] = true;
 
 }

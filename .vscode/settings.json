@@ -1,10 +1,9 @@
 {
     "rust-analyzer.linkedProjects": ["./experiments/proxy/rewrite/Cargo.toml"],
     "files.associations": {
-        "*.cookmd": "xml",
-        "*.mut": "cpp",
-        "*.asc": "cpp",
-        "*.j2as": "cpp",
+        "*.mut": "angelscript",
+        "*.asc": "angelscript",
+        "*.j2as": "angelscript",
         "atomic": "cpp",
         "memory": "cpp",
         "system_error": "cpp",
