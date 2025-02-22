@@ -1,7 +1,12 @@
+#ifdef IDE
+#include "../../experiments/spazlint2/include/as.predefined"
+#include "../../scripts/HH24savegems.asc"
+#else
 #include "HH24savegems.asc"
+#endif
 
-auto defaultTextAppearance = jjTEXTAPPEARANCE();
-auto selectedAppearance = jjTEXTAPPEARANCE();
+jjTEXTAPPEARANCE defaultTextAppearance = jjTEXTAPPEARANCE();
+jjTEXTAPPEARANCE selectedAppearance = jjTEXTAPPEARANCE();
 int hhTextColorOffset = 0;
 
 // [[ 0 = START, 1 = GEM UPGRADES TOGGLE ]]
@@ -13,6 +18,8 @@ bool prevKeyDown   = false;
 bool prevKeyUp     = false;
 bool prevKeyFire   = false;
 bool prevKeySelect = false;
+
+array<bool> keyStates = array<bool>(256);
 
 void onLevelBegin() {
 	selectedAppearance.pipe    = STRING::SPECIALSIGN;
@@ -74,8 +81,40 @@ void onPlayer(jjPLAYER@ player) {
 	player.ballTime = 1;
 	player.keyJump = player.keyRun = false;
 
+    array<bool> currentKeyStates(256);
+    const array<uint> selectKeys = { 13 };    // Enter key
+    const array<uint> moveUpKeys = { 38 };    // Up arrow
+    const array<uint> moveDownKeys = { 40 };  // Down arrow
+    
+    bool select = false;
+    bool move = false;
+    bool moveDir = false; // false = up, true = down
+    
+    for (uint i = 0; i < 256; i++) {
+        currentKeyStates[i] = jjKey[i];
+    
+        if (!keyStates[i] && currentKeyStates[i]) {
+            if (selectKeys.find(i) >= 0) {
+                select = true;
+            } else if (moveUpKeys.find(i) >= 0) {
+                move = true;
+                moveDir = false;
+            } else if (moveDownKeys.find(i) >= 0) {
+                move = true;
+                moveDir = true;
+            }
+    
+            if (select || move) {
+                keyStates[i] = jjKey[i];
+                break;
+            }
+        }
+    
+        keyStates[i] = jjKey[i];
+    }    
+
     // select
-    if ((player.keyFire && !prevKeyFire) || (player.keySelect && !prevKeySelect)) {
+    if ((player.keyFire && !prevKeyFire) || (player.keySelect && !prevKeySelect) || (select)) {
         if (player.keyFire && !prevKeyFire)
             prevKeyFire = true;
         else
@@ -91,14 +130,14 @@ void onPlayer(jjPLAYER@ player) {
     }
 
     // navigation up and down
-    if (player.keyUp && !prevKeyUp) {
+    if (player.keyUp && !prevKeyUp || (move && !moveDir)) {
         prevKeyUp = true;
         selection -= 1;
         playRandomMenuSound();
         if (selection < 0)
             selection = maxSelection;
     }
-    if (player.keyDown && !prevKeyDown) {
+    if (player.keyDown && !prevKeyDown || (move && moveDir)) {
         prevKeyDown = true;
         selection += 1;
         playRandomMenuSound();
