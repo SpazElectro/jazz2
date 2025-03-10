@@ -1,0 +1,173 @@
+#pragma require "STVutil.asc"
+
+#ifdef IDE
+#include "../../experiments/spazlint2/include/as.predefined"
+#include "../../scripts/STVutil.asc"
+#else
+#include "STVutil.asc"
+#endif
+
+class Chip8Screen {
+	int ON = 16;
+	int OFF = 17;
+
+	jjPIXELMAP@ pixelmap;
+
+	Chip8Screen() {
+		@pixelmap = jjPIXELMAP(64, 32);
+	}
+
+	void resize(uint width, uint height) {
+		@pixelmap = pixelmap.resize(width, height);
+	}
+	void crop(uint a, uint b, uint c, uint d) {
+		@pixelmap = pixelmap.crop(a, b, c, d);
+	}
+	void save(jjANIMFRAME@ frame) {
+		pixelmap.save(frame);
+	}
+	int opIndex(uint x, uint y) {
+		return pixelmap[x, y] == ON ? 1 : 0;
+	}
+	void opIndexAssign(uint8 value, uint x, uint y) {
+		pixelmap[x, y] = (value == 1 ? ON : OFF);
+	}
+	void togglePixel(uint x, uint y) {
+		pixelmap[x, y] = (pixelmap[x, y] == ON ? OFF : ON);
+	}	
+}
+
+class Chip8 {
+    array<uint8> registers = array<uint8>(16);  // 16 general-purpose registers (V0-VF)
+    array<uint8> memory = array<uint8>(4096);   // 4K memory
+    array<uint16> stack = array<uint16>(16);     // Stack for subroutine calls
+    uint16 I;             // Index register
+    uint16 PC;            // Program counter
+    Chip8Screen@ screen;// 64x32 monochrome display
+    uint8 SP;             // Stack pointer
+
+    Chip8() {}
+
+    void reset() {
+        PC = 0x200; // Program starts at 0x200
+        I = 0;
+        SP = 0;
+        for (uint i = 0; i < 16; i++) registers[i] = 0;
+        for (uint i = 0; i < 4096; i++) memory[i] = 0;
+        @screen = Chip8Screen();
+        screen.resize(64, 32);
+        // for (uint i = 0; i < 64 * 32; i++) screen[i] = 0;
+    }
+
+    bool loadROM(const string &in filename) {
+        jjSTREAM stream(filename);
+        if (stream.isEmpty()) {
+            jjConsole("Failed to load ROM: " + filename);
+            return false;
+        }
+
+        uint size = stream.getSize();
+        if (size > 4096 - 0x200) {
+            jjConsole("ROM is too large to fit in memory!");
+            return false;
+        }
+
+        jjSTREAM romData;
+        if (!stream.get(romData, size)) {
+            jjConsole("Failed to read ROM data");
+            return false;
+        }
+
+        for (uint i = 0; i < size; i++) {
+            uint8 byte;
+            if (!romData.pop(byte)) {
+                jjConsole("Error reading byte from ROM stream");
+                return false;
+            }
+            memory[0x200 + i] = byte;
+        }
+
+        jjConsole("ROM loaded successfully!");
+
+		jjConsole("First 10 bytes of ROM:");
+		for (uint i = 0; i < 10; i++) {
+			jjConsole("Byte " + i + ": " + memory[0x200 + i]);
+		}
+
+        return true;
+    }
+
+    void execute(uint16 opcode) {
+        uint X = (opcode >> 8) & 0xF;
+        uint Y = (opcode >> 4) & 0xF;
+        uint N = opcode & 0xF;
+        uint NN = opcode & 0xFF;
+        uint NNN = opcode & 0xFFF;
+
+        switch (opcode & 0xF000) {
+            case 0x0000:
+                if (opcode == 0x00E0) { // CLS - Clear Screen
+					@screen = Chip8Screen();
+                }
+                break;
+            case 0x1000: // 1NNN - Jump to address NNN
+                PC = (NNN - 2);
+                break;
+            case 0x6000: // 6XNN - Set VX to NN
+                registers[X] = NN;
+                break;
+            case 0x7000: // 7XNN - Add NN to VX (without carry)
+                registers[X] += NN;
+                break;
+            case 0xA000: // ANNN - Set I to NNN
+                I = NNN;
+                break;
+			case 0xD000: { // DXYN - Draw sprite at (VX, VY) with height N
+                uint x = registers[X] % 64;
+                uint y = registers[Y] % 32;
+                registers[0xF] = 0; // Reset VF (collision flag)
+
+                for (uint row = 0; row < N; row++) {
+                    uint8 pixel = memory[I + row];
+                    for (uint col = 0; col < 8; col++) {
+                        if ((pixel & (0x80 >> col)) != 0) {
+                            uint px = (x + col) % 64;
+                            uint py = (y + row) % 32;
+
+                            if (screen[px, py] == 1) registers[0xF] = 1; // Collision
+                            screen.togglePixel(px, py);
+                        }
+                    }
+                }
+                break;
+            }
+            default:
+                jjConsole("Unknown opcode: " + opcode);
+                break;
+        }
+    }
+
+	void cycle() {
+		uint16 opcode = (memory[PC] << 8) | memory[PC + 1];
+		execute(opcode);
+		PC += 2;
+	}
+}
+
+Chip8 cpu = Chip8();
+
+void onLevelLoad() {
+	cpu.reset();
+    cpu.loadROM("STVchip8_IBM.asdat");
+}
+
+void onMain() {
+    cpu.cycle();
+	cpu.screen.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame]);
+}
+
+bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
+	canvas.drawSprite(25, 25, ANIM::CUSTOM[0], 0, 0);
+
+	return false;
+}

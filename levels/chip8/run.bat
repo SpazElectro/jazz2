@@ -9,12 +9,14 @@ for /f "tokens=1* delims==" %%a in ('type "..\..\run.ini" ^| find "="') do (
 echo Copying files...
 copy "../../scripts/" "%GAME_DIRECTORY%" /y
 
-for %%i in (*.j2l *.j2t *.asdat) do (
+for %%i in (*.j2l *.j2t) do (
   copy "%%i" "%GAME_DIRECTORY%" /y
 )
-
+for %%i in (./assets/*.*) do (
+  copy ".\assets\%%i" "%GAME_DIRECTORY%\STVchip8_%%i" /y
+)
 for %%i in (*.j2as *.mut *.asc) do (
-  python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i" -P "3Dlevel"
+  python ../../experiments/angelscriptpp/angelscriptpp.py "%%i" "%GAME_DIRECTORY%\%%i" -P "STVchip8"
 )
 
 set "J2L_LEVEL="

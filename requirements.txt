@@ -3,3 +3,4 @@ pick
 pydirectinput
 jsonc-parser
 prodict
+windows-curses
