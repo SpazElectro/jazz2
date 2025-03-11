@@ -57,7 +57,7 @@ class Chip8Screen {
 class Chip8 {
     array<uint8> registers = array<uint8>(16); // 16 general-purpose registers (V0-VF)
     array<uint8> memory = array<uint8>(4096); // 4K memory
-    array<uint16> stack = array<uint16>(16); // Stack for subroutine calls
+    array<uint16> stack = array<uint16>(0); // Stack for subroutine calls
     uint16 I; // Index register
     uint16 PC; // Program counter
     Chip8Screen@ screen; // 64x32 monochrome display
@@ -113,7 +113,6 @@ class Chip8 {
         for (uint x = 0; x < 64; x++)
             for (uint y = 0; y < 32; y++)
                 screen.pixelmap[x, y] = screen.OFF;
-        jjConsole("Reset!");
     }
 
     void updateTimers() {
