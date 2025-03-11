@@ -2,23 +2,172 @@
 
 #include "../../experiments/spazlint2/include/as.predefined"
 #include "../../scripts/STVchip8.asc"
+#include "../../scripts/STVutil.asc"
 
-const int INSTRUCTIONS_PER_TICK = 5;
+const int ROMS_PER_PAGE = 12;
+int INSTRUCTIONS_PER_TICK = 5;
 
 Chip8 cpu = Chip8();
 bool cpuOn = false;
 
-void onLevelLoad() {
-    cpu.reset();
+array<string> roms = array<string>();
+uint selectedRom = 0;
+uint currentPage = 0;
+uint ROMS_FILE_VERSION = 001;
 
-    string romName = "PongAlt";
-    if (!cpu.loadROM("STVchip8_"+romName+".asdat"))
-        cpu.halted = true;
-    else
-        cpuOn = true;
+string runningROM = "";
+
+bool isChatOpen = false;
+
+void loadROMS() {
+    jjSTREAM@ romsStream = jjSTREAM("STVchip8_roms.asdat");
+    bool success = true;
+
+    uint version;
+    if (romsStream.pop(version)) {
+        if (version != ROMS_FILE_VERSION) {
+            jjConsole("ROMs file version mismatch, script may error!");
+        }
+        uint count;
+        if (romsStream.pop(count)) {
+            roms.resize(count);
+            for (uint i = 0; i < roms.length() && success; i++) {
+                success = romsStream.pop(roms[i]);
+            }
+        } else {
+            success = false;
+        }
+    } else {
+        success = false;
+    }
+    
+    if (!success) {
+        roms = array<string>();
+        roms.insertLast("STVchip8_Breakout.asdat");
+        roms.insertLast("STVchip8_IBM.asdat");
+        roms.insertLast("STVchip8_ParticleDemo.asdat");
+        roms.insertLast("STVchip8_SpaceInvaders.asdat");
+        roms.insertLast("STVchip8_ZeroDemo.asdat");
+        roms.insertLast("STVchip8_Brix.asdat");
+        roms.insertLast("STVchip8_PongAlt.asdat");
+        roms.insertLast("STVchip8_Stars.asdat");
+        roms.insertLast("STVchip8_Chip8Picture.asdat");
+        roms.insertLast("STVchip8_keypadtest.asdat");
+        roms.insertLast("STVchip8_RNDtest.asdat");
+        roms.insertLast("STVchip8_testopcodes.asdat");
+        roms.insertLast("STVchip8_Clock.asdat");
+        roms.insertLast("STVchip8_Maze.asdat");
+        roms.insertLast("STVchip8_Sierpinski.asdat");
+        roms.insertLast("STVchip8_Tetris.asdat");
+        roms.insertLast("STVchip8_DelayTimerTest.asdat");
+        roms.insertLast("STVchip8_MazeAlt.asdat");
+        roms.insertLast("STVchip8_Sirpinski.asdat");
+        roms.insertLast("STVchip8_Trip8Demo.asdat");
+    }
+}
+
+void saveROMS() {
+    jjSTREAM@ romsStream = jjSTREAM();
+    romsStream.push(ROMS_FILE_VERSION);
+    romsStream.push(roms.length());
+    for (uint i = 0; i < roms.length(); i++) romsStream.push(roms[i]);
+    romsStream.save("STVchip8_roms.asdat");
+}
+
+void onLevelLoad() {
+    loadROMS();
+    saveROMS();
+
+    cpu.reset();
+    
+    keyPressCallbacks.insertLast(function(uint key) {
+        if (key == jjKeyChat) {
+            isChatOpen = true;
+        } else if (key == getKeyById("Escape").code) {
+            isChatOpen = false;
+        } else if (key == getKeyById("Enter").code) {
+            if (isChatOpen) {
+                isChatOpen = false;
+                return;
+            }
+        }
+
+        if (cpuOn) {
+            if (!isChatOpen) {
+                if (key == getKeyById("P").code) {
+                    cpu.reset();
+                    cpuOn = false;
+                } else if (key == getKeyById("O").code) {
+                    cpu.reset();
+                    if (cpu.loadROM(runningROM))
+                        cpuOn = true;
+                    else
+                        cpuOn = false;
+                }
+            }
+            return;
+        }
+        if (key == getKeyById("Left").code && !isChatOpen)
+            if (currentPage > 0)
+                currentPage--;
+            else
+                currentPage = (roms.length() - 1) / ROMS_PER_PAGE;
+        else if (key == getKeyById("Right").code && !isChatOpen)
+            if ((currentPage + 1) * ROMS_PER_PAGE < roms.length())
+                currentPage++;
+            else
+                currentPage = 0;
+        else if (key == getKeyById("Up").code && !isChatOpen) 
+            if (selectedRom > 0) 
+                 selectedRom--;
+            else {}
+        else if (key == getKeyById("Down").code && !isChatOpen)
+            if (selectedRom + 1 > roms.length())
+                 selectedRom = 0;
+            else selectedRom++;
+        else if (key == getKeyById("Enter").code) {
+            string romName = roms[selectedRom];
+            jjConsole("Loading " + romName + "...");
+            runningROM = romName;
+            cpu.reset();
+            if (cpu.loadROM(romName))
+                cpuOn = true;
+        }
+
+        selectedRom = currentPage * ROMS_PER_PAGE + (selectedRom % ROMS_PER_PAGE);
+        selectedRom = min(selectedRom, roms.length() - 1);
+    });
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+    if (chatType == CHAT::NORMAL) {
+        if (stringReceived.findFirst(".asdat") >= 0) {
+            if (stringReceived.findFirst("delete ") == 0) {
+                jjConsole("Deleted " + stringReceived.substr(7) + "!");
+                roms.removeAt(roms.find(stringReceived.substr(7)));
+                selectedRom = currentPage * ROMS_PER_PAGE + (selectedRom % ROMS_PER_PAGE);
+                selectedRom = min(selectedRom, roms.length() - 1);
+                saveROMS();
+                return true;
+            }
+            roms.insertLast(stringReceived);
+            saveROMS();
+            return true;
+        } else if (toLowerCase(stringReceived).findFirst("ipt ") == 0) {
+            int ipt = parseInt(stringReceived.substr(4));
+            jjConsole("IPT has been set to: " + ipt);
+
+            INSTRUCTIONS_PER_TICK = ipt;
+            
+            return true;
+        }
+    }
+    return false;
 }
 
 void onMain() {
+    updateKeys();
+
     for (uint i = 0; i < 9; i++)
         jjLocalPlayers[1].ammo[i] = 99; // prevent yucky no ammo sound
     
@@ -31,11 +180,25 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     if (cpuOn)
         cpu.draw(canvas);
     else {
-        // draw main menu selection
-        // use CH8Roms.asdat as array of roms
-        // press P to pause CPU
-        // press O to return to main menu
+        canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 47);
+        canvas.drawString(30, 20, "#ROM Selector", STRING::LARGE);
+        canvas.drawString(30, 65, "Use LEFT/RIGHT keys to change pages", STRING::MEDIUM);
+        canvas.drawString(30, 95, "Send a ROM's name in the chat to add it to the list!", STRING::SMALL);
+        canvas.drawString(30, 110, "Send 'delete ' before the ROM's name in the chat to delete it from the list!");
+        canvas.drawString(30, 125, "Press P to return to ROM selection!");
+
+        uint startIdx = currentPage * ROMS_PER_PAGE;
+        uint endIdx = min(startIdx + ROMS_PER_PAGE, roms.length());
         
+        for (uint i = startIdx; i < endIdx; i++) {
+            string goodRomName = roms[i];
+            goodRomName = removePrefix(goodRomName, "STVchip8_");
+            goodRomName = removeSuffix(goodRomName, ".asdat");
+            canvas.drawString(40, 160 + ((i - startIdx) * 30), (selectedRom == i ? "#" : "") + "- " + goodRomName, STRING::MEDIUM, (selectedRom == i ? STRING::SPIN : STRING::NORMAL));
+        }
+        
+        canvas.drawString(30, jjResolutionHeight - 50, "Page: " + (currentPage + 1) + "/" + ((roms.length() + ROMS_PER_PAGE - 1) / ROMS_PER_PAGE), STRING::MEDIUM, STRING::SPIN);
+        canvas.drawString(30, jjResolutionHeight - 20, roms[selectedRom], STRING::SMALL);
     }
 
     return true;
