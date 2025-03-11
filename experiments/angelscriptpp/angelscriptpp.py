@@ -53,6 +53,10 @@ def process(source_code: str, project_name: str | None = None, file_name: str | 
             if line.endswith(".predefined\""):
                 if not optimize_newlines: output += "//\n"
                 continue
+            # #include "../../scripts/STVutil.asc"
+            if line.endswith(".asc\"") and "/" in line:
+                output += f"#include \"{line.split('/')[-1].split('\"')[0]}\"\n"
+                continue
         # conditionals
         if preprocessor == "#pragma":
             if split[1] == "region" or split[1] == "endregion":

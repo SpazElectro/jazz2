@@ -111,13 +111,59 @@ class fakearray<P, V, T> {
 };
 
 // int ammo[WEAPON::Weapon]
-fakearray<int, string> ammo;
-fakearray<string, bool> powerup;
-void main() {
-	ammo[2] = "hello";
+// fakearray<int, string> ammo;
+// fakearray<string, bool> powerup;
+// void main() {
+// 	ammo[2] = "hello";
 	
-	string v = ammo[2];
+// 	string v = ammo[2];
 	
-	powerup["ga"] = true;
+// 	powerup["ga"] = true;
 
-}
+// }
+
+// Trigonometric functions
+float cos(float rad);
+float sin(float rad);
+float tan(float rad);
+
+// Inverse trigonometric functions
+float acos(float val);
+float asin(float val);
+float atan(float val);
+float atan2(float y, float x);
+
+// Hyperbolic functions
+float cosh(float rad);
+float sinh(float rad);
+float tanh(float rad);
+
+// Logarithmic functions
+float log(float val);
+float log10(float val);
+
+// Power to
+float pow(float val, float exp);
+
+// Square root
+float sqrt(float val);
+
+// Absolute value
+float abs(float val);
+
+// Ceil and floor functions
+float ceil(float val);
+float floor(float val);
+
+// Returns the fraction
+float fraction(float val);
+
+// Approximate float comparison, to deal with numeric imprecision
+bool closeTo(float a, float b, float epsilon = 0.00001f);
+bool closeTo(double a, double b, double epsilon = 0.0000000001);
+
+// Conversion between floating point and IEEE 754 representations
+float  fpFromIEEE(uint raw); 
+double fpFromIEEE(uint64 raw);
+uint   fpToIEEE(float fp);
+uint64 fpToIEEE(double fp);

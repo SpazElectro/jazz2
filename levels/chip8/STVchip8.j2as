@@ -1,65 +1,133 @@
 #pragma require "STVutil.asc"
 
-#ifdef IDE
 #include "../../experiments/spazlint2/include/as.predefined"
 #include "../../scripts/STVutil.asc"
-#else
-#include "STVutil.asc"
-#endif
+
+void dbg(string text) {
+    jjConsole("Debug: " + text);
+}
+
+// CHIP-8 Key Mappings (stored as STRING KEYS)
+dictionary@ keymap = { 
+    { "1", 0x1 }, { "2", 0x2 }, { "3", 0x3 }, { "4", 0xC }, 
+    { "Q", 0x4 }, { "W", 0x5 }, { "E", 0x6 }, { "R", 0xD }, 
+    { "A", 0x7 }, { "S", 0x8 }, { "D", 0x9 }, { "F", 0xE }, 
+    { "Z", 0xA }, { "X", 0x0 }, { "C", 0xB }, { "V", 0xF }
+};
+
+// Function to check if a CHIP-8 key is pressed
+bool isCH8KeyPressed(uint chip8Key) {
+    int mappedKey;
+    if (keymap.get(chr(chip8Key), mappedKey)) {
+        return jjKey[mappedKey];
+    }
+    return false;
+}
 
 class Chip8Screen {
-	int ON = 16;
-	int OFF = 17;
+    uint ON = 15;
+    uint OFF = 47;
 
-	jjPIXELMAP@ pixelmap;
+    jjPIXELMAP@ pixelmap;
 
-	Chip8Screen() {
-		@pixelmap = jjPIXELMAP(64, 32);
-	}
+    Chip8Screen() {
+        @pixelmap = jjPIXELMAP(64, 32);
+    }
 
-	void resize(uint width, uint height) {
-		@pixelmap = pixelmap.resize(width, height);
-	}
-	void crop(uint a, uint b, uint c, uint d) {
-		@pixelmap = pixelmap.crop(a, b, c, d);
-	}
-	void save(jjANIMFRAME@ frame) {
-		pixelmap.save(frame);
-	}
-	int opIndex(uint x, uint y) {
-		return pixelmap[x, y] == ON ? 1 : 0;
-	}
-	void opIndexAssign(uint8 value, uint x, uint y) {
-		pixelmap[x, y] = (value == 1 ? ON : OFF);
-	}
-	void togglePixel(uint x, uint y) {
-		pixelmap[x, y] = (pixelmap[x, y] == ON ? OFF : ON);
-	}	
+    void resize(uint width, uint height) {
+        @pixelmap = pixelmap.resize(width, height);
+    }
+    void crop(uint a, uint b, uint c, uint d) {
+        @pixelmap = pixelmap.crop(a, b, c, d);
+    }
+    void save(jjANIMFRAME@ frame) {
+        pixelmap.save(frame);
+    }
+    int opIndex(uint x, uint y) {
+        return pixelmap[x, y] == ON ? 1 : 0;
+    }
+    void opIndexAssign(uint8 value, uint x, uint y) {
+        pixelmap[x, y] = (value == 1 ? ON : OFF);
+    }
+    void togglePixel(uint x, uint y) {
+        pixelmap[x, y] = (pixelmap[x, y] == ON ? OFF : ON);
+    }
 }
 
 class Chip8 {
-    array<uint8> registers = array<uint8>(16);  // 16 general-purpose registers (V0-VF)
-    array<uint8> memory = array<uint8>(4096);   // 4K memory
-    array<uint16> stack = array<uint16>(16);     // Stack for subroutine calls
-    uint16 I;             // Index register
-    uint16 PC;            // Program counter
-    Chip8Screen@ screen;// 64x32 monochrome display
-    uint8 SP;             // Stack pointer
+    array<uint8> registers = array<uint8>(16); // 16 general-purpose registers (V0-VF)
+    array<uint8> memory = array<uint8>(4096); // 4K memory
+    array<uint16> stack = array<uint16>(16); // Stack for subroutine calls
+    uint16 I; // Index register
+    uint16 PC; // Program counter
+    Chip8Screen@ screen; // 64x32 monochrome display
+    uint8 SP; // Stack pointer
+    bool halted = false;
 
-    Chip8() {}
+    bool useModernShifting = true; // false => COSMAC VIP
+    bool useModernJumpOffset = false; // false => COSMAC VIP
+    bool useOldLoadBehavior = false;
+
+    uint8 delayTimer = 0;
+    uint8 soundTimer = 0;
+
+    Chip8() { }
 
     void reset() {
-        PC = 0x200; // Program starts at 0x200
+        halted = false;
+        PC = 0x200;
         I = 0;
         SP = 0;
         for (uint i = 0; i < 16; i++) registers[i] = 0;
         for (uint i = 0; i < 4096; i++) memory[i] = 0;
-        @screen = Chip8Screen();
-        screen.resize(64, 32);
-        // for (uint i = 0; i < 64 * 32; i++) screen[i] = 0;
+        
+        array<uint8> font = {
+            0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+            0x20, 0x60, 0x20, 0x20, 0x70, // 1
+            0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+            0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+            0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+            0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+            0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+            0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+            0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+            0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+            0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+            0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+            0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+            0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+            0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+            0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+        };
+
+        for (int i = 0; i < 80; i++) {
+            memory[0x050 + i] = font[i];
+        }
+
+        clearScreen();
     }
 
-    bool loadROM(const string &in filename) {
+    void clearScreen() {
+        @screen = Chip8Screen();
+        screen.resize(64, 32);
+        for (uint x = 0; x < 64; x++)
+            for (uint y = 0; y < 32; y++)
+                screen.pixelmap[x, y] = screen.OFF;
+        jjConsole("Reset!");
+    }
+
+    void updateTimers() {
+        if (delayTimer > 0)
+            delayTimer--;
+        if (soundTimer > 0) {
+            soundTimer--;
+            if (soundTimer == 0) {
+                jjConsole("BEEP!");
+            }
+        }
+    }
+
+    bool loadROM(const string&in filename) {
         jjSTREAM stream(filename);
         if (stream.isEmpty()) {
             jjConsole("Failed to load ROM: " + filename);
@@ -89,85 +157,282 @@ class Chip8 {
 
         jjConsole("ROM loaded successfully!");
 
-		jjConsole("First 10 bytes of ROM:");
-		for (uint i = 0; i < 10; i++) {
-			jjConsole("Byte " + i + ": " + memory[0x200 + i]);
-		}
-
         return true;
     }
 
     void execute(uint16 opcode) {
+        if (halted)
+            return;
         uint X = (opcode >> 8) & 0xF;
         uint Y = (opcode >> 4) & 0xF;
         uint N = opcode & 0xF;
         uint NN = opcode & 0xFF;
         uint NNN = opcode & 0xFFF;
 
-        switch (opcode & 0xF000) {
-            case 0x0000:
-                if (opcode == 0x00E0) { // CLS - Clear Screen
-					@screen = Chip8Screen();
+        switch(opcode & 0xF000) {
+        case 0x0000:
+            if (opcode == 0x00E0) {
+                // CLS - Clear Screen
+                clearScreen();
+            }
+            if (opcode == 0x00EE) {
+                // RET - Return from subroutine
+                if (stack.length() > 0) {
+                    PC = stack[stack.length() - 1];
+                    stack.removeLast();
+                } else {
+                    jjConsole("Stack underflow! No return address.");
                 }
-                break;
-            case 0x1000: // 1NNN - Jump to address NNN
-                PC = (NNN - 2);
-                break;
-            case 0x6000: // 6XNN - Set VX to NN
-                registers[X] = NN;
-                break;
-            case 0x7000: // 7XNN - Add NN to VX (without carry)
-                registers[X] += NN;
-                break;
-            case 0xA000: // ANNN - Set I to NNN
-                I = NNN;
-                break;
-			case 0xD000: { // DXYN - Draw sprite at (VX, VY) with height N
-                uint x = registers[X] % 64;
-                uint y = registers[Y] % 32;
-                registers[0xF] = 0; // Reset VF (collision flag)
+            }
+            break;
+        case 0x1000:
+            // 1NNN - Jump to address NNN
+            PC = NNN - 2;
+            break;
+        case 0x2000:
+            // 2NNN - Call subroutine at NNN
+            if (stack.length() < 16) {
+                stack.insertLast(PC);
+                PC = NNN - 2;
+            } else {
+                jjConsole("Stack Overflow! Too many nested calls.");
+            }
+            break;
+        case 0x3000:
+            // 3XNN - Skip 1 instruction if value in VX is equal to NN
+            if (registers[X] == NN)
+                PC += 2;
+            break;
+        case 0x4000:
+            // 4XNN - Skip 1 instruction if value in VX is not equal to NN
+            if (registers[X] != NN)
+                PC += 2;
+            break;
+        case 0x5000:
+            if (opcode & 0x000F == 0x0000) {
+                // 5XY0 - Skip 1 instruction if value in VX and VY are equal
+                if (registers[X] == registers[Y])
+                    PC += 2;
+            }
+            break;
+        case 0x6000:
+            // 6XNN - Set VX to NN
+            registers[X] = NN;
+            break;
+        case 0x7000:
+            // 7XNN - Add NN to VX (without carry)
+            registers[X] += NN;
+            break;
+        case 0x8000: {
+            int op = opcode & 0x000F;
 
-                for (uint row = 0; row < N; row++) {
-                    uint8 pixel = memory[I + row];
-                    for (uint col = 0; col < 8; col++) {
-                        if ((pixel & (0x80 >> col)) != 0) {
-                            uint px = (x + col) % 64;
-                            uint py = (y + row) % 32;
+            if (op == 0x0000) {
+                // 8XY0: Set VX to VY
+                registers[X] = registers[Y];
+            } else if (op == 0x0001) {
+                // 8XY1: VX is set to Binary OR of VX and VY
+                registers[X] |= registers[Y];
+            } else if (op == 0x0002) {
+                // 8XY2: VX is set to Binary AND of VX and VY
+                registers[X] &= registers[Y];
+            } else if (op == 0x0003) {
+                // 8XY3: VX is set to Logical XOR of VX and VY
+                registers[X] ^= registers[Y];
+            } else if (op == 0x0004) {
+                // 8XY4: VX is set to VX + VY (with carry)
+                uint16 sum = registers[X] + registers[Y];
+                registers[0xF] = sum > 255 ? 1 : 0;
+                registers[X] = sum & 0xFF;
+            } else if (op == 0x0005) {
+                // 8XY5: VX is set to VX - VY (with borrow)
+                registers[0xF] = registers[X] >= registers[Y] ? 1 : 0;
+                registers[X] -= registers[Y];
+            } else if (op == 0x0007) {
+                // 8XY7: VX is set to VY - VX (with borrow)
+                registers[0xF] = registers[Y] >= registers[X] ? 1 : 0;
+                registers[X] = registers[Y] - registers[X];
+            } else if (op == 0x0006) {
+                // 8XY6: Shift VX right (logical shift)
+                if (!useModernShifting) registers[X] = registers[Y];
+                registers[0xF] = registers[X] & 0x1;
+                registers[X] >>= 1;
+            } else if (op == 0x000E) {
+                // 8XYE: Shift VX left (logical shift)
+                if (!useModernShifting) registers[X] = registers[Y];
+                registers[0xF] = (registers[X] & 0x80) >> 7;
+                registers[X] <<= 1;
+            } else {
+                jjConsole("Unknown 0x8000 sub-opcode: " + op);
+            }
+                
+            break;
+        }
+        case 0x9000:
+            if (opcode & 0x000F == 0x0000) {
+                // 9XY0 - Skip 1 instruction if value in VX and VY aer not equal
+                if (registers[X] != registers[Y])
+                    PC += 2;
+            }
+            break;
+        case 0xA000:
+            // ANNN - Set I to NNN
+            I = NNN;
+            break;
+        case 0xB000: {
+            // BNNN - Jump with offset
+            if (!useModernJumpOffset) {
+                PC = NNN + registers[0];
+            } else {
+                PC = (opcode & 0x0FFF) + registers[X];
+            }
+            break;
+        }
+        case 0xC000:
+            // CXNN - Random
+            registers[X] = (jjRandom() & 0xFF) & NN;
+            break;
+        case 0xD000: {
+            // DXYN - Draw sprite at (VX, VY) with height N
+            uint x = registers[X] % 64;
+            uint y = registers[Y] % 32;
+            registers[0xF] = 0; // Reset VF (collision flag)
 
-                            if (screen[px, py] == 1) registers[0xF] = 1; // Collision
-                            screen.togglePixel(px, py);
-                        }
+            for (uint row = 0; row < N; row++) {
+                uint8 pixel = memory[I + row];
+                for (uint col = 0; col < 8; col++) {
+                    if ((pixel & (0x80 >> col)) != 0) {
+                        uint px = (x + col) % 64;
+                        uint py = (y + row) % 32;
+
+                        if (screen[px, py] == 1) registers[0xF] = 1; // Collision
+                        screen.togglePixel(px, py);
                     }
                 }
-                break;
             }
-            default:
-                jjConsole("Unknown opcode: " + opcode);
-                break;
+            break;
+        }
+        case 0xE000:
+            if (opcode & 0x00FF == 0x009E) {
+                // EX9E - Skip next instruction if the key in VX is pressed
+                if (isCH8KeyPressed(registers[X]))
+                    PC += 2;
+            } else if (opcode & 0x00FF == 0x00A1) {
+                // EXA1 - Skip next instruction if the key in VX is NOT pressed
+                if (!isCH8KeyPressed(registers[X]))
+                    PC += 2;
+            }
+
+            break;
+        case 0xF000: {
+            int op = opcode & 0x00FF;
+            if (op == 0x0007) {
+                // FX07 - Set VX to the current value of the delay timer
+                registers[X] = delayTimer;
+            } else if (op == 0x0015) {
+                // FX15 - Set the delay timer to the value in VX
+                delayTimer = registers[X];
+            } else if (op == 0x0018) {
+                // FX18 - Set the sound timer to the value in VX
+                soundTimer = registers[X];
+            } else if (op == 0x001E) {
+                // FX1E - Add VX to the index register I
+                I += registers[X];
+                // TODO configured overflow flag
+            } else if (op == 0x000A) {
+                // FX0A - Wait for key press and store the key in VX
+                bool keyPressed = false;
+
+                for (uint8 i = 0; i < 16; i++) {
+                    if (isCH8KeyPressed(i)) {
+                        registers[X] = i;
+                        keyPressed = true;
+                        break;
+                    }
+                }
+
+                if (!keyPressed)
+                    PC -= 2;
+            } else if (op == 0x0029) { 
+                // FX29 - Set I to the memory address of the sprite for the digit in VX
+                I = 0x050 + (registers[X] & 0x0F) * 5;
+            } else if (op == 0x0033) { 
+                // FX33 - Store BCD representation of VX at memory location I, I+1, and I+2
+                uint8 value = registers[X];
+                memory[I]     = value / 100;
+                memory[I + 1] = (value / 10) % 10;
+                memory[I + 2] = value % 10;
+            } else if (op == 0x0055) {  
+                // FX55 - Store registers V0 to VX in memory starting at I (modern behavior)
+                for (uint8 i = 0; i <= X; i++) {
+                    memory[I + i] = registers[i];
+                }
+                if (useOldLoadBehavior) {
+                    I += X + 1; 
+                }
+            } else if (op == 0x0065) {
+                // FX65 - Load registers V0 to VX from memory starting at I (modern behavior)
+                for (uint8 i = 0; i <= X; i++) {
+                    registers[i] = memory[I + i];
+                }
+                if (useOldLoadBehavior) {
+                    I += X + 1;
+                }
+            } else {
+                jjConsole("Unknown 0xF000 sub-opcode: " + op);
+            }
+
+            break;
+        }
+        default:
+            jjConsole("Unknown opcode: " + opcode);
+            break;
         }
     }
 
-	void cycle() {
-		uint16 opcode = (memory[PC] << 8) | memory[PC + 1];
-		execute(opcode);
-		PC += 2;
-	}
+    void cycle() {
+        if (halted)
+            return;
+		
+        uint16 opcode = (memory[PC] << 8) | memory[PC + 1];
+        execute(opcode);
+        PC += 2;
+
+        updateTimers();
+    }
 }
 
 Chip8 cpu = Chip8();
 
 void onLevelLoad() {
-	cpu.reset();
-    cpu.loadROM("STVchip8_IBM.asdat");
+    array<uint> a = array<uint>();
+    a.insertLast(1);
+    jjAnimSets[ANIM::CUSTOM[0]].allocate(a);
+    jjAnimSets[ANIM::CUSTOM[1]].allocate(a);
+
+    cpu.reset();
+    if (!cpu.loadROM("STVchip8_testopcodes.asdat"))
+        cpu.halted = true;
 }
 
 void onMain() {
-    cpu.cycle();
-	cpu.screen.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame]);
+    for (uint c = 0; c < 143; c++)
+        cpu.cycle();
+
+    auto f = jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[1]].firstAnim].firstFrame];
+    cpu.screen.save(f);
+    jjPIXELMAP@ copy = jjPIXELMAP(f);
+    @copy = copy.resize(jjResolutionWidth, jjResolutionHeight);
+    copy.save(jjAnimFrames[jjAnimations[jjAnimSets[ANIM::CUSTOM[0]].firstAnim].firstFrame]);
 }
 
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-	canvas.drawSprite(25, 25, ANIM::CUSTOM[0], 0, 0);
+    canvas.drawSprite(0, 0, ANIM::CUSTOM[0], 0, 0);
 
-	return false;
+    return true;
 }
+
+bool onDrawHealth(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawLives(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawPlayerTimer(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }
+bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) { return true; }

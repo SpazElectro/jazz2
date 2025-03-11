@@ -1,4 +1,4 @@
-// Generated on 2025-02-14 13:04:40.491268
+// Generated on 2025-03-11 12:26:57.458630
 
 class ref{}
 funcdef bool less(const ?&in a, const ?&in b);
@@ -112,16 +112,19 @@ class fakearray<P, V, T> {
 };
 
 // int ammo[WEAPON::Weapon]
-fakearray<int, string> ammo;
-fakearray<string, bool> powerup;
-void main() {
-	ammo[2] = "hello";
+// fakearray<int, string> ammo;
+// fakearray<string, bool> powerup;
+// void main() {
+// 	ammo[2] = "hello";
 	
-	string v = ammo[2];
+// 	string v = ammo[2];
 	
-	powerup["ga"] = true;
+// 	powerup["ga"] = true;
 
-}
+// }
+
+// math functions
+
 // any T;
 // typedef jjBEHAVIOR = BEHAVIOR::BEHAVIOR;
 
@@ -129,7 +132,7 @@ funcdef void jjVOIDFUNC();
 funcdef void jjVOIDFUNCPLAYER(jjPLAYER@ player);
 
 shared interface jjPUBLICINTERFACE {}
-// This file was automatically generated at 2025-02-14 13:04:39.542975
+// This file was automatically generated at 2025-03-11 12:26:56.713039
 
 
 namespace CREATOR {
@@ -2370,7 +2373,7 @@ namespace ANIM {
     const auto PLUS_RETICLES = Set::PLUS_RETICLES;
     const auto PLUS_SCENERY = Set::PLUS_SCENERY;
     const auto PLUS_WARP = Set::PLUS_WARP;
-    const auto CUSTOM = Set::CUSTOM;
+    const array<Set> CUSTOM;
 };
 namespace COLOR {
     enum Component {
@@ -6579,6 +6582,10 @@ class jjTILE {
 class jjPIXELMAP {
     uint8& opIndex(uint x, uint y);
 	const uint8& opIndex(uint x, uint y);
+	jjPIXELMAP();
+	jjPIXELMAP(uint width, uint height);
+	jjPIXELMAP();
+	jjPIXELMAP(const jjANIMFRAME@ animFrame);
 	/*
 	Dimensions of the map in pixels, set by the map's constructor. These properties
 	are read-only but may be modified using the addBorders, crop, resize, or trim

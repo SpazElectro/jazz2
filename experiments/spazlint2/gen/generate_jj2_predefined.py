@@ -112,7 +112,10 @@ for namespace, enums in proper_enums.items():
             if key in defined:
                 continue
             defined.append(key)
-            output += f"    const auto {key} = {enum_name}::{key};\n"
+            if enum_name == "Set" and key == "CUSTOM":
+                output += f"    const array<Set> CUSTOM;\n"
+            else:
+                output += f"    const auto {key} = {enum_name}::{key};\n"
     output += f"}};\n"
 
 for dump in api.keys():
@@ -146,7 +149,10 @@ for dump in api.keys():
             if itm["name"] == "height":
                 # uint8& operator [] (uint x, uint y)
                 # const uint8& operator [] (uint x, uint y) const
-                full = f"uint8& opIndex(uint x, uint y);\n\tconst uint8& opIndex(uint x, uint y);\n\t{full}"
+                origFull = full
+                full = f"uint8& opIndex(uint x, uint y);\n\tconst uint8& opIndex(uint x, uint y);\n\t"
+                full += "jjPIXELMAP();\n\tjjPIXELMAP(uint width, uint height);\n\tjjPIXELMAP();\n\tjjPIXELMAP(const jjANIMFRAME@ animFrame);"
+                full += f"\n\t{origFull}"
         if itm["type"] == "property":
             if itm["name"] in ddump:
                 continue

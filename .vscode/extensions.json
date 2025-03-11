@@ -3,5 +3,6 @@
         "shd101wyy.markdown-preview-enhanced",
         "ms-python.vscode-pylance",
         "ms-vscode.cpptools",
+        "sashi0034.angel-lsp",
     ]
 }

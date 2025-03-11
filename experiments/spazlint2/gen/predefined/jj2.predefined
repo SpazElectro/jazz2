@@ -1,4 +1,4 @@
-// This file was automatically generated at 2025-02-14 13:04:39.542975
+// This file was automatically generated at 2025-03-11 12:26:56.713039
 
 #include 'jj2_additional.predefined' // REMOVE_LINE
 
@@ -2240,7 +2240,7 @@ namespace ANIM {
     const auto PLUS_RETICLES = Set::PLUS_RETICLES;
     const auto PLUS_SCENERY = Set::PLUS_SCENERY;
     const auto PLUS_WARP = Set::PLUS_WARP;
-    const auto CUSTOM = Set::CUSTOM;
+    const array<Set> CUSTOM;
 };
 namespace COLOR {
     enum Component {
@@ -6449,6 +6449,10 @@ class jjTILE {
 class jjPIXELMAP {
     uint8& opIndex(uint x, uint y);
 	const uint8& opIndex(uint x, uint y);
+	jjPIXELMAP();
+	jjPIXELMAP(uint width, uint height);
+	jjPIXELMAP();
+	jjPIXELMAP(const jjANIMFRAME@ animFrame);
 	/*
 	Dimensions of the map in pixels, set by the map's constructor. These properties
 	are read-only but may be modified using the addBorders, crop, resize, or trim
