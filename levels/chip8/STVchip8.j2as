@@ -1,5 +1,26 @@
 #pragma require "STVchip8.asc"
 
+#pragma require "STVchip8_Breakout.asdat"
+#pragma require "STVchip8_IBM.asdat"
+#pragma require "STVchip8_ParticleDemo.asdat"
+#pragma require "STVchip8_SpaceInvaders.asdat"
+#pragma require "STVchip8_ZeroDemo.asdat"
+#pragma require "STVchip8_Brix.asdat"
+#pragma require "STVchip8_PongAlt.asdat"
+#pragma require "STVchip8_Stars.asdat"
+#pragma require "STVchip8_Chip8Picture.asdat"
+#pragma require "STVchip8_keypadtest.asdat"
+#pragma require "STVchip8_RNDtest.asdat"
+#pragma require "STVchip8_testopcodes.asdat"
+#pragma require "STVchip8_Clock.asdat"
+#pragma require "STVchip8_Maze.asdat"
+#pragma require "STVchip8_Sierpinski.asdat"
+#pragma require "STVchip8_Tetris.asdat"
+#pragma require "STVchip8_DelayTimerTest.asdat"
+#pragma require "STVchip8_MazeAlt.asdat"
+#pragma require "STVchip8_Sirpinski.asdat"
+#pragma require "STVchip8_Trip8Demo.asdat"
+
 #include "../../experiments/spazlint2/include/as.predefined"
 #include "../../scripts/STVchip8.asc"
 #include "../../scripts/STVutil.asc"
@@ -18,6 +39,8 @@ uint ROMS_FILE_VERSION = 001;
 string runningROM = "";
 
 bool isChatOpen = false;
+
+bool cpuPaused = false;
 
 void loadROMS() {
     jjSTREAM@ romsStream = jjSTREAM("STVchip8_roms.asdat");
@@ -83,9 +106,7 @@ void onLevelLoad() {
     keyPressCallbacks.insertLast(function(uint key) {
         if (key == jjKeyChat) {
             isChatOpen = true;
-        } else if (key == getKeyById("Escape").code) {
-            isChatOpen = false;
-        } else if (key == getKeyById("Enter").code) {
+        } else if (key == getKeyById("Escape").code || key == getKeyById("Enter").code) {
             if (isChatOpen) {
                 isChatOpen = false;
                 return;
@@ -103,6 +124,10 @@ void onLevelLoad() {
                         cpuOn = true;
                     else
                         cpuOn = false;
+                } else if (key == getKeyById("Space").code) {
+                    cpuPaused = !cpuPaused;
+                } else if (key == getKeyById("I").code) {
+                    cpu.cycle();
                 }
             }
             return;
@@ -130,6 +155,7 @@ void onLevelLoad() {
             jjConsole("Loading " + romName + "...");
             runningROM = romName;
             cpu.reset();
+            cpuPaused = false;
             if (cpu.loadROM(romName))
                 cpuOn = true;
         }
@@ -141,6 +167,8 @@ void onLevelLoad() {
 
 bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
     if (chatType == CHAT::NORMAL) {
+        string lower = toLowerCase(stringReceived);
+
         if (stringReceived.findFirst(".asdat") >= 0) {
             if (stringReceived.findFirst("delete ") == 0) {
                 jjConsole("Deleted " + stringReceived.substr(7) + "!");
@@ -153,12 +181,24 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
             roms.insertLast(stringReceived);
             saveROMS();
             return true;
-        } else if (toLowerCase(stringReceived).findFirst("ipt ") == 0) {
+        } else if (lower.findFirst("ipt ") == 0) {
             int ipt = parseInt(stringReceived.substr(4));
             jjConsole("IPT has been set to: " + ipt);
 
             INSTRUCTIONS_PER_TICK = ipt;
             
+            return true;
+        } else if (lower == "usemodernshifting") {
+            cpu.useModernShifting = !cpu.useModernShifting;
+            return true;
+        } else if (lower == "usemodernjumpoffset") {
+            cpu.useModernJumpOffset = !cpu.useModernJumpOffset;
+            return true;
+        } else if (lower == "useoldloadbehavior") {
+            cpu.useOldLoadBehavior = !cpu.useOldLoadBehavior;
+            return true;
+        } else if (lower == "usedrawbuffering") {
+            cpu.useDrawBuffering = !cpu.useDrawBuffering;
             return true;
         }
     }
@@ -171,11 +211,11 @@ void onMain() {
     for (uint i = 0; i < 9; i++)
         jjLocalPlayers[1].ammo[i] = 99; // prevent yucky no ammo sound
     
-    if (cpuOn)
-        for (uint _ = 0; _ < INSTRUCTIONS_PER_TICK; _++)
+    if (cpuOn && !cpuPaused)
+        for (int _ = 0; _ < INSTRUCTIONS_PER_TICK; _++)
             cpu.cycle();
 }
-    
+
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
     if (cpuOn)
         cpu.draw(canvas);
@@ -185,7 +225,7 @@ bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
         canvas.drawString(30, 65, "Use LEFT/RIGHT keys to change pages", STRING::MEDIUM);
         canvas.drawString(30, 95, "Send a ROM's name in the chat to add it to the list!", STRING::SMALL);
         canvas.drawString(30, 110, "Send 'delete ' before the ROM's name in the chat to delete it from the list!");
-        canvas.drawString(30, 125, "Press P to return to ROM selection!");
+        canvas.drawString(30, 125, "P: Power off, O: Reload ROM, Space: Pause/Unpause CPU, I: Step");
 
         uint startIdx = currentPage * ROMS_PER_PAGE;
         uint endIdx = min(startIdx + ROMS_PER_PAGE, roms.length());
