@@ -1,29 +1,8 @@
 #pragma require "STVchip8.asc"
 
-#pragma require "STVchip8_Breakout.asdat"
-#pragma require "STVchip8_IBM.asdat"
-#pragma require "STVchip8_ParticleDemo.asdat"
-#pragma require "STVchip8_SpaceInvaders.asdat"
-#pragma require "STVchip8_ZeroDemo.asdat"
-#pragma require "STVchip8_Brix.asdat"
-#pragma require "STVchip8_PongAlt.asdat"
-#pragma require "STVchip8_Stars.asdat"
-#pragma require "STVchip8_Chip8Picture.asdat"
-#pragma require "STVchip8_keypadtest.asdat"
-#pragma require "STVchip8_RNDtest.asdat"
-#pragma require "STVchip8_testopcodes.asdat"
-#pragma require "STVchip8_Clock.asdat"
-#pragma require "STVchip8_Maze.asdat"
-#pragma require "STVchip8_Sierpinski.asdat"
-#pragma require "STVchip8_Tetris.asdat"
-#pragma require "STVchip8_DelayTimerTest.asdat"
-#pragma require "STVchip8_MazeAlt.asdat"
-#pragma require "STVchip8_Sirpinski.asdat"
-#pragma require "STVchip8_Trip8Demo.asdat"
-
-#include "../../experiments/spazlint2/include/as.predefined"
-#include "../../scripts/STVchip8.asc"
-#include "../../scripts/STVutil.asc"
+//
+#include "STVchip8.asc"
+#include "STVutil.asc"
 
 const int ROMS_PER_PAGE = 12;
 int INSTRUCTIONS_PER_TICK = 5;
@@ -66,8 +45,6 @@ void loadROMS() {
     
     if (!success) {
         roms = array<string>();
-        roms.insertLast("STVchip8_test.asdat");
-        roms.insertLast("STVchip8_superneatboy.asdat");
         roms.insertLast("STVchip8_Breakout.asdat");
         roms.insertLast("STVchip8_IBM.asdat");
         roms.insertLast("STVchip8_ParticleDemo.asdat");
@@ -100,17 +77,17 @@ void saveROMS() {
 }
 
 void onLevelLoad() {
-    jjConsole("Loading roms");
     loadROMS();
     saveROMS();
 
-    // cpu.reset();
-    jjConsole("CPU ok");
+    cpu.reset();
     
     keyPressCallbacks.insertLast(function(uint key) {
         if (key == jjKeyChat) {
             isChatOpen = true;
-        } else if (key == getKeyById("Escape").code || key == getKeyById("Enter").code) {
+        } else if (key == getKeyById("Escape").code) {
+            isChatOpen = false;
+        } else if (key == getKeyById("Enter").code) {
             if (isChatOpen) {
                 isChatOpen = false;
                 return;
@@ -201,6 +178,9 @@ bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
         } else if (lower == "useoldloadbehavior") {
             cpu.useOldLoadBehavior = !cpu.useOldLoadBehavior;
             return true;
+        } else if (lower == "usedrawbuffering") {
+            cpu.useDrawBuffering = !cpu.useDrawBuffering;
+            return true;
         }
     }
     return false;
@@ -217,32 +197,10 @@ void onMain() {
             cpu.cycle();
 }
 
-string decompileInstruction(uint16 opcode) {
-    return formatUInt(uint64(opcode), "H", 4);
-}
-
 bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-    if (cpuOn) {
+    if (cpuOn)
         cpu.draw(canvas);
-
-        for (int i = 0; i < 16; i++)
-            canvas.drawString(0, 10+(i*20), "V"+i+": "+cpu.registers[i], STRING::MEDIUM);
-        int end = 10+(16*20);
-        canvas.drawString(0, end, "I: "+cpu.I+" PC: "+cpu.PC+" Halted: "+(cpu.halted ? "true" : "false"), STRING::MEDIUM);
-        end += 20;
-        for (int i = 0; i < cpu.stack.length(); i++) {
-            string text = "" + cpu.stack[i];
-            canvas.drawString(jjResolutionWidth - jjGetStringWidth(text, STRING::MEDIUM, normalTextAppearance), 10+(i*20), text, STRING::MEDIUM);
-        }
-        canvas.drawString(0, end, "DT: "+cpu.delayTimer+" ST: "+cpu.soundTimer, STRING::MEDIUM);
-        end += 20;
-        for (int i = 0; i < 8; i++)
-            canvas.drawString(0, end+(i*20), ""+i+": "+cpu.rplFlags[i], STRING::MEDIUM);
-        end += (8*20);
-        canvas.drawString(0, end, "Next Instruction: " + decompileInstruction(
-            (cpu.memory[cpu.PC + 1] << 8) | cpu.memory[cpu.PC + 2]
-        ), STRING::MEDIUM);
-    } else {
+    else {
         canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 47);
         canvas.drawString(30, 20, "#ROM Selector", STRING::LARGE);
         canvas.drawString(30, 65, "Use LEFT/RIGHT keys to change pages", STRING::MEDIUM);
