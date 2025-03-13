@@ -1,0 +1,286 @@
+#pragma name "replay2"
+#pragma require "STVutil.asc"
+
+#include "../../experiments/spazlint2/include/as.predefined"
+#include "../../scripts/STVutil.asc"
+
+bool isRecording = false;
+bool isPlaying = false;
+jjSTREAM@ recordStream;
+
+class FakePlayer
+{
+	float xPos, yPos;
+	uint curFrame;
+	string name;
+	int8 playerID;
+	int direction;
+	int fakeID = 0;
+
+	FakePlayer(string name, int8 playerID) {
+		this.name = name;
+		this.playerID = playerID;
+	}
+};
+
+
+class RecordData
+{
+	string type;
+
+	RecordData(string type) {
+		this.type = type;
+	}
+	
+	void serialize	(jjSTREAM@ stream) {}
+};
+class PlayerInfoRecordData : RecordData
+{
+	int8 playerId;
+	string name;
+
+	PlayerInfoRecordData(int8 playerId, string name) {
+		super("PLAYER_INFO_RECORD");
+		this.playerId = playerId;
+		this.name = name;
+	}
+
+	void serialize(jjSTREAM@ stream) {
+		stream.push(playerId);
+		stream.push(name);
+	}
+};
+PlayerInfoRecordData@ deserializePlayerInfoRecordData(jjSTREAM@ stream) {
+	int8 playerId;
+	string name;
+
+	stream.pop(playerId);
+	stream.pop(name);
+
+	return PlayerInfoRecordData(playerId, name);
+}
+class PlayerLoopRecordData : RecordData
+{
+	int8 playerId;
+	float xPos, yPos;
+	uint curFrame;
+	int direction;
+
+	PlayerLoopRecordData(int8 playerId, float xPos, float yPos, uint curFrame, int direction) {
+		super("PLAYER_LOOP_RECORD");
+		this.playerId 	= playerId;
+		this.xPos 		= xPos;
+		this.yPos 		= yPos;
+		this.curFrame 	= curFrame;
+		this.direction 	= direction;
+	}
+
+	void serialize(jjSTREAM@ stream) {
+		stream.push(playerId);
+		stream.push(xPos);
+		stream.push(yPos);
+		stream.push(curFrame);
+		stream.push(direction);
+	}
+};
+
+PlayerLoopRecordData@ deserializePlayerLoopRecordData(jjSTREAM@ stream) {
+	int8 playerId;
+	float xPos, yPos;
+	uint curFrame;
+	int direction;
+
+	stream.pop(playerId);
+	stream.pop(xPos);
+	stream.pop(yPos);
+	stream.pop(curFrame);
+	stream.pop(direction);
+
+	return PlayerLoopRecordData(playerId, xPos, yPos, curFrame, direction);
+}
+
+class IntRecordData : RecordData {
+	int value;
+
+	IntRecordData(int value) {
+		super("INT_RECORD");
+		this.value = value;
+	}
+
+	void serialize(jjSTREAM@ stream) {
+		stream.push(value);
+	}
+};
+
+IntRecordData@ deserializeIntRecordData(jjSTREAM@ stream) {
+	int value;
+	stream.pop(value);
+	return IntRecordData(value);
+}
+
+class LoopRecord
+{
+	array<RecordData@> data = array<RecordData@>();
+
+	LoopRecord() {
+
+	}
+
+	void push(RecordData@ toPush) {
+		data.insertLast(toPush);
+	}
+	void setOfType(string type, RecordData@ new) {
+		RecordData@ record = getOfType(type);
+		@record = new;
+	}
+	RecordData@ getOfType(string type) {
+		for (uint i = 0; i < data.length(); i++) {
+			RecordData@ record = data[i];
+			if (record.type == type)
+				return record;
+		}
+		
+		return null;
+	}
+};
+
+LoopRecord@ record = LoopRecord();
+array<FakePlayer@> fakePlayers = array<FakePlayer@>();
+
+FakePlayer@ getFakePlayer(int8 playerId) {
+	for (uint i = 0; i < fakePlayers.length(); i++) {
+		if (fakePlayers[i].playerID == playerId) {
+			return fakePlayers[i];
+		}
+	}
+	jjConsole("Fake player not found!");
+	return null;
+}
+
+void onLevelBegin() {
+	jjConsole("Started!");
+}
+
+bool onLocalChat(string &in stringReceived, CHAT::Type chatType) {
+	jjConsole("a "+stringReceived);
+	if (stringReceived == "!r") {
+		isRecording = !isRecording;
+		if (isRecording) {
+			@recordStream = jjSTREAM();
+			recordStream.clear();
+			fakePlayers = array<FakePlayer@>();
+			for (uint i = 0; i < 32; i++) {
+				jjPLAYER@ player = jjPlayers[i];
+				record.push(PlayerInfoRecordData(player.playerID, player.name));
+				fakePlayers.insertLast(FakePlayer(player.name, player.playerID));
+			}
+		} else {
+			for (uint i = 0; i < record.data.length(); i++)
+				record.data[i].serialize(recordStream);
+
+			recordStream.save("STVreplay_replay1.asdat");
+			fakePlayers = array<FakePlayer@>();
+		}
+		return true;
+	} else if (stringReceived == "!p") {
+		if (isRecording) {
+			jjConsole("do !r first");
+			return true;
+		}
+		isPlaying = !isPlaying;
+		if (isPlaying) {
+			fakePlayers = array<FakePlayer@>();
+			@recordStream = jjSTREAM("STVreplay_replay1.asdat");
+			for (uint i = 0; i < 32; i++) {
+				PlayerInfoRecordData@ data = deserializePlayerInfoRecordData(recordStream);
+				fakePlayers.insertLast(FakePlayer(data.name, data.playerId));
+			}
+		} else {
+			jjLocalPlayers[1].cameraUnfreeze(true);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+void onMain() {
+	if (isRecording) {
+		// player data
+		
+		array<jjPLAYER@> matchingPlayers = array<jjPLAYER@>();
+
+		for (uint i = 0; i < 32; i++) {
+			jjPLAYER@ player = jjPlayers[i];
+
+			if (player.isActive)
+				matchingPlayers.insertLast(player);
+		}
+
+		record.push(IntRecordData(matchingPlayers.length()));
+		
+		for (uint i = 0; i < matchingPlayers.length(); i++) {
+			jjPLAYER@ player = matchingPlayers[i];
+			record.push(PlayerLoopRecordData(
+				player.playerID, player.xPos, player.yPos, player.curFrame, player.direction
+			));
+		}
+	} else if (isPlaying) {
+		if (recordStream.isEmpty()) {
+			isPlaying = false;
+			jjConsole("Record ended!");
+			jjLocalPlayers[1].cameraUnfreeze(true);
+			return;
+		}
+
+		// uint size;
+		// recordStream.pop(size);
+		IntRecordData@ size = deserializeIntRecordData(recordStream);
+
+		for (int i = 0; i < size.value; i++) {
+			PlayerLoopRecordData@ data = deserializePlayerLoopRecordData(recordStream);
+			FakePlayer@ fp = getFakePlayer(data.playerId);
+			fp.xPos = data.xPos;
+			fp.yPos = data.yPos;
+			fp.curFrame = data.curFrame;
+			fp.direction = data.direction;
+		}
+
+		jjLocalPlayers[1].cameraFreeze(
+            fakePlayers[0].xPos,
+            fakePlayers[0].yPos,
+        true, true);
+	}
+}
+
+void onPlayerDraw(jjPLAYERDRAW& pd) {
+	if (isPlaying) {
+		pd.name = false;
+		pd.sprite = false;
+		pd.gunFlash = false;
+		pd.trail = false;
+		pd.xScale = 0;
+		pd.yScale = 0;
+	}
+}
+
+void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
+	if (isPlaying) {
+		for (uint i = 0; i < fakePlayers.length(); i++) {
+			FakePlayer@ fp = fakePlayers[i];
+
+			if (fp.xPos != 0 && fp.yPos != 0) {
+				canvas.drawString(
+					int(fp.xPos) - jjGetStringWidth(fp.name, STRING::SMALL, normalTextAppearance) / 2,
+					int(fp.yPos) - 30, fp.name
+				);
+	
+				canvas.drawSpriteFromCurFrame(
+					int(fp.xPos),
+					int(fp.yPos),
+					uint(fp.curFrame), fp.direction, SPRITE::PLAYER, fp.fakeID
+				);
+			}
+		}
+	}
+}

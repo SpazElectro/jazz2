@@ -1,3 +1,43 @@
+/*
+// psuedocode for all the packets
+
+struct Vector2 {
+	int x, y;
+};
+
+uint8 type = 0;
+struct movepkt {
+	/ if client
+	uint8 id;
+	/ endif
+	Vector2 position;
+	Vector2 velocity;
+};
+
+uint8 type = 1;
+struct addplayerpkt {
+	string name;
+	int id;
+};
+
+uint8 type = 2;
+struct remplayerpkt {
+	int id;
+};
+
+// This is sent by all the clients when they are ready to start receiving information
+uint8 type = 3;
+struct readypkt {};
+
+uint8 type = 4;
+struct shootpkt {
+	/ if client
+	uint8 id;
+	/ endif
+	uint8 weapon;
+};
+*/
+
 // god please give me power to finish this project
 // -spaz electro
 
@@ -8,6 +48,8 @@
 
 // #define INFINITE_TILT
 // #define DEBUG_MOTORPLAYER_IDS
+#define LIMIT_BOUNDS
+#define GROUND_IMPACT
 #define TILT_NEGATIVE
 
 const ANIM::Set playerAnimSet = ANIM::CUSTOM[1];
@@ -23,10 +65,13 @@ int max(int a, int b) {
 }
 
 bool isChatting = false;
+int bandwidthInThisSecond  = 0;
+int bandwidthOutThisSecond = 0;
+uint64 lastPKTtime = 0;
 
-float lerp(float a, float b, float t)
-{
-	return a + (b - a) * t;
+bool sendPacket(jjSTREAM &in packet, int toClientID = 0, uint toScriptModuleID = jjScriptModuleID) {
+	bandwidthOutThisSecond += packet.getSize();
+	return jjSendPacket(packet, toClientID, toScriptModuleID);
 }
 
 class MotorPlayer
@@ -37,73 +82,125 @@ class MotorPlayer
 
 	Vector2@ position;
 	Vector2@ velocity;
+	
+	int speed;
+	int jumpForce;
+
+	int jumpHeld;
+	bool isGrounded;
 
 	int8 id;
-	float prevPosX;
 
 	MotorPlayer(int8 id) {
 		@this.sprite = AnimatedSprite(0, 0, 0, 0, 0.15, false);
 		this.sprite.animSet = playerAnimSet;
-		this.sprite.spriteMode = SPRITE::PLAYER;
-
 		@this.position = Vector2((jjResolutionWidth/2)+64, 64);
 		@this.velocity = Vector2(0, 0);
 		this.isLocal = false;
+		this.speed = 2;
+		this.jumpForce = 25;
+		this.jumpHeld = 0;
+		this.isGrounded = false;
 		this.id = id;
-		this.prevPosX = 0;
 	}
 
 	#pragma region base
 	void update() {
+		// physics
+		if(!this.isGrounded)
+			this.velocity.y += int((9.807)/3);
+
+		// Add velocity to the position
+		this.position.x += this.velocity.x;
+		this.position.y += this.velocity.y;
+		
 		// Decrease velocity over time
-		const int VEL_SPEED = 2;
 		if(this.velocity.x > 0) {
-			 this.velocity.x -= VEL_SPEED;
-		} else if(this.velocity.x < 0) { this.velocity.x += VEL_SPEED; }
+			 this.velocity.x -= 1;
+		} else if(this.velocity.x < 0) { this.velocity.x += 1; }
 		if(this.velocity.y > 0) {
-			 this.velocity.y -= VEL_SPEED;
-		} else if(this.velocity.y < 0) { this.velocity.y += VEL_SPEED; }
+			 this.velocity.y -= 1;
+		} else if(this.velocity.y < 0) { this.velocity.y += 1; }
+		
+		// Limit the bounds
+		#ifdef LIMIT_BOUNDS
+		// TODO set a specific resolution in multiplayer
+		this.position.x = max(32, this.position.x);
+		this.position.y = max(32, this.position.y);
+		this.position.x = min(jjResolutionWidth-32, this.position.x);
+		this.position.y = min(jjResolutionHeight-32, this.position.y);
+		#endif
 
 		this.sprite.x = this.position.x;
 		this.sprite.y = this.position.y;
 		this.sprite.update();
 
-		this.velocity.x += int(jjP.xPos-this.prevPosX);
-		this.prevPosX = jjP.xPos;
-
-		const int MAX_ANGLE = 180;
-		const int MAX_NEG_ANGLE = 90;
-		if(this.velocity.x*3 >= MAX_ANGLE)
-			this.velocity.x = MAX_ANGLE/3;
-		if(this.velocity.x*3 < -MAX_NEG_ANGLE)
-			this.velocity.x = -MAX_NEG_ANGLE/3;
-		
-		// makes the bike tilt up the faster you are
-		#ifdef TILT_NEGATIVE
-		this.sprite.angle = int(lerp(float(this.sprite.angle), float(this.velocity.x)*3.0, 0.3));
-		#else
-		this.sprite.angle = int(lerp(float(this.sprite.angle), abs(float(this.velocity.x))*3.0, 0.3));
+		#ifdef GROUND_IMPACT
+		bool previouslyGrounded = this.isGrounded;
+		#endif
+		// temporary
+		this.isGrounded = this.position.y >= jjResolutionHeight-32;
+		#ifdef GROUND_IMPACT
+		if(!previouslyGrounded && this.isGrounded)
+			this.velocity.y = 0; // impact *sparkles*
 		#endif
 
-		/*
-		0 air
-		721 ground
+		// makes the bike tilt up the faster you are
+		#ifdef TILT_NEGATIVE
+		this.sprite.angle = this.velocity.x*3;
+		#else
+		this.sprite.angle = abs(this.velocity.x)*3;
+		#endif
 
-		702-703-712 solid going up
-		704-705-715 solid going down
-		*/
-		int tileUnder = jjTileGet(4, this.position.x/32, (this.position.y/32)+1);
-		float alpha = 0.3;
-		// jjConsole(""+tileUnder);
-		if(tileUnder == 702 || tileUnder == 703 || tileUnder == 712 || tileUnder == 700)
-			this.sprite.angle = int(lerp(float(this.sprite.angle), 90.0, alpha));
-		else if(tileUnder == 704 || tileUnder == 705 || tileUnder == 715 || tileUnder == 701)
-			this.sprite.angle = int(lerp(float(this.sprite.angle), -90.0, alpha));
-		else if(tileUnder == 721)
-			this.sprite.angle = int(lerp(float(this.sprite.angle), 0.0, alpha*2));
+		// controls
+
+		if(this.isLocal) {
+			bool anyInput = false;
+
+			// dont gain velocity when colliding with the corners
+			#ifdef INFINITE_TILT
+			if(true)
+			#else
+			if(!(this.position.x <= 32))
+			#endif
+				if(isKeyDown(leftKey) && !isChatting) {
+					this.velocity.x -= this.speed; anyInput = true;
+				}
+			#ifdef INFINITE_TILT
+			if(true)
+			#else
+			if(!(this.position.x >= jjResolutionWidth-32))
+			#endif
+				if(isKeyDown(rightKey) && !isChatting) {
+					this.velocity.x += this.speed; anyInput = true;
+				}
+
+			if(isKeyDown(jumpKey) && !isChatting) {
+				if(this.isGrounded) {
+					if(this.jumpHeld == -1)
+						this.jumpHeld = 0;
+					this.velocity.y -= this.jumpForce;
+					anyInput = true;
+				}
+
+				this.jumpHeld += 15; // feedback
+			} else {
+				this.jumpHeld = 0;
+			}
+
+			if(this.jumpHeld > 0) {
+				this.velocity.y -= 1;
+				if(this.jumpHeld > 15) {
+					this.jumpHeld = -1;
+				}
+			}
+
+			if(anyInput)
+				this.sendMovePacket();
+		}
 	}
 
-	void draw(jjCANVAS@ canvas, int clientID) {
+	void draw(jjCANVAS@ canvas) {
 		int width = jjGetStringWidth(this.name, STRING::SMALL, normalTextAppearance);
 
 		canvas.drawString(
@@ -113,19 +210,74 @@ class MotorPlayer
 			STRING::SMALL
 		);
 
-		this.sprite.spriteModeParam = clientID;
 		this.sprite.draw(canvas);
 	}
 
 	void _update() {
-		// Why is this in update?
 		@motorPlayers[this.name] = this;
 	}
+	#pragma endregion
+
+	#pragma region packets
+
+	#pragma region recv
+	bool recvMovePacket(jjSTREAM@ stream) {
+		if(stream.getSize() != 4*4) // an int is 4 bytes, and we have 4 fields
+			return false;
+
+		// TODO validate the position and velocity by checking bounds
+		stream.pop(this.position.x);
+		stream.pop(this.position.y);
+		stream.pop(this.velocity.x);
+		stream.pop(this.velocity.y);
+
+		return true;
+	}
+	#pragma endregion
+
+	#pragma region send
+	bool sendMovePacket() {
+		uint8 type = 0;
+		jjSTREAM stream;
+		stream.push(type);
+		if(jjIsServer)
+			stream.push(this.id);
+		stream.push(this.position.x);
+		stream.push(this.position.y);
+		stream.push(this.velocity.x);
+		stream.push(this.velocity.y);
+
+		// if we're the server
+		// send to everyone except the person who moved
+		// TODO check if this actually works because the bandwidth in/out says otherwise
+		// maybe that's because our bandwidth in/out implementation doesn't check
+		// if we're excluded?
+		return sendPacket(stream, jjIsServer ? -this.id : 0);
+	}
+	#pragma endregion
+
 	#pragma endregion
 };
 
 dictionary motorPlayers = {};
 MotorPlayer@ localMotorPlayer;
+
+void sendPlayerJoinPacket(string name, int8 id, int target = 0) {
+	uint8 type = 1;
+	jjSTREAM stream;
+	stream.push(type);
+	stream.push(id);
+	stream.push(name);
+	sendPacket(stream, target);
+}
+
+void sendPlayerLeavePacket(int8 id) {
+	uint8 type = 2;
+	jjSTREAM stream;
+	stream.push(type);
+	stream.push(id);
+	sendPacket(stream);
+}
 
 MotorPlayer@ addPlayer(string name, int8 id) {
 	MotorPlayer@ motorPlayer = MotorPlayer(id);
@@ -137,6 +289,9 @@ MotorPlayer@ addPlayer(string name, int8 id) {
 		@localMotorPlayer = motorPlayer;
 	}
 	motorPlayers.set(name, @motorPlayer);
+
+	if(jjIsServer)
+		sendPlayerJoinPacket(name, id);
 
 	return motorPlayer;
 }
@@ -165,6 +320,9 @@ jjPLAYER@ getPlayerByClientID(int clientId) {
 
 void removePlayer(int8 id) {
 	// jjConsole("I am a " + (jjIsServer ? "server" : "client") + ", deleting " + id);
+	
+	if(jjIsServer)
+		sendPlayerLeavePacket(id);
 
 	auto motorPlayer = getMotorPlayerById(id);
 	if(@motorPlayer != null) {
@@ -195,144 +353,83 @@ void onLevelBegin() {
 		firstAnimToOverwrite: jjAnimSets[playerAnimSet]
 	);
 
-	addPlayer(jjLocalPlayers[1].nameUnformatted, jjLocalPlayers[1].clientID);
-    
-	// remove all abilities
-	array<CHAR::Char> characters = {CHAR::JAZZ, CHAR::SPAZ, CHAR::LORI};
-	for(uint i = 0; i < characters.length(); i++) {
-		jjCHARACTER@ character = jjCharacters[characters[i]];
-		character.airJump = AIR::NONE;
-		character.doubleJumpCountMax = 0;
-		character.groundJump = GROUND::CROUCH;
-	}
-	
-	jjGenerateSettableTileArea(4, 0, 0, 255, 63);
-	for(int x = 0; x < 255; x += chunkSize) {
-		// jjConsole("Generate: "+x);
-		generateTilesAt(x/chunkSize);
+	if(jjIsServer) {
+		addPlayer(jjLocalPlayers[1].nameUnformatted, jjLocalPlayers[1].clientID);
+    } else {
+		uint8 id = 3;
+		jjSTREAM readyPacket;
+		readyPacket.push(id);
+		sendPacket(readyPacket);
 	}
 }
 
-int chunkSize = 32;
-int chunkHeight = 16;
+void onReceive(jjSTREAM &in packet, int clientID) {
+	uint8 type;
+	packet.pop(type);
 
-void generateTilesAt(int xChunk) {
-	int startX = xChunk * chunkSize;
-	int startY = 16;
+	bandwidthInThisSecond += packet.getSize();
+	// if(jjIsServer)
+	// 	jjConsole("Recv: " + type + " from " + clientID);
 
-	for(int i = 0; i < chunkSize; i++) {
-		jjTileSet(4, startX+i, startY, 721);
-		generateGrassUnder(startX+i, startY);
-	}
-	
-	// generateRampAt(startX+8, startY, 4);
-	// generateDownRampAt(
-	// 	startX
-	// 	+8   // from previous
-	// 	+14   // 4*2
-	// 	+10, // constant
-	// 	startY, 4, startY);
-	// generateRampAt(startX+32, startY, 5);
-	// generateDownRampAt(
-	// 	startX
-	// 	+32   // from previous
-	// 	+14   // 5*2
-	// 	+10,  // constant
-	// 	startY, 5, startY);
-	
-	bool previousIsRamp = false;
-	// jjConsole(""+startX);
-	if(startX <= 220 && startX >= 32) {
-		for(int i = 0; i < chunkSize; i++) {
-			if(getRandomNumber(min: 0, max: 10) == 1 && !previousIsRamp) {
-				generateRampAt(startX+(getRandomNumber(min: 0, max: chunkSize)-16), startY, getRandomNumber(min: 0, max: 10));
-				previousIsRamp = true;
-			} else {
-				previousIsRamp = false;
+	if(!jjIsServer) {
+		switch(type) {
+			// move
+			case 0: {
+				uint8 id;
+				packet.pop(id);
+				getMotorPlayerById(id).recvMovePacket(packet);
+				break;
+			}
+			// join
+			case 1: {
+				uint8 id;
+				string name;
+				packet.pop(id);
+				packet.pop(name);
+				addPlayer(name, id);
+				break;
+			}
+			// leave
+			case 2: {
+				uint8 id;
+				packet.pop(id);
+				removePlayer(id);
+				break;
+			}
+			default: {
+				jjConsole("Unknown packet with type: " + type);
+				break;
+			}
+		}
+	} else {
+		switch(type) {
+			// move
+			case 0: {
+				auto plr = getMotorPlayerById(clientID);
+				plr.recvMovePacket(packet);
+				plr.sendMovePacket();
+				break;
+			}
+			// ready
+			case 3: {
+				// send all the other players that have joined
+				for(uint i = 0; i < motorPlayers.getKeys().length(); i++) {
+					sendPlayerJoinPacket(motorPlayers.getKeys()[i], cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id, clientID);
+					cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).sendMovePacket();
+				}
+
+				auto player = getPlayerByClientID(clientID);
+				// jjConsole(player.nameUnformatted + " is ready!");
+				addPlayer(player.nameUnformatted, clientID);
+
+				break;
+			}
+			default: {
+				jjConsole("Unknown packet with type: " + type);
+				break;
 			}
 		}
 	}
-}
-
-int MAX_ITERATIONS = 30;
-int iterations = 0;
-
-/*
-	UP
-	702-703
-	712-713
-
-	DOWN
-	704-705
-	714-715
-*/
-void generateRampAt(int xTile, int startY, int height, bool base = true) {
-	int t = jjTileGet(4, xTile-1, startY);
-	if(base && (t == 702 || t == 703 || t == 712 || t == 713 ||
-	   t == 704 || t == 705 || t == 714 || t == 715 ||
-	   t == 729)
-	)
-	   return;
-	
-	jjTileSet(4, xTile, startY, 712);
-	jjTileSet(4, xTile, startY-1, 702);
-	jjTileSet(4, xTile+1, startY, 713);
-	jjTileSet(4, xTile+1, startY-1, 703);
-	generateGrassUnder(xTile, startY);
-	generateGrassUnder(xTile+1, startY);
-	if(height != 0) {
-		iterations += 1;
-		if(iterations >= MAX_ITERATIONS) {
-			jjConsole("upramp; Reached max iterations! Stopping!");
-			iterations = 0;
-			return;
-		}
-
-		generateRampAt(
-			xTile+2,
-			startY-1,
-			height-1,
-			false
-		);
-	}
-	
-	if(base)
-		iterations = 0;
-}
-
-void generateDownRampAt(int xTile, int startY, int height, int targetHeight, bool base = true) {
-	jjTileSet(4, xTile, startY, 714);
-	jjTileSet(4, xTile, startY-1, 704);
-	jjTileSet(4, xTile+1, startY, 715);
-	jjTileSet(4, xTile+1, startY-1, 705);
-	generateGrassUnder(xTile, startY);
-	generateGrassUnder(xTile+1, startY);
-	jjConsole("downramp; "+startY+" "+height+" "+targetHeight);
-	if(height <= targetHeight) {
-		iterations += 1;
-		if(iterations >= MAX_ITERATIONS) {
-			jjConsole("downramp; Reached max iterations! Stopping!");
-			iterations = 0;
-			return;
-		}
-		//jjConsole("iterate");
-
-		generateDownRampAt(
-			xTile-2,
-			startY-1,
-			height+2,
-			targetHeight,
-			false
-		);
-	}
-	
-	if(base)
-		iterations = 0;
-}
-
-void generateGrassUnder(int xTile, int startY, int height = chunkHeight) {
-	for(int y = 1; y < height; y++)
-		jjTileSet(4, xTile, startY+y, 729);
 }
 
 void onMain() {
@@ -344,57 +441,10 @@ void onMain() {
 	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
 		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).update();
 	
-	jjPLAYER@ player = jjP;
-	if(player.xPos/32 >= 240) {
-		player.xPos = player.xPos-(240*32)+(10*32); // try to seamlessly transition
-		player.cameraFreeze(player.xPos, player.yPos, true, true);
-		player.cameraUnfreeze(true);
-	}
-
-	// TODO prevent spamming run to get a boost
-	
-	jjP.keyDown = false;
-	jjP.fireBullet();
-	// jjP.keyRight = true;
-
-	if(@localMotorPlayer != null) {
-		localMotorPlayer.position.x = int(jjP.xPos);
-		localMotorPlayer.position.y = int(jjP.yPos);
-	}
-}
-
-void onDrawLayer4(jjPLAYER@ player, jjCANVAS@ canvas) {
-	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
-		cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).draw(canvas, player.clientID);
-
-}
-
-bool onDrawAmmo(jjPLAYER@ player, jjCANVAS@ canvas) {
-	// canvas.drawRectangle(0, 0, jjResolutionWidth, jjResolutionHeight, 0);
-
-	if(@localMotorPlayer != null)
-		canvas.drawString(0, 16, "||||Velocity: "+localMotorPlayer.velocity.x+", "+localMotorPlayer.velocity.y);
-
-	#ifdef DEBUG_MOTORPLAYER_IDS
-	canvas.drawString(0, 48, "-- MotorPlayer ids in order --");
-	for(uint i = 0; i < motorPlayers.getKeys().length(); i++)
-		canvas.drawString(0, 60+(i*12), "|||ID: " + (cast<MotorPlayer@>(motorPlayers[motorPlayers.getKeys()[i]]).id));
-	#endif
-
-	// TODO this overlaps with other debug text
-	if(@localMotorPlayer != null)
-		canvas.drawString(0, 48, "|||Position: "+localMotorPlayer.position.x+", "+localMotorPlayer.position.y);
-
-	return false;
-}
-
-void onPlayerDraw(jjPLAYERDRAW& pd) {
-	pd.sprite = false;
-	pd.name = false;
-}
-bool onDrawScore(jjPLAYER@ player, jjCANVAS@ canvas) {
-	return true;
-}
-bool onDrawGameModeHUD(jjPLAYER@ player, jjCANVAS@ canvas) {
-	return true;
-}
+	if(jjIsServer) {
+		for(uint i = 0; i < 32; i++) {
+			if(activePlayersArray[i] && !jjPlayers[i].isActive) {
+				// jjConsole(jjPlayers[i].nameUnformatted + " has left the game!");
+				// jjPlayers[i].clientID here is going to be -1 so we use this array 
+				removePlayer(activePlayersClientIDsArray[i]);
+			
