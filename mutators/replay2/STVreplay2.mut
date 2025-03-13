@@ -83,7 +83,6 @@ class PlayerLoopRecordData : RecordData
 		stream.push(direction);
 	}
 };
-
 PlayerLoopRecordData@ deserializePlayerLoopRecordData(jjSTREAM@ stream) {
 	int8 playerId;
 	float xPos, yPos;
@@ -98,7 +97,6 @@ PlayerLoopRecordData@ deserializePlayerLoopRecordData(jjSTREAM@ stream) {
 
 	return PlayerLoopRecordData(playerId, xPos, yPos, curFrame, direction);
 }
-
 class IntRecordData : RecordData {
 	int value;
 
@@ -111,7 +109,6 @@ class IntRecordData : RecordData {
 		stream.push(value);
 	}
 };
-
 IntRecordData@ deserializeIntRecordData(jjSTREAM@ stream) {
 	int value;
 	stream.pop(value);
@@ -156,6 +153,8 @@ FakePlayer@ getFakePlayer(int8 playerId) {
 	jjConsole("Fake player not found!");
 	return null;
 }
+
+array<uint16> previousObjectIds = array<uint16>();
 
 void onLevelBegin() {
 	jjConsole("Started!");
@@ -225,6 +224,23 @@ void onMain() {
 				player.playerID, player.xPos, player.yPos, player.curFrame, player.direction
 			));
 		}
+
+		array<uint16> foundObjectIds = array<uint16>();
+		for (uint i = 0; i < jjObjectCount; i++) {
+			jjOBJ@ obj = jjObjects[i];
+			if (previousObjectIds.find(obj.objectID) < 0) {
+				previousObjectIds.insertLast(obj.objectID);
+				jjSpy("new object!");
+			}
+			foundObjectIds.insertLast(obj.objectID);
+		}
+		for (uint i = 0; i < previousObjectIds.length(); i++) {
+			// if that object isnt in the found
+			if (foundObjectIds.find(previousObjectIds[i]) < 0) {
+				previousObjectIds.removeAt(i);
+				jjSpy("deleted object!");
+			}
+		}
 	} else if (isPlaying) {
 		if (recordStream.isEmpty()) {
 			isPlaying = false;
@@ -233,8 +249,6 @@ void onMain() {
 			return;
 		}
 
-		// uint size;
-		// recordStream.pop(size);
 		IntRecordData@ size = deserializeIntRecordData(recordStream);
 
 		for (int i = 0; i < size.value; i++) {
